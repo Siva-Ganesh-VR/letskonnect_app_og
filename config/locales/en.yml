@@ -1,0 +1,5 @@
+en:
+  app_name: "LetsKonnect"
+  errors:
+    unauthorized: "Unauthorized. Please login."
+    not_found: "Resource not found."

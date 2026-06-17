@@ -1,0 +1,32 @@
+default: &default
+  adapter: postgresql
+  encoding: unicode
+  pool: <%= ENV.fetch("DB_POOL") { 10 } %>
+  timeout: 5000
+  connect_timeout: 5
+  checkout_timeout: 5
+  username: <%= ENV.fetch("DB_USERNAME") { "siva" } %>
+  password: <%= ENV.fetch("DB_PASSWORD") { "root" } %>
+  host: <%= ENV.fetch("DB_HOST") { "localhost" } %>
+  port: <%= ENV.fetch("DB_PORT", 5432) %>
+  variables:
+    statement_timeout: "30s"
+
+development:
+  <<: *default
+  database: letskonnect_app_development
+
+test:
+  <<: *default
+  database: letskonnect_app_test
+
+production:
+  primary:
+    <<: *default
+    url: <%= ENV["DATABASE_URL"] %>
+    pool: <%= ENV.fetch("DB_POOL") { 25 } %>
+  primary_replica:
+    <<: *default
+    url: <%= ENV["DATABASE_REPLICA_URL"] %>
+    replica: true
+    pool: 10

@@ -1,0 +1,26 @@
+:concurrency: 15
+
+:queues:
+  - [critical, 10]
+  - [whatsapp, 8]
+  - [exports, 4]
+  - [analytics, 3]
+  - [scheduled, 2]
+  - [default, 5]
+
+:scheduler:
+  :schedule:
+    daily_lead_summary:
+      cron: "0 20 * * *"
+      class: DailySummaryJob
+      description: "Send daily lead summary to all active exhibitors at 8 PM"
+
+    cleanup_expired_otps:
+      cron: "*/30 * * * *"
+      class: CleanupExpiredOtpsJob
+      description: "Delete expired OTP records every 30 minutes"
+
+    refresh_event_analytics:
+      cron: "*/5 * * * *"
+      class: RefreshEventAnalyticsJob
+      description: "Recalculate event analytics every 5 minutes"

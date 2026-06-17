@@ -1,0 +1,3 @@
+#!/usr/bin/env ruby
+# Spring is disabled in this app — just run the command directly
+load Gem.bin_path("spring", "spring") rescue exec "ruby", __FILE__, *ARGV

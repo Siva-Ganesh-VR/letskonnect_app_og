@@ -1,0 +1,16 @@
+/.bundle
+/log/*
+/tmp/*
+!/log/.keep
+!/tmp/.keep
+/storage/*
+!/storage/.keep
+/public/assets
+.env
+*.pid
+*.seed
+config/credentials/*.key
+config/master.key
+.DS_Store
+coverage/
+.rspec

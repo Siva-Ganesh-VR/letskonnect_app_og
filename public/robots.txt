@@ -1,0 +1,6 @@
+User-agent: *
+Disallow: /api/
+Disallow: /sidekiq/
+Disallow: /cable/
+Allow: /register/
+Allow: /admin
