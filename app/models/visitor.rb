@@ -19,7 +19,8 @@ class Visitor < ApplicationRecord
   scope :for_event,   ->(event_id) { where(event_id: event_id) }
 
   def display_qr_url
-    "#{Rails.application.config.host}/v/#{qr_token}"
+    base_url = ENV.fetch("APP_HOST", "http://localhost:3000")
+    "#{base_url}/v/#{qr_token}"
   end
 
   # Generates OTP, hashes it, stores it, returns plaintext for sending

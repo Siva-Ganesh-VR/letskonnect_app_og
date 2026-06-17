@@ -1,4 +1,5 @@
 Rails.application.routes.draw do
+  mount ActiveStorage::Engine => "/rails/active_storage"
 
   # ── Health check ──────────────────────────────────────────────────────────
   get "/health", to: "health#index"
@@ -84,7 +85,9 @@ Rails.application.routes.draw do
         resources :event_organizers do
           member { patch :activate; patch :deactivate; post :reset_password }
         end
-        resources :stall_owners,  only: [:index, :show, :update, :destroy]
+        resources :stall_owners,  only: [:index, :show, :update, :destroy] do
+          member { patch :activate; patch :deactivate }
+        end
         resources :visitors,      only: [:index, :show, :destroy]
         get "analytics/platform", to: "analytics#platform"
       end
@@ -101,5 +104,13 @@ Rails.application.routes.draw do
   end
 
   # ── Fallback 404 ──────────────────────────────────────────────────────────
-  match "*path", to: proc { [404, {"Content-Type"=>"application/json"}, ['{"success":false,"error":"Not found"}']] }, via: :all
+  # match "*path", to: proc { [404, {"Content-Type"=>"application/json"}, ['{"success":false,"error":"Not found"}']] }, via: :all
+  match "*path",
+    to: proc {
+      [404, {"Content-Type"=>"application/json"}, ['{"success":false,"error":"Not found"}']]
+    },
+    via: :all,
+    constraints: lambda { |req|
+      !req.path.start_with?("/rails/active_storage")
+    }
 end

@@ -15,4 +15,12 @@ Rails.application.configure do
   config.active_record.migration_error = :page_load
   config.active_record.verbose_query_logs = true
   config.active_job.verbose_enqueue_logs = true
+
+  config.after_initialize do
+    ActiveStorage::Current.url_options = {
+      protocol: "http",
+      host: "localhost",
+      port: 3000
+    }
+  end
 end

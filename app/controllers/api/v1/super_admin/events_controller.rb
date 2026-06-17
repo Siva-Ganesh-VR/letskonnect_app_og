@@ -76,7 +76,8 @@ module Api
             start_date: e.start_date, end_date: e.end_date, status: e.status,
             registered_count: e.registered_count, qr_image_url: e.qr_image_url,
             organizer: { id: e.event_organizer.id, name: e.event_organizer.name },
-            total_leads: e.event_analytics&.total_leads || 0, created_at: e.created_at }
+            total_leads: e.event_analytics&.total_leads || 0, created_at: e.created_at,
+            registration_qr_token: e.registration_qr_token, }
         end
 
         def event_full(e)

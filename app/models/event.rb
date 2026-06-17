@@ -23,7 +23,8 @@ class Event < ApplicationRecord
   scope :by_organizer,  ->(organizer_id) { where(event_organizer_id: organizer_id) }
 
   def registration_url
-    "#{Rails.application.config.host}/register/#{registration_qr_token}"
+    base_url = ENV.fetch("APP_HOST", "http://localhost:3000")
+    "#{base_url}/register/#{registration_qr_token}"
   end
 
   def verified_visitor_count

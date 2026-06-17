@@ -615,6 +615,7 @@ async function showEventAnalytics(id, name) {
     <div class="stats-grid" style="grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px">
       ${statCard("👥","Visitors",o.total_visitors,"")}
       ${statCard("🎯","Leads",o.total_leads,"accent")}
+
       ${statCard("🔥","Hot Leads",o.hot_leads,"")}
     </div>
     ${chartCard("Visitors by Category", d.visitors_by_category)}
@@ -704,6 +705,9 @@ async function loadStalls() {
       <td>${s.mobile_number}</td>
       <td style="font-weight:600;color:var(--accent)">${s.total_leads_count||0}</td>
       <td><span class="badge ${s.active?'badge-green':'badge-gray'}">${s.active?"Active":"Inactive"}</span></td>
+      <td>
+        <button class="btn btn-sm btn-outline" onclick='toggleStallOwner("${s.id}",${s.active})'>${s.active?"Deactivate":"Activate"}</button>
+      </td>
     </tr>
   `).join("");
   document.getElementById("stalls-table").innerHTML = `
@@ -712,14 +716,18 @@ async function loadStalls() {
   `;
 }
 
+async function toggleStallOwner(id, currently_active) {
+  const endpoint = currently_active ? `/super_admin/stall_owners/${id}/deactivate` : `/super_admin/stall_owners/${id}/activate`;
+  const res = await apiPatch(endpoint, {});
+  if (res.success) { toast("Updated!", "success"); loadStalls(); }
+}
+
 // ── Visitors ──────────────────────────────────────────────────────────────
 async function loadVisitors() {
   const eventId = document.getElementById("visitor-event-filter").value;
   const search  = document.getElementById("visitor-search").value;
-  if (!eventId) { document.getElementById("visitors-table").innerHTML = emptyHtml("👥","Select an event to view visitors"); return; }
-  const endpoint = currentUser?.role === "super_admin"
-    ? `/organizer/events/${eventId}/visitors?search=${encodeURIComponent(search)}`
-    : `/organizer/events/${eventId}/visitors?search=${encodeURIComponent(search)}`;
+  // if (!eventId) { document.getElementById("visitors-table").innerHTML = emptyHtml("👥","Select an event to view visitors"); return; }
+  const endpoint = `/super_admin/visitors?search=${encodeURIComponent(search||"")}${eventId ? `&event_id=${eventId}` : ""}`;
   const res  = await apiGet(endpoint);
   const rows = (res.data||[]).map(v => `
     <tr>

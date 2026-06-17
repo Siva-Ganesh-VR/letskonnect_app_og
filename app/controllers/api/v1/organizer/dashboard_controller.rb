@@ -27,7 +27,8 @@ module Api
             registered_count: e.registered_count,
             total_stalls: e.stall_owners.count,
             total_leads: analytics&.total_leads || 0,
-            qr_image_url: e.qr_image_url
+            qr_image_url: e.qr_image_url,
+            registration_qr_token: e.registration_qr_token,
           }
         end
       end

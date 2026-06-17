@@ -7,6 +7,7 @@ module Api
         def index
           visitors = Visitor.where(mobile_verified: true).includes(:event).order(created_at: :desc)
           visitors = visitors.where(event_id: params[:event_id]) if params[:event_id].present?
+          visitors = visitors.where("full_name ILIKE ?", "%#{params[:search]}%") if params[:search].present?
           pagy, paged = pagy(visitors, items: 25)
           json_success(paged.map { |v| visitor_resp(v) }, meta: { total: pagy.count, pages: pagy.pages })
         end
