@@ -8,7 +8,7 @@ module Api
           mobile = params[:mobile_number]&.strip
           event_id = params[:event_id]
 
-          stall = StallOwner.find_by(mobile_number: mobile, event_id: event_id)
+          stall = ::StallOwner.find_by(mobile_number: mobile, event_id: event_id)
           return json_error("No account found with this mobile for this event", status: :not_found) unless stall
           return json_error("Your account is inactive. Contact the event organizer.") unless stall.active?
 
@@ -27,7 +27,7 @@ module Api
 
           case result
           when :valid
-            stall = StallOwner.includes(:event).find_by!(mobile_number: mobile, event_id: event_id)
+            stall = ::StallOwner.includes(:event).find_by!(mobile_number: mobile, event_id: event_id)
             token = stall.issue_token
             json_success({
               token:       token,

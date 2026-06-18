@@ -30,9 +30,11 @@ class WhatsappNotificationJob < ApplicationJob
       return
     end
 
+    notifiable = find_notifiable(notification_type, record_id, extra_id)
+
     # Log notification
     Notification.create!(
-      notifiable:        find_notifiable(notification_type, record_id, extra_id),
+      notifiable:        notifiable,
       notification_type: notification_type,
       channel:           "whatsapp",
       status:            result[:success] ? "sent" : "failed",
@@ -49,9 +51,18 @@ class WhatsappNotificationJob < ApplicationJob
 
   def find_notifiable(type, record_id, extra_id)
     case type
-    when "visitor_registration", "stall_visit" then Visitor.find_by(id: record_id)
-    when "stall_credentials"                   then StallOwner.find_by(id: record_id)
-    else nil
+    when "visitor_registration", "stall_visit"
+      Visitor.find_by(id: record_id)
+
+    when "stall_credentials"
+      StallOwner.find_by(id: record_id)
+
+    when "export_ready"
+      ExportJob.find_by(id: record_id)&.exportable
+
+    else
+      Rails.logger.error("[WhatsApp Job] Unsupported notification type: #{type}")
+      nil
     end
   end
 end

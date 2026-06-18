@@ -364,7 +364,12 @@ function nav(page, el) {
 }
 
 // ── API helpers ───────────────────────────────────────────────────────────
-const h = () => ({ "Content-Type": "application/json", "Authorization": "Bearer " + token });
+function h() {
+  return {
+    "Content-Type": "application/json",
+    "Authorization": "Bearer " + token
+  };
+}
 async function get(path) {
   const r = await fetch(API + path, { headers: h() });
   if (r.status === 401) { doLogout(); return {}; }
@@ -630,7 +635,11 @@ async function loadEventSelectors() {
 }
 
 function openModal(id)  { document.getElementById(id).style.display = "flex"; }
-function closeModal(id) { document.getElementById(id).style.display = "none"; }
+function closeModal(id) { 
+  if (id=="m-stall") { resetStallForm(); }
+  else if (id=="m-event") { resetEventForm(); }
+  document.getElementById(id).style.display = "none"; 
+}
 
 function sc(icon, label, val, cls) {
   return `<div class="stat-card ${cls}"><div class="stat-icon">${icon}</div><div class="stat-num">${val}</div><div class="stat-label">${label}</div></div>`;
@@ -644,6 +653,33 @@ function toast(msg, type="ok") {
   const t = document.getElementById("toast");
   t.textContent = msg; t.className = "toast "+type+" show";
   setTimeout(()=>{ t.className="toast"; },3500);
+}
+function resetStallForm() {
+  document.getElementById("st-name").value = "";
+  document.getElementById("st-mobile").value = "";
+  document.getElementById("st-company").value = "";
+  document.getElementById("st-num").value = "";
+  document.getElementById("st-cat").value = "";
+  document.getElementById("st-email").value = "";
+  document.getElementById("st-web").value = "";
+
+  const err = document.getElementById("st-err");
+  err.style.display = "none";
+  err.textContent = "";
+}
+function resetEventForm() {
+  document.getElementById("ev-name").value = "";
+  document.getElementById("ev-venue").value = "";
+  document.getElementById("ev-city").value = "";
+  document.getElementById("ev-start").value = "";
+  document.getElementById("ev-end").value = "";
+  document.getElementById("ev-max").value = "";
+  document.getElementById("ev-status").value = "";
+  document.getElementById("ev-desc").value = "";
+
+  const err = document.getElementById("ev-err");
+  err.style.display = "none";
+  err.textContent = "";
 }
 </script>
 </body>

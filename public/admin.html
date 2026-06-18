@@ -823,7 +823,10 @@ async function showEventAnalyticsInline(id, name) {
 
 // ── Modals ────────────────────────────────────────────────────────────────
 function openModal(id)  { document.getElementById(id).style.display = "flex"; }
-function closeModal(id) { document.getElementById(id).style.display = "none"; }
+function closeModal(id) { 
+  if (id === "modal-create-event") resetEventForm();
+  else if (id === "modal-create-organizer") resetOrganizerForm();
+  document.getElementById(id).style.display = "none"; }
 
 // ── Helpers ───────────────────────────────────────────────────────────────
 function filterTable(tableId, q) {
@@ -850,6 +853,32 @@ function toast(msg, type="success") {
   t.textContent  = msg;
   t.className    = "toast " + type + " show";
   setTimeout(() => { t.className = "toast"; }, 3000);
+}
+function resetOrganizerForm() {
+  document.getElementById("of-name").value = "";
+  document.getElementById("of-email").value = "";
+  document.getElementById("of-mobile").value = "";
+  document.getElementById("of-company").value = "";
+  document.getElementById("of-password").value = "";
+
+  const err = document.getElementById("org-form-err");
+  err.style.display = "none";
+  err.textContent = "";
+}
+function resetEventForm() {
+  document.getElementById("ef-organizer").value = "";
+  document.getElementById("ef-name").value = "";
+  document.getElementById("ef-venue").value = "";
+  document.getElementById("ef-city").value = "";
+  document.getElementById("ef-start").value = "";
+  document.getElementById("ef-end").value = "";
+  document.getElementById("ef-max").value = "";
+  document.getElementById("ef-status").value = "";
+  document.getElementById("ef-desc").value = "";
+
+  const err = document.getElementById("event-form-err");
+  err.style.display = "none";
+  err.textContent = "";
 }
 </script>
 </body>

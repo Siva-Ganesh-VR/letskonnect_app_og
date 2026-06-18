@@ -2,7 +2,7 @@ class Notification < ApplicationRecord
   belongs_to :notifiable, polymorphic: true
   belongs_to :event, optional: true
 
-  TYPES    = %w[visitor_registration stall_visit daily_summary export_ready follow_up_reminder event_reminder].freeze
+  TYPES    = %w[visitor_registration stall_credentials stall_visit daily_summary export_ready follow_up_reminder event_reminder].freeze
   CHANNELS = %w[whatsapp sms push].freeze
   STATUSES = %w[pending sent failed delivered].freeze
 
