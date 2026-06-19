@@ -80,7 +80,7 @@ Rails.application.routes.draw do
       namespace :super_admin do
         get "dashboard",                to: "dashboard#show"
         resources :events do
-          member { get :analytics; post :generate_qr }
+          member { get :analytics; post :generate_qr; post :activate; post :archive }
         end
         resources :event_organizers do
           member { patch :activate; patch :deactivate; post :reset_password }

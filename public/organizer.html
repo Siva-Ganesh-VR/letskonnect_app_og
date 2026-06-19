@@ -266,7 +266,7 @@ tr:hover td{background:rgba(255,255,255,0.02)}
     <div class="mf"><label>Status</label><select id="ev-status"><option value="draft">Draft</option><option value="active">Active</option></select></div>
     <div class="modal-foot">
       <button class="btn btn-o" onclick="closeModal('m-event')">Cancel</button>
-      <button class="btn btn-g" onclick="createEvent()">Create Event</button>
+      <button class="btn btn-g" onclick="handleCreateEvent()">Create Event</button>
     </div>
   </div>
 </div>
@@ -358,9 +358,15 @@ function doLogout() {
 function nav(page, el) {
   document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
   document.querySelectorAll(".nav-item").forEach(n => n.classList.remove("active"));
+
   document.getElementById("page-" + page).classList.add("active");
   el.classList.add("active");
+
   document.getElementById("sidebar").classList.remove("open");
+
+  if (page === "events") {
+    loadEvents();
+  }
 }
 
 // ── API helpers ───────────────────────────────────────────────────────────
@@ -444,7 +450,7 @@ async function loadEvents() {
   `).join("") || `<div class="empty"><div class="empty-icon">🎪</div>No events yet. Create your first event!</div>`;
 }
 
-async function createEvent() {
+async function handleCreateEvent() {
   const err = document.getElementById("ev-err");
   err.style.display = "none";
   const body = { event: {

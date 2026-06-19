@@ -263,11 +263,18 @@ tr:hover td{background:rgba(255,255,255,0.02)}
 
     <!-- LEADS -->
     <div class="page" id="page-leads">
-      <div class="page-title">Leads</div>
-      <div class="page-sub">All leads across the platform</div>
+      <div class="page-head" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+        <div>
+          <div class="page-title">Leads</div>
+          <div class="page-sub">All leads across the platform</div>
+        </div>
+        <div>
+          <select class="filter-select" id="leads-event-filter" onchange="loadLeads()"><option value="">Select Event</option></select>
+        </div>
+      </div>
       <div class="stats-grid" id="lead-stats"></div>
       <div class="table-wrap">
-        <div class="table-header">
+        <!-- <div class="table-header">
           <div class="table-title">All Leads</div>
           <div class="table-actions">
             <select class="filter-select" id="lead-temp-filter" onchange="loadLeads()">
@@ -277,7 +284,7 @@ tr:hover td{background:rgba(255,255,255,0.02)}
               <option value="cold">❄️ Cold</option>
             </select>
           </div>
-        </div>
+        </div> -->
         <div id="leads-table"><div class="empty"><div class="empty-icon">🎯</div>Loading...</div></div>
       </div>
     </div>
@@ -295,7 +302,7 @@ tr:hover td{background:rgba(255,255,255,0.02)}
 <!-- MODALS -->
 <div class="modal-overlay" id="modal-create-event" onclick="if(event.target===this)closeModal('modal-create-event')">
   <div class="modal">
-    <div class="modal-title">Create New Event <button class="modal-close" onclick="closeModal('modal-create-event')">✕</button></div>
+    <div class="modal-title"><span id="modal-event-title">Create New Event</span> <button class="modal-close" onclick="closeModal('modal-create-event')">✕</button></div>
     <div id="event-form-err" class="api-err"></div>
     <div class="form-grid">
       <div class="field"><label>Event Name *</label><input type="text" id="ef-name" placeholder="Tech Expo 2025"></div>
@@ -312,7 +319,7 @@ tr:hover td{background:rgba(255,255,255,0.02)}
     <div class="field"><label>Description</label><textarea id="ef-desc" rows="3" placeholder="Event description..."></textarea></div>
     <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:8px">
       <button class="btn btn-outline" onclick="closeModal('modal-create-event')">Cancel</button>
-      <button class="btn btn-primary" onclick="handleCreateEvent()">Create Event</button>
+      <button class="btn btn-primary" id="ef-submit-btn" onclick="handleCreateEvent()">Create Event</button>
     </div>
   </div>
 </div>
@@ -541,9 +548,10 @@ async function loadEvents() {
       <td style="font-weight:600">${(e.registered_count||0).toLocaleString()}</td>
       <td>
         <div style="display:flex;gap:6px;flex-wrap:wrap">
-          <button class="btn btn-sm btn-outline" onclick='showEventQr("${e.id}","${e.name}","${e.qr_image_url||""}","${e.registration_qr_token}")'>QR</button>
-          <button class="btn btn-sm btn-outline" onclick='showEventAnalytics("${e.id}","${e.name}")'>Analytics</button>
-          ${(e.status==="draft" && currentUser?.role === "organizer") ?`<button class="btn btn-sm btn-primary" onclick='activateEvent("${e.id}")'>Activate</button>`:""}
+          <button class="btn btn-sm btn-outline" style="padding-right: 6px; padding-left: 6px;" onclick='showEventQr("${e.id}","${e.name}","${e.qr_image_url||""}","${e.registration_qr_token}")' title="QR">🔳</button>
+          <button class="btn btn-sm btn-outline" style="padding-right: 6px; padding-left: 6px;" onclick='showEventAnalytics("${e.id}","${e.name}")' title="Analytics">📊</button>
+          <button class="btn btn-sm btn-outline" style="padding-right: 6px; padding-left: 6px;" onclick='openEditEventModalById("${e.id}")' title="Edit">✏️</button>
+          ${(e.status==="draft") ?`<button class="btn btn-sm btn-outline" style="padding-right: 6px; padding-left: 6px;" onclick='activateEvent("${e.id}")' title="Activate">🚀</button>`:""}
         </div>
       </td>
     </tr>
@@ -560,8 +568,10 @@ async function loadEvents() {
 }
 
 async function handleCreateEvent() {
+  const modal = document.getElementById("modal-create-event");
+  const eventId = modal.dataset.eventId; // check if edit mode
+
   const body = {
-    event_organizer_id: document.getElementById("ef-organizer").value,
     event: {
       name: document.getElementById("ef-name").value.trim(),
       venue: document.getElementById("ef-venue").value.trim(),
@@ -571,23 +581,36 @@ async function handleCreateEvent() {
       max_visitors: document.getElementById("ef-max").value || null,
       status: document.getElementById("ef-status").value,
       description: document.getElementById("ef-desc").value.trim(),
+      event_organizer_id: document.getElementById("ef-organizer").value,
     }
   };
+
   const err = document.getElementById("event-form-err");
   err.style.display = "none";
-  const res = await apiPost("/super_admin/events", body);
+
+  let res;
+
+  if (eventId) {
+    // UPDATE
+    res = await apiPatch(`/super_admin/events/${eventId}`, body);
+  } else {
+    // CREATE
+    res = await apiPost("/super_admin/events", body);
+  }
+
   if (res.success) {
     closeModal("modal-create-event");
-    toast("Event created!", "success");
+    resetEventForm();
+    toast(eventId ? "Event updated!" : "Event created!", "success");
     loadEvents();
   } else {
     err.style.display = "block";
-    err.textContent = res.error || (res.errors||[]).join(", ");
+    err.textContent = res.error || (res.errors || []).join(", ");
   }
 }
 
 async function activateEvent(id) {
-  const res = await apiPost(`/organizer/events/${id}/activate`, {});
+  const res = await apiPost(`/super_admin/events/${id}/activate`, {});
   if (res.success) { toast("Event activated!", "success"); loadEvents(); }
   else toast(res.error || "Failed", "error");
 }
@@ -706,6 +729,7 @@ async function loadStalls() {
       <td style="font-weight:600;color:var(--accent)">${s.total_leads_count||0}</td>
       <td><span class="badge ${s.active?'badge-green':'badge-gray'}">${s.active?"Active":"Inactive"}</span></td>
       <td>
+        <!-- <button class="btn btn-sm btn-outline" title="Export Leads" onclick="">Export</button> -->
         <button class="btn btn-sm btn-outline" onclick='toggleStallOwner("${s.id}",${s.active})'>${s.active?"Deactivate":"Activate"}</button>
       </td>
     </tr>
@@ -752,20 +776,24 @@ async function loadEventsForFilter() {
     const endpoint = currentUser?.role === "super_admin" ? "/super_admin/events" : "/organizer/events";
     const res = await apiGet(endpoint);
     allEvents = res.data || [];
-    const sel = document.getElementById("visitor-event-filter");
-    allEvents.forEach(e => { const o = document.createElement("option"); o.value = e.id; o.textContent = e.name; sel.appendChild(o); });
+    ["visitor-event-filter","leads-event-filter"].forEach(id => {
+      const sel = document.getElementById(id);
+      allEvents.forEach(e => { const o = document.createElement("option"); o.value = e.id; o.textContent = e.name; sel.appendChild(o); });
+    })
   } catch(e) {}
 }
 
 // ── Leads ─────────────────────────────────────────────────────────────────
 async function loadLeads() {
-  // Show aggregate from first active event for super admin demo
-  const firstEvent = allEvents.find(e => e.status === "active") || allEvents[0];
-  if (!firstEvent) { document.getElementById("leads-table").innerHTML = emptyHtml("🎯","No active events"); return; }
-  const temp = document.getElementById("lead-temp-filter").value;
+  let id = document.getElementById("leads-event-filter").value;
+  if (!id) {
+    // Clear analytics UI or show message
+    return;
+  }
+  let leadEvent = allEvents.find(e => e.id === id)
   const endpoint = currentUser?.role === "super_admin"
-    ? `/super_admin/events/${firstEvent.id}/analytics`
-    : `/organizer/events/${firstEvent.id}/analytics`;
+    ? `/super_admin/events/${id}/analytics`
+    : `/organizer/events/${id}/analytics`;
   const res = await apiGet(endpoint);
   if (!res.success) return;
   const o = res.data.overview;
@@ -784,7 +812,7 @@ async function loadLeads() {
     </tr>
   `).join("");
   document.getElementById("leads-table").innerHTML = `
-    <div style="padding:12px 20px;font-size:13px;color:var(--text2)">Showing stall performance for <strong>${firstEvent.name}</strong></div>
+    <div style="padding:12px 20px;font-size:13px;color:var(--text2)">Showing stall performance for <strong>${leadEvent.name}</strong></div>
     <table><thead><tr><th>Stall / Company</th><th>Stall #</th><th>Leads</th></tr></thead>
     <tbody>${rows||`<tr><td colspan="3">${emptyHtml("🎯","No leads yet")}</td></tr>`}</tbody></table>
   `;
@@ -822,7 +850,21 @@ async function showEventAnalyticsInline(id, name) {
 }
 
 // ── Modals ────────────────────────────────────────────────────────────────
-function openModal(id)  { document.getElementById(id).style.display = "flex"; }
+function openModal(id)  { 
+  document.getElementById(id).style.display = "flex"; 
+  if (id === "modal-create-event"){
+    const modal = document.getElementById("modal-create-event");
+    const eventId = modal.dataset.eventId; // check if edit mode
+
+    if (eventId) {
+      document.getElementById("ef-submit-btn").innerHTML = "Update Event";
+      document.getElementById("modal-event-title").innerHTML = "Update Event";
+    } else {
+      document.getElementById("ef-submit-btn").innerHTML = "Create Event";
+      document.getElementById("modal-event-title").innerHTML = "Create New Event";
+    }
+  }
+}
 function closeModal(id) { 
   if (id === "modal-create-event") resetEventForm();
   else if (id === "modal-create-organizer") resetOrganizerForm();
@@ -866,6 +908,11 @@ function resetOrganizerForm() {
   err.textContent = "";
 }
 function resetEventForm() {
+  const modal = document.getElementById("modal-create-event");
+
+  // Clear edit state
+  delete modal.dataset.eventId;
+
   document.getElementById("ef-organizer").value = "";
   document.getElementById("ef-name").value = "";
   document.getElementById("ef-venue").value = "";
@@ -879,6 +926,29 @@ function resetEventForm() {
   const err = document.getElementById("event-form-err");
   err.style.display = "none";
   err.textContent = "";
+}
+function openEditEventModalById(id) {
+  let event = allEvents.find(e => e.id === id);
+  openEditEventModal(event);
+}
+async function openEditEventModal(event) {
+  const modal = document.getElementById("modal-create-event");
+
+  // store id for update
+  modal.dataset.eventId = event.id;
+
+  // fill form fields
+  document.getElementById("ef-organizer").value = event.event_organizer_id || "";
+  document.getElementById("ef-name").value = event.name || "";
+  document.getElementById("ef-venue").value = event.venue || "";
+  document.getElementById("ef-city").value = event.city || "";
+  document.getElementById("ef-start").value = event.start_date || "";
+  document.getElementById("ef-end").value = event.end_date || "";
+  document.getElementById("ef-max").value = event.max_visitors || "";
+  document.getElementById("ef-status").value = event.status || "";
+  document.getElementById("ef-desc").value = event.description || "";
+
+  openModal("modal-create-event");
 }
 </script>
 </body>
