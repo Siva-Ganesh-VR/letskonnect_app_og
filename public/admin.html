@@ -572,6 +572,7 @@ async function handleCreateEvent() {
   const eventId = modal.dataset.eventId; // check if edit mode
 
   const body = {
+    event_organizer_id: document.getElementById("ef-organizer").value,
     event: {
       name: document.getElementById("ef-name").value.trim(),
       venue: document.getElementById("ef-venue").value.trim(),
