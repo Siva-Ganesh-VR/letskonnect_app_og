@@ -2,16 +2,17 @@ class Visitor < ApplicationRecord
   belongs_to :event
   has_many :leads, dependent: :destroy
   has_many :stall_owners, through: :leads
+  has_many :visitor_answers, dependent: :destroy
 
   before_create :generate_visitor_id_code
   before_create :generate_qr_token
   after_create  :enqueue_qr_generation
-  after_save    :enqueue_whatsapp_on_verification, if: :saved_change_to_mobile_verified?
+  # after_save    :enqueue_whatsapp_on_verification, if: :saved_change_to_mobile_verified?
 
   OTP_EXPIRY_MINUTES = 10
   MAX_OTP_ATTEMPTS   = 5
 
-  validates :full_name, :mobile_number, presence: true
+  validates :full_name, :mobile_number, presence: true, if: :registration_completed?
   validates :mobile_number, format: { with: /\A[6-9]\d{9}\z/, message: "must be a valid 10-digit Indian mobile number" }
   validates :mobile_number, uniqueness: { scope: :event_id, message: "is already registered for this event" }
 
@@ -49,6 +50,7 @@ class Visitor < ApplicationRecord
       )
       # Atomic counter increment — safe under concurrent load
       Event.where(id: event_id).update_all("registered_count = registered_count + 1")
+      WhatsappNotificationJob.perform_later(id, "visitor_registration")
     end
   end
 
@@ -86,5 +88,9 @@ class Visitor < ApplicationRecord
   def enqueue_whatsapp_on_verification
     return unless mobile_verified?
     WhatsappNotificationJob.perform_later(id, "visitor_registration")
+  end
+
+  def registration_completed?
+    whatsapp_state == "completed"
   end
 end

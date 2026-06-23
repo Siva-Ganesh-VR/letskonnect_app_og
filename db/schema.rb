@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_06_17_065800) do
+ActiveRecord::Schema[7.2].define(version: 2026_06_23_060011) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pgcrypto"
   enable_extension "plpgsql"
@@ -249,8 +249,17 @@ ActiveRecord::Schema[7.2].define(version: 2026_06_17_065800) do
     t.index ["jti"], name: "index_super_admins_on_jti", unique: true
   end
 
+  create_table "visitor_answers", force: :cascade do |t|
+    t.uuid "visitor_id", null: false
+    t.string "question_key", null: false
+    t.text "answer"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["visitor_id"], name: "index_visitor_answers_on_visitor_id"
+  end
+
   create_table "visitors", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
-    t.string "full_name", null: false
+    t.string "full_name"
     t.string "mobile_number", null: false
     t.string "location"
     t.string "profession"
@@ -259,8 +268,8 @@ ActiveRecord::Schema[7.2].define(version: 2026_06_17_065800) do
     t.string "designation"
     t.string "email"
     t.string "website"
-    t.string "visitor_id_code", null: false
-    t.string "qr_token", null: false
+    t.string "visitor_id_code"
+    t.string "qr_token"
     t.string "qr_image_url"
     t.string "otp_code"
     t.datetime "otp_expires_at"
@@ -270,6 +279,10 @@ ActiveRecord::Schema[7.2].define(version: 2026_06_17_065800) do
     t.uuid "event_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "looking_for"
+    t.boolean "decision_maker"
+    t.string "whatsapp_state", default: "start"
+    t.datetime "whatsapp_completed_at"
     t.index ["business_category"], name: "index_visitors_on_business_category"
     t.index ["created_at"], name: "index_visitors_on_created_at"
     t.index ["event_id", "mobile_verified"], name: "index_visitors_on_event_id_and_mobile_verified", where: "(mobile_verified = true)"
@@ -292,5 +305,6 @@ ActiveRecord::Schema[7.2].define(version: 2026_06_17_065800) do
   add_foreign_key "stall_analytics", "stall_owners"
   add_foreign_key "stall_owners", "event_organizers"
   add_foreign_key "stall_owners", "events"
+  add_foreign_key "visitor_answers", "visitors"
   add_foreign_key "visitors", "events"
 end

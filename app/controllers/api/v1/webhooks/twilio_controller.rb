@@ -20,6 +20,54 @@ module Api
 
           head :ok
         end
+
+        def receive
+          from = params["From"]
+          body = params["Body"]
+
+          mobile_number = from
+                            .to_s
+                            .gsub("whatsapp:", "")
+                            .sub("+91", "")
+
+          event_id = body[/EVENT_ID:([a-f0-9\-]+)/i, 1]
+
+          if event_id.present?
+            visitor = Visitor.find_or_initialize_by(
+              mobile_number: mobile_number,
+              event_id: event_id
+            )
+
+            if visitor.new_record?
+              visitor.assign_attributes(
+                whatsapp_state: "start",
+                mobile_verified: true,
+                active: true
+              )
+
+              visitor.save!(validate: false)
+            elsif visitor.whatsapp_state == "completed"
+              WhatsappService.send_message(
+                mobile_number,
+                "You are already registered for this event."
+              )
+
+              return head :ok
+            end
+          else
+            visitor = Visitor.where(
+              mobile_number: mobile_number
+            ).where.not(
+              whatsapp_state: "completed"
+            ).order(created_at: :desc).first
+          end
+
+          return head :ok unless visitor
+
+          WhatsappFlowService.new(visitor, body).process
+
+          head :ok
+        end
       end
     end
   end

@@ -107,7 +107,7 @@ class WhatsappService
   end
 
   def self.send_message(mobile_number, body)
-    return mock_send(mobile_number, body) if Rails.env.development? || Rails.env.test?
+    # return mock_send(mobile_number, body) if Rails.env.development? || Rails.env.test?
 
     client = Twilio::REST::Client.new(
       ENV.fetch("TWILIO_ACCOUNT_SID"),
@@ -132,5 +132,27 @@ class WhatsappService
   def self.mock_send(mobile, body)
     Rails.logger.info("[WhatsApp MOCK] To: #{mobile}\n#{body}")
     { success: true, mock: true }
+  end
+
+  def self.send_template(mobile_number, template_sid, variables = nil)
+    client = Twilio::REST::Client.new(
+      ENV.fetch("TWILIO_ACCOUNT_SID"),
+      ENV.fetch("TWILIO_AUTH_TOKEN")
+    )
+
+    payload = {
+      from: ENV.fetch("TWILIO_WHATSAPP_FROM"),
+      to: "whatsapp:+91#{mobile_number}",
+      content_sid: template_sid
+    }
+
+    payload[:content_variables] = variables.to_json if variables.present?
+
+    response = client.messages.create(**payload)
+
+    { success: true, sid: response.sid }
+  rescue Twilio::REST::RestError => e
+    Rails.logger.error("[WhatsApp] Error: #{e.message}")
+    { success: false, error: e.message }
   end
 end
