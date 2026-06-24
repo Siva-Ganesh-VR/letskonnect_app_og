@@ -29,5 +29,5 @@ Rails.application.configure do
     logger.formatter = config.log_formatter
     config.logger = ActiveSupport::TaggedLogging.new(logger)
   end
-  config.hosts << "letskonnect-app-og.onrender.com"
+  config.hosts << /.*\.onrender\.com/
 end
