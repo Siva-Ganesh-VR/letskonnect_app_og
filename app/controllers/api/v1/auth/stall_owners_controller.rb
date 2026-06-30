@@ -3,13 +3,46 @@ module Api
     module Auth
       class StallOwnersController < ApplicationController
 
+        def sign_in
+          Rails.logger.info "params: #{params}"
+
+          mobile   = params[:mobile]&.strip
+          password = params[:password]&.strip
+
+          stall = ::StallOwner.find_by(
+            mobile_number: mobile,
+            pass_code: password
+          )
+
+          unless stall&.active?
+            Rails.logger.warn(
+              "Failed stall owner login for mobile: #{mobile}"
+            )
+
+            return json_error(
+              "Invalid mobile number/password or account is inactive",
+              status: :unauthorized
+            )
+          end
+
+          token = stall.issue_token
+
+          json_success({
+            token: token,
+            stall_owner: stall_response(stall),
+            event: event_mini(stall.event)
+          })
+        end
+
         # POST /api/v1/stall/request_otp
         def request_otp
           mobile = params[:mobile_number]&.strip
-          event_id = params[:event_id]
+          # event_id = params[:event_id]
+          password = params[:password]
 
-          stall = ::StallOwner.find_by(mobile_number: mobile, event_id: event_id)
-          return json_error("No account found with this mobile for this event", status: :not_found) unless stall
+          # stall = ::StallOwner.find_by(mobile_number: mobile, event_id: event_id)
+          stall = ::StallOwner.find_by(mobile_number: mobile, pass_code: password)
+          return json_error("No account found with this mobile and password", status: :not_found) unless stall
           return json_error("Your account is inactive. Contact the event organizer.") unless stall.active?
 
           otp, = OtpVerification.generate_for(mobile, purpose: "stall_login", ip: request.remote_ip)
@@ -21,13 +54,14 @@ module Api
         def verify_otp
           mobile   = params[:mobile_number]&.strip
           otp_code = params[:otp]&.strip
-          event_id = params[:event_id]
+          # event_id = params[:event_id]
+          password = params[:password]
 
           result = OtpVerification.verify!(mobile, otp_code, purpose: "stall_login")
 
           case result
           when :valid
-            stall = ::StallOwner.includes(:event).find_by!(mobile_number: mobile, event_id: event_id)
+            stall = ::StallOwner.includes(:event).find_by!(mobile_number: mobile, pass_code: password)
             token = stall.issue_token
             json_success({
               token:       token,

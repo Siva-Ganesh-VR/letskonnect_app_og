@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_06_23_060011) do
+ActiveRecord::Schema[7.2].define(version: 2026_06_30_051314) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pgcrypto"
   enable_extension "plpgsql"
@@ -230,12 +230,14 @@ ActiveRecord::Schema[7.2].define(version: 2026_06_23_060011) do
     t.uuid "event_organizer_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "pass_code"
     t.index ["event_id", "active"], name: "index_stall_owners_on_event_id_and_active"
     t.index ["event_id", "stall_number"], name: "index_stall_owners_on_event_id_and_stall_number", unique: true, where: "(stall_number IS NOT NULL)"
     t.index ["event_id"], name: "index_stall_owners_on_event_id"
     t.index ["event_organizer_id"], name: "index_stall_owners_on_event_organizer_id"
     t.index ["jti"], name: "index_stall_owners_on_jti", unique: true
     t.index ["mobile_number"], name: "index_stall_owners_on_mobile_number"
+    t.index ["pass_code"], name: "index_stall_owners_on_pass_code", unique: true
   end
 
   create_table "super_admins", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|

@@ -138,7 +138,7 @@ tr:hover td{background:rgba(255,255,255,0.02)}
 <body>
 
 <!-- LOGIN -->
-<div id="login-screen" class="login-wrap">
+<!-- <div id="login-screen" class="login-wrap">
   <div class="login-card">
     <a href="/" class="login-back">← Back to Home</a>
     <div class="login-logo">
@@ -158,7 +158,7 @@ tr:hover td{background:rgba(255,255,255,0.02)}
     <button class="btn-primary" onclick="doLogin()" id="login-btn">Sign In to Portal</button>
     <p style="font-size:12px;color:var(--text3);text-align:center;margin-top:14px">Demo: organizer@techfest.com / Organizer@123</p>
   </div>
-</div>
+</div> -->
 
 <!-- APP -->
 <div id="app" class="app" style="display:none">
@@ -215,7 +215,8 @@ tr:hover td{background:rgba(255,255,255,0.02)}
           <select class="filter-sel" id="stall-event-sel" onchange="loadStalls()">
             <option value="">Select Event</option>
           </select>
-          <button class="btn btn-g" onclick="openModal('m-stall')">+ Add Stall</button>
+          <button class="btn btn-g" onclick="openBulkStallModal()">+ Add Stall</button>
+          <button class="btn btn-g" onclick="openModal('m-import-stalls')">+ Bulk Upload</button>
         </div>
       </div>
       <div class="table-wrap">
@@ -273,11 +274,12 @@ tr:hover td{background:rgba(255,255,255,0.02)}
 
 <div class="modal-overlay" id="m-stall" onclick="if(event.target===this)closeModal('m-stall')">
   <div class="modal">
-    <div class="modal-title">Add Stall Owner <button class="mc" onclick="closeModal('m-stall')">✕</button></div>
+    <div class="modal-title">Edit Stall Owner <button class="mc" onclick="closeModal('m-stall')">✕</button></div>
     <div id="st-err" class="err"></div>
+    <input type="hidden" id="st-id">
     <div class="form-grid">
       <div class="mf"><label>Full Name *</label><input type="text" id="st-name" placeholder="Contact name"></div>
-      <div class="mf"><label>Mobile Number *</label><input type="tel" id="st-mobile" placeholder="9876543210"></div>
+      <div class="mf"><label>Mobile Number *</label><input type="tel" id="st-mobile" placeholder="9876543210" readonly></div>
       <div class="mf"><label>Company Name *</label><input type="text" id="st-company" placeholder="Company / business name"></div>
       <div class="mf"><label>Stall Number</label><input type="text" id="st-num" placeholder="e.g. A1"></div>
       <div class="mf"><label>Category</label>
@@ -293,7 +295,120 @@ tr:hover td{background:rgba(255,255,255,0.02)}
     </div>
     <div class="modal-foot">
       <button class="btn btn-o" onclick="closeModal('m-stall')">Cancel</button>
-      <button class="btn btn-g" onclick="createStall()">Add Stall Owner</button>
+      <button class="btn btn-g" id="st-save-btn" onclick="saveStall()">Add Stall Owner</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="m-m-stall" onclick="if(event.target===this)closeModal('m-m-stall')">
+  <div class="modal" style="max-width:1200px;width:95%">
+    <div class="modal-title">
+      Add Multiple Stall Owners
+      <button class="mc" onclick="closeModal('m-m-stall')">✕</button>
+    </div>
+
+    <div id="st-err" class="err"></div>
+
+    <div style="margin-bottom:12px">
+      <button class="btn btn-g" onclick="addStallRow()">
+        + Add Row
+      </button>
+    </div>
+
+    <div style="overflow:auto">
+      <table class="table" id="stall-table">
+        <thead>
+          <tr>
+            <th>Full Name *</th>
+            <th>Mobile *</th>
+            <th>Company *</th>
+            <th>Stall No</th>
+            <th>Category</th>
+            <th>Email</th>
+            <th>Website</th>
+            <th></th>
+          </tr>
+        </thead>
+
+        <tbody id="stall-table-body">
+        </tbody>
+      </table>
+    </div>
+
+    <div class="modal-foot">
+      <button class="btn btn-o" onclick="closeModal('m-m-stall')">
+        Cancel
+      </button>
+
+      <button class="btn btn-g" onclick="createMultipleStalls()">
+        Add Stall Owners
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="m-import-stalls" onclick="if(event.target===this)closeModal('m-import-stalls')">
+  <div class="modal">
+    <div class="modal-title">
+      Import Stall Owners
+      <button class="mc" onclick="closeModal('m-import-stalls')">✕</button>
+    </div>
+
+    <div id="import-err" class="err"></div>
+
+    <div class="mf">
+      <label>Upload CSV File *</label>
+
+      <input
+        type="file"
+        id="stall-import-file"
+        accept=".csv"
+        style="width:100%;padding:10px"
+      >
+
+      <p style="margin-top:8px;font-size:12px;color:var(--text2)">
+        Supported format: CSV
+      </p>
+    </div>
+
+    <div style="margin-top:16px;padding:12px;background:var(--bg3);border-radius:8px;font-size:12px">
+      <strong>Required Columns:</strong>
+      <div style="margin-top:6px">
+        full_name,
+        mobile_number,
+        company_name,
+        stall_number,
+        category,
+        email,
+        website
+      </div>
+    </div>
+
+    <div style="margin-top:12px">
+      <a
+        href="/sample_stall_owners.csv"
+        download
+        style="color:var(--accent);font-size:13px;text-decoration:none"
+      >
+        Download Sample CSV
+      </a>
+    </div>
+
+    <div class="modal-foot">
+      <button
+        class="btn btn-o"
+        onclick="closeModal('m-import-stalls')"
+      >
+        Cancel
+      </button>
+
+      <button
+        class="btn btn-g"
+        onclick="importStallOwners()"
+        id="import-btn"
+      >
+        Import
+      </button>
     </div>
   </div>
 </div>
@@ -312,14 +427,20 @@ tr:hover td{background:rgba(255,255,255,0.02)}
 
 <script>
 const API = "/api/v1";
-let token = sessionStorage.getItem("org_token");
-let me    = JSON.parse(sessionStorage.getItem("org_user") || "null");
+const token = sessionStorage.getItem("org_token");
+const me = JSON.parse(sessionStorage.getItem("org_user") || "null");
+
+if (!token || !me) {
+  window.location.href = "/login.html";
+} else {
+  bootApp();
+}
 let myEvents = [];
 
-if (token && me) bootApp();
+// if (token && me) bootApp();
 
 // ── Auth ──────────────────────────────────────────────────────────────────
-async function doLogin() {
+/* async function doLogin() {
   const email = document.getElementById("email").value.trim();
   const pass  = document.getElementById("password").value;
   const btn   = document.getElementById("login-btn");
@@ -338,10 +459,10 @@ async function doLogin() {
     }
   } catch(e) { err.style.display = "block"; err.textContent = "Connection error"; }
   finally { btn.disabled = false; btn.textContent = "Sign In to Portal"; }
-}
+} */
 
 function bootApp() {
-  document.getElementById("login-screen").style.display = "none";
+  // document.getElementById("login-screen").style.display = "none";
   document.getElementById("app").style.display = "flex";
   document.getElementById("sb-name").textContent = me.name || "Organizer";
   document.getElementById("sb-company").textContent = me.company_name || me.email;
@@ -505,8 +626,8 @@ async function loadStalls() {
       <td><span class="badge ${s.active?"bg":"bgr"}">${s.active?"Active":"Inactive"}</span></td>
       <td>
         <div style="display:flex;gap:6px">
-          <button class="btn btn-o btn-sm" onclick='sendCreds("${s.id}","${eid}")'>Resend</button>
-          <button class="btn btn-o btn-sm" onclick='toggleStall("${s.id}","${eid}",${s.active})'>${s.active?"Off":"On"}</button>
+          <button class="btn btn-o btn-sm" onclick='editStall(${JSON.stringify(s)})'>Edit</button>
+          <button class="btn btn-o btn-sm" onclick='toggleStall("${s.id}","${eid}",${s.active})'>${s.active?"Deactivate":"Activate"}</button>
         </div>
       </td>
     </tr>
@@ -686,6 +807,272 @@ function resetEventForm() {
   const err = document.getElementById("ev-err");
   err.style.display = "none";
   err.textContent = "";
+}
+async function importStallOwners() {
+  const fileInput = document.getElementById("stall-import-file");
+  const err = document.getElementById("import-err");
+  const btn = document.getElementById("import-btn");
+  const eid = document.getElementById("stall-event-sel").value;
+  err.style.display = "none";
+  if (!eid) { err.style.display="block"; err.textContent="Please select an event first"; return; }
+
+  if (!fileInput.files.length) {
+    err.style.display = "block";
+    err.textContent = "Please select a CSV file";
+    return;
+  }
+
+  try {
+    btn.disabled = true;
+    btn.textContent = "Importing...";
+
+    const formData = new FormData();
+    formData.append("file", fileInput.files[0]);
+
+    const response = await fetch(
+      `/api/v1/organizer/events/${eid}/stall_owners/bulk_upload`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`
+        },
+        body: formData
+      }
+    );
+
+    const result = await response.json();
+
+    if (!response.ok || !result.success) {
+      throw new Error(result.error || "Import failed");
+    }
+
+    // closeModal("m-import-stalls");
+
+    // alert(
+    //   `${result.data.created_count} stall owners imported successfully`
+    // );
+
+    const {
+      created_count,
+      failed_count,
+      errors
+    } = result.data;
+
+    err.style.display = "block";
+
+    err.innerHTML = `
+      <strong>Import Completed</strong><br>
+      Created: ${created_count}<br>
+      Failed: ${failed_count}
+      ${
+        errors.length
+          ? `<hr>
+            ${errors.map(e =>
+              `Line ${e.line}: ${e.errors.join(", ")}`
+            ).join("<br>")}`
+          : ""
+      }
+    `;
+
+    // loadStallOwners();
+
+  } catch (error) {
+    err.style.display = "block";
+    err.textContent = error.message;
+  } finally {
+    btn.disabled = false;
+    btn.textContent = "Import Stall Owners";
+  }
+}
+function editStall(stall) {
+  document.getElementById("st-id").value = stall.id;
+  document.getElementById("st-name").value = stall.name || "";
+  document.getElementById("st-mobile").value = stall.mobile_number || "";
+  document.getElementById("st-company").value = stall.company_name || "";
+  document.getElementById("st-num").value = stall.stall_number || "";
+  document.getElementById("st-cat").value = stall.stall_category || "";
+  document.getElementById("st-email").value = stall.email || "";
+  document.getElementById("st-web").value = stall.website || "";
+
+  document.getElementById("st-save-btn").textContent = "Update Stall Owner";
+
+  document.getElementById("st-mobile").readOnly = true;
+
+  openModal("m-stall");
+}
+async function updateStall() {
+  const stallId = document.getElementById("st-id").value;
+  const eid = document.getElementById("stall-event-sel").value;
+  const err = document.getElementById("st-err");
+
+  err.style.display = "none";
+
+  if (!stallId) {
+    err.style.display = "block";
+    err.textContent = "Invalid stall owner.";
+    return;
+  }
+
+  try {
+    const result = await patch(
+      `/organizer/events/${eid}/stall_owners/${stallId}`,
+      {
+        stall_owner: {
+          name: document.getElementById("st-name").value.trim(),
+          company_name: document.getElementById("st-company").value.trim(),
+          stall_number: document.getElementById("st-num").value.trim(),
+          stall_category: document.getElementById("st-cat").value,
+          email: document.getElementById("st-email").value.trim(),
+          website: document.getElementById("st-web").value.trim()
+        }
+      }
+    );
+
+    if (!result.success) {
+      throw new Error(result.error || "Update failed");
+    }
+
+    closeModal("m-stall");
+    alert("Stall owner updated successfully");
+    loadStalls();
+  } catch (error) {
+    err.style.display = "block";
+    err.textContent = error.message;
+  }
+}
+async function saveStall() {
+  const stallId = document.getElementById("st-id").value;
+
+  if (stallId) {
+    await updateStall(stallId);
+  } else {
+    await createStall();
+  }
+}
+
+function addStallRow() {
+  const tbody = document.getElementById("stall-table-body");
+
+  const row = document.createElement("tr");
+
+  row.innerHTML = `
+    <td class="mf">
+      <input type="text" class="st-name" placeholder="Full Name">
+    </td>
+
+    <td class="mf">
+      <input type="tel" class="st-mobile" placeholder="9876543210">
+    </td>
+
+    <td  class="mf">
+      <input type="text" class="st-company" placeholder="Company Name">
+    </td>
+
+    <td class="mf">
+      <input type="text" class="st-number" placeholder="A1">
+    </td>
+
+    <td class="mf">
+      <select class="st-category">
+        <option value="">Select</option>
+        <option>IT Services</option>
+        <option>Finance</option>
+        <option>Marketing</option>
+        <option>Education</option>
+        <option>Healthcare</option>
+        <option>Retail</option>
+        <option>Manufacturing</option>
+        <option>Energy</option>
+        <option>Startup</option>
+        <option>Other</option>
+      </select>
+    </td>
+
+    <td class="mf">
+      <input type="email" class="st-email" placeholder="Email">
+    </td>
+
+    <td class="mf">
+      <input type="text" class="st-website" placeholder="Website">
+    </td>
+
+    <td class="mf">
+      <button
+        class="btn btn-o"
+        type="button"
+        onclick="this.closest('tr').remove()"
+      >
+        ✕
+      </button>
+    </td>
+  `;
+
+  tbody.appendChild(row);
+}
+function openBulkStallModal() {
+  document.getElementById("stall-table-body").innerHTML = "";
+
+  for (let i = 0; i < 2; i++) {
+    addStallRow();
+  }
+
+  openModal("m-m-stall");
+}
+async function createMultipleStalls() {
+  const eid = document.getElementById("stall-event-sel").value;
+  const err = document.getElementById("st-err");
+
+  err.style.display = "none";
+
+  const rows = [...document.querySelectorAll("#stall-table-body tr")];
+
+  const stallOwners = rows
+    .map(row => ({
+      name: row.querySelector(".st-name").value.trim(),
+      mobile_number: row.querySelector(".st-mobile").value.trim(),
+      company_name: row.querySelector(".st-company").value.trim(),
+      stall_number: row.querySelector(".st-number").value.trim(),
+      stall_category: row.querySelector(".st-category").value,
+      email: row.querySelector(".st-email").value.trim(),
+      website: row.querySelector(".st-website").value.trim()
+    }))
+    .filter(stall =>
+      stall.name &&
+      stall.mobile_number &&
+      stall.company_name
+    );
+
+  if (stallOwners.length === 0) {
+    err.style.display = "block";
+    err.textContent =
+      "Please enter at least one valid stall owner.";
+    return;
+  }
+
+  try {
+    const result = await post(
+      `/organizer/events/${eid}/stall_owners/bulk_create`,
+      {
+        stall_owners: stallOwners
+      }
+    );
+
+    if (!result.success) {
+      throw new Error(result.error || "Creation failed");
+    }
+
+    closeModal("m-m-stall");
+
+    alert(
+      `${result.data.created_count} stall owners created successfully`
+    );
+
+    loadStallOwners();
+
+  } catch (error) {
+    err.style.display = "block";
+    err.textContent = error.message;
+  }
 }
 </script>
 </body>

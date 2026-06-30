@@ -193,17 +193,17 @@ textarea.note-area:focus{border-color:var(--accent)}
 <body>
 
 <!-- LOGIN -->
-<div id="login-screen" class="login-wrap">
+<!-- <div id="login-screen" class="login-wrap">
   <div class="login-card">
     <a href="/" class="login-back">← Back to Home</a>
     <div class="login-logo">
       <div class="login-logo-icon">🏪</div>
       <h2>Stall Owner App</h2>
       <p>LetsKonnect · Lead Capture</p>
-    </div>
+    </div>-->
 
     <!-- Step 1: Mobile + Event -->
-    <div id="step-mobile">
+    <!--<div id="step-mobile">
       <div class="field">
         <label>Your Mobile Number</label>
         <input type="tel" id="login-mobile" placeholder="9876543210" maxlength="10">
@@ -217,10 +217,10 @@ textarea.note-area:focus{border-color:var(--accent)}
       <div id="login-err" class="err"></div>
       <button class="btn-primary" onclick="requestOtp()" id="btn-otp">Send OTP</button>
       <p style="font-size:12px;color:var(--text3);text-align:center;margin-top:12px">Demo: 9876541001 to 9876541008 · Any OTP from server console</p>
-    </div>
+    </div> -->
 
     <!-- Step 2: OTP -->
-    <div id="step-otp" style="display:none">
+    <!-- <div id="step-otp" style="display:none">
       <p style="font-size:13px;color:var(--text2);text-align:center;margin-bottom:4px">Enter 6-digit OTP sent to</p>
       <p style="font-size:14px;font-weight:600;text-align:center;margin-bottom:16px" id="otp-phone-lbl"></p>
       <div class="otp-grid">
@@ -238,7 +238,7 @@ textarea.note-area:focus{border-color:var(--accent)}
       </p>
     </div>
   </div>
-</div>
+</div>-->
 
 <!-- APP -->
 <div id="app" style="display:none">
@@ -427,8 +427,16 @@ textarea.note-area:focus{border-color:var(--accent)}
 
 <script>
 const API = "/api/v1";
-let token    = sessionStorage.getItem("stall_token");
-let me       = JSON.parse(sessionStorage.getItem("stall_me") || "null");
+
+let token = sessionStorage.getItem("stall_token");
+let me = JSON.parse(sessionStorage.getItem("stall_user") || "null");
+
+if (!token || !me) {
+  window.location.href = "/login.html";
+} else {
+  bootApp();
+}
+
 let currentLead = null;
 let currentTemp = "warm";
 let activeFilter = "";
@@ -436,122 +444,122 @@ let allLeads = [];
 let selectedTpl = 0;
 
 // Load events for login dropdown
-(async ()=>{
-  try {
-    const res = await fetch(API + "/organizer/events"); // public-ish, get active events
-    // Fallback: just show a text input
-  } catch(e) {}
-  // Use admin token if available to list events
-  loadLoginEvents();
-})();
+// (async ()=>{
+//   try {
+//     const res = await fetch(API + "/organizer/events"); // public-ish, get active events
+//     // Fallback: just show a text input
+//   } catch(e) {}
+//   // Use admin token if available to list events
+//   loadLoginEvents();
+// })();
 
-async function loadLoginEvents() {
-  // Try to get events without auth (health check style)
-  const sel = document.getElementById("login-event");
-  sel.innerHTML = '<option value="">Loading…</option>';
-  try {
-    // Events are not public, so we provide a manual entry fallback
-    sel.innerHTML = '<option value="">Enter Event ID manually if needed</option>';
-    // Try with any cached admin token
-    const adminToken = localStorage.getItem("lk_admin_token");
-    if (!adminToken) {
-      showEventInput();
-      return;
-    }
-    const res = await fetch(API + "/super_admin/events", { headers: {"Authorization":"Bearer "+adminToken,"Content-Type":"application/json"} });
-    const data = await res.json();
-    if (data.success && data.data?.length) {
-      sel.innerHTML = data.data.map(e=>`<option value="${e.id}">${e.name}</option>`).join("");
-    } else {
-      showEventInput();
-    }
-  } catch(e) { showEventInput(); }
-}
+// async function loadLoginEvents() {
+//   // Try to get events without auth (health check style)
+//   const sel = document.getElementById("login-event");
+//   sel.innerHTML = '<option value="">Loading…</option>';
+//   try {
+//     // Events are not public, so we provide a manual entry fallback
+//     sel.innerHTML = '<option value="">Enter Event ID manually if needed</option>';
+//     // Try with any cached admin token
+//     const adminToken = localStorage.getItem("lk_admin_token");
+//     if (!adminToken) {
+//       showEventInput();
+//       return;
+//     }
+//     const res = await fetch(API + "/super_admin/events", { headers: {"Authorization":"Bearer "+adminToken,"Content-Type":"application/json"} });
+//     const data = await res.json();
+//     if (data.success && data.data?.length) {
+//       sel.innerHTML = data.data.map(e=>`<option value="${e.id}">${e.name}</option>`).join("");
+//     } else {
+//       showEventInput();
+//     }
+//   } catch(e) { showEventInput(); }
+// }
 
-function showEventInput() {
-  const sel = document.getElementById("login-event");
-  const wrap = sel.parentNode;
-  sel.style.display = "none";
-  wrap.innerHTML = `<label style="display:block;font-size:13px;font-weight:500;color:var(--text2);margin-bottom:6px">Event ID</label>
-    <input type="text" id="login-event-id" placeholder="Paste event ID from admin panel" style="width:100%;background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:10px;padding:12px 14px;color:#fff;font-size:15px;outline:none">
-    <p style="font-size:11px;color:var(--text3);margin-top:4px">Find Event ID in Admin → Events</p>`;
-}
+// function showEventInput() {
+//   const sel = document.getElementById("login-event");
+//   const wrap = sel.parentNode;
+//   sel.style.display = "none";
+//   wrap.innerHTML = `<label style="display:block;font-size:13px;font-weight:500;color:var(--text2);margin-bottom:6px">Event ID</label>
+//     <input type="text" id="login-event-id" placeholder="Paste event ID from admin panel" style="width:100%;background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:10px;padding:12px 14px;color:#fff;font-size:15px;outline:none">
+//     <p style="font-size:11px;color:var(--text3);margin-top:4px">Find Event ID in Admin → Events</p>`;
+// }
 
-function getEventId() {
-  const sel = document.getElementById("login-event");
-  if (sel && sel.style.display !== "none") return sel.value;
-  const inp = document.getElementById("login-event-id");
-  return inp ? inp.value.trim() : "";
-}
+// function getEventId() {
+//   const sel = document.getElementById("login-event");
+//   if (sel && sel.style.display !== "none") return sel.value;
+//   const inp = document.getElementById("login-event-id");
+//   return inp ? inp.value.trim() : "";
+// }
 
 // Boot if already logged in
-if (token && me) bootApp();
+// if (token && me) bootApp();
 
 // ── Auth ──────────────────────────────────────────────────────────────────
-async function requestOtp() {
-  const mobile   = document.getElementById("login-mobile").value.trim();
-  const event_id = getEventId();
-  const err      = document.getElementById("login-err");
-  const btn      = document.getElementById("btn-otp");
-  err.style.display = "none";
+// async function requestOtp() {
+//   const mobile   = document.getElementById("login-mobile").value.trim();
+//   const event_id = getEventId();
+//   const err      = document.getElementById("login-err");
+//   const btn      = document.getElementById("btn-otp");
+//   err.style.display = "none";
 
-  if (!/^[6-9]\d{9}$/.test(mobile)) { err.style.display="block"; err.textContent="Enter valid 10-digit mobile"; return; }
-  if (!event_id) { err.style.display="block"; err.textContent="Select or enter an event"; return; }
+//   if (!/^[6-9]\d{9}$/.test(mobile)) { err.style.display="block"; err.textContent="Enter valid 10-digit mobile"; return; }
+//   if (!event_id) { err.style.display="block"; err.textContent="Select or enter an event"; return; }
 
-  btn.disabled = true; btn.textContent = "Sending…";
-  const res = await apiFetch("/stall/request_otp", "POST", { mobile_number: mobile, event_id }, false);
-  btn.disabled = false; btn.textContent = "Send OTP";
+//   btn.disabled = true; btn.textContent = "Sending…";
+//   const res = await apiFetch("/stall/request_otp", "POST", { mobile_number: mobile, event_id }, false);
+//   btn.disabled = false; btn.textContent = "Send OTP";
 
-  if (res.success) {
-    document.getElementById("step-mobile").style.display = "none";
-    document.getElementById("step-otp").style.display   = "block";
-    document.getElementById("otp-phone-lbl").textContent = "+91" + mobile.slice(0,2) + "XXXXXX" + mobile.slice(-2);
-    document.querySelectorAll(".otp-inp")[0].focus();
-  } else {
-    err.style.display = "block";
-    err.textContent   = res.error || "Failed to send OTP";
-  }
-}
+//   if (res.success) {
+//     document.getElementById("step-mobile").style.display = "none";
+//     document.getElementById("step-otp").style.display   = "block";
+//     document.getElementById("otp-phone-lbl").textContent = "+91" + mobile.slice(0,2) + "XXXXXX" + mobile.slice(-2);
+//     document.querySelectorAll(".otp-inp")[0].focus();
+//   } else {
+//     err.style.display = "block";
+//     err.textContent   = res.error || "Failed to send OTP";
+//   }
+// }
 
-function oi(el, idx) {
-  el.value = el.value.replace(/\D/,"");
-  if (el.value && idx < 5) document.querySelectorAll(".otp-inp")[idx+1].focus();
-  const otp = Array.from(document.querySelectorAll(".otp-inp")).map(i=>i.value).join("");
-  if (otp.length === 6) verifyOtp();
-}
-function ok(e, idx) { if (e.key==="Backspace" && !e.target.value && idx>0) document.querySelectorAll(".otp-inp")[idx-1].focus(); }
+// function oi(el, idx) {
+//   el.value = el.value.replace(/\D/,"");
+//   if (el.value && idx < 5) document.querySelectorAll(".otp-inp")[idx+1].focus();
+//   const otp = Array.from(document.querySelectorAll(".otp-inp")).map(i=>i.value).join("");
+//   if (otp.length === 6) verifyOtp();
+// }
+// function ok(e, idx) { if (e.key==="Backspace" && !e.target.value && idx>0) document.querySelectorAll(".otp-inp")[idx-1].focus(); }
 
-async function verifyOtp() {
-  const otp      = Array.from(document.querySelectorAll(".otp-inp")).map(i=>i.value).join("");
-  const mobile   = document.getElementById("login-mobile").value.trim();
-  const event_id = getEventId();
-  const err      = document.getElementById("otp-err");
-  const btn      = document.getElementById("btn-verify");
-  if (otp.length !== 6) return;
-  err.style.display = "none";
-  btn.disabled = true; btn.textContent = "Verifying…";
+// async function verifyOtp() {
+//   const otp      = Array.from(document.querySelectorAll(".otp-inp")).map(i=>i.value).join("");
+//   const mobile   = document.getElementById("login-mobile").value.trim();
+//   const event_id = getEventId();
+//   const err      = document.getElementById("otp-err");
+//   const btn      = document.getElementById("btn-verify");
+//   if (otp.length !== 6) return;
+//   err.style.display = "none";
+//   btn.disabled = true; btn.textContent = "Verifying…";
 
-  const res = await apiFetch("/stall/verify_otp", "POST", { mobile_number: mobile, otp, event_id }, false);
-  btn.disabled = false; btn.textContent = "Verify & Login";
+//   const res = await apiFetch("/stall/verify_otp", "POST", { mobile_number: mobile, otp, event_id }, false);
+//   btn.disabled = false; btn.textContent = "Verify & Login";
 
-  if (res.success) {
-    token = res.data.token; me = res.data.stall_owner;
-    sessionStorage.setItem("stall_token", token);
-    sessionStorage.setItem("stall_me", JSON.stringify(me));
-    bootApp();
-  } else {
-    err.style.display = "block"; err.textContent = res.error || "Invalid OTP";
-    document.querySelectorAll(".otp-inp").forEach(i=>{ i.value=""; i.style.borderColor="#ef4444"; });
-    document.querySelectorAll(".otp-inp")[0].focus();
-  }
-}
+//   if (res.success) {
+//     token = res.data.token; me = res.data.stall_owner;
+//     sessionStorage.setItem("stall_token", token);
+//     sessionStorage.setItem("stall_me", JSON.stringify(me));
+//     bootApp();
+//   } else {
+//     err.style.display = "block"; err.textContent = res.error || "Invalid OTP";
+//     document.querySelectorAll(".otp-inp").forEach(i=>{ i.value=""; i.style.borderColor="#ef4444"; });
+//     document.querySelectorAll(".otp-inp")[0].focus();
+//   }
+// }
 
 function doLogout() {
   sessionStorage.clear(); location.reload();
 }
 
 function bootApp() {
-  document.getElementById("login-screen").style.display = "none";
+  // document.getElementById("login-screen").style.display = "none";
   document.getElementById("app").style.display = "block";
   document.getElementById("sb-name").textContent    = me.name || "Stall Owner";
   document.getElementById("sb-stall").textContent   = me.company_name + (me.stall_number ? ` · Stall ${me.stall_number}` : "");

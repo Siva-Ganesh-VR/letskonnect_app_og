@@ -35,6 +35,7 @@ Rails.application.routes.draw do
       get    "visitors/qr/:id",         to: "auth/visitors#qr_code"
 
       # Stall Owner Auth (OTP-based)
+      post   "stall/sign_in",           to: "auth/stall_owners#sign_in"
       post   "stall/request_otp",       to: "auth/stall_owners#request_otp"
       post   "stall/verify_otp",        to: "auth/stall_owners#verify_otp"
       delete "stall/sign_out",          to: "auth/stall_owners#sign_out"
@@ -65,6 +66,10 @@ Rails.application.routes.draw do
           member { get :analytics; get :qr_code; post :activate; post :archive }
           resources :stall_owners, only: [:index, :show, :create, :update, :destroy] do
             member { post :send_credentials; patch :toggle_active }
+            collection do
+              post :bulk_create
+              post :bulk_upload
+            end
           end
           resources :visitors, only: [:index, :show] do
             collection { post :export; get "export/:job_id/status", to: "visitors#export_status" }
@@ -85,8 +90,12 @@ Rails.application.routes.draw do
         resources :event_organizers do
           member { patch :activate; patch :deactivate; post :reset_password }
         end
-        resources :stall_owners,  only: [:index, :show, :update, :destroy] do
+        resources :stall_owners,  only: [:index, :show, :create, :update, :destroy] do
           member { patch :activate; patch :deactivate }
+          collection do
+            post :bulk_create
+            post :bulk_upload
+          end
         end
         resources :visitors,      only: [:index, :show, :destroy]
         get "analytics/platform", to: "analytics#platform"

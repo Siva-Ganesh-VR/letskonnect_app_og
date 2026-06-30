@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Organizer Portal — LetsKonnect</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#0f0f1a;--bg2:#1a1a2e;--bg3:#16213e;--accent:#22c55e;--accent2:#16a34a;--purple:#6c63ff;--text:#fff;--text2:rgba(255,255,255,0.6);--text3:rgba(255,255,255,0.3);--border:rgba(255,255,255,0.08)}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+/* Login */
+.login-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;background:var(--bg);padding:20px}
+.login-card{background:var(--bg2);border:1px solid var(--border);border-radius:20px;padding:40px 36px;width:100%;max-width:420px}
+.login-back{display:inline-flex;align-items:center;gap:6px;color:var(--text2);font-size:13px;text-decoration:none;margin-bottom:24px;transition:color 0.2s}
+.login-back:hover{color:var(--accent)}
+.login-logo{margin-bottom:15px; display: flex;}
+.login-logo-icon{width:64px;height:64px;background:rgba(34,197,94,0.12);border:1px solid rgba(34,197,94,0.3);border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:28px;margin-right:20px}
+.login-logo h2{font-size:22px;font-weight:700}
+.login-logo p{font-size:13px;color:var(--text2);margin-top:4px}
+.field{margin-bottom:16px}
+.field label{display:block;font-size:13px;font-weight:500;color:var(--text2);margin-bottom:6px}
+.field input{width:100%;background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:10px;padding:12px 14px;color:var(--text);font-size:15px;outline:none;transition:all 0.2s}
+.field input:focus{border-color:var(--accent);background:rgba(34,197,94,0.06)}
+.field input::placeholder{color:var(--text3)}
+.btn-primary{width:100%;padding:13px;background:var(--accent);color:#fff;border:none;border-radius:11px;font-size:15px;font-weight:600;cursor:pointer;transition:all 0.2s;margin-top:4px}
+.btn-primary:hover{background:var(--accent2)}
+.btn-primary:disabled{opacity:0.5;cursor:not-allowed}
+.err{background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);border-radius:8px;padding:10px 14px;font-size:13px;color:#fca5a5;margin-top:10px;display:none}
+.tabs{
+  display:flex;
+  background:rgba(255,255,255,0.05);
+  border:1px solid var(--border);
+  border-radius:10px;
+  padding:4px;
+  margin-bottom:20px;
+}
+
+.tab{
+  flex:1;
+  text-align:center;
+  padding:10px;
+  border-radius:8px;
+  cursor:pointer;
+  font-size:14px;
+  font-weight:600;
+  color:var(--text2);
+  transition:all .2s;
+}
+
+.tab.active{
+  background:var(--accent);
+  color:#fff;
+}
+
+.login-form{
+  display:none;
+}
+
+.login-form.active{
+  display:block;
+}
+/* OTP */
+.otp-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin:12px 0}
+.otp-inp{background:rgba(255,255,255,0.05);border:2px solid var(--border);border-radius:10px;padding:12px 0;text-align:center;font-size:20px;font-weight:700;color:var(--text);width:100%;outline:none;transition:all 0.2s}
+.otp-inp:focus{border-color:var(--accent);background:rgba(245,158,11,0.08)}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login-screen" class="login-wrap">
+  <div class="login-card">
+    <a href="/" class="login-back">← Back to Home</a>
+
+    <div class="login-logo">
+      <div class="login-logo-icon">🏢</div>
+      <div>
+        <h2>LetsKonnect Portal</h2>
+        <p>Select your role and sign in</p>
+      </div>
+    </div>
+
+    <div class="tabs" id="login-tabs">
+      <div class="tab active" onclick="switchTab('organizer')">
+        Organizer
+      </div>
+
+      <div class="tab" onclick="switchTab('stall_owner')">
+        Stall Owner
+      </div>
+    </div>
+
+    <!-- Organizer Login -->
+    <div id="organizer-form" class="login-form active">
+
+      <div class="field">
+        <label>Email Address</label>
+        <input
+          type="email"
+          id="org-email"
+          placeholder="organizer@techfest.com"
+        >
+      </div>
+
+      <div class="field">
+        <label>Password</label>
+        <input
+          type="password"
+          id="org-password"
+          placeholder="Enter password"
+          onkeydown="if(event.key==='Enter')loginOrganizer()"
+        >
+      </div>
+
+    </div>
+
+    <!-- Stall Owner Login -->
+    <div id="stall-form" class="login-form">
+
+      <div class="field">
+        <label>Mobile Number</label>
+        <input
+          type="text"
+          id="stall-mobile"
+          placeholder="9876543210"
+        >
+      </div>
+
+      <!-- <div class="field">
+        <label>Event ID</label>
+        <input
+          type="text"
+          id="stall-event-id"
+          placeholder="Enter Event ID"
+          onkeydown="if(event.key==='Enter')loginStallOwner()"
+        >
+      </div> -->
+
+      <div class="field">
+        <label>Password</label>
+        <input
+          type="text"
+          id="stall-password"
+          placeholder="Enter Pass Code"
+          onkeydown="if(event.key==='Enter')doLogin()"
+        >
+      </div>
+
+    </div>
+
+    <div id="step-otp" style="display:none">
+      <p style="font-size:13px;color:var(--text2);text-align:center;margin-bottom:4px">Enter 6-digit OTP sent to</p>
+      <p style="font-size:14px;font-weight:600;text-align:center;margin-bottom:16px" id="otp-phone-lbl"></p>
+      <div class="otp-grid">
+        <input class="otp-inp" type="tel" maxlength="1" oninput="oi(this,0)" onkeydown="ok(event,0)">
+        <input class="otp-inp" type="tel" maxlength="1" oninput="oi(this,1)" onkeydown="ok(event,1)">
+        <input class="otp-inp" type="tel" maxlength="1" oninput="oi(this,2)" onkeydown="ok(event,2)">
+        <input class="otp-inp" type="tel" maxlength="1" oninput="oi(this,3)" onkeydown="ok(event,3)">
+        <input class="otp-inp" type="tel" maxlength="1" oninput="oi(this,4)" onkeydown="ok(event,4)">
+        <input class="otp-inp" type="tel" maxlength="1" oninput="oi(this,5)" onkeydown="ok(event,5)">
+      </div>
+      <div id="otp-err" class="err"></div>
+      <button class="btn-primary" onclick="verifyOtp()" id="btn-verify">Verify & Login</button>
+      <p style="text-align:center;margin-top:12px">
+        <button onclick="document.getElementById('step-otp').style.display='none';document.getElementById('stall-form').style.display='block'" style="background:none;border:none;color:var(--text2);font-size:13px;cursor:pointer">← Change mobile</button>
+      </p>
+    </div>
+
+    <div id="login-err" class="err"></div>
+
+    <button class="btn-primary" onclick="doLogin()" id="login-btn">
+      Sign In
+    </button>
+    <!--<div style="margin-top:16px;font-size:12px;color:var(--text3);text-align:center">
+      <div><strong>Organizer Demo:</strong> organizer@techfest.com / Organizer@123</div>
+      <div style="margin-top:6px">
+        <strong>Stall Owner Demo:</strong> stall@techfest.com / Stall@123
+      </div>
+    </div>-->
+  </div>
+</div>
+<script>
+let currentTab = "organizer";
+
+function switchTab(tab) {
+  currentTab = tab;
+
+  document.querySelectorAll(".tab").forEach(t =>
+    t.classList.remove("active")
+  );
+
+  document.querySelectorAll(".login-form").forEach(f =>
+    f.classList.remove("active")
+  );
+
+  if (tab === "organizer") {
+    document.querySelectorAll(".tab")[0].classList.add("active");
+    document.getElementById("organizer-form").classList.add("active");
+  } else {
+    document.querySelectorAll(".tab")[1].classList.add("active");
+    document.getElementById("stall-form").classList.add("active");
+  }
+
+  document.getElementById("login-err").style.display = "none";
+}
+
+async function doLogin() {
+  if (currentTab === "organizer") {
+    await loginOrganizer();
+  } else {
+    await loginStallOwner();
+  }
+}
+
+async function loginOrganizer() {
+  const email = document.getElementById("org-email").value.trim();
+  const password = document.getElementById("org-password").value;
+
+  const errorEl = document.getElementById("login-err");
+  const loginBtn = document.getElementById("login-btn");
+
+  errorEl.style.display = "none";
+
+  try {
+    loginBtn.disabled = true;
+    loginBtn.textContent = "Signing In...";
+
+    const response = await fetch("/api/v1/organizer/sign_in", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        email,
+        password
+      })
+    });
+
+    const result = await response.json();
+
+    if (!response.ok || !result.success) {
+      throw new Error(result.error || "Invalid credentials");
+    }
+
+    sessionStorage.setItem(
+      "org_token",
+      result.data.token
+    );
+
+    sessionStorage.setItem(
+      "org_user",
+      JSON.stringify(result.data.organizer)
+    );
+
+    sessionStorage.setItem(
+      "user_type",
+      "organizer"
+    );
+
+    window.location.href = "/organizer.html";
+
+  } catch(error) {
+    errorEl.style.display = "block";
+    errorEl.textContent = error.message;
+  } finally {
+    loginBtn.disabled = false;
+    loginBtn.textContent = "Sign In";
+  }
+}
+
+async function loginStallOwner() {
+  const mobile = document.getElementById("stall-mobile").value.trim();
+  const password = document.getElementById("stall-password").value.trim();
+
+  const errorEl = document.getElementById("login-err");
+  const loginBtn = document.getElementById("login-btn");
+
+  errorEl.style.display = "none";
+
+  try {
+    loginBtn.disabled = true;
+    loginBtn.textContent = "Signing In...";
+
+    const response = await fetch("/api/v1/stall/sign_in", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        mobile,
+        password
+      })
+    });
+
+    const result = await response.json();
+
+    if (!response.ok || !result.success) {
+      throw new Error(result.error || "Invalid credentials");
+    }
+
+    sessionStorage.setItem(
+      "stall_token",
+      result.data.token
+    );
+
+    sessionStorage.setItem(
+      "stall_user",
+      JSON.stringify(result.data.stall_owner)
+    );
+
+    sessionStorage.setItem(
+      "user_type",
+      "stall_owner"
+    );
+
+    window.location.href = "/stall.html";
+
+  } catch(error) {
+    errorEl.style.display = "block";
+    errorEl.textContent = error.message;
+  } finally {
+    loginBtn.disabled = false;
+    loginBtn.textContent = "Sign In";
+  }
+}
+
+async function requestOtp() {
+  const mobile = document.getElementById("stall-mobile").value.trim();
+  // const event_id = document.getElementById("stall-event-id").value.trim();
+  const password = document.getElementById("stall-password").value.trim();
+
+  const err = document.getElementById("login-err");
+  const btn = document.getElementById("login-btn");
+
+  err.style.display = "none";
+
+  if (!/^[6-9]\d{9}$/.test(mobile)) {
+    err.style.display = "block";
+    err.textContent = "Enter valid mobile number";
+    return;
+  }
+
+  // if (!event_id) {
+  //   err.style.display = "block";
+  //   err.textContent = "Enter Event ID";
+  //   return;
+  // }
+
+  if (!password) {
+    err.style.display = "block";
+    err.textContent = "Enter Password";
+    return;
+  }
+
+  try {
+    btn.disabled = true;
+    btn.textContent = "Sending OTP...";
+
+    const response = await fetch("/api/v1/stall/request_otp", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        mobile_number: mobile,
+        password
+      })
+    });
+
+    const result = await response.json();
+
+    if (!response.ok || !result.success) {
+      throw new Error(result.error || "Failed to send OTP");
+    }
+
+    document.getElementById("stall-form").style.display = "none";
+    document.getElementById("login-tabs").style.display = "none";
+    document.getElementById("login-btn").style.display = "none";
+
+    document.getElementById("step-otp").style.display = "block";
+
+    document.getElementById("otp-phone-lbl").textContent =
+      "+91 " + mobile;
+
+  } catch(error) {
+    err.style.display = "block";
+    err.textContent = error.message;
+  } finally {
+    btn.disabled = false;
+    btn.textContent = "Sign In";
+  }
+}
+
+async function verifyOtp() {
+  const otp = Array.from(
+    document.querySelectorAll(".otp-inp")
+  ).map(i => i.value).join("");
+
+  const mobile = document.getElementById("stall-mobile").value.trim();
+  // const event_id = document.getElementById("stall-event-id").value.trim();
+  const password = document.getElementById("stall-password").value.trim();
+
+  const err = document.getElementById("login-err");
+  const btn = document.getElementById("btn-verify");
+
+  if (otp.length !== 6) {
+    return;
+  }
+
+  err.style.display = "none";
+
+  try {
+
+    btn.disabled = true;
+    btn.textContent = "Verifying...";
+
+    const response = await fetch("/api/v1/stall/verify_otp", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        mobile_number: mobile,
+        otp,
+        password
+      })
+    });
+
+    const result = await response.json();
+
+    if (!response.ok || !result.success) {
+      throw new Error(result.error || "Invalid OTP");
+    }
+
+    sessionStorage.setItem(
+      "stall_token",
+      result.data.token
+    );
+
+    sessionStorage.setItem(
+      "stall_user",
+      JSON.stringify(result.data.stall_owner)
+    );
+
+    sessionStorage.setItem(
+      "user_type",
+      "stall_owner"
+    );
+
+    window.location.href = "/stall.html";
+
+  } catch(error) {
+
+    err.style.display = "block";
+    err.textContent = error.message;
+
+    document.querySelectorAll(".otp-inp").forEach(i => {
+      i.value = "";
+    });
+
+    document.querySelectorAll(".otp-inp")[0].focus();
+
+  } finally {
+
+    btn.disabled = false;
+    btn.textContent = "Verify OTP";
+  }
+}
+function oi(el, idx) {
+  el.value = el.value.replace(/\D/,"");
+  if (el.value && idx < 5) document.querySelectorAll(".otp-inp")[idx+1].focus();
+  const otp = Array.from(document.querySelectorAll(".otp-inp")).map(i=>i.value).join("");
+  if (otp.length === 6) verifyOtp();
+}
+function ok(e, idx) { if (e.key==="Backspace" && !e.target.value && idx>0) document.querySelectorAll(".otp-inp")[idx-1].focus(); }
+</script>
+
+</body>
+</html>
