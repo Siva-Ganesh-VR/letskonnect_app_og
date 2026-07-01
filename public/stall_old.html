@@ -1,0 +1,907 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Stall Owner App — LetsKonnect</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#0f0f1a;--bg2:#1a1a2e;--bg3:#16213e;--accent:#f59e0b;--accent2:#d97706;--green:#22c55e;--red:#ef4444;--blue:#6c63ff;--text:#fff;--text2:rgba(255,255,255,0.6);--text3:rgba(255,255,255,0.3);--border:rgba(255,255,255,0.08)}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+
+/* Login */
+.login-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;background:var(--bg)}
+.login-card{background:var(--bg2);border:1px solid var(--border);border-radius:20px;padding:36px 32px;width:100%;max-width:400px}
+.login-back{display:inline-flex;align-items:center;gap:6px;color:var(--text2);font-size:13px;text-decoration:none;margin-bottom:24px;transition:color 0.2s}
+.login-back:hover{color:var(--accent)}
+.login-logo{text-align:center;margin-bottom:24px}
+.login-logo-icon{width:64px;height:64px;background:rgba(245,158,11,0.12);border:1px solid rgba(245,158,11,0.3);border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:28px;margin:0 auto 12px}
+.login-logo h2{font-size:22px;font-weight:700}
+.login-logo p{font-size:13px;color:var(--text2);margin-top:4px}
+.field{margin-bottom:14px}
+.field label{display:block;font-size:13px;font-weight:500;color:var(--text2);margin-bottom:6px}
+.field input,.field select{width:100%;background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:10px;padding:12px 14px;color:var(--text);font-size:15px;outline:none;transition:all 0.2s}
+.field input:focus,.field select:focus{border-color:var(--accent);background:rgba(245,158,11,0.06)}
+.field input::placeholder{color:var(--text3)}
+.field select option{background:#1a1a2e}
+.btn-primary{width:100%;padding:13px;background:var(--accent);color:#000;border:none;border-radius:11px;font-size:15px;font-weight:700;cursor:pointer;transition:all 0.2s;margin-top:4px}
+.btn-primary:hover{background:var(--accent2)}
+.btn-primary:disabled{opacity:0.5;cursor:not-allowed}
+.err{background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);border-radius:8px;padding:10px 14px;font-size:13px;color:#fca5a5;margin-top:10px;display:none}
+/* OTP */
+.otp-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin:12px 0}
+.otp-inp{background:rgba(255,255,255,0.05);border:2px solid var(--border);border-radius:10px;padding:12px 0;text-align:center;font-size:20px;font-weight:700;color:var(--text);width:100%;outline:none;transition:all 0.2s}
+.otp-inp:focus{border-color:var(--accent);background:rgba(245,158,11,0.08)}
+
+/* APP Layout */
+.app{max-width:480px;margin:0 auto;min-height:100vh;display:flex;flex-direction:column;background:var(--bg)}
+/* Topbar */
+.topbar{background:var(--bg2);border-bottom:1px solid var(--border);padding:12px 16px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.topbar-left{display:flex;align-items:center;gap:10px}
+.topbar-avatar{width:36px;height:36px;background:rgba(245,158,11,0.2);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px}
+.topbar-name{font-size:14px;font-weight:600}
+.topbar-stall{font-size:11px;color:var(--text2)}
+.topbar-right{display:flex;align-items:center;gap:8px}
+.notif-badge{background:var(--red);color:#fff;font-size:10px;font-weight:700;padding:2px 6px;border-radius:10px;min-width:18px;text-align:center;display:none}
+/* Bottom Nav */
+.bottom-nav{background:var(--bg2);border-top:1px solid var(--border);display:flex;position:sticky;bottom:0;z-index:100}
+.bn-item{flex:1;display:flex;flex-direction:column;align-items:center;padding:10px 0 8px;cursor:pointer;transition:all 0.15s;color:var(--text3);border:none;background:none;font-family:inherit}
+.bn-item.active{color:var(--accent)}
+.bn-item:hover{color:var(--text2)}
+.bn-icon{font-size:22px;line-height:1;margin-bottom:3px;position:relative}
+.bn-label{font-size:10px;font-weight:500}
+/* Content */
+.content{flex:1;overflow-y:auto;padding-bottom:10px}
+.page{display:none;padding:16px}
+.page.active{display:block}
+
+/* Dashboard */
+.dash-welcome{background:linear-gradient(135deg,rgba(245,158,11,0.15),rgba(217,119,6,0.08));border:1px solid rgba(245,158,11,0.25);border-radius:16px;padding:20px;margin-bottom:16px}
+.dash-welcome h3{font-size:18px;font-weight:700}
+.dash-welcome p{font-size:13px;color:var(--text2);margin-top:4px}
+.stats-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
+.stat-box{background:var(--bg2);border:1px solid var(--border);border-radius:13px;padding:16px;text-align:center}
+.stat-box.hot-card{border-color:rgba(239,68,68,0.3);background:rgba(239,68,68,0.06)}
+.stat-box.warm-card{border-color:rgba(245,158,11,0.3);background:rgba(245,158,11,0.06)}
+.stat-box.cold-card{border-color:rgba(59,130,246,0.3);background:rgba(59,130,246,0.06)}
+.stat-box.conv-card{border-color:rgba(34,197,94,0.3);background:rgba(34,197,94,0.06)}
+.sbn{font-size:30px;font-weight:800;line-height:1}
+.sbl{font-size:11px;color:var(--text2);margin-top:4px}
+
+/* SCAN */
+.scan-page{display:flex;flex-direction:column;align-items:center;padding:20px 16px}
+.scan-icon-wrap{width:200px;height:200px;border:3px dashed rgba(245,158,11,0.4);border-radius:20px;display:flex;align-items:center;justify-content:center;margin:20px auto;background:rgba(245,158,11,0.04);cursor:pointer;transition:all 0.2s;position:relative;overflow:hidden}
+.scan-icon-wrap:hover{border-color:var(--accent);background:rgba(245,158,11,0.08)}
+.scan-icon-wrap.scanning{border-color:var(--accent);animation:scanpulse 1.5s infinite}
+@keyframes scanpulse{0%,100%{box-shadow:0 0 0 0 rgba(245,158,11,0.4)}50%{box-shadow:0 0 0 12px rgba(245,158,11,0)}}
+.scan-line{position:absolute;left:0;right:0;height:2px;background:var(--accent);animation:scanline 2s infinite;display:none}
+@keyframes scanline{0%{top:10%}50%{top:85%}100%{top:10%}}
+.scan-icon-wrap.scanning .scan-line{display:block}
+.scan-hint{font-size:13px;color:var(--text2);text-align:center;margin-bottom:20px}
+.scan-manual{width:100%;background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:11px;padding:12px 14px;color:var(--text);font-size:15px;outline:none;text-align:center;margin-bottom:10px}
+.scan-manual:focus{border-color:var(--accent)}
+.scan-manual::placeholder{color:var(--text3);text-align:center}
+.btn-scan{width:100%;padding:14px;background:var(--accent);color:#000;border:none;border-radius:11px;font-size:16px;font-weight:700;cursor:pointer;transition:all 0.2s}
+.btn-scan:hover{background:var(--accent2)}
+.btn-scan:disabled{opacity:0.5;cursor:not-allowed}
+
+/* Scan Result */
+.result-card{background:var(--bg2);border:1px solid rgba(34,197,94,0.3);border-radius:16px;padding:20px;margin-top:16px;display:none}
+.result-card.show{display:block}
+.result-card.dupe{border-color:rgba(245,158,11,0.3)}
+.result-header{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+.result-avatar{width:48px;height:48px;background:rgba(108,99,255,0.2);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+.result-name{font-size:17px;font-weight:700}
+.result-sub{font-size:13px;color:var(--text2);margin-top:2px}
+.result-details{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
+.rd-item{background:rgba(255,255,255,0.04);border-radius:10px;padding:10px 12px}
+.rd-label{font-size:11px;color:var(--text3);margin-bottom:2px}
+.rd-val{font-size:13px;font-weight:500}
+.result-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.r-btn{padding:11px;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;border:none;text-align:center;transition:all 0.15s}
+.r-btn-call{background:rgba(34,197,94,0.15);color:#86efac;border:1px solid rgba(34,197,94,0.3)}
+.r-btn-wa{background:rgba(37,211,102,0.15);color:#86efac;border:1px solid rgba(37,211,102,0.3)}
+.r-btn-hot{background:rgba(239,68,68,0.15);color:#fca5a5;border:1px solid rgba(239,68,68,0.3)}
+.r-btn-note{background:rgba(255,255,255,0.06);color:var(--text2);border:1px solid var(--border)}
+.status-row{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap}
+.temp-btn{padding:6px 12px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;border:none;transition:all 0.15s}
+.temp-hot{background:rgba(239,68,68,0.15);color:#fca5a5;border:1px solid rgba(239,68,68,0.3)}
+.temp-hot.sel{background:rgba(239,68,68,0.4);color:#fff}
+.temp-warm{background:rgba(245,158,11,0.15);color:#fcd34d;border:1px solid rgba(245,158,11,0.3)}
+.temp-warm.sel{background:rgba(245,158,11,0.4);color:#000}
+.temp-cold{background:rgba(59,130,246,0.15);color:#93c5fd;border:1px solid rgba(59,130,246,0.3)}
+.temp-cold.sel{background:rgba(59,130,246,0.4);color:#fff}
+
+/* Leads list */
+.lead-card{background:var(--bg2);border:1px solid var(--border);border-radius:13px;padding:14px 16px;margin-bottom:10px;cursor:pointer;transition:all 0.15s}
+.lead-card:hover{border-color:rgba(245,158,11,0.3)}
+.lead-card-top{display:flex;align-items:center;justify-content:space-between}
+.lead-card-name{font-size:15px;font-weight:600}
+.lead-card-company{font-size:12px;color:var(--text2);margin-top:2px}
+.lead-card-meta{display:flex;align-items:center;gap:8px;margin-top:10px;flex-wrap:wrap}
+.badge{display:inline-flex;align-items:center;gap:3px;padding:3px 8px;border-radius:20px;font-size:11px;font-weight:600}
+.b-hot{background:rgba(239,68,68,0.15);color:#fca5a5}
+.b-warm{background:rgba(245,158,11,0.15);color:#fcd34d}
+.b-cold{background:rgba(59,130,246,0.15);color:#93c5fd}
+.b-new{background:rgba(255,255,255,0.08);color:var(--text2)}
+.b-interested{background:rgba(34,197,94,0.15);color:#86efac}
+.b-converted{background:rgba(34,197,94,0.25);color:#4ade80}
+.b-follow{background:rgba(108,99,255,0.15);color:#a5b4fc}
+
+/* Lead detail */
+.lead-detail{display:none}
+.lead-detail.active{display:block}
+.back-btn{display:flex;align-items:center;gap:6px;background:none;border:none;color:var(--text2);font-size:14px;cursor:pointer;padding:0;margin-bottom:16px}
+.back-btn:hover{color:var(--accent)}
+.detail-card{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:18px;margin-bottom:12px}
+.detail-section{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.08em;color:var(--accent);margin-bottom:12px}
+.info-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.05);font-size:14px}
+.info-row:last-child{border-bottom:none}
+.info-key{color:var(--text2)}
+.info-val{font-weight:500;text-align:right;max-width:60%}
+.rate-stars{display:flex;gap:6px}
+.star{font-size:22px;cursor:pointer;opacity:0.3;transition:all 0.15s}
+.star.on{opacity:1}
+textarea.note-area{width:100%;background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:10px;padding:12px;color:var(--text);font-size:14px;outline:none;resize:none;font-family:inherit;transition:all 0.2s;margin-top:8px}
+textarea.note-area:focus{border-color:var(--accent)}
+.btn-save{width:100%;padding:12px;background:var(--accent);color:#000;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;margin-top:8px}
+.action-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px}
+.a-btn{padding:12px;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;border:none;transition:all 0.15s;display:flex;align-items:center;justify-content:center;gap:6px}
+.a-btn-wa{background:rgba(37,211,102,0.15);color:#86efac;border:1px solid rgba(37,211,102,0.3)}
+.a-btn-call{background:rgba(34,197,94,0.15);color:#86efac;border:1px solid rgba(34,197,94,0.3)}
+.a-btn-export{background:rgba(108,99,255,0.15);color:#a5b4fc;border:1px solid rgba(108,99,255,0.3)}
+
+/* Filters */
+.filter-row{display:flex;gap:8px;margin-bottom:14px;overflow-x:auto;padding-bottom:4px}
+.filter-row::-webkit-scrollbar{display:none}
+.f-chip{padding:6px 14px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;border:none;background:rgba(255,255,255,0.06);color:var(--text2);white-space:nowrap;transition:all 0.15s}
+.f-chip.active{background:rgba(245,158,11,0.2);color:var(--accent);border:1px solid rgba(245,158,11,0.3)}
+.search-inp{width:100%;background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:10px;padding:10px 14px;color:var(--text);font-size:14px;outline:none;margin-bottom:12px}
+.search-inp:focus{border-color:var(--accent)}
+.search-inp::placeholder{color:var(--text3)}
+
+/* Status select */
+.status-sel{background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:8px;padding:8px 12px;color:var(--text);font-size:13px;outline:none;width:100%;margin-top:6px}
+.status-sel option{background:#1a1a2e}
+
+/* WA modal */
+.wa-modal{position:fixed;inset:0;background:rgba(0,0,0,0.75);backdrop-filter:blur(4px);z-index:1000;display:none;align-items:flex-end;justify-content:center;padding:0}
+.wa-modal.open{display:flex}
+.wa-sheet{background:var(--bg2);border-radius:20px 20px 0 0;padding:24px 20px;width:100%;max-width:480px}
+.wa-title{font-size:16px;font-weight:700;margin-bottom:4px}
+.wa-sub{font-size:13px;color:var(--text2);margin-bottom:14px}
+.wa-templates{display:flex;flex-direction:column;gap:8px;margin-bottom:14px}
+.wa-tpl{background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:10px;padding:10px 14px;cursor:pointer;font-size:13px;color:var(--text2);transition:all 0.15s;text-align:left;border:none;width:100%}
+.wa-tpl:hover{border:1px solid rgba(37,211,102,0.3);color:var(--text);background:rgba(37,211,102,0.06)}
+.wa-tpl.sel{border:1px solid rgba(37,211,102,0.5);color:var(--text);background:rgba(37,211,102,0.1)}
+.wa-custom{width:100%;background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:10px;padding:10px;color:var(--text);font-size:13px;outline:none;resize:none;font-family:inherit}
+.wa-custom:focus{border-color:rgba(37,211,102,0.5)}
+.wa-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+.wa-cancel{background:none;border:1px solid var(--border);color:var(--text2);border-radius:10px;padding:12px;font-size:14px;cursor:pointer}
+.wa-send{background:rgba(37,211,102,0.2);border:1px solid rgba(37,211,102,0.4);color:#4ade80;border-radius:10px;padding:12px;font-size:14px;font-weight:700;cursor:pointer}
+
+/* Toast */
+.toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(60px);background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:12px 20px;font-size:14px;z-index:9999;opacity:0;transition:all 0.3s;pointer-events:none;white-space:nowrap}
+.toast.show{transform:translateX(-50%) translateY(0);opacity:1}
+.toast.ok{border-color:rgba(34,197,94,0.4);color:#86efac}
+.toast.err{border-color:rgba(239,68,68,0.4);color:#fca5a5}
+/* Empty */
+.empty{text-align:center;padding:40px 16px;color:var(--text2)}
+.empty-icon{font-size:44px;opacity:0.3;margin-bottom:10px}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<!-- <div id="login-screen" class="login-wrap">
+  <div class="login-card">
+    <a href="/" class="login-back">← Back to Home</a>
+    <div class="login-logo">
+      <div class="login-logo-icon">🏪</div>
+      <h2>Stall Owner App</h2>
+      <p>LetsKonnect · Lead Capture</p>
+    </div>-->
+
+    <!-- Step 1: Mobile + Event -->
+    <!--<div id="step-mobile">
+      <div class="field">
+        <label>Your Mobile Number</label>
+        <input type="tel" id="login-mobile" placeholder="9876543210" maxlength="10">
+      </div>
+      <div class="field">
+        <label>Event</label>
+        <select id="login-event">
+          <option value="">Loading events…</option>
+        </select>
+      </div>
+      <div id="login-err" class="err"></div>
+      <button class="btn-primary" onclick="requestOtp()" id="btn-otp">Send OTP</button>
+      <p style="font-size:12px;color:var(--text3);text-align:center;margin-top:12px">Demo: 9876541001 to 9876541008 · Any OTP from server console</p>
+    </div> -->
+
+    <!-- Step 2: OTP -->
+    <!-- <div id="step-otp" style="display:none">
+      <p style="font-size:13px;color:var(--text2);text-align:center;margin-bottom:4px">Enter 6-digit OTP sent to</p>
+      <p style="font-size:14px;font-weight:600;text-align:center;margin-bottom:16px" id="otp-phone-lbl"></p>
+      <div class="otp-grid">
+        <input class="otp-inp" type="tel" maxlength="1" oninput="oi(this,0)" onkeydown="ok(event,0)">
+        <input class="otp-inp" type="tel" maxlength="1" oninput="oi(this,1)" onkeydown="ok(event,1)">
+        <input class="otp-inp" type="tel" maxlength="1" oninput="oi(this,2)" onkeydown="ok(event,2)">
+        <input class="otp-inp" type="tel" maxlength="1" oninput="oi(this,3)" onkeydown="ok(event,3)">
+        <input class="otp-inp" type="tel" maxlength="1" oninput="oi(this,4)" onkeydown="ok(event,4)">
+        <input class="otp-inp" type="tel" maxlength="1" oninput="oi(this,5)" onkeydown="ok(event,5)">
+      </div>
+      <div id="otp-err" class="err"></div>
+      <button class="btn-primary" onclick="verifyOtp()" id="btn-verify">Verify & Login</button>
+      <p style="text-align:center;margin-top:12px">
+        <button onclick="document.getElementById('step-otp').style.display='none';document.getElementById('step-mobile').style.display='block'" style="background:none;border:none;color:var(--text2);font-size:13px;cursor:pointer">← Change mobile</button>
+      </p>
+    </div>
+  </div>
+</div>-->
+
+<!-- APP -->
+<div id="app" style="display:none">
+  <div class="app">
+    <!-- Topbar -->
+    <div class="topbar">
+      <div class="topbar-left">
+        <div class="topbar-avatar">🏪</div>
+        <div>
+          <div class="topbar-name" id="sb-name">—</div>
+          <div class="topbar-stall" id="sb-stall">—</div>
+        </div>
+      </div>
+      <div class="topbar-right">
+        <span class="notif-badge" id="notif-badge">0</span>
+        <button onclick="doLogout()" style="background:none;border:none;color:var(--text2);font-size:20px;cursor:pointer;padding:4px">⏻</button>
+      </div>
+    </div>
+
+    <!-- Content -->
+    <div class="content">
+      <!-- DASHBOARD -->
+      <div class="page active" id="page-home">
+        <div class="dash-welcome">
+          <h3>Welcome back! 👋</h3>
+          <p id="event-name-display">Loading event info…</p>
+        </div>
+        <div class="stats-row" id="stats-row-1">
+          <div class="stat-box"><div class="sbn" id="stat-total">—</div><div class="sbl">Total Leads</div></div>
+          <div class="stat-box"><div class="sbn" id="stat-today">—</div><div class="sbl">Today</div></div>
+        </div>
+        <div class="stats-row">
+          <div class="stat-box hot-card"><div class="sbn" id="stat-hot">—</div><div class="sbl">🔥 Hot</div></div>
+          <div class="stat-box warm-card"><div class="sbn" id="stat-warm">—</div><div class="sbl">♨️ Warm</div></div>
+          <div class="stat-box cold-card"><div class="sbn" id="stat-cold">—</div><div class="sbl">❄️ Cold</div></div>
+          <div class="stat-box conv-card"><div class="sbn" id="stat-conv">—</div><div class="sbl">✅ Converted</div></div>
+        </div>
+        <div class="stats-row" style="margin-top:0">
+          <div class="stat-box" style="grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;padding:14px 16px">
+            <div><div class="sbn" id="stat-fu" style="font-size:22px">—</div><div class="sbl">Follow-ups Today</div></div>
+            <span style="font-size:30px">📅</span>
+          </div>
+        </div>
+        <!-- Recent leads -->
+        <div style="font-size:13px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:0.06em;margin:16px 0 10px">Recent Leads</div>
+        <div id="recent-leads"></div>
+      </div>
+
+      <!-- SCAN -->
+      <div class="page" id="page-scan">
+        <div class="scan-page">
+          <h2 style="font-size:20px;font-weight:700">Scan Visitor QR</h2>
+          <p class="scan-hint">Enter the visitor QR token manually below, or tap the scanner area</p>
+
+          <div class="scan-icon-wrap" id="scan-area" onclick="focusScan()">
+            <div class="scan-line"></div>
+            <div style="text-align:center">
+              <div style="font-size:56px">📷</div>
+              <div style="font-size:12px;color:var(--text3);margin-top:8px">Tap to focus</div>
+            </div>
+          </div>
+
+          <input class="scan-manual" id="qr-input" placeholder="Paste or type visitor QR token here"
+            oninput="if(this.value.length>20)autoScan()" autofocus>
+
+          <div id="scan-err" class="err" style="width:100%;margin-bottom:10px"></div>
+          <button class="btn-scan" onclick="doScan()" id="btn-do-scan">⚡ Capture Lead</button>
+        </div>
+
+        <div class="result-card" id="result-card">
+          <div id="result-dupe-notice" style="display:none;background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.3);border-radius:8px;padding:8px 12px;font-size:12px;color:#fcd34d;margin-bottom:12px">⚠️ Already scanned — showing existing lead</div>
+          <div class="result-header">
+            <div class="result-avatar">👤</div>
+            <div>
+              <div class="result-name" id="res-name">—</div>
+              <div class="result-sub" id="res-company">—</div>
+            </div>
+          </div>
+          <div class="result-details" id="res-details"></div>
+          <div style="margin-bottom:12px">
+            <div style="font-size:12px;color:var(--text2);margin-bottom:8px">Lead Temperature:</div>
+            <div class="status-row">
+              <button class="temp-btn temp-hot" onclick="setTemp('hot',this)" id="tb-hot">🔥 Hot</button>
+              <button class="temp-btn temp-warm sel" onclick="setTemp('warm',this)" id="tb-warm">♨️ Warm</button>
+              <button class="temp-btn temp-cold" onclick="setTemp('cold',this)" id="tb-cold">❄️ Cold</button>
+            </div>
+          </div>
+          <div class="result-actions">
+            <button class="r-btn r-btn-call" onclick="callVisitor()">📞 Call</button>
+            <button class="r-btn r-btn-wa" onclick="openWa()">💬 WhatsApp</button>
+            <button class="r-btn r-btn-hot" onclick="saveAndScanNext()">✅ Save & Next</button>
+            <button class="r-btn r-btn-note" onclick="viewLeadDetail()">📝 Add Notes</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- LEADS LIST -->
+      <div class="page" id="page-leads">
+        <div class="lead-detail" id="lead-detail">
+          <button class="back-btn" onclick="backToList()">← Back to Leads</button>
+          <div id="lead-detail-content"></div>
+        </div>
+        <div id="leads-list-view">
+          <div class="filter-row">
+            <button class="f-chip active" onclick="setFilter('',this)">All</button>
+            <button class="f-chip" onclick="setFilter('hot',this)">🔥 Hot</button>
+            <button class="f-chip" onclick="setFilter('warm',this)">♨️ Warm</button>
+            <button class="f-chip" onclick="setFilter('cold',this)">❄️ Cold</button>
+            <button class="f-chip" onclick="setFilter('follow_up',this)">📅 Follow-up</button>
+            <button class="f-chip" onclick="setFilter('converted',this)">✅ Converted</button>
+          </div>
+          <input class="search-inp" id="leads-search" placeholder="Search by name, mobile, company…" oninput="loadLeads()">
+          <div id="leads-list"></div>
+        </div>
+      </div>
+
+      <!-- EXPORT / MORE -->
+      <div class="page" id="page-more">
+        <div style="padding:4px 0">
+          <div style="font-size:18px;font-weight:700;margin-bottom:20px">More</div>
+
+          <div class="detail-card">
+            <div class="detail-section">Export Leads</div>
+            <p style="font-size:13px;color:var(--text2);margin-bottom:14px">Export all your leads to Excel. A download link will be sent to your WhatsApp.</p>
+            <div style="display:flex;gap:8px;flex-wrap:wrap">
+              <button class="a-btn a-btn-export" style="flex:1" onclick="exportLeads()">📥 Export All Leads</button>
+              <button class="a-btn a-btn-export" style="flex:1" onclick="exportLeads('hot')">🔥 Export Hot Only</button>
+            </div>
+            <div id="export-status" style="font-size:13px;color:var(--text2);margin-top:10px;display:none"></div>
+          </div>
+
+          <div class="detail-card">
+            <div class="detail-section">My Profile</div>
+            <div class="info-row"><span class="info-key">Name</span><span class="info-val" id="profile-name">—</span></div>
+            <div class="info-row"><span class="info-key">Company</span><span class="info-val" id="profile-company">—</span></div>
+            <div class="info-row"><span class="info-key">Stall</span><span class="info-val" id="profile-stall">—</span></div>
+            <div class="info-row"><span class="info-key">Mobile</span><span class="info-val" id="profile-mobile">—</span></div>
+          </div>
+
+          <div class="detail-card">
+            <div class="detail-section">Scan History</div>
+            <p style="font-size:13px;color:var(--text2);margin-bottom:10px">Last 10 scans at your stall</p>
+            <div id="scan-history"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom Nav -->
+    <div class="bottom-nav">
+      <button class="bn-item active" onclick="showTab('home',this)">
+        <div class="bn-icon">🏠</div><div class="bn-label">Home</div>
+      </button>
+      <button class="bn-item" onclick="showTab('scan',this)">
+        <div class="bn-icon">📷</div><div class="bn-label">Scan</div>
+      </button>
+      <button class="bn-item" onclick="showTab('leads',this)">
+        <div class="bn-icon">🎯</div><div class="bn-label">Leads</div>
+      </button>
+      <button class="bn-item" onclick="showTab('more',this)">
+        <div class="bn-icon">⋯</div><div class="bn-label">More</div>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- WhatsApp Sheet -->
+<div class="wa-modal" id="wa-modal" onclick="if(event.target===this)closeWa()">
+  <div class="wa-sheet">
+    <div class="wa-title">💬 Send WhatsApp</div>
+    <div class="wa-sub" id="wa-visitor-name">to Visitor</div>
+    <div class="wa-templates">
+      <button class="wa-tpl sel" id="wa-t0" onclick="selectTpl(0)">Thank you for visiting our stall! Our team will connect with you shortly.</button>
+      <button class="wa-tpl" id="wa-t1" onclick="selectTpl(1)">We'd love to schedule a demo for you. When would be a good time?</button>
+      <button class="wa-tpl" id="wa-t2" onclick="selectTpl(2)">Here's our latest offer just for you. Please call us to know more.</button>
+    </div>
+    <textarea class="wa-custom" id="wa-custom" rows="3" placeholder="Or type a custom message…"></textarea>
+    <div class="wa-actions">
+      <button class="wa-cancel" onclick="closeWa()">Cancel</button>
+      <button class="wa-send" onclick="sendWa()">Send 📱</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const API = "/api/v1";
+
+let token = sessionStorage.getItem("stall_token");
+let me = JSON.parse(sessionStorage.getItem("stall_user") || "null");
+
+if (!token || !me) {
+  window.location.href = "/login.html";
+} else {
+  bootApp();
+}
+
+let currentLead = null;
+let currentTemp = "warm";
+let activeFilter = "";
+let allLeads = [];
+let selectedTpl = 0;
+
+// Load events for login dropdown
+// (async ()=>{
+//   try {
+//     const res = await fetch(API + "/organizer/events"); // public-ish, get active events
+//     // Fallback: just show a text input
+//   } catch(e) {}
+//   // Use admin token if available to list events
+//   loadLoginEvents();
+// })();
+
+// async function loadLoginEvents() {
+//   // Try to get events without auth (health check style)
+//   const sel = document.getElementById("login-event");
+//   sel.innerHTML = '<option value="">Loading…</option>';
+//   try {
+//     // Events are not public, so we provide a manual entry fallback
+//     sel.innerHTML = '<option value="">Enter Event ID manually if needed</option>';
+//     // Try with any cached admin token
+//     const adminToken = localStorage.getItem("lk_admin_token");
+//     if (!adminToken) {
+//       showEventInput();
+//       return;
+//     }
+//     const res = await fetch(API + "/super_admin/events", { headers: {"Authorization":"Bearer "+adminToken,"Content-Type":"application/json"} });
+//     const data = await res.json();
+//     if (data.success && data.data?.length) {
+//       sel.innerHTML = data.data.map(e=>`<option value="${e.id}">${e.name}</option>`).join("");
+//     } else {
+//       showEventInput();
+//     }
+//   } catch(e) { showEventInput(); }
+// }
+
+// function showEventInput() {
+//   const sel = document.getElementById("login-event");
+//   const wrap = sel.parentNode;
+//   sel.style.display = "none";
+//   wrap.innerHTML = `<label style="display:block;font-size:13px;font-weight:500;color:var(--text2);margin-bottom:6px">Event ID</label>
+//     <input type="text" id="login-event-id" placeholder="Paste event ID from admin panel" style="width:100%;background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:10px;padding:12px 14px;color:#fff;font-size:15px;outline:none">
+//     <p style="font-size:11px;color:var(--text3);margin-top:4px">Find Event ID in Admin → Events</p>`;
+// }
+
+// function getEventId() {
+//   const sel = document.getElementById("login-event");
+//   if (sel && sel.style.display !== "none") return sel.value;
+//   const inp = document.getElementById("login-event-id");
+//   return inp ? inp.value.trim() : "";
+// }
+
+// Boot if already logged in
+// if (token && me) bootApp();
+
+// ── Auth ──────────────────────────────────────────────────────────────────
+// async function requestOtp() {
+//   const mobile   = document.getElementById("login-mobile").value.trim();
+//   const event_id = getEventId();
+//   const err      = document.getElementById("login-err");
+//   const btn      = document.getElementById("btn-otp");
+//   err.style.display = "none";
+
+//   if (!/^[6-9]\d{9}$/.test(mobile)) { err.style.display="block"; err.textContent="Enter valid 10-digit mobile"; return; }
+//   if (!event_id) { err.style.display="block"; err.textContent="Select or enter an event"; return; }
+
+//   btn.disabled = true; btn.textContent = "Sending…";
+//   const res = await apiFetch("/stall/request_otp", "POST", { mobile_number: mobile, event_id }, false);
+//   btn.disabled = false; btn.textContent = "Send OTP";
+
+//   if (res.success) {
+//     document.getElementById("step-mobile").style.display = "none";
+//     document.getElementById("step-otp").style.display   = "block";
+//     document.getElementById("otp-phone-lbl").textContent = "+91" + mobile.slice(0,2) + "XXXXXX" + mobile.slice(-2);
+//     document.querySelectorAll(".otp-inp")[0].focus();
+//   } else {
+//     err.style.display = "block";
+//     err.textContent   = res.error || "Failed to send OTP";
+//   }
+// }
+
+// function oi(el, idx) {
+//   el.value = el.value.replace(/\D/,"");
+//   if (el.value && idx < 5) document.querySelectorAll(".otp-inp")[idx+1].focus();
+//   const otp = Array.from(document.querySelectorAll(".otp-inp")).map(i=>i.value).join("");
+//   if (otp.length === 6) verifyOtp();
+// }
+// function ok(e, idx) { if (e.key==="Backspace" && !e.target.value && idx>0) document.querySelectorAll(".otp-inp")[idx-1].focus(); }
+
+// async function verifyOtp() {
+//   const otp      = Array.from(document.querySelectorAll(".otp-inp")).map(i=>i.value).join("");
+//   const mobile   = document.getElementById("login-mobile").value.trim();
+//   const event_id = getEventId();
+//   const err      = document.getElementById("otp-err");
+//   const btn      = document.getElementById("btn-verify");
+//   if (otp.length !== 6) return;
+//   err.style.display = "none";
+//   btn.disabled = true; btn.textContent = "Verifying…";
+
+//   const res = await apiFetch("/stall/verify_otp", "POST", { mobile_number: mobile, otp, event_id }, false);
+//   btn.disabled = false; btn.textContent = "Verify & Login";
+
+//   if (res.success) {
+//     token = res.data.token; me = res.data.stall_owner;
+//     sessionStorage.setItem("stall_token", token);
+//     sessionStorage.setItem("stall_me", JSON.stringify(me));
+//     bootApp();
+//   } else {
+//     err.style.display = "block"; err.textContent = res.error || "Invalid OTP";
+//     document.querySelectorAll(".otp-inp").forEach(i=>{ i.value=""; i.style.borderColor="#ef4444"; });
+//     document.querySelectorAll(".otp-inp")[0].focus();
+//   }
+// }
+
+function doLogout() {
+  sessionStorage.clear(); location.reload();
+}
+
+function bootApp() {
+  // document.getElementById("login-screen").style.display = "none";
+  document.getElementById("app").style.display = "block";
+  document.getElementById("sb-name").textContent    = me.name || "Stall Owner";
+  document.getElementById("sb-stall").textContent   = me.company_name + (me.stall_number ? ` · Stall ${me.stall_number}` : "");
+  document.getElementById("profile-name").textContent    = me.name;
+  document.getElementById("profile-company").textContent = me.company_name;
+  document.getElementById("profile-stall").textContent   = me.stall_number || "—";
+  document.getElementById("profile-mobile").textContent  = me.mobile_number;
+  loadDashboard();
+  loadScanHistory();
+}
+
+// ── Navigation ────────────────────────────────────────────────────────────
+function showTab(name, el) {
+  document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
+  document.querySelectorAll(".bn-item").forEach(b=>b.classList.remove("active"));
+  document.getElementById("page-"+name).classList.add("active");
+  el.classList.add("active");
+  if (name==="leads") loadLeads();
+  if (name==="home") loadDashboard();
+}
+
+// ── API ───────────────────────────────────────────────────────────────────
+async function apiFetch(path, method="GET", body=null, useToken=true) {
+  const headers = {"Content-Type":"application/json"};
+  if (useToken && token) headers["Authorization"] = "Bearer " + token;
+  const opts = { method, headers };
+  if (body) opts.body = JSON.stringify(body);
+  try {
+    const r = await fetch(API + path, opts);
+    if (r.status === 401) { doLogout(); return {}; }
+    return r.json();
+  } catch(e) { return { success: false, error: "Network error" }; }
+}
+
+// ── Dashboard ─────────────────────────────────────────────────────────────
+async function loadDashboard() {
+  const res = await apiFetch("/stall_owner/dashboard");
+  if (!res.success) return;
+  const s   = res.data.summary;
+  document.getElementById("event-name-display").textContent = res.data.stall_owner?.company_name || "";
+  document.getElementById("stat-total").textContent = s.total;
+  document.getElementById("stat-today").textContent = s.today;
+  document.getElementById("stat-hot").textContent   = s.hot;
+  document.getElementById("stat-warm").textContent  = s.warm;
+  document.getElementById("stat-cold").textContent  = s.cold;
+  document.getElementById("stat-conv").textContent  = s.converted;
+  document.getElementById("stat-fu").textContent    = s.follow_up_today;
+
+  const rl = document.getElementById("recent-leads");
+  const recent = res.data.recent_leads || [];
+  rl.innerHTML = recent.map(l=>`
+    <div class="lead-card" onclick="openLeadById('${l.id}')">
+      <div class="lead-card-top">
+        <div><div class="lead-card-name">${l.visitor_name}</div><div class="lead-card-company">${l.business_name||""}</div></div>
+        <span class="badge ${tempBadge(l.temperature)}">${tempEmoji(l.temperature)} ${l.temperature}</span>
+      </div>
+      <div class="lead-card-meta">
+        <span style="font-size:12px;color:var(--text3)">${timeAgo(l.scanned_at)}</span>
+      </div>
+    </div>
+  `).join("") || `<div class="empty"><div class="empty-icon">🎯</div>No leads yet. Start scanning!</div>`;
+}
+
+// ── Scan ──────────────────────────────────────────────────────────────────
+function focusScan() {
+  const area = document.getElementById("scan-area");
+  const inp  = document.getElementById("qr-input");
+  area.classList.toggle("scanning");
+  inp.focus();
+}
+
+function autoScan() {
+  clearTimeout(window._scanTimer);
+  window._scanTimer = setTimeout(doScan, 400);
+}
+
+async function doScan() {
+  const qr  = document.getElementById("qr-input").value.trim();
+  const err = document.getElementById("scan-err");
+  const btn = document.getElementById("btn-do-scan");
+  err.style.display = "none";
+  if (!qr) { err.style.display="block"; err.textContent="Enter a QR token"; return; }
+
+  btn.disabled = true; btn.textContent = "⏳ Scanning…";
+  const res = await apiFetch("/stall_owner/scan", "POST", { qr_token: qr });
+  btn.disabled = false; btn.textContent = "⚡ Capture Lead";
+
+  if (res.success) {
+    showScanResult(res.data);
+    document.getElementById("qr-input").value = "";
+    document.getElementById("scan-area").classList.remove("scanning");
+    loadDashboard();
+  } else {
+    err.style.display = "block"; err.textContent = res.error || "Scan failed";
+  }
+}
+
+function showScanResult(data) {
+  const v = data.visitor;
+  currentLead = data.lead;
+  currentTemp = currentLead?.temperature || "warm";
+  document.getElementById("res-name").textContent    = v.full_name;
+  document.getElementById("res-company").textContent = [v.business_name, v.business_category].filter(Boolean).join(" · ");
+  document.getElementById("res-details").innerHTML   = [
+    ["📱 Mobile", v.mobile_number],
+    ["📍 Location", v.location||"—"],
+    ["💼 Profession", v.profession||"—"],
+    ["🏷 Category", v.business_category||"—"],
+  ].map(([k,vv])=>`<div class="rd-item"><div class="rd-label">${k}</div><div class="rd-val">${vv}</div></div>`).join("");
+
+  const rc = document.getElementById("result-card");
+  rc.className = "result-card show" + (data.already_scanned ? " dupe" : "");
+  document.getElementById("result-dupe-notice").style.display = data.already_scanned ? "block" : "none";
+  setTemp(currentTemp, document.getElementById("tb-"+currentTemp));
+}
+
+function setTemp(t, btn) {
+  currentTemp = t;
+  ["hot","warm","cold"].forEach(x=>{ document.getElementById("tb-"+x).classList.remove("sel"); });
+  btn.classList.add("sel");
+  if (currentLead) apiFetch("/stall_owner/leads/"+currentLead.id, "PATCH", { lead: { temperature: t } });
+}
+
+function callVisitor() {
+  const mobile = document.getElementById("res-details").querySelector(".rd-val")?.textContent;
+  if (mobile) window.location.href = "tel:+91"+mobile;
+}
+
+let waMobile = "";
+function openWa() { document.getElementById("wa-modal").classList.add("open"); document.getElementById("wa-visitor-name").textContent = document.getElementById("res-name").textContent; }
+function closeWa() { document.getElementById("wa-modal").classList.remove("open"); }
+function selectTpl(i) {
+  selectedTpl = i;
+  document.querySelectorAll(".wa-tpl").forEach((t,idx)=>t.className="wa-tpl"+(idx===i?" sel":""));
+}
+async function sendWa() {
+  if (!currentLead) return;
+  const tpls = [
+    "Thank you for visiting our stall! Our team will connect with you shortly.",
+    "We'd love to schedule a demo for you. When would be a good time?",
+    "Here's our latest offer just for you. Please call us to know more."
+  ];
+  const custom = document.getElementById("wa-custom").value.trim();
+  const msg    = custom || tpls[selectedTpl];
+  const res    = await apiFetch("/stall_owner/leads/"+currentLead.id+"/whatsapp", "POST", { message: msg });
+  closeWa();
+  toast(res.success ? "WhatsApp sent! 📱" : res.error||"Failed", res.success?"ok":"err");
+}
+
+function saveAndScanNext() {
+  document.getElementById("result-card").className = "result-card";
+  document.getElementById("qr-input").focus();
+  toast("Lead saved! Ready to scan next ✅","ok");
+  loadDashboard();
+}
+
+function viewLeadDetail() {
+  if (!currentLead) return;
+  showTab("leads", document.querySelectorAll(".bn-item")[2]);
+  setTimeout(()=>openLeadById(currentLead.id), 100);
+}
+
+// ── Leads ─────────────────────────────────────────────────────────────────
+function setFilter(f, btn) {
+  activeFilter = f;
+  document.querySelectorAll(".f-chip").forEach(c=>c.classList.remove("active"));
+  btn.classList.add("active");
+  loadLeads();
+}
+
+async function loadLeads() {
+  const q   = document.getElementById("leads-search").value;
+  let path  = "/stall_owner/leads?per_page=50";
+  if (activeFilter === "hot"||activeFilter==="warm"||activeFilter==="cold") path += "&temperature="+activeFilter;
+  else if (activeFilter) path += "&status="+activeFilter;
+  if (q) path += "&search="+encodeURIComponent(q);
+  const res = await apiFetch(path);
+  allLeads  = res.data || [];
+  document.getElementById("leads-list").innerHTML = allLeads.map(l=>`
+    <div class="lead-card" onclick="openLeadById('${l.id}')">
+      <div class="lead-card-top">
+        <div>
+          <div class="lead-card-name">${l.visitor.full_name}</div>
+          <div class="lead-card-company">${l.visitor.business_name||""}</div>
+        </div>
+        <span class="badge ${tempBadge(l.temperature)}">${tempEmoji(l.temperature)} ${l.temperature}</span>
+      </div>
+      <div class="lead-card-meta">
+        <span class="badge ${statusBadge(l.status)}">${l.status.replace("_"," ")}</span>
+        <span style="font-size:12px;color:var(--text3)">${"⭐".repeat(l.interest_rating||0)}</span>
+        ${l.follow_up_date?`<span style="font-size:11px;background:rgba(108,99,255,0.15);color:#a5b4fc;padding:2px 8px;border-radius:10px">📅 ${l.follow_up_date}</span>`:""}
+        <span style="font-size:11px;color:var(--text3)">${timeAgo(l.scanned_at)}</span>
+      </div>
+    </div>
+  `).join("") || `<div class="empty"><div class="empty-icon">🎯</div>No leads found</div>`;
+}
+
+async function openLeadById(id) {
+  document.getElementById("leads-list-view").style.display = "none";
+  const ld = document.getElementById("lead-detail");
+  ld.classList.add("active");
+  ld.style.display = "block";
+  const res = await apiFetch("/stall_owner/leads/"+id);
+  if (!res.success) return;
+  const l = res.data; const v = l.visitor;
+  currentLead = l;
+  document.getElementById("lead-detail-content").innerHTML = `
+    <div class="detail-card">
+      <div class="detail-section">Visitor Info</div>
+      <div class="info-row"><span class="info-key">Name</span><span class="info-val">${v.full_name}</span></div>
+      <div class="info-row"><span class="info-key">Mobile</span><span class="info-val"><a href="tel:+91${v.mobile_number}" style="color:var(--green)">${v.mobile_number}</a></span></div>
+      <div class="info-row"><span class="info-key">Business</span><span class="info-val">${v.business_name||"—"}</span></div>
+      <div class="info-row"><span class="info-key">Category</span><span class="info-val">${v.business_category||"—"}</span></div>
+      <div class="info-row"><span class="info-key">Location</span><span class="info-val">${v.location||"—"}</span></div>
+      <div class="info-row"><span class="info-key">Profession</span><span class="info-val">${v.profession||"—"}</span></div>
+      ${v.email?`<div class="info-row"><span class="info-key">Email</span><span class="info-val">${v.email}</span></div>`:""}
+    </div>
+    <div class="detail-card">
+      <div class="detail-section">Lead Details</div>
+      <div style="margin-bottom:12px">
+        <div style="font-size:12px;color:var(--text2);margin-bottom:8px">Temperature</div>
+        <div class="status-row">
+          <button class="temp-btn temp-hot${l.temperature==='hot'?' sel':''}" onclick="updateLeadField('temperature','hot',this,'tb2-hot')">🔥 Hot</button>
+          <button class="temp-btn temp-warm${l.temperature==='warm'?' sel':''}" onclick="updateLeadField('temperature','warm',this,'tb2-warm')">♨️ Warm</button>
+          <button class="temp-btn temp-cold${l.temperature==='cold'?' sel':''}" onclick="updateLeadField('temperature','cold',this,'tb2-cold')">❄️ Cold</button>
+        </div>
+      </div>
+      <div style="margin-bottom:12px">
+        <div style="font-size:12px;color:var(--text2);margin-bottom:8px">Interest Rating</div>
+        <div class="rate-stars" id="stars">${[1,2,3,4,5].map(n=>`<span class="star${n<=(l.interest_rating||0)?' on':''}" onclick="setRating(${n})">⭐</span>`).join("")}</div>
+      </div>
+      <div style="margin-bottom:12px">
+        <div style="font-size:12px;color:var(--text2);margin-bottom:6px">Status</div>
+        <select class="status-sel" onchange="updateLeadField('status',this.value,null,'')">
+          ${["new","contacted","interested","follow_up","converted","lost"].map(s=>`<option value="${s}"${l.status===s?' selected':''}>${s.replace("_"," ")}</option>`).join("")}
+        </select>
+      </div>
+      <div style="margin-bottom:4px">
+        <div style="font-size:12px;color:var(--text2);margin-bottom:4px">Follow-up Date</div>
+        <input type="date" value="${l.follow_up_date||''}" style="background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:8px;padding:8px 12px;color:#fff;font-size:14px;outline:none;width:100%" onchange="updateLeadField('follow_up_date',this.value)">
+      </div>
+    </div>
+    <div class="detail-card">
+      <div class="detail-section">Notes & Remarks</div>
+      <textarea class="note-area" id="lead-notes" rows="3" placeholder="Add notes about this lead…">${l.notes||""}</textarea>
+      <textarea class="note-area" id="lead-remarks" rows="2" placeholder="Remarks / requirements…" style="margin-top:8px">${l.remarks||""}</textarea>
+      <button class="btn-save" onclick="saveNotes()">💾 Save Notes</button>
+    </div>
+    <div class="detail-card">
+      <div class="detail-section">Actions</div>
+      <div class="action-grid">
+        <button class="a-btn a-btn-call" onclick="window.location.href='tel:+91${v.mobile_number}'">📞 Call</button>
+        <button class="a-btn a-btn-wa" onclick="openWa()">💬 WhatsApp</button>
+      </div>
+    </div>
+  `;
+}
+
+function backToList() {
+  document.getElementById("lead-detail").classList.remove("active");
+  document.getElementById("lead-detail").style.display = "none";
+  document.getElementById("leads-list-view").style.display = "block";
+}
+
+async function updateLeadField(field, val, btnEl, groupPrefix) {
+  if (!currentLead) return;
+  await apiFetch("/stall_owner/leads/"+currentLead.id, "PATCH", { lead: { [field]: val } });
+  toast("Updated ✓","ok");
+}
+
+function setRating(n) {
+  document.querySelectorAll("#stars .star").forEach((s,i)=>s.className="star"+(i<n?" on":""));
+  if (currentLead) apiFetch("/stall_owner/leads/"+currentLead.id, "PATCH", { lead: { interest_rating: n } });
+}
+
+async function saveNotes() {
+  if (!currentLead) return;
+  const notes   = document.getElementById("lead-notes").value;
+  const remarks = document.getElementById("lead-remarks").value;
+  const res     = await apiFetch("/stall_owner/leads/"+currentLead.id, "PATCH", { lead: { notes, remarks } });
+  toast(res.success ? "Notes saved ✅" : "Failed","ok");
+}
+
+// ── Export ────────────────────────────────────────────────────────────────
+async function exportLeads(filter) {
+  const body = filter ? { temperature: filter } : {};
+  const res  = await apiFetch("/stall_owner/leads/export", "POST", body);
+  const el   = document.getElementById("export-status");
+  el.style.display = "block";
+  if (res.success) {
+    el.textContent = "✅ Export started! You'll receive the download link on WhatsApp shortly.";
+    el.style.color  = "#86efac";
+    pollExport(res.data.job_id);
+  } else {
+    el.textContent = "❌ " + (res.error||"Failed");
+    el.style.color  = "#fca5a5";
+  }
+}
+
+async function pollExport(jobId) {
+  for (let i=0; i<30; i++) {
+    await new Promise(r=>setTimeout(r,3000));
+    const res = await apiFetch("/stall_owner/leads/export/"+jobId+"/status");
+    if (res.data?.status === "completed") {
+      const el = document.getElementById("export-status");
+      el.innerHTML = `✅ Ready! <a href="${res.data.file_url}" target="_blank" style="color:var(--accent)">Download Excel ↗</a>`;
+      return;
+    }
+    if (res.data?.status === "failed") break;
+  }
+}
+
+// ── Scan History ──────────────────────────────────────────────────────────
+async function loadScanHistory() {
+  const res = await apiFetch("/stall_owner/scan/history");
+  document.getElementById("scan-history").innerHTML = (res.data||[]).map(s=>`
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px">
+      <span style="font-weight:500">${s.visitor_name}</span>
+      <span class="badge ${tempBadge(s.temperature)}">${s.temperature}</span>
+    </div>
+  `).join("") || `<p style="font-size:13px;color:var(--text3)">No scans yet</p>`;
+}
+
+// ── Helpers ───────────────────────────────────────────────────────────────
+function tempBadge(t) { return {hot:"b-hot",warm:"b-warm",cold:"b-cold"}[t]||"b-new"; }
+function tempEmoji(t) { return {hot:"🔥",warm:"♨️",cold:"❄️"}[t]||""; }
+function statusBadge(s) { return {new:"b-new",interested:"b-interested",converted:"b-converted",follow_up:"b-follow"}[s]||"b-new"; }
+function timeAgo(d) {
+  if (!d) return "";
+  const diff = Date.now() - new Date(d).getTime();
+  const m = Math.floor(diff/60000);
+  if (m < 1)  return "just now";
+  if (m < 60) return m+"m ago";
+  const h = Math.floor(m/60);
+  if (h < 24) return h+"h ago";
+  return Math.floor(h/24)+"d ago";
+}
+function toast(msg, type="ok") {
+  const t = document.getElementById("toast");
+  t.textContent = msg; t.className = "toast "+type+" show";
+  setTimeout(()=>{ t.className="toast"; },3000);
+}
+</script>
+</body>
+</html>
