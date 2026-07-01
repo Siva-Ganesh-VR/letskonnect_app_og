@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LetsKonnect — Event Lead Capture & Networking Platform</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--t:#14b8a6;--t2:#0d9488;--t3:#0f766e;--o:#f59e0b;--o2:#d97706;--g:#22c55e;--g2:#16a34a;--r:#ef4444;--bg:#f8fafc;--w:#fff;--text:#0f172a;--text2:#64748b;--text3:#94a3b8;--bdr:#e2e8f0;--bdr2:#f1f5f9}
+html{scroll-behavior:smooth}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden;-webkit-font-smoothing:antialiased}
+
+/* ── NAV ── */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:0 5%;display:flex;align-items:center;justify-content:space-between;height:66px;background:rgba(255,255,255,.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--bdr);box-shadow:0 1px 3px rgba(0,0,0,.06)}
+.nav-logo{font-size:20px;font-weight:800;color:var(--t);display:flex;align-items:center;gap:8px;text-decoration:none}
+.nav-dot{width:8px;height:8px;background:var(--t);border-radius:50%;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.8)}}
+.nav-links{display:flex;align-items:center;gap:8px}
+.nav-btn{padding:9px 18px;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;text-decoration:none;transition:all .2s;font-family:'Inter',sans-serif}
+.nav-ghost{color:var(--text2);background:none;border:1.5px solid var(--bdr)}
+.nav-ghost:hover{border-color:var(--t);color:var(--t)}
+.nav-solid{background:linear-gradient(135deg,var(--t),var(--t2));color:#fff;border:none;box-shadow:0 2px 8px rgba(20,184,166,.3)}
+.nav-solid:hover{transform:translateY(-1px);box-shadow:0 4px 14px rgba(20,184,166,.4)}
+
+/* ── HERO ── */
+.hero{min-height:100vh;display:flex;align-items:center;justify-content:center;text-align:center;padding:110px 5% 60px;position:relative;overflow:hidden;background:linear-gradient(160deg,#f0fdfa 0%,#f8fafc 40%,#fffbeb 100%)}
+.hero-glow{position:absolute;top:10%;left:50%;transform:translateX(-50%);width:700px;height:700px;background:radial-gradient(circle,rgba(20,184,166,.1) 0%,transparent 70%);pointer-events:none}
+.hero-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(20,184,166,.1);border:1.5px solid rgba(20,184,166,.3);border-radius:20px;padding:7px 18px;font-size:13px;font-weight:600;color:var(--t2);margin-bottom:24px}
+.badge-live{width:7px;height:7px;background:var(--g);border-radius:50%;animation:pulse 2s infinite}
+h1{font-size:clamp(36px,5.5vw,68px);font-weight:800;line-height:1.1;letter-spacing:-.02em;margin-bottom:20px;color:var(--text)}
+.grad{background:linear-gradient(135deg,var(--t),var(--t3));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero-sub{font-size:clamp(16px,1.8vw,19px);color:var(--text2);max-width:580px;margin:0 auto 40px;line-height:1.7}
+.hero-ctas{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-bottom:56px}
+.btn-hero-p{padding:15px 32px;border-radius:12px;font-size:16px;font-weight:700;background:linear-gradient(135deg,var(--t),var(--t2));color:#fff;border:none;cursor:pointer;text-decoration:none;transition:all .2s;display:inline-flex;align-items:center;gap:8px;font-family:'Inter',sans-serif;box-shadow:0 4px 16px rgba(20,184,166,.35)}
+.btn-hero-p:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(20,184,166,.45)}
+.btn-hero-s{padding:15px 32px;border-radius:12px;font-size:16px;font-weight:600;background:var(--w);color:var(--text);border:1.5px solid var(--bdr);cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:8px;transition:all .2s;font-family:'Inter',sans-serif;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+.btn-hero-s:hover{border-color:var(--t);color:var(--t)}
+
+/* role cards */
+.roles-strip{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.role-card{background:var(--w);border:1.5px solid var(--bdr);border-radius:14px;padding:14px 22px;display:flex;align-items:center;gap:12px;cursor:pointer;text-decoration:none;transition:all .2s;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+.role-card:hover{border-color:var(--t);transform:translateY(-3px);box-shadow:0 8px 24px rgba(20,184,166,.15)}
+.role-icon{font-size:26px}
+.role-label{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;font-weight:600}
+.role-name{font-size:14px;font-weight:700;color:var(--text)}
+
+/* ── STATS ── */
+.stats{padding:72px 5%;text-align:center;background:var(--w);border-top:1px solid var(--bdr);border-bottom:1px solid var(--bdr)}
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:0;max-width:900px;margin:0 auto}
+@media(max-width:600px){.stats-grid{grid-template-columns:repeat(2,1fr)}}
+.stat-item{padding:36px 24px;border-right:1px solid var(--bdr)}
+.stat-item:last-child{border-right:none}
+.stat-num{font-size:42px;font-weight:800;background:linear-gradient(135deg,var(--t),var(--t2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1}
+.stat-label{font-size:13px;color:var(--text2);margin-top:8px;font-weight:500}
+
+/* ── SECTIONS ── */
+.section{padding:80px 5%}
+.section-alt{padding:80px 5%;background:var(--w);border-top:1px solid var(--bdr);border-bottom:1px solid var(--bdr)}
+.sec-label{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--t);text-align:center;margin-bottom:10px}
+.sec-title{font-size:clamp(26px,3.5vw,42px);font-weight:800;text-align:center;margin-bottom:14px;letter-spacing:-.01em;color:var(--text)}
+.sec-sub{font-size:16px;color:var(--text2);text-align:center;max-width:560px;margin:0 auto 52px;line-height:1.7}
+
+/* ── FEATURES ── */
+.feat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:18px;max-width:1100px;margin:0 auto}
+.feat-card{background:var(--w);border:1.5px solid var(--bdr);border-radius:16px;padding:28px;transition:all .2s;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+.feat-card:hover{border-color:rgba(20,184,166,.35);transform:translateY(-3px);box-shadow:0 8px 24px rgba(20,184,166,.1)}
+.feat-icon{font-size:32px;margin-bottom:14px;display:block}
+.feat-title{font-size:16px;font-weight:700;margin-bottom:8px;color:var(--text)}
+.feat-desc{font-size:14px;color:var(--text2);line-height:1.65}
+
+/* ── HOW IT WORKS ── */
+.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:0;max-width:1000px;margin:0 auto;position:relative}
+.steps::before{content:'';position:absolute;top:36px;left:10%;right:10%;height:2px;background:linear-gradient(90deg,var(--t),var(--o));opacity:.25}
+.step-item{text-align:center;padding:20px 24px;position:relative;z-index:1}
+.step-num{width:72px;height:72px;background:linear-gradient(135deg,var(--t),var(--t2));border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:800;color:#fff;margin:0 auto 16px;box-shadow:0 4px 20px rgba(20,184,166,.35)}
+.step-title{font-size:15px;font-weight:700;margin-bottom:6px;color:var(--text)}
+.step-desc{font-size:13px;color:var(--text2);line-height:1.6}
+
+/* ── PORTALS ── */
+.portals-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:18px;max-width:1100px;margin:0 auto}
+.portal-card{border-radius:20px;padding:30px;text-decoration:none;color:var(--text);transition:all .2s;display:block;border:1.5px solid var(--bdr);background:var(--w);box-shadow:0 1px 3px rgba(0,0,0,.06)}
+.portal-card:hover{transform:translateY(-4px);box-shadow:0 12px 32px rgba(0,0,0,.1)}
+.portal-card.admin{border-color:rgba(20,184,166,.3);background:linear-gradient(135deg,#f0fdfa,#ffffff)}
+.portal-card.organizer{border-color:rgba(34,197,94,.25);background:linear-gradient(135deg,#f0fdf4,#ffffff)}
+.portal-card.stall{border-color:rgba(245,158,11,.25);background:linear-gradient(135deg,#fffbeb,#ffffff)}
+.portal-card.visitor{border-color:rgba(59,130,246,.2);background:linear-gradient(135deg,#eff6ff,#ffffff);cursor:default}
+.portal-icon{font-size:38px;margin-bottom:14px;display:block}
+.portal-title{font-size:19px;font-weight:800;margin-bottom:8px;color:var(--text)}
+.portal-desc{font-size:13px;color:var(--text2);margin-bottom:18px;line-height:1.6}
+.portal-feats{list-style:none;margin-bottom:18px}
+.portal-feats li{font-size:13px;color:var(--text2);padding:4px 0;display:flex;align-items:center;gap:8px}
+.portal-feats li::before{content:"✓";font-weight:800;font-size:11px}
+.portal-card.admin .portal-feats li::before{color:var(--t)}
+.portal-card.organizer .portal-feats li::before{color:var(--g2)}
+.portal-card.stall .portal-feats li::before{color:var(--o2)}
+.portal-card.visitor .portal-feats li::before{color:#3b82f6}
+.portal-link{font-size:13px;font-weight:700}
+.portal-card.admin .portal-link{color:var(--t)}
+.portal-card.organizer .portal-link{color:var(--g2)}
+.portal-card.stall .portal-link{color:var(--o2)}
+.portal-card.visitor .portal-link{color:#3b82f6;opacity:.7}
+
+/* ── FOOTER ── */
+footer{padding:48px 5% 32px;border-top:1px solid var(--bdr);background:var(--w)}
+.foot-inner{max-width:1100px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:20px}
+.foot-logo{font-size:18px;font-weight:800;color:var(--t)}
+.foot-links{display:flex;gap:24px;flex-wrap:wrap}
+.foot-links a{font-size:13px;color:var(--text2);text-decoration:none;font-weight:500;transition:color .2s}
+.foot-links a:hover{color:var(--t)}
+.foot-copy{width:100%;text-align:center;font-size:12px;color:var(--text3);margin-top:20px;padding-top:20px;border-top:1px solid var(--bdr)}
+
+@media(max-width:600px){.nav-ghost{display:none}.steps::before{display:none}.foot-inner{flex-direction:column;text-align:center}.stat-item{border-right:none;border-bottom:1px solid var(--bdr)}.stat-item:last-child{border-bottom:none}}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="/" class="nav-logo"><span class="nav-dot"></span> LetsKonnect</a>
+  <div class="nav-links">
+    <a href="/organizer.html" class="nav-btn nav-ghost">Organizer</a>
+    <a href="/login.html" class="nav-btn nav-solid">Login →</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-glow"></div>
+  <div style="position:relative;z-index:1;width:100%">
+    <div class="hero-badge"><span class="badge-live"></span> Live Event Lead Platform</div>
+    <h1>Capture Leads at Events<br><span class="grad">Without Business Cards</span></h1>
+    <p class="hero-sub">Visitors scan a QR code and get a digital pass. Exhibitors scan visitor QR codes to instantly capture qualified leads — no forms, no typing, no paper.</p>
+    <div class="hero-ctas">
+      <a href="/admin.html" class="btn-hero-p">🚀 Get Started</a>
+      <a href="#how-it-works" class="btn-hero-s">See How It Works</a>
+    </div>
+    <div class="roles-strip">
+      <a href="/admin.html" class="role-card"><span class="role-icon">👑</span><div><div class="role-label">Portal</div><div class="role-name">Super Admin</div></div></a>
+      <a href="/organizer.html" class="role-card"><span class="role-icon">🏢</span><div><div class="role-label">Portal</div><div class="role-name">Event Organizer</div></div></a>
+      <a href="/login.html" class="role-card"><span class="role-icon">🏪</span><div><div class="role-label">App</div><div class="role-name">Stall Owner</div></div></a>
+      <div class="role-card" style="cursor:default"><span class="role-icon">👤</span><div><div class="role-label">QR Flow</div><div class="role-name">Visitor</div></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- STATS -->
+<div class="stats">
+  <div class="stats-grid">
+    <div class="stat-item"><div class="stat-num">40K+</div><div class="stat-label">Concurrent Visitors</div></div>
+    <div class="stat-item"><div class="stat-num">0</div><div class="stat-label">Business Cards Needed</div></div>
+    <div class="stat-item"><div class="stat-num">&lt;3s</div><div class="stat-label">Lead Capture Time</div></div>
+    <div class="stat-item"><div class="stat-num">100%</div><div class="stat-label">Digital & Paperless</div></div>
+  </div>
+</div>
+
+<!-- FEATURES -->
+<section class="section">
+  <div class="sec-label">Platform Features</div>
+  <div class="sec-title">Everything for a Data-Driven Event</div>
+  <div class="sec-sub">From visitor registration to lead export — fully automated, real-time, and WhatsApp-integrated.</div>
+  <div class="feat-grid">
+    <div class="feat-card"><span class="feat-icon">📱</span><div class="feat-title">QR-Based Registration</div><div class="feat-desc">Visitors scan one QR code, fill a short form, verify via OTP, and get a personal digital QR pass in under 60 seconds.</div></div>
+    <div class="feat-card"><span class="feat-icon">⚡</span><div class="feat-title">Instant Lead Capture</div><div class="feat-desc">Exhibitors scan visitor QR on their phone. Full contact details appear instantly — no typing, no business cards.</div></div>
+    <div class="feat-card"><span class="feat-icon">💬</span><div class="feat-title">WhatsApp Integration</div><div class="feat-desc">Automatic WhatsApp messages on registration, stall visits, follow-ups, and daily lead summaries.</div></div>
+    <div class="feat-card"><span class="feat-icon">🔥</span><div class="feat-title">Lead Qualification</div><div class="feat-desc">Classify Hot / Warm / Cold. Add notes, set follow-up dates, rate interest 1–5 stars, track conversion status.</div></div>
+    <div class="feat-card"><span class="feat-icon">📊</span><div class="feat-title">Real-Time Analytics</div><div class="feat-desc">Live dashboards — visitors by category, top stalls, hourly registrations, lead conversion metrics.</div></div>
+    <div class="feat-card"><span class="feat-icon">📥</span><div class="feat-title">One-Click Export</div><div class="feat-desc">Export leads to Excel with colour-coded rows. Download link sent automatically via WhatsApp.</div></div>
+    <div class="feat-card"><span class="feat-icon">🔔</span><div class="feat-title">Smart Notifications</div><div class="feat-desc">Registration confirmations, stall visit alerts, daily 8 PM summaries, follow-up reminders — all on WhatsApp.</div></div>
+    <div class="feat-card"><span class="feat-icon">🛡️</span><div class="feat-title">Secure & Scalable</div><div class="feat-desc">OTP-based auth, JWT tokens, rate limiting, row-level data isolation. Handles 40,000 concurrent registrations.</div></div>
+    <div class="feat-card"><span class="feat-icon">🔄</span><div class="feat-title">Live Lead Feed</div><div class="feat-desc">Exhibitor dashboard updates in real-time via WebSockets. New lead → instant notification on screen.</div></div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="section-alt" id="how-it-works">
+  <div class="sec-label">How It Works</div>
+  <div class="sec-title">4 Simple Steps</div>
+  <div class="sec-sub">From event setup to lead export — the entire flow in minutes.</div>
+  <div class="steps">
+    <div class="step-item"><div class="step-num">1</div><div class="step-title">Organizer Creates Event</div><div class="step-desc">Admin creates the event, adds stall owners. A unique registration QR is generated instantly.</div></div>
+    <div class="step-item"><div class="step-num">2</div><div class="step-title">Visitor Registers</div><div class="step-desc">Visitor scans event QR, fills form, verifies mobile OTP, gets a personal digital QR pass on WhatsApp.</div></div>
+    <div class="step-item"><div class="step-num">3</div><div class="step-title">Exhibitor Scans Lead</div><div class="step-desc">Visitor shows QR at stall. Exhibitor scans it — full contact details captured instantly.</div></div>
+    <div class="step-item"><div class="step-num">4</div><div class="step-title">Follow Up & Export</div><div class="step-desc">Classify leads, add notes, send WhatsApp, export to Excel. Download link arrives on WhatsApp.</div></div>
+  </div>
+</section>
+
+<!-- PORTALS -->
+<section class="section">
+  <div class="sec-label">Access Portals</div>
+  <div class="sec-title">Login by Your Role</div>
+  <div class="sec-sub" style="margin-bottom:48px">Each role has a dedicated portal with the exact features they need.</div>
+  <div class="portals-grid">
+    <a href="/admin.html" class="portal-card admin">
+      <span class="portal-icon">👑</span>
+      <div class="portal-title">Super Admin</div>
+      <ul class="portal-feats"><li>Create & manage all events</li><li>Manage organizer accounts</li><li>Platform-wide analytics</li><li>Generate event QR codes</li></ul>
+      <div class="portal-link">Open Admin Dashboard →</div>
+    </a>
+    <a href="/organizer.html" class="portal-card organizer">
+      <span class="portal-icon">🏢</span>
+      <div class="portal-title">Event Organizer</div>
+      <ul class="portal-feats"><li>Manage your events</li><li>Create & manage stall owners</li><li>View all visitor registrations</li><li>Event analytics & reports</li></ul>
+      <div class="portal-link">Organizer Login →</div>
+    </a>
+    <a href="/login.html" class="portal-card stall">
+      <span class="portal-icon">🏪</span>
+      <div class="portal-title">Stall Owner</div>
+      <ul class="portal-feats"><li>Scan visitor QR codes</li><li>Manage & classify leads</li><li>WhatsApp follow-ups</li><li>Export leads to Excel</li></ul>
+      <div class="portal-link">Stall Owner Login →</div>
+    </a>
+    <div class="portal-card visitor">
+      <span class="portal-icon">👤</span>
+      <div class="portal-title">Visitor</div>
+      <ul class="portal-feats"><li>Scan event QR code to register</li><li>Verify mobile via OTP</li><li>Get personal digital QR pass</li><li>Share instantly at any stall</li></ul>
+      <div class="portal-link">Scan Event QR to Register</div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="foot-inner">
+    <div class="foot-logo">⚡ LetsKonnect</div>
+    <div class="foot-links">
+      <a href="/admin.html">Admin</a>
+      <a href="/organizer.html">Organizer</a>
+      <a href="/login.html">Stall Owner</a>
+      <a href="/health">Health</a>
+      <a href="/sidekiq">Sidekiq</a>
+    </div>
+  </div>
+  <div class="foot-copy">© 2024 LetsKonnect · Event Lead Capture & Networking Platform · Built with Ruby on Rails</div>
+</footer>
+
+</body>
+</html>

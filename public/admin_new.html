@@ -1,0 +1,1563 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Super Admin — LetsKonnect</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--accent:#14b8a6;--accent2:#0d9488;--accent3:#0f766e;--bg:#f8fafc;--bg2:#ffffff;--text:#0f172a;--text2:#64748b;--text3:#94a3b8;--text4:#cbd5e1;--border:#e2e8f0;--border2:#f1f5f9;--green:#22c55e;--green2:#16a34a;--amber:#f59e0b;--amber2:#d97706;--red:#ef4444;--red2:#dc2626;--purple:#6c63ff;--shadow:0 1px 3px rgba(0,0,0,.08),0 1px 2px rgba(0,0,0,.05);--shadow-md:0 4px 16px rgba(0,0,0,.1);--shadow-lg:0 8px 32px rgba(0,0,0,.12)}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;-webkit-font-smoothing:antialiased}
+/* Login */
+.login-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#f0fdfa 0%,#f8fafc 60%,#fffbeb 100%);padding:24px}
+.login-card{background:var(--bg2);border-radius:24px;padding:40px 36px;width:100%;max-width:420px;box-shadow:var(--shadow-lg);border:1px solid var(--border)}
+.login-logo{text-align:center;margin-bottom:28px}
+.login-logo h1{font-size:28px;font-weight:800;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.login-logo p{font-size:14px;color:var(--text2);margin-top:5px}
+/* Sidebar layout */
+.app{display:flex;height:100vh;overflow:hidden}
+.sidebar{width:248px;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;box-shadow:1px 0 0 var(--border)}
+.main{flex:1;overflow-y:auto;background:var(--bg)}
+/* Topbar (mobile) */
+.topbar{display:none;align-items:center;padding:12px 16px;background:var(--bg2);border-bottom:1px solid var(--border);gap:12px;position:sticky;top:0;z-index:50;box-shadow:var(--shadow)}
+.menu-btn{background:none;border:none;color:var(--text);font-size:22px;cursor:pointer;padding:4px}
+/* Sidebar internals */
+.sidebar-top{padding:20px 18px 14px;border-bottom:1px solid var(--border)}
+.sidebar-logo{font-size:17px;font-weight:800;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;display:flex;align-items:center;gap:8px}
+.sidebar-role{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.1em;margin-top:3px;font-weight:600}
+.sidebar-user{padding:12px 18px;border-bottom:1px solid var(--border)}
+.user-name{font-size:14px;font-weight:600;color:var(--text)}
+.user-email{font-size:12px;color:var(--text2);margin-top:2px}
+.nav{padding:8px;flex:1;overflow-y:auto}
+.nav-section{font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);padding:12px 10px 4px;font-weight:600}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;font-size:14px;cursor:pointer;color:var(--text2);transition:all .15s;user-select:none;font-weight:500}
+.nav-item:hover{background:var(--border2);color:var(--text)}
+.nav-item.active{background:rgba(20,184,166,.1);color:var(--accent);font-weight:600}
+.nav-icon{font-size:17px;width:22px;text-align:center;flex-shrink:0}
+.sidebar-footer{padding:12px 16px;border-top:1px solid var(--border)}
+.logout-btn{width:100%;background:none;border:1.5px solid var(--border);color:var(--text2);border-radius:10px;padding:9px;font-size:13px;cursor:pointer;font-family:'Inter',sans-serif;font-weight:500;transition:all .15s}
+.logout-btn:hover{border-color:var(--red);color:var(--red)}
+/* Pages */
+.page{padding:28px 32px;display:none}
+.page.active{display:block}
+.page-title{font-size:22px;font-weight:800;color:var(--text);margin-bottom:4px}
+.page-sub{font-size:14px;color:var(--text2);margin-bottom:24px}
+/* Stat cards */
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px;margin-bottom:24px}
+.stat-card{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:20px;cursor:default;transition:all .2s;box-shadow:var(--shadow)}
+.stat-card:hover{transform:translateY(-2px);box-shadow:var(--shadow-md);border-color:rgba(20,184,166,.3)}
+.stat-card.highlight{border-color:rgba(20,184,166,.3);background:linear-gradient(135deg,rgba(20,184,166,.06),rgba(13,148,136,.02))}
+.stat-icon{font-size:22px;margin-bottom:10px}
+.stat-num{font-size:28px;font-weight:800;line-height:1;color:var(--text)}
+.stat-label{font-size:12px;color:var(--text2);margin-top:6px;font-weight:500}
+/* Table */
+.table-wrap{background:var(--bg2);border:1px solid var(--border);border-radius:14px;overflow:hidden;margin-bottom:20px;box-shadow:var(--shadow)}
+.table-header{padding:14px 20px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:10px}
+.table-title{font-size:15px;font-weight:700;color:var(--text)}
+.table-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+table{width:100%;border-collapse:collapse}
+th{text-align:left;padding:10px 16px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text3);border-bottom:1px solid var(--border);white-space:nowrap}
+td{padding:12px 16px;font-size:14px;border-bottom:1px solid var(--border2);color:var(--text)}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:var(--border2)}
+.td-main{font-weight:600;color:var(--text)}
+.td-sub{font-size:12px;color:var(--text2);margin-top:2px}
+/* Badges */
+.badge{display:inline-flex;align-items:center;gap:3px;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;white-space:nowrap}
+.badge-green{background:#f0fdf4;color:var(--green2)}
+.badge-amber{background:#fffbeb;color:var(--amber2)}
+.badge-red{background:#fef2f2;color:var(--red2)}
+.badge-blue{background:#eff6ff;color:#2563eb}
+.badge-purple{background:rgba(108,99,255,.1);color:var(--purple)}
+.badge-gray{background:var(--border2);color:var(--text2)}
+/* Buttons */
+.btn{padding:9px 16px;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;border:none;transition:all .15s;display:inline-flex;align-items:center;gap:6px;font-family:'Inter',sans-serif;white-space:nowrap}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.btn-primary{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;box-shadow:0 2px 8px rgba(20,184,166,.25)}
+.btn-primary:hover:not(:disabled){transform:translateY(-1px);box-shadow:0 4px 12px rgba(20,184,166,.35)}
+.btn-outline{background:none;border:1.5px solid var(--border);color:var(--text2)}
+.btn-outline:hover:not(:disabled){border-color:var(--accent);color:var(--accent)}
+.btn-danger{background:#fef2f2;border:1.5px solid rgba(239,68,68,.3);color:var(--red2)}
+.btn-danger:hover:not(:disabled){background:var(--red);color:#fff}
+.btn-sm{padding:6px 12px;font-size:12px}
+/* Search */
+.search-bar{background:var(--bg);border:1.5px solid var(--border);border-radius:10px;padding:9px 14px;color:var(--text);font-size:14px;font-family:'Inter',sans-serif;outline:none;width:220px;transition:all .2s}
+.search-bar:focus{border-color:var(--accent);width:260px}
+.search-bar::placeholder{color:var(--text3)}
+.filter-select{background:var(--bg);border:1.5px solid var(--border);border-radius:10px;padding:8px 12px;color:var(--text2);font-size:13px;font-family:'Inter',sans-serif;cursor:pointer;outline:none}
+.filter-select:focus{border-color:var(--accent)}
+.filter-select option{background:var(--bg2);color:var(--text)}
+/* Modal */
+.modal-overlay{position:fixed;inset:0;background:rgba(15,23,42,.5);backdrop-filter:blur(6px);z-index:1000;display:none;align-items:center;justify-content:center;padding:20px}
+.modal-overlay.open{display:flex}
+.modal{background:var(--bg2);border:1px solid var(--border);border-radius:20px;padding:28px;width:100%;max-width:520px;max-height:88vh;overflow-y:auto;box-shadow:var(--shadow-lg)}
+.modal-title{font-size:18px;font-weight:700;margin-bottom:20px;display:flex;justify-content:space-between;align-items:center;color:var(--text)}
+.modal-close{background:none;border:none;color:var(--text2);font-size:20px;cursor:pointer;line-height:1;transition:color .15s;font-family:'Inter',sans-serif}
+.modal-close:hover{color:var(--red)}
+.modal-grid{display:grid;grid-template-columns:1fr 1fr;gap:13px}
+.modal-footer{display:flex;gap:10px;justify-content:flex-end;margin-top:16px;padding-top:16px;border-top:1px solid var(--border)}
+/* Fields */
+.field{margin-bottom:14px}
+.field label{display:block;font-size:12px;font-weight:600;color:var(--text2);margin-bottom:5px}
+.field input,.field select,.field textarea{width:100%;background:var(--bg);border:1.5px solid var(--border);border-radius:10px;padding:10px 13px;color:var(--text);font-size:14px;font-family:'Inter',sans-serif;outline:none;transition:all .2s}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--accent);background:var(--bg2);box-shadow:0 0 0 3px rgba(20,184,166,.1)}
+.field input::placeholder{color:var(--text3)}
+.field select option{background:var(--bg2);color:var(--text)}
+/* API error */
+.api-err{background:#fef2f2;border:1.5px solid rgba(239,68,68,.25);border-radius:10px;padding:10px 14px;font-size:13px;color:var(--red2);margin-bottom:12px;display:none;font-weight:500}
+.api-err.show{display:block}
+/* Charts */
+.chart-bar-wrap{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.chart-bar-label{width:130px;font-size:13px;color:var(--text2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex-shrink:0;font-weight:500}
+.chart-bar-bg{flex:1;height:10px;background:var(--border2);border-radius:20px;overflow:hidden}
+.chart-bar-fill{height:100%;border-radius:20px;background:linear-gradient(90deg,var(--accent),var(--accent2));transition:width .6s ease}
+.chart-bar-val{width:36px;text-align:right;font-size:12px;font-weight:600;flex-shrink:0;color:var(--text2)}
+/* Empty */
+.empty-state{text-align:center;padding:52px 20px;color:var(--text2)}
+.empty-icon{font-size:44px;opacity:.2;margin-bottom:12px;display:block}
+.empty-title{font-size:16px;font-weight:600;margin-bottom:4px;color:var(--text2)}
+/* Toast */
+.toast{position:fixed;bottom:24px;right:24px;background:var(--text);color:#fff;border-radius:14px;padding:13px 20px;font-size:14px;font-weight:600;z-index:2000;transform:translateY(80px);opacity:0;transition:all .3s;max-width:340px;box-shadow:var(--shadow-lg);display:flex;align-items:center;gap:10px}
+.toast.show{transform:translateY(0);opacity:1}
+.toast.err{background:var(--red)}
+/* QR box */
+.qr-box{background:#fff;border-radius:14px;padding:14px;display:inline-block;box-shadow:var(--shadow-md)}
+.qr-box img{width:160px;height:160px;display:block}
+/* Responsive */
+@media(max-width:768px){.sidebar{position:fixed;top:0;bottom:0;left:-248px;z-index:200;transition:left .25s;height:100vh}.sidebar.open{left:0}.topbar{display:flex}.page{padding:16px}.modal-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<!-- LOGIN SCREEN -->
+<div id="login-screen" class="login-wrap">
+  <div class="login-card">
+    <div class="login-logo">
+      <h1>LetsKonnect</h1>
+      <p>Event Lead Platform — Admin</p>
+    </div>
+    <div class="field">
+      <label>Email Address</label>
+      <input type="email" id="login-email" placeholder="admin@letskonnect.in" value="admin@letskonnect.in">
+    </div>
+    <div class="field">
+      <label>Password</label>
+      <input type="password" id="login-password" placeholder="••••••••" value="Admin@1234" onkeydown="if(event.key==='Enter')doLogin()">
+    </div>
+    <div id="login-err" class="api-err"></div>
+    <button class="btn btn-primary" style="width:100%;padding:13px;font-size:15px;margin-top:4px" onclick="doLogin()" id="login-btn">
+      Sign In
+    </button>
+    <p style="font-size:12px;color:var(--text3);text-align:center;margin-top:16px">
+      Super Admin · Organizer login at their portal
+    </p>
+  </div>
+</div>
+
+<!-- MAIN APP -->
+<div id="app-screen" class="app" style="display:none">
+  <!-- Mobile topbar -->
+  <div class="topbar">
+    <button class="menu-btn" onclick="toggleSidebar()">☰</button>
+    <span style="font-size:16px;font-weight:700;color:var(--accent)">LetsKonnect</span>
+  </div>
+
+  <div class="sidebar" id="sidebar">
+    <div class="sidebar-top">
+      <div class="sidebar-logo">⚡ LetsKonnect</div>
+      <div class="sidebar-role" id="sb-role">Super Admin</div>
+    </div>
+    <div class="sidebar-user">
+      <div class="user-name" id="sb-name">—</div>
+      <div class="user-email" id="sb-email">—</div>
+    </div>
+    <nav class="nav">
+      <div class="nav-section">Overview</div>
+      <div class="nav-item active" onclick="showPage('dashboard')"><span class="nav-icon">🏠</span> Dashboard</div>
+
+      <div class="nav-section">Manage</div>
+      <div class="nav-item" onclick="showPage('events')"><span class="nav-icon">🎪</span> Events</div>
+      <div class="nav-item" onclick="showPage('organizers')" id="nav-organizers"><span class="nav-icon">🏢</span> Organizers</div>
+      <div class="nav-item" onclick="showPage('stalls')"><span class="nav-icon">🏪</span> Stall Owners</div>
+      <div class="nav-item" onclick="showPage('visitors')"><span class="nav-icon">👥</span> Visitors</div>
+      <!--<div class="nav-item" onclick="showPage('leads')"><span class="nav-icon">🎯</span> Leads</div>-->
+
+      <div class="nav-section">Tools</div>
+      <div class="nav-item" onclick="showPage('analytics')"><span class="nav-icon">📊</span> Analytics</div>
+    </nav>
+    <div class="sidebar-footer">
+      <button class="logout-btn" onclick="doLogout()">Sign Out</button>
+    </div>
+  </div>
+
+  <div class="main">
+    <!-- DASHBOARD -->
+    <div class="page active" id="page-dashboard">
+      <div class="page-title">Dashboard</div>
+      <div class="page-sub" id="dash-subtitle">Loading...</div>
+      <div class="stats-grid" id="dash-stats"></div>
+      <div id="dash-events"></div>
+    </div>
+
+    <!-- EVENTS -->
+    <div class="page" id="page-events">
+      <div class="page-title">Events</div>
+      <div class="page-sub">Manage all events on the platform</div>
+      <div class="table-wrap">
+        <div class="table-header">
+          <div class="table-title">All Events</div>
+          <div class="table-actions">
+            <input class="search-bar" placeholder="Search events..." oninput="filterTable('events-table',this.value)">
+            <button class="btn btn-primary btn-sm" onclick="openModal('modal-create-event')">+ New Event</button>
+          </div>
+        </div>
+        <div id="events-table"><div class="empty"><div class="empty-icon">🎪</div>Loading events...</div></div>
+      </div>
+    </div>
+
+    <!-- ORGANIZERS -->
+    <div class="page" id="page-organizers">
+      <div class="page-title">Event Organizers</div>
+      <div class="page-sub">Manage organizer accounts</div>
+      <div class="table-wrap">
+        <div class="table-header">
+          <div class="table-title">All Organizers</div>
+          <div class="table-actions">
+            <button class="btn btn-primary btn-sm" onclick="openModal('modal-create-organizer')">+ New Organizer</button>
+          </div>
+        </div>
+        <div id="organizers-table"><div class="empty"><div class="empty-icon">🏢</div>Loading...</div></div>
+      </div>
+    </div>
+
+    <!-- STALLS -->
+    <div class="page" id="page-stalls">
+      <div class="page-title">Stall Owners</div>
+      <div class="page-sub">All exhibitor accounts across events</div>
+      <div class="table-wrap">
+        <div class="table-header">
+          <div class="table-title">All Stall Owners</div>
+          <div class="table-actions">
+            <input class="search-bar" placeholder="Search..." oninput="filterTable('stalls-table',this.value)">
+            <button class="btn btn-primary btn-sm" onclick="openBulkStallModal()">+ Add Stalls</button>
+            <button class="btn btn-primary btn-sm" onclick="openModal('m-import-stalls')">+ Bulk Upload</button>
+          </div>
+        </div>
+        <div id="stalls-table"><div class="empty"><div class="empty-icon">🏪</div>Loading...</div></div>
+      </div>
+    </div>
+
+    <!-- VISITORS -->
+    <div class="page" id="page-visitors">
+      <div class="page-title">Visitors</div>
+      <div class="page-sub">All registered visitors</div>
+      <div class="table-wrap">
+        <div class="table-header">
+          <div class="table-title">Registered Visitors</div>
+          <div class="table-actions">
+            <input class="search-bar" placeholder="Search visitors..." id="visitor-search" oninput="loadVisitors()">
+            <select class="filter-select" id="visitor-event-filter" onchange="loadVisitors()">
+              <option value="">All Events</option>
+            </select>
+          </div>
+        </div>
+        <div id="visitors-table"><div class="empty"><div class="empty-icon">👥</div>Loading...</div></div>
+      </div>
+    </div>
+
+    <!-- LEADS -->
+    <div class="page" id="page-leads">
+      <div class="page-head" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+        <div>
+          <div class="page-title">Leads</div>
+          <div class="page-sub">All leads across the platform</div>
+        </div>
+        <div>
+          <select class="filter-select" id="leads-event-filter" onchange="loadLeads()"><option value="">Select Event</option></select>
+        </div>
+      </div>
+      <div class="stats-grid" id="lead-stats"></div>
+      <div class="table-wrap">
+        <!-- <div class="table-header">
+          <div class="table-title">All Leads</div>
+          <div class="table-actions">
+            <select class="filter-select" id="lead-temp-filter" onchange="loadLeads()">
+              <option value="">All Temperatures</option>
+              <option value="hot">🔥 Hot</option>
+              <option value="warm">♨️ Warm</option>
+              <option value="cold">❄️ Cold</option>
+            </select>
+          </div>
+        </div> -->
+        <div id="leads-table"><div class="empty"><div class="empty-icon">🎯</div>Loading...</div></div>
+      </div>
+    </div>
+
+    <!-- ANALYTICS -->
+    <div class="page" id="page-analytics">
+      <div class="page-title">Analytics</div>
+      <div class="page-sub">Platform-wide performance metrics</div>
+      <div class="stats-grid" id="analytics-stats"></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:4px" id="analytics-charts"></div>
+    </div>
+
+    <!-- Details Screen -->
+    <div class="page" id="page-details">
+      <div class="page-head" style="display:flex;justify-content:space-between;align-items:center;flex-direction: row-reverse;">
+        <button class="btn btn-outline btn-sm" onclick="closeDetails()">
+          ← Back
+        </button>
+
+        <div class="page-title" id="details-title">
+          Details
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:16px">
+        <div id="details-content"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODALS -->
+<div class="modal-overlay" id="modal-create-event" onclick="if(event.target===this)closeModal('modal-create-event')">
+  <div class="modal">
+    <div class="modal-title"><span id="modal-event-title">Create New Event</span> <button class="modal-close" onclick="closeModal('modal-create-event')">✕</button></div>
+    <div id="event-form-err" class="api-err"></div>
+    <div class="form-grid">
+      <div class="field"><label>Event Name *</label><input type="text" id="ef-name" placeholder="Tech Expo 2025"></div>
+      <div class="field"><label>Venue *</label><input type="text" id="ef-venue" placeholder="Chennai Trade Centre"></div>
+      <div class="field"><label>City</label><input type="text" id="ef-city" placeholder="Chennai"></div>
+      <div class="field"><label>Organizer *</label><select id="ef-organizer"></select></div>
+      <div class="field"><label>Start Date *</label><input type="date" id="ef-start"></div>
+      <div class="field"><label>End Date *</label><input type="date" id="ef-end"></div>
+      <div class="field"><label>Max Visitors</label><input type="number" id="ef-max" placeholder="Optional"></div>
+      <div class="field"><label>Status</label>
+        <select id="ef-status"><option value="draft">Draft</option><option value="active">Active</option></select>
+      </div>
+    </div>
+    <div class="field"><label>Description</label><textarea id="ef-desc" rows="3" placeholder="Event description..."></textarea></div>
+    <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:8px">
+      <button class="btn btn-outline" onclick="closeModal('modal-create-event')">Cancel</button>
+      <button class="btn btn-primary" id="ef-submit-btn" onclick="handleCreateEvent()">Create Event</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-create-organizer" onclick="if(event.target===this)closeModal('modal-create-organizer')">
+  <div class="modal">
+    <div class="modal-title">Create Organizer <button class="modal-close" onclick="closeModal('modal-create-organizer')">✕</button></div>
+    <div id="org-form-err" class="api-err"></div>
+    <div class="form-grid">
+      <div class="field"><label>Name *</label><input type="text" id="of-name" placeholder="Full name"></div>
+      <div class="field"><label>Email *</label><input type="email" id="of-email" placeholder="email@company.com"></div>
+      <div class="field"><label>Mobile *</label><input type="tel" id="of-mobile" placeholder="9876543210"></div>
+      <div class="field"><label>Company</label><input type="text" id="of-company" placeholder="Company name"></div>
+      <div class="field"><label>Password *</label><input type="password" id="of-password" placeholder="Minimum 8 characters"></div>
+    </div>
+    <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:8px">
+      <button class="btn btn-outline" onclick="closeModal('modal-create-organizer')">Cancel</button>
+      <button class="btn btn-primary" onclick="createOrganizer()">Create Organizer</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-qr" onclick="if(event.target===this)closeModal('modal-qr')">
+  <div class="modal" style="text-align:center">
+    <div class="modal-title">Event QR Code <button class="modal-close" onclick="closeModal('modal-qr')">✕</button></div>
+    <p style="font-size:14px;color:var(--text2);margin-bottom:16px" id="qr-modal-event-name"></p>
+    <div id="qr-modal-content"></div>
+    <p style="font-size:12px;color:var(--text3);margin-top:12px">Scan to open visitor registration page</p>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-analytics" onclick="if(event.target===this)closeModal('modal-analytics')">
+  <div class="modal" style="max-width:640px">
+    <div class="modal-title" id="event-analytics-title">Event Analytics <button class="modal-close" onclick="closeModal('modal-analytics')">✕</button></div>
+    <div id="event-analytics-content"></div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="m-stall" onclick="if(event.target===this)closeModal('m-stall')">
+  <div class="modal">
+    <div class="modal-title">Edit Stall Owner <button class="mc" onclick="closeModal('m-stall')">✕</button></div>
+    <div id="st-err" class="err"></div>
+    <input type="hidden" id="st-id">
+    <div class="form-grid">
+      <div class="mf"><label>Full Name *</label><input type="text" id="st-name" placeholder="Contact name"></div>
+      <div class="mf"><label>Mobile Number *</label><input type="tel" id="st-mobile" placeholder="9876543210" readonly></div>
+      <div class="mf"><label>Company Name *</label><input type="text" id="st-company" placeholder="Company / business name"></div>
+      <div class="mf"><label>Stall Number</label><input type="text" id="st-num" placeholder="e.g. A1"></div>
+      <div class="mf"><label>Category</label>
+        <select id="st-cat">
+          <option value="">Select</option>
+          <option>IT Services</option><option>Finance</option><option>Marketing</option>
+          <option>Education</option><option>Healthcare</option><option>Retail</option>
+          <option>Manufacturing</option><option>Energy</option><option>Startup</option><option>Other</option>
+        </select>
+      </div>
+      <div class="mf"><label>Email</label><input type="email" id="st-email" placeholder="Optional"></div>
+      <div class="mf"><label>Website</label><input type="text" id="st-web" placeholder="Optional"></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-outline btn-sm" onclick="closeModal('m-stall')">Cancel</button>
+      <button class="btn btn-primary btn-sm" id="st-save-btn" onclick="saveStall()">Add Stall Owner</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="m-m-stall" onclick="if(event.target===this)closeModal('m-m-stall')">
+  <div class="modal" style="max-width:1200px;width:95%">
+    <div class="modal-title">
+      Add Multiple Stall Owners
+      <button class="mc" onclick="closeModal('m-m-stall')">✕</button>
+    </div>
+
+    <div id="st-bulk-err" class="err"></div>
+
+    <div style="margin-bottom:12px">
+      <button class="btn btn-primary btn-sm" onclick="addStallRow()">
+        + Add Row
+      </button>
+      <select class="filter-select" id="admin-stall-event-sel">
+        <option value="">Select Event</option>
+      </select>
+    </div>
+
+    <div style="overflow:auto">
+      <table class="table" id="stall-table">
+        <thead>
+          <tr>
+            <th>Full Name *</th>
+            <th>Mobile *</th>
+            <th>Company *</th>
+            <th>Stall No</th>
+            <th>Category</th>
+            <th>Email</th>
+            <th>Website</th>
+            <th></th>
+          </tr>
+        </thead>
+
+        <tbody id="stall-table-body">
+        </tbody>
+      </table>
+    </div>
+
+    <div class="modal-foot">
+      <button class="btn btn-outline btn-sm" onclick="closeModal('m-m-stall')">
+        Cancel
+      </button>
+
+      <button class="btn btn-primary btn-sm" onclick="createMultipleStalls()">
+        Add Stall Owners
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="m-import-stalls" onclick="if(event.target===this)closeModal('m-import-stalls')">
+  <div class="modal">
+    <div class="modal-title">
+      Import Stall Owners
+      <button class="mc" onclick="closeModal('m-import-stalls')">✕</button>
+    </div>
+
+    <div id="import-err" class="err"></div>
+
+    <div class="mf">
+      <label>Upload CSV File *</label>
+
+      <select class="filter-select" id="stall-import-event-sel" style="margin-bottom: 20px;">
+        <option value="">Select Event</option>
+      </select>
+
+      <input
+        type="file"
+        id="stall-import-file"
+        accept=".csv"
+        style="width:100%;padding:10px"
+      >
+
+      <p style="margin-top:8px;font-size:12px;color:var(--text2)">
+        Supported format: CSV
+      </p>
+    </div>
+
+    <div style="margin-top:16px;padding:12px;background:var(--bg3);border-radius:8px;font-size:12px">
+      <strong>Required Columns:</strong>
+      <div style="margin-top:6px">
+        full_name,
+        mobile_number,
+        company_name,
+        stall_number,
+        category,
+        email,
+        website
+      </div>
+    </div>
+
+    <div style="margin-top:12px">
+      <a
+        href="/sample_stall_owners.csv"
+        download
+        style="color:var(--accent);font-size:13px;text-decoration:none"
+      >
+        Download Sample CSV
+      </a>
+    </div>
+
+    <div class="modal-foot">
+      <button
+        class="btn btn-outline btn-sm"
+        onclick="closeModal('m-import-stalls')"
+      >
+        Cancel
+      </button>
+
+      <button
+        class="btn btn-primary btn-sm"
+        onclick="importStallOwners()"
+        id="import-btn"
+      >
+        Import
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+const API = "/api/v1";
+let token = localStorage.getItem("lk_admin_token");
+let currentUser = JSON.parse(localStorage.getItem("lk_admin_user") || "null");
+let allEvents = [];
+let previousPage = null;
+
+// ── Boot ──────────────────────────────────────────────────────────────────
+if (token && currentUser) {
+  showApp();
+} else {
+  document.getElementById("login-screen").style.display = "flex";
+}
+
+async function doLogin() {
+  const email = document.getElementById("login-email").value.trim();
+  const pass  = document.getElementById("login-password").value;
+  const btn   = document.getElementById("login-btn");
+  const err   = document.getElementById("login-err");
+  err.style.display = "none";
+  btn.textContent   = "Signing in…";
+  btn.disabled      = true;
+
+  // Try super admin first, then organizer
+  let res, data;
+  try {
+    res  = await apiLoginPost("/super_admin/sign_in", { email, password: pass });
+    if (res.success) {
+      token       = res.data.token;
+      currentUser = { ...res.data.admin, role: "super_admin" };
+    } else {
+      // try organizer
+      console.log("Super admin login failed, trying organizer login...");
+      res  = await apiLoginPost("/organizer/sign_in", { email, password: pass });
+      if (res.success) {
+        token       = res.data.token;
+        currentUser = { ...res.data.organizer, role: "organizer" };
+      } else {
+        throw new Error(res.error || "Invalid credentials");
+      }
+    }
+    localStorage.setItem("lk_admin_token", token);
+    localStorage.setItem("lk_admin_user", JSON.stringify(currentUser));
+    showApp();
+  } catch(e) {
+    err.style.display = "block";
+    err.textContent   = e.message;
+  } finally {
+    btn.textContent = "Sign In";
+    btn.disabled    = false;
+  }
+}
+
+function showApp() {
+  document.getElementById("login-screen").style.display = "none";
+  document.getElementById("app-screen").style.display   = "flex";
+  document.getElementById("sb-name").textContent        = currentUser?.name || "Admin";
+  document.getElementById("sb-email").textContent       = currentUser?.email || "";
+  document.getElementById("sb-role").textContent        = currentUser?.role === "super_admin" ? "Super Admin" : "Event Organizer";
+  if (currentUser?.role !== "super_admin") {
+    document.getElementById("nav-organizers").style.display = "none";
+  }
+  loadDashboard();
+  loadEventsForFilter();
+  loadEventSelectors();
+}
+
+function doLogout() {
+  localStorage.removeItem("lk_admin_token");
+  localStorage.removeItem("lk_admin_user");
+  token = null; currentUser = null;
+  document.getElementById("app-screen").style.display = "none";
+  document.getElementById("login-screen").style.display = "flex";
+}
+
+// ── Navigation ────────────────────────────────────────────────────────────
+function showPage(name) {
+  document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
+  document.querySelectorAll(".nav-item").forEach(n => n.classList.remove("active"));
+  document.getElementById("page-" + name).classList.add("active");
+  event?.currentTarget?.classList.add("active");
+  document.getElementById("sidebar").classList.remove("open");
+  const loaders = { events: loadEvents, organizers: loadOrganizers, stalls: loadStalls, visitors: loadVisitors, leads: loadLeads, analytics: loadAnalytics };
+  if (loaders[name]) loaders[name]();
+}
+function toggleSidebar() { document.getElementById("sidebar").classList.toggle("open"); }
+
+// ── API helpers ───────────────────────────────────────────────────────────
+async function apiFetch(path, options={}) {
+  console.log("TOKEN AFTER LOGIN:", token);
+  console.log("LOCALSTORAGE TOKEN:", localStorage.getItem("lk_admin_token"));
+  const headers = { "Content-Type": "application/json", ...(token ? { Authorization: "Bearer " + token } : {}) };
+  const res     = await fetch(API + path, { ...options, headers });
+  const data    = await res.json();
+  if (res.status === 401) { doLogout(); throw new Error("Unauthorized"); }
+  return data;
+}
+async function apiGet(path)         { return apiFetch(path); }
+async function apiPost(path, body)  { return apiFetch(path, { method: "POST",  body: JSON.stringify(body) }); }
+async function apiPatch(path, body) { return apiFetch(path, { method: "PATCH", body: JSON.stringify(body) }); }
+async function apiLoginPost(path, body) {
+  const headers = {
+    "Content-Type": "application/json"
+  };
+
+  const res = await fetch(API + path, {
+    method: "POST",
+    headers,
+    body: JSON.stringify(body)
+  });
+
+  let data = {};
+  try {
+    data = await res.json();
+  } catch (e) {}
+
+  // 🔥 IMPORTANT: NEVER throw on login failures
+  return data
+}
+
+// ── Dashboard ─────────────────────────────────────────────────────────────
+async function loadDashboard() {
+  try {
+    const endpoint = currentUser?.role === "super_admin" ? "/super_admin/dashboard" : "/organizer/dashboard";
+    const res      = await apiGet(endpoint);
+    if (!res.success) return;
+    const d        = res.data;
+
+    document.getElementById("dash-subtitle").textContent = currentUser?.role === "super_admin"
+      ? "Platform-wide overview" : `${currentUser?.company_name || ""} — Organizer Dashboard`;
+
+    if (currentUser?.role === "super_admin") {
+      const p = d.platform;
+      document.getElementById("dash-stats").innerHTML = `
+        ${statCard("🎪","Events",p.active_events + " active / " + p.total_events + " total","accent")}
+        ${statCard("🏢","Organizers",p.active_organizers + " active","")}
+        ${statCard("👥","Visitors",p.total_visitors.toLocaleString(),"accent")}
+        ${statCard("🎯","Leads",p.total_leads.toLocaleString(),"")}
+        ${statCard("🏪","Stall Owners",p.total_stalls,"")}
+      `;
+      const evHtml = d.recent_events.map(e => `
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--border)">
+          <div>
+            <div style="font-weight:600;font-size:14px">${e.name}</div>
+            <div style="font-size:12px;color:var(--text2);margin-top:2px">${fmtDate(e.start_date)} · ${e.registered_count} visitors</div>
+          </div>
+          <span class="badge ${statusBadge(e.status)}">${e.status}</span>
+        </div>
+      `).join("");
+      document.getElementById("dash-events").innerHTML = `
+        <div class="table-wrap"><div class="table-header"><div class="table-title">Recent Events</div></div>
+        <div style="padding:0 20px">${evHtml || emptyHtml("🎪","No events yet")}</div></div>
+      `;
+    } else {
+      // Organizer dashboard
+      const evHtml = (d.events || []).map(e => `
+        <div class="stat-card ${e.status==='active'?'accent':''}">
+          <div class="stat-icon">🎪</div>
+          <div class="stat-num">${e.registered_count}</div>
+          <div class="stat-label">${e.name}<br><small>${e.status}</small></div>
+        </div>
+      `).join("");
+      document.getElementById("dash-stats").innerHTML = `
+        ${statCard("🎪","Total Events",d.events_summary?.total || 0,"")}
+        ${statCard("✅","Active Events",d.events_summary?.active || 0,"accent")}
+      `;
+      document.getElementById("dash-events").innerHTML = `<div class="stats-grid" style="margin-top:20px">${evHtml}</div>`;
+    }
+  } catch(e) { console.error(e); }
+}
+
+function statCard(icon, label, value, cls) {
+  return `<div class="stat-card ${cls}"><div class="stat-icon">${icon}</div><div class="stat-num">${value}</div><div class="stat-label">${label}</div></div>`;
+}
+
+// ── Events ────────────────────────────────────────────────────────────────
+async function loadEvents() {
+  const endpoint = currentUser?.role === "super_admin" ? "/super_admin/events" : "/organizer/events";
+  const res      = await apiGet(endpoint);
+  allEvents      = res.data || [];
+  const tbody    = allEvents.map(e => `
+    <tr>
+      <td>
+        <a href="javascript:void(0)"
+          onclick="showEventDetails('${e.id}', 'events')"
+          style="color:inherit;font-weight:600;text-decoration:none">
+          ${e.name}
+        </a>
+
+        <div style="font-size:12px;color:var(--text2)">
+          ${e.city || ""}
+        </div>
+      </td>
+      <td>${e.venue}</td>
+      <td>${fmtDate(e.start_date)} – ${fmtDate(e.end_date)}</td>
+      <td><span class="badge ${statusBadge(e.status)}">${e.status}</span></td>
+      <td style="font-weight:600">${(e.registered_count||0).toLocaleString()}</td>
+      <td>
+        <div style="display:flex;gap:6px;flex-wrap:wrap">
+          <button class="btn btn-sm btn-outline" style="padding-right: 6px; padding-left: 6px;" onclick='showEventQr("${e.id}","${e.name}","${e.qr_image_url||""}","${e.registration_qr_token}")' title="QR">🔳</button>
+          <button class="btn btn-sm btn-outline" style="padding-right: 6px; padding-left: 6px;" onclick='showEventAnalytics("${e.id}","${e.name}")' title="Analytics">📊</button>
+          <button class="btn btn-sm btn-outline" style="padding-right: 6px; padding-left: 6px;" onclick='openEditEventModalById("${e.id}")' title="Edit">✏️</button>
+          ${(e.status==="draft") ?`<button class="btn btn-sm btn-outline" style="padding-right: 6px; padding-left: 6px;" onclick='activateEvent("${e.id}")' title="Activate">🚀</button>`:""}
+        </div>
+      </td>
+    </tr>
+  `).join("");
+  document.getElementById("events-table").innerHTML = `
+    <table><thead><tr><th>Event</th><th>Venue</th><th>Dates</th><th>Status</th><th>Visitors</th><th>Actions</th></tr></thead>
+    <tbody id="events-table-rows">${tbody || `<tr><td colspan="6">${emptyHtml("🎪","No events yet")}</td></tr>`}</tbody></table>
+  `;
+  // Populate organizer dropdown
+  const orgRes = currentUser?.role === "super_admin" ? await apiGet("/super_admin/event_organizers") : null;
+  if (orgRes?.data) {
+    document.getElementById("ef-organizer").innerHTML = orgRes.data.map(o => `<option value="${o.id}">${o.name} — ${o.company_name||""}</option>`).join("");
+  }
+}
+
+async function handleCreateEvent() {
+  const modal = document.getElementById("modal-create-event");
+  const eventId = modal.dataset.eventId; // check if edit mode
+
+  const body = {
+    event_organizer_id: document.getElementById("ef-organizer").value,
+    event: {
+      name: document.getElementById("ef-name").value.trim(),
+      venue: document.getElementById("ef-venue").value.trim(),
+      city: document.getElementById("ef-city").value.trim(),
+      start_date: document.getElementById("ef-start").value,
+      end_date: document.getElementById("ef-end").value,
+      max_visitors: document.getElementById("ef-max").value || null,
+      status: document.getElementById("ef-status").value,
+      description: document.getElementById("ef-desc").value.trim(),
+      event_organizer_id: document.getElementById("ef-organizer").value,
+    }
+  };
+
+  const err = document.getElementById("event-form-err");
+  err.style.display = "none";
+
+  let res;
+
+  if (eventId) {
+    // UPDATE
+    res = await apiPatch(`/super_admin/events/${eventId}`, body);
+  } else {
+    // CREATE
+    res = await apiPost("/super_admin/events", body);
+  }
+
+  if (res.success) {
+    closeModal("modal-create-event");
+    resetEventForm();
+    toast(eventId ? "Event updated!" : "Event created!", "success");
+    loadEvents();
+  } else {
+    err.style.display = "block";
+    err.textContent = res.error || (res.errors || []).join(", ");
+  }
+}
+
+async function activateEvent(id) {
+  const res = await apiPost(`/super_admin/events/${id}/activate`, {});
+  if (res.success) { toast("Event activated!", "success"); loadEvents(); }
+  else toast(res.error || "Failed", "error");
+}
+
+function showEventQr(id, name, qrUrl, token) {
+  console.log("Showing QR for event:", id, name, qrUrl, token);
+  document.getElementById("qr-modal-event-name").textContent = name;
+  const regUrl = `${location.origin}/register/${token}`;
+  document.getElementById("qr-modal-content").innerHTML = qrUrl
+    ? `<div class="qr-display"><img src="${qrUrl}" alt="QR"></div><p style="font-size:12px;color:var(--text2);margin-top:8px;word-break:break-all">${regUrl}</p>`
+    : `<p style="color:var(--text2);font-size:14px">QR is being generated...</p><p style="font-size:12px;color:var(--text3);margin-top:8px;word-break:break-all">Registration URL: ${regUrl}</p>`;
+  openModal("modal-qr");
+}
+
+async function showEventAnalytics(id, name) {
+  document.getElementById("event-analytics-title").innerHTML = `📊 ${name} <button class="modal-close" onclick="closeModal('modal-analytics')">✕</button>`;
+  document.getElementById("event-analytics-content").innerHTML = '<p style="color:var(--text2)">Loading...</p>';
+  openModal("modal-analytics");
+  const endpoint = currentUser?.role === "super_admin" ? `/super_admin/events/${id}/analytics` : `/organizer/events/${id}/analytics`;
+  const res = await apiGet(endpoint);
+  if (!res.success) return;
+  const d = res.data;
+  const o = d.overview;
+  document.getElementById("event-analytics-content").innerHTML = `
+    <div class="stats-grid" style="grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px">
+      ${statCard("👥","Visitors",o.total_visitors,"")}
+      ${statCard("🎯","Leads",o.total_leads,"accent")}
+
+      ${statCard("🔥","Hot Leads",o.hot_leads,"")}
+    </div>
+    ${chartCard("Visitors by Category", d.visitors_by_category)}
+    ${chartCard("Visitors by Location", d.visitors_by_location)}
+    ${topStallsHtml(d.top_stalls)}
+  `;
+}
+
+function chartCard(title, data) {
+  if (!data || !Object.keys(data).length) return "";
+  const max   = Math.max(...Object.values(data), 1);
+  const rows  = Object.entries(data).sort((a,b)=>b[1]-a[1]).slice(0,8).map(([k,v]) => `
+    <div class="chart-row">
+      <div class="chart-label">${k||"Unknown"}</div>
+      <div class="chart-bar-bg"><div class="chart-bar-fill" style="width:${Math.round(v/max*100)}%"></div></div>
+      <div class="chart-val">${v}</div>
+    </div>
+  `).join("");
+  return `<div class="table-wrap" style="margin-bottom:16px;padding:16px 20px"><div style="font-size:14px;font-weight:600;margin-bottom:12px">${title}</div><div class="chart-bar-wrap">${rows}</div></div>`;
+}
+
+function topStallsHtml(stalls) {
+  if (!stalls?.length) return "";
+  const rows = stalls.map((s,i) => `
+    <div class="chart-row">
+      <div class="chart-label">${i+1}. ${s.company_name||s.name}</div>
+      <div class="chart-bar-bg"><div class="chart-bar-fill" style="width:${Math.round(s.leads/Math.max(...stalls.map(x=>x.leads),1)*100)}%"></div></div>
+      <div class="chart-val">${s.leads}</div>
+    </div>
+  `).join("");
+  return `<div class="table-wrap" style="margin-bottom:16px;padding:16px 20px"><div style="font-size:14px;font-weight:600;margin-bottom:12px">Top Stalls by Leads</div><div class="chart-bar-wrap">${rows}</div></div>`;
+}
+
+// ── Organizers ────────────────────────────────────────────────────────────
+async function loadOrganizers() {
+  const res  = await apiGet("/super_admin/event_organizers");
+  const rows = (res.data||[]).map(o => `
+    <tr>
+      <td><div style="font-weight:600"><a href="javascript:void(0)"
+          onclick="showOrganizerDetails('${o.id}', 'organizers')"
+          style="color:inherit;font-weight:600;text-decoration:none">${o.name}</a></div><div style="font-size:12px;color:var(--text2)">${o.email}</div></td>
+      <td>${o.company_name||"—"}</td>
+      <td>${o.mobile_number}</td>
+      <td><span class="badge ${o.active?'badge-green':'badge-gray'}">${o.active?'Active':'Inactive'}</span></td>
+      <td>${fmtDate(o.created_at)}</td>
+      <td>
+        <button class="btn btn-sm btn-outline" onclick='toggleOrganizer("${o.id}",${o.active})'>${o.active?"Deactivate":"Activate"}</button>
+      </td>
+    </tr>
+  `).join("");
+  document.getElementById("organizers-table").innerHTML = `
+    <table><thead><tr><th>Name</th><th>Company</th><th>Mobile</th><th>Status</th><th>Joined</th><th></th></tr></thead>
+    <tbody>${rows||`<tr><td colspan="6">${emptyHtml("🏢","No organizers yet")}</td></tr>`}</tbody></table>
+  `;
+}
+
+async function createOrganizer() {
+  const err  = document.getElementById("org-form-err");
+  err.style.display = "none";
+  const res  = await apiPost("/super_admin/event_organizers", {
+    event_organizer: {
+      name: document.getElementById("of-name").value.trim(),
+      email: document.getElementById("of-email").value.trim(),
+      mobile_number: document.getElementById("of-mobile").value.trim(),
+      company_name: document.getElementById("of-company").value.trim(),
+    },
+    password: document.getElementById("of-password").value,
+  });
+  if (res.success) { closeModal("modal-create-organizer"); toast("Organizer created!", "success"); loadOrganizers(); }
+  else { err.style.display="block"; err.textContent = res.error||(res.errors||[]).join(", "); }
+}
+
+async function toggleOrganizer(id, currently_active) {
+  const endpoint = currently_active ? `/super_admin/event_organizers/${id}/deactivate` : `/super_admin/event_organizers/${id}/activate`;
+  const res = await apiPatch(endpoint, {});
+  if (res.success) { toast("Updated!", "success"); loadOrganizers(); }
+}
+
+// ── Stalls ────────────────────────────────────────────────────────────────
+async function loadStalls() {
+  const endpoint = currentUser?.role === "super_admin" ? "/super_admin/stall_owners" : null;
+  if (!endpoint) { document.getElementById("stalls-table").innerHTML = emptyHtml("🏪","Select an event first"); return; }
+  const res  = await apiGet(endpoint);
+  const rows = (res.data||[]).map(s => `
+    <tr>
+      <td><div style="font-weight:600"><a href="javascript:void(0)"
+          onclick="showStallOwnerDetails('${s.id}', 'stalls')"
+          style="color:inherit;font-weight:600;text-decoration:none">${s.company_name}</a></div><div style="font-size:12px;color:var(--text2)">${s.name}</div></td>
+      <td>${s.stall_number||"—"}</td>
+      <td>${s.stall_category||"—"}</td>
+      <td>${s.mobile_number}</td>
+      <td>${s.event.name}</td>
+      <td>${s.pass_code}</td>
+      <td style="font-weight:600;color:var(--accent)">${s.total_leads_count||0}</td>
+      <td><span class="badge ${s.active?'badge-green':'badge-gray'}">${s.active?"Active":"Inactive"}</span></td>
+      <td>
+        <button class="btn btn-sm btn-outline" onclick='editStall(${JSON.stringify(s)})'>Edit</button>
+        <button class="btn btn-sm btn-outline" onclick='toggleStallOwner("${s.id}",${s.active})'>${s.active?"Deactivate":"Activate"}</button>
+      </td>
+    </tr>
+  `).join("");
+  document.getElementById("stalls-table").innerHTML = `
+    <table><thead><tr><th>Company</th><th>Stall</th><th>Category</th><th>Mobile</th><th>Event</th><th>Pass Code</th><th>Leads</th><th>Status</th></tr></thead>
+    <tbody>${rows||`<tr><td colspan="6">${emptyHtml("🏪","No stalls yet")}</td></tr>`}</tbody></table>
+  `;
+}
+
+async function toggleStallOwner(id, currently_active) {
+  const endpoint = currently_active ? `/super_admin/stall_owners/${id}/deactivate` : `/super_admin/stall_owners/${id}/activate`;
+  const res = await apiPatch(endpoint, {});
+  if (res.success) { toast("Updated!", "success"); loadStalls(); }
+}
+
+// ── Visitors ──────────────────────────────────────────────────────────────
+async function loadVisitors() {
+  const eventId = document.getElementById("visitor-event-filter").value;
+  const search  = document.getElementById("visitor-search").value;
+  // if (!eventId) { document.getElementById("visitors-table").innerHTML = emptyHtml("👥","Select an event to view visitors"); return; }
+  const endpoint = `/super_admin/visitors?search=${encodeURIComponent(search||"")}${eventId ? `&event_id=${eventId}` : ""}`;
+  const res  = await apiGet(endpoint);
+  const rows = (res.data||[]).map(v => `
+    <tr>
+      <td><span class="badge badge-purple"><a href="javascript:void(0)"
+          onclick="showVisitorDetails('${v.id}', 'visitors')"
+          style="color:inherit;font-weight:600;text-decoration:none">${v.visitor_id_code}</a></span></td>
+      <td><div style="font-weight:600">${v.full_name}</div></td>
+      <td>${v.mobile_number}</td>
+      <td>${v.business_name||"—"}</td>
+      <td>${v.business_category||"—"}</td>
+      <td>${v.location||"—"}</td>
+      <td>${v.stalls_visited||0}</td>
+      <td style="font-size:12px;color:var(--text2)">${fmtDate(v.registered_at)}</td>
+    </tr>
+  `).join("");
+  document.getElementById("visitors-table").innerHTML = `
+    <table><thead><tr><th>ID</th><th>Name</th><th>Mobile</th><th>Business</th><th>Category</th><th>Location</th><th>Stalls</th><th>Registered</th></tr></thead>
+    <tbody>${rows||`<tr><td colspan="8">${emptyHtml("👥","No visitors registered yet")}</td></tr>`}</tbody></table>
+  `;
+}
+
+async function loadEventsForFilter() {
+  try {
+    const endpoint = currentUser?.role === "super_admin" ? "/super_admin/events" : "/organizer/events";
+    const res = await apiGet(endpoint);
+    allEvents = res.data || [];
+    ["visitor-event-filter","leads-event-filter"].forEach(id => {
+      const sel = document.getElementById(id);
+      allEvents.forEach(e => { const o = document.createElement("option"); o.value = e.id; o.textContent = e.name; sel.appendChild(o); });
+    })
+  } catch(e) {}
+}
+
+// ── Leads ─────────────────────────────────────────────────────────────────
+async function loadLeads() {
+  let id = document.getElementById("leads-event-filter").value;
+  if (!id) {
+    // Clear analytics UI or show message
+    return;
+  }
+  let leadEvent = allEvents.find(e => e.id === id)
+  const endpoint = currentUser?.role === "super_admin"
+    ? `/super_admin/events/${id}/analytics`
+    : `/organizer/events/${id}/analytics`;
+  const res = await apiGet(endpoint);
+  if (!res.success) return;
+  const o = res.data.overview;
+  document.getElementById("lead-stats").innerHTML = `
+    ${statCard("🎯","Total Leads",o.total_leads,"accent")}
+    ${statCard("🔥","Hot",o.hot_leads,"")}
+    ${statCard("♨️","Warm",o.warm_leads,"")}
+    ${statCard("❄️","Cold",o.cold_leads,"")}
+  `;
+  const stalls = res.data.top_stalls || [];
+  const rows   = stalls.map(s => `
+    <tr>
+      <td style="font-weight:600">${s.name||s.company_name}</td>
+      <td>${s.stall_number||"—"}</td>
+      <td style="font-weight:700;font-size:16px;color:var(--accent)">${s.leads}</td>
+    </tr>
+  `).join("");
+  document.getElementById("leads-table").innerHTML = `
+    <div style="padding:12px 20px;font-size:13px;color:var(--text2)">Showing stall performance for <strong>${leadEvent.name}</strong></div>
+    <table><thead><tr><th>Stall / Company</th><th>Stall #</th><th>Leads</th></tr></thead>
+    <tbody>${rows||`<tr><td colspan="3">${emptyHtml("🎯","No leads yet")}</td></tr>`}</tbody></table>
+  `;
+}
+
+// ── Analytics ─────────────────────────────────────────────────────────────
+async function loadAnalytics() {
+  const endpoint = currentUser?.role === "super_admin" ? "/super_admin/dashboard" : "/organizer/dashboard";
+  const res = await apiGet(endpoint);
+  if (!res.success) return;
+  const p = res.data.platform || {};
+  document.getElementById("analytics-stats").innerHTML = `
+    ${statCard("🎪","Total Events",p.total_events||0,"")}
+    ${statCard("✅","Active Events",p.active_events||0,"accent")}
+    ${statCard("👥","Total Visitors",p.total_visitors||0,"")}
+    ${statCard("🎯","Total Leads",p.total_leads||0,"accent")}
+    ${statCard("🏪","Stall Owners",p.total_stalls||0,"")}
+    ${statCard("🏢","Organizers",p.total_organizers||0,"")}
+  `;
+  // Show event-level analytics for active event
+  const ae = allEvents.find(e => e.status === "active");
+  if (ae) { await showEventAnalyticsInline(ae.id, ae.name); }
+}
+
+async function showEventAnalyticsInline(id, name) {
+  const endpoint = currentUser?.role === "super_admin" ? `/super_admin/events/${id}/analytics` : `/organizer/events/${id}/analytics`;
+  const res = await apiGet(endpoint);
+  if (!res.success) return;
+  const d = res.data;
+  document.getElementById("analytics-charts").innerHTML = `
+    ${chartCard("Visitors by Category", d.visitors_by_category)}
+    ${chartCard("Visitors by Location", d.visitors_by_location)}
+    ${topStallsHtml(d.top_stalls)}
+  `;
+}
+
+// ── Modals ────────────────────────────────────────────────────────────────
+function openModal(id)  { 
+  document.getElementById(id).style.display = "flex"; 
+  if (id === "modal-create-event"){
+    const modal = document.getElementById("modal-create-event");
+    const eventId = modal.dataset.eventId; // check if edit mode
+
+    if (eventId) {
+      document.getElementById("ef-submit-btn").innerHTML = "Update Event";
+      document.getElementById("modal-event-title").innerHTML = "Update Event";
+    } else {
+      document.getElementById("ef-submit-btn").innerHTML = "Create Event";
+      document.getElementById("modal-event-title").innerHTML = "Create New Event";
+    }
+  } else if (id ==="m-import-stalls") {
+    document.getElementById("stall-import-file").value = "";
+    document.getElementById("stall-import-event-sel").value = "";
+    document.getElementById("import-err").style.display = "none";
+  }
+}
+function closeModal(id) { 
+  if (id === "modal-create-event") resetEventForm();
+  else if (id === "modal-create-organizer") resetOrganizerForm();
+  document.getElementById(id).style.display = "none"; }
+
+// ── Helpers ───────────────────────────────────────────────────────────────
+function filterTable(tableId, q) {
+  const rows = document.querySelectorAll(`#${tableId} tbody tr`);
+  q = q.toLowerCase();
+  rows.forEach(r => { r.style.display = r.textContent.toLowerCase().includes(q) ? "" : "none"; });
+}
+
+function fmtDate(d) {
+  if (!d) return "—";
+  return new Date(d).toLocaleDateString("en-IN", { day:"numeric", month:"short", year:"numeric" });
+}
+
+function statusBadge(s) {
+  return {active:"badge-green",draft:"badge-amber",completed:"badge-blue",archived:"badge-gray"}[s] || "badge-gray";
+}
+
+function emptyHtml(icon, text) {
+  return `<div class="empty"><div class="empty-icon">${icon}</div>${text}</div>`;
+}
+
+function toast(msg, type="success") {
+  const t = document.getElementById("toast");
+  t.textContent  = msg;
+  t.className    = "toast " + type + " show";
+  setTimeout(() => { t.className = "toast"; }, 3000);
+}
+function resetOrganizerForm() {
+  document.getElementById("of-name").value = "";
+  document.getElementById("of-email").value = "";
+  document.getElementById("of-mobile").value = "";
+  document.getElementById("of-company").value = "";
+  document.getElementById("of-password").value = "";
+
+  const err = document.getElementById("org-form-err");
+  err.style.display = "none";
+  err.textContent = "";
+}
+function resetEventForm() {
+  const modal = document.getElementById("modal-create-event");
+
+  // Clear edit state
+  delete modal.dataset.eventId;
+
+  document.getElementById("ef-organizer").value = "";
+  document.getElementById("ef-name").value = "";
+  document.getElementById("ef-venue").value = "";
+  document.getElementById("ef-city").value = "";
+  document.getElementById("ef-start").value = "";
+  document.getElementById("ef-end").value = "";
+  document.getElementById("ef-max").value = "";
+  document.getElementById("ef-status").value = "";
+  document.getElementById("ef-desc").value = "";
+
+  const err = document.getElementById("event-form-err");
+  err.style.display = "none";
+  err.textContent = "";
+}
+function openEditEventModalById(id) {
+  let event = allEvents.find(e => e.id === id);
+  openEditEventModal(event);
+}
+async function openEditEventModal(event) {
+  const modal = document.getElementById("modal-create-event");
+
+  // store id for update
+  modal.dataset.eventId = event.id;
+
+  // fill form fields
+  document.getElementById("ef-organizer").value = event.event_organizer_id || "";
+  document.getElementById("ef-name").value = event.name || "";
+  document.getElementById("ef-venue").value = event.venue || "";
+  document.getElementById("ef-city").value = event.city || "";
+  document.getElementById("ef-start").value = event.start_date || "";
+  document.getElementById("ef-end").value = event.end_date || "";
+  document.getElementById("ef-max").value = event.max_visitors || "";
+  document.getElementById("ef-status").value = event.status || "";
+  document.getElementById("ef-desc").value = event.description || "";
+
+  openModal("modal-create-event");
+}
+async function importStallOwners() {
+  const fileInput = document.getElementById("stall-import-file");
+  const err = document.getElementById("import-err");
+  const btn = document.getElementById("import-btn");
+  const eid = document.getElementById("stall-import-event-sel").value;
+  err.style.display = "none";
+  if (!eid) { err.style.display="block"; err.textContent="Please select an event first"; return; }
+
+  if (!fileInput.files.length) {
+    err.style.display = "block";
+    err.textContent = "Please select a CSV file";
+    return;
+  }
+
+  try {
+    btn.disabled = true;
+    btn.textContent = "Importing...";
+
+    const formData = new FormData();
+    formData.append("file", fileInput.files[0]);
+    formData.append("event_id", eid)
+
+    const response = await fetch(
+      `/api/v1/super_admin/stall_owners/bulk_upload`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`
+          // Don't set Content-Type
+        },
+        body: formData
+      }
+    );
+
+    const result = await response.json();
+
+    if (!result.success) {
+      throw new Error(result.error || "Import failed");
+    }
+
+    // closeModal("m-import-stalls");
+
+    // alert(
+    //   `${result.data.created_count} stall owners imported successfully`
+    // );
+
+    const {
+      created_count,
+      failed_count,
+      errors
+    } = result.data;
+
+    err.style.display = "block";
+
+    err.innerHTML = `
+      <strong>Import Completed</strong><br>
+      Created: ${created_count}<br>
+      Failed: ${failed_count}
+      ${
+        errors.length
+          ? `<hr>
+            ${errors.map(e =>
+              `Line ${e.line}: ${e.errors.join(", ")}`
+            ).join("<br>")}`
+          : ""
+      }
+    `;
+
+    // loadStallOwners();
+
+  } catch (error) {
+    err.style.display = "block";
+    err.textContent = error.message;
+  } finally {
+    btn.disabled = false;
+    btn.textContent = "Import Stall Owners";
+  }
+}
+function editStall(stall) {
+  document.getElementById("st-id").value = stall.id;
+  document.getElementById("st-name").value = stall.name || "";
+  document.getElementById("st-mobile").value = stall.mobile_number || "";
+  document.getElementById("st-company").value = stall.company_name || "";
+  document.getElementById("st-num").value = stall.stall_number || "";
+  document.getElementById("st-cat").value = stall.stall_category || "";
+  document.getElementById("st-email").value = stall.email || "";
+  document.getElementById("st-web").value = stall.website || "";
+
+  document.getElementById("st-save-btn").textContent = "Update Stall Owner";
+
+  document.getElementById("st-mobile").readOnly = true;
+
+  openModal("m-stall");
+}
+async function updateStall() {
+  const stallId = document.getElementById("st-id").value;
+  const err = document.getElementById("st-err");
+
+  err.style.display = "none";
+
+  if (!stallId) {
+    err.style.display = "block";
+    err.textContent = "Invalid stall owner.";
+    return;
+  }
+
+  try {
+    const result = await apiPatch(
+      `/super_admin/stall_owners/${stallId}`,
+      {
+        stall_owner: {
+          name: document.getElementById("st-name").value.trim(),
+          company_name: document.getElementById("st-company").value.trim(),
+          stall_number: document.getElementById("st-num").value.trim(),
+          stall_category: document.getElementById("st-cat").value,
+          email: document.getElementById("st-email").value.trim(),
+          website: document.getElementById("st-web").value.trim()
+        }
+      }
+    );
+
+    if (!result.success) {
+      throw new Error(result.error || "Update failed");
+    }
+
+    closeModal("m-stall");
+    toast("Stall owner updated successfully", "success");
+    loadStalls();
+  } catch (error) {
+    err.style.display = "block";
+    err.textContent = error.message;
+  }
+}
+async function saveStall() {
+  const stallId = document.getElementById("st-id").value;
+
+  if (stallId) {
+    await updateStall(stallId);
+  } else {
+    await createStall();
+  }
+}
+
+function addStallRow() {
+  const tbody = document.getElementById("stall-table-body");
+
+  const row = document.createElement("tr");
+
+  row.innerHTML = `
+    <td class="mf">
+      <input type="text" class="st-name" placeholder="Full Name">
+    </td>
+
+    <td class="mf">
+      <input type="tel" class="st-mobile" placeholder="9876543210">
+    </td>
+
+    <td  class="mf">
+      <input type="text" class="st-company" placeholder="Company Name">
+    </td>
+
+    <td class="mf">
+      <input type="text" class="st-number" placeholder="A1">
+    </td>
+
+    <td class="mf">
+      <select class="st-category">
+        <option value="">Select</option>
+        <option>IT Services</option>
+        <option>Finance</option>
+        <option>Marketing</option>
+        <option>Education</option>
+        <option>Healthcare</option>
+        <option>Retail</option>
+        <option>Manufacturing</option>
+        <option>Energy</option>
+        <option>Startup</option>
+        <option>Other</option>
+      </select>
+    </td>
+
+    <td class="mf">
+      <input type="email" class="st-email" placeholder="Email">
+    </td>
+
+    <td class="mf">
+      <input type="text" class="st-website" placeholder="Website">
+    </td>
+
+    <td class="mf">
+      <button
+        class="btn btn-primary btn-sm"
+        type="button"
+        onclick="this.closest('tr').remove()"
+      >
+        ✕
+      </button>
+    </td>
+  `;
+
+  tbody.appendChild(row);
+}
+function openBulkStallModal() {
+  document.getElementById("stall-table-body").innerHTML = "";
+  document.getElementById("st-bulk-err").style.display = "none";
+  document.getElementById("admin-stall-event-sel").value = "";
+
+  for (let i = 0; i < 2; i++) {
+    addStallRow();
+  }
+
+  openModal("m-m-stall");
+}
+async function createMultipleStalls() {
+  const eid = document.getElementById("admin-stall-event-sel").value;
+  const err = document.getElementById("st-bulk-err");
+
+  err.style.display = "none";
+  if (!eid) { err.style.display="block"; err.textContent="Please select an event first"; return; }
+
+  const rows = [...document.querySelectorAll("#stall-table-body tr")];
+
+  const stallOwners = rows
+    .map(row => ({
+      name: row.querySelector(".st-name").value.trim(),
+      mobile_number: row.querySelector(".st-mobile").value.trim(),
+      company_name: row.querySelector(".st-company").value.trim(),
+      stall_number: row.querySelector(".st-number").value.trim(),
+      stall_category: row.querySelector(".st-category").value,
+      email: row.querySelector(".st-email").value.trim(),
+      website: row.querySelector(".st-website").value.trim(),
+      event_id: eid
+    }))
+    .filter(stall =>
+      stall.name &&
+      stall.mobile_number &&
+      stall.company_name
+    );
+
+  if (stallOwners.length === 0) {
+    err.style.display = "block";
+    err.textContent =
+      "Please enter at least one valid stall owner.";
+    return;
+  }
+
+  try {
+    const result = await apiPost(
+      `/super_admin/stall_owners/bulk_create`,
+      {
+        stall_owners: stallOwners
+      }
+    );
+
+    if (!result.success) {
+      throw new Error(result.error || "Creation failed");
+    }
+
+    closeModal("m-m-stall");
+
+    toast(
+      `${result.data.created_count} stall owners created successfully`,
+      "success"
+    );
+
+    loadStallOwners();
+
+  } catch (error) {
+    err.style.display = "block";
+    err.textContent = error.message;
+  }
+}
+async function loadEventSelectors() {
+  const res = await apiGet("/super_admin/events");
+  myEvents  = res.data || [];
+  ["admin-stall-event-sel", "stall-import-event-sel"].forEach(id => {
+    const sel = document.getElementById(id);
+    if (!sel) return;
+    const cur = sel.value;
+    sel.innerHTML = `<option value="">Select Event</option>` + myEvents.map(e=>`<option value="${e.id}">${e.name}</option>`).join("");
+    if (cur) sel.value = cur;
+  });
+  // Pre-fill stall modal event select
+  const sm = document.getElementById("st-event-sel");
+  if (sm) sm.innerHTML = myEvents.map(e=>`<option value="${e.id}">${e.name}</option>`).join("");
+}
+function showDetails(title, fields) {
+
+  document.getElementById("details-title").textContent = title;
+
+  let html = '<div class="form-grid">';
+
+  fields.forEach(field => {
+    html += `
+      <div class="field">
+        <label>${field.label}</label>
+        <div style="font-weight:600;font-size:14px;">
+          ${field.value || "-"}
+        </div>
+      </div>
+    `;
+  });
+
+  html += '</div>';
+
+  document.getElementById("details-content").innerHTML = html;
+
+  document.querySelectorAll(".page")
+    .forEach(p => p.classList.remove("active"));
+
+  document.getElementById("page-details")
+    .classList.add("active");
+}
+async function showEventDetails(eventId, pageName = "events") {
+  previousPage = pageName;
+
+  const result = await apiGet(
+    `/super_admin/events/${eventId}`
+  );
+
+  const e = result.data;
+
+  showDetails("Event Details", [
+    { label: "Event ID", value: e.id },
+    { label: "Event Name", value: e.name },
+    { label: "Venue", value: e.venue },
+    { label: "City", value: e.city },
+    { label: "Start Date", value: fmtDate(e.start_date) },
+    { label: "End Date", value: fmtDate(e.end_date) },
+    { label: "Organizer", value: e.organizer?.name },
+    { label: "Max Visitors", value: e.visitors_count },
+    { label: "Status", value: e.status },
+    { label: "Description", value: e.description }
+  ]);
+}
+async function showOrganizerDetails(orgId, pageName = "organizers") {
+  previousPage = pageName;
+
+  const result = await apiGet(
+    `/super_admin/event_organizers/${orgId}`
+  );
+
+  const o = result.data;
+
+  showDetails("Organizer Details", [
+    { label: "Organizer ID", value: o.id },
+    { label: "Name", value: o.name },
+    { label: "Email", value: o.email },
+    { label: "Company", value: o.company_name },
+    { label: "Mobile No.", value: o.mobile_number },
+    { label: "Status", value: o.active?'Active':'Inactive' },
+    { label: "Joined", value: fmtDate(o.created_at) }
+  ]);
+}
+function closeDetails() {
+  showPage(previousPage || "events");
+}
+async function showStallOwnerDetails(stallOwnerId, pageName = "stalls") {
+  previousPage = pageName;
+
+  const result = await apiGet(
+    `/super_admin/stall_owners/${stallOwnerId}`
+  );
+
+  const s = result.data;
+
+  showDetails("Stall Owner Details", [
+    { label: "Stall Owner ID", value: s.id },
+    { label: "Name", value: s.name },
+    { label: "Email", value: s.email },
+    { label: "Mobile No.", value: s.mobile_number },
+    { label: "Company", value: s.company_name },
+    { label: "Stall No.", value: s.stall_number },
+    { label: "Stall Category", value: s.stall_category },
+    { label: "Event", value: s.event?.name || "N/A" },
+    { label: "Website", value: s.website },
+    { label: "Description", value: s.description },
+    { label: "Status", value: s.active?'Active':'Inactive' },
+    { label: "Pass Code", value: s.pass_code }
+  ]);
+}
+async function showVisitorDetails(visitorId, pageName = "visitors") {
+  previousPage = pageName;
+
+  const result = await apiGet(
+    `/super_admin/visitors/${visitorId}`
+  );
+
+  const v = result.data;
+
+  showDetails("Visitor Details", [
+    { label: "Visitor ID", value: v.visitor_id_code },
+    { label: "Name", value: v.full_name },
+    { label: "Mobile No.", value: v.mobile_number },
+    { label: "Location", value: v.location },
+    { label: "Profession", value: v.profession },
+    { label: "Business Category", value: v.business_category },
+    { label: "Business Name", value: v.business_name },
+    { label: "Designation", value: v.designation },
+    { label: "Email", value: v.email },
+    { label: "Website", value: v.website },
+    { label: "Event", value: v.event?.name || "N/A" },
+    { label: "Looking For", value: v.looking_for },
+    { label: "Decision Maker", value: v.decision_maker?'Yes':'No' },
+    { label: "Status", value: v.active?'Active':'Inactive' },
+    { label: "Registered At", value: fmtDate(v.created_at) }
+  ]);
+}
+function closeDetails() {
+  showPage(previousPage || "events");
+}
+</script>
+</body>
+</html>
+</body></html>

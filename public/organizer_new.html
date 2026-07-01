@@ -1,0 +1,1256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Organizer Portal — LetsKonnect</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--accent:#14b8a6;--accent2:#0d9488;--accent3:#0f766e;--bg:#f8fafc;--bg2:#ffffff;--text:#0f172a;--text2:#64748b;--text3:#94a3b8;--text4:#cbd5e1;--border:#e2e8f0;--border2:#f1f5f9;--green:#22c55e;--green2:#16a34a;--amber:#f59e0b;--amber2:#d97706;--red:#ef4444;--red2:#dc2626;--purple:#6c63ff;--shadow:0 1px 3px rgba(0,0,0,.08),0 1px 2px rgba(0,0,0,.05);--shadow-md:0 4px 16px rgba(0,0,0,.1);--shadow-lg:0 8px 32px rgba(0,0,0,.12)}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;-webkit-font-smoothing:antialiased}
+/* Login */
+.login-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#f0fdfa 0%,#f8fafc 60%,#fffbeb 100%);padding:24px}
+.login-card{background:var(--bg2);border-radius:24px;padding:40px 36px;width:100%;max-width:420px;box-shadow:var(--shadow-lg);border:1px solid var(--border)}
+.login-back{display:inline-flex;align-items:center;gap:6px;color:var(--text2);font-size:13px;text-decoration:none;margin-bottom:26px;font-weight:500;transition:color .2s}
+.login-back:hover{color:var(--accent)}
+.login-logo{margin-bottom:22px;display:flex;align-items:center;gap:14px}
+.login-logo-icon{width:56px;height:56px;background:linear-gradient(135deg,var(--accent),var(--accent2));border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:26px;box-shadow:0 6px 20px rgba(20,184,166,.3);flex-shrink:0}
+.login-logo h2{font-size:22px;font-weight:700;color:var(--text)}
+.login-logo p{font-size:13px;color:var(--text2);margin-top:3px}
+/* App */
+.app{display:flex;height:100vh;overflow:hidden}
+.sidebar{width:248px;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;box-shadow:1px 0 0 var(--border);overflow-y:auto}
+.main{flex:1;overflow-y:auto;background:var(--bg)}
+.topbar{display:none;align-items:center;padding:12px 16px;background:var(--bg2);border-bottom:1px solid var(--border);gap:12px;position:sticky;top:0;z-index:50;box-shadow:var(--shadow)}
+.menu-btn{background:none;border:none;color:var(--text);font-size:22px;cursor:pointer;padding:4px}
+/* Sidebar */
+.brand-area{padding:20px 18px 14px;border-bottom:1px solid var(--border)}
+.brand-logo{font-size:17px;font-weight:800;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;display:flex;align-items:center;gap:8px}
+.brand-role{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.1em;margin-top:3px;font-weight:600}
+.sidebar-user{padding:12px 18px;border-bottom:1px solid var(--border)}
+.user-name{font-size:14px;font-weight:600;color:var(--text)}
+.user-sub{font-size:12px;color:var(--text2);margin-top:2px}
+.nav{padding:8px;flex:1}
+.nav-section{font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);padding:12px 10px 4px;font-weight:600}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;font-size:14px;cursor:pointer;color:var(--text2);transition:all .15s;user-select:none;font-weight:500}
+.nav-item:hover{background:var(--border2);color:var(--text)}
+.nav-item.active{background:rgba(20,184,166,.1);color:var(--accent);font-weight:600}
+.nav-icon{font-size:17px;width:22px;text-align:center;flex-shrink:0}
+.sidebar-footer{padding:12px 16px;border-top:1px solid var(--border)}
+.logout-btn{width:100%;background:none;border:1.5px solid var(--border);color:var(--text2);border-radius:10px;padding:9px;font-size:13px;cursor:pointer;font-family:'Inter',sans-serif;font-weight:500;transition:all .15s}
+.logout-btn:hover{border-color:var(--red);color:var(--red)}
+/* Pages */
+.page{padding:28px 32px;display:none}
+.page.active{display:block}
+.page-title{font-size:22px;font-weight:800;color:var(--text);margin-bottom:4px}
+.page-sub{font-size:14px;color:var(--text2);margin-bottom:24px}
+/* Stats */
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:14px;margin-bottom:24px}
+.stat-card{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:20px;transition:all .2s;box-shadow:var(--shadow)}
+.stat-card:hover{transform:translateY(-2px);box-shadow:var(--shadow-md);border-color:rgba(20,184,166,.3)}
+.stat-card.highlight{border-color:rgba(20,184,166,.3);background:linear-gradient(135deg,rgba(20,184,166,.06),rgba(13,148,136,.02))}
+.stat-icon{font-size:22px;margin-bottom:10px}
+.stat-num{font-size:28px;font-weight:800;line-height:1;color:var(--text)}
+.stat-label{font-size:12px;color:var(--text2);margin-top:6px;font-weight:500}
+/* Tables */
+.table-wrap{background:var(--bg2);border:1px solid var(--border);border-radius:14px;overflow:hidden;margin-bottom:20px;box-shadow:var(--shadow)}
+.table-header{padding:14px 20px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:10px}
+.table-title{font-size:15px;font-weight:700;color:var(--text)}
+.table-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+table{width:100%;border-collapse:collapse}
+th{text-align:left;padding:10px 16px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text3);border-bottom:1px solid var(--border);white-space:nowrap}
+td{padding:12px 16px;font-size:14px;border-bottom:1px solid var(--border2);color:var(--text)}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:var(--border2)}
+/* Badges */
+.badge{display:inline-flex;align-items:center;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;white-space:nowrap}
+.badge-green{background:#f0fdf4;color:var(--green2)}
+.badge-amber{background:#fffbeb;color:var(--amber2)}
+.badge-red{background:#fef2f2;color:var(--red2)}
+.badge-blue{background:#eff6ff;color:#2563eb}
+.badge-gray{background:var(--border2);color:var(--text2)}
+.badge-purple{background:rgba(108,99,255,.1);color:var(--purple)}
+/* Buttons */
+.btn{padding:9px 16px;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;border:none;transition:all .15s;display:inline-flex;align-items:center;gap:6px;font-family:'Inter',sans-serif;white-space:nowrap}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.btn-g{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;box-shadow:0 2px 8px rgba(20,184,166,.25)}
+.btn-g:hover:not(:disabled){transform:translateY(-1px);box-shadow:0 4px 12px rgba(20,184,166,.35)}
+.btn-o{background:none;border:1.5px solid var(--border);color:var(--text2)}
+.btn-o:hover:not(:disabled){border-color:var(--accent);color:var(--accent)}
+.btn-danger{background:#fef2f2;border:1.5px solid rgba(239,68,68,.3);color:var(--red2)}
+.btn-sm{padding:6px 12px;font-size:12px}
+/* Search */
+.search{background:var(--bg);border:1.5px solid var(--border);border-radius:10px;padding:9px 14px;color:var(--text);font-size:14px;font-family:'Inter',sans-serif;outline:none;width:200px;transition:all .2s}
+.search:focus{border-color:var(--accent);width:240px}
+.search::placeholder{color:var(--text3)}
+.filter-sel{background:var(--bg);border:1.5px solid var(--border);border-radius:10px;padding:8px 12px;color:var(--text2);font-size:13px;font-family:'Inter',sans-serif;cursor:pointer;outline:none}
+.filter-sel:focus{border-color:var(--accent)}
+.filter-sel option{background:var(--bg2);color:var(--text)}
+/* Modal */
+.modal-bg{position:fixed;inset:0;background:rgba(15,23,42,.5);backdrop-filter:blur(6px);z-index:1000;display:none;align-items:center;justify-content:center;padding:20px}
+.modal-bg.open{display:flex}
+.mf{background:var(--bg2);border:1px solid var(--border);border-radius:20px;padding:28px;width:100%;max-width:520px;max-height:88vh;overflow-y:auto;box-shadow:var(--shadow-lg)}
+.modal-head{font-size:18px;font-weight:700;margin-bottom:18px;display:flex;justify-content:space-between;align-items:center;color:var(--text)}
+.modal-x{background:none;border:none;color:var(--text2);font-size:20px;cursor:pointer;line-height:1;font-family:'Inter',sans-serif;transition:color .15s}
+.modal-x:hover{color:var(--red)}
+.modal-2col{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.modal-footer{display:flex;gap:10px;justify-content:flex-end;margin-top:16px;padding-top:16px;border-top:1px solid var(--border)}
+/* Fields */
+.field{margin-bottom:14px}
+.field label{display:block;font-size:12px;font-weight:600;color:var(--text2);margin-bottom:5px}
+.field input,.field select,.field textarea{width:100%;background:var(--bg);border:1.5px solid var(--border);border-radius:10px;padding:10px 13px;color:var(--text);font-size:14px;font-family:'Inter',sans-serif;outline:none;transition:all .2s}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--accent);background:var(--bg2);box-shadow:0 0 0 3px rgba(20,184,166,.1)}
+.field input::placeholder{color:var(--text3)}
+.field select option{background:var(--bg2);color:var(--text)}
+/* Login field */
+.field input[type="email"],.field input[type="password"],.field input[type="text"][id*="login"]{background:var(--bg);border:1.5px solid var(--border);border-radius:12px;padding:13px 15px;font-size:15px}
+/* Charts */
+.chart-wrap{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:20px;margin-bottom:16px;box-shadow:var(--shadow)}
+.chart-title{font-size:14px;font-weight:700;margin-bottom:14px;color:var(--text)}
+.chart-bar-wrap{display:flex;align-items:center;gap:10px;margin-bottom:9px}
+.chart-bar-label{width:125px;font-size:13px;color:var(--text2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex-shrink:0;font-weight:500}
+.chart-bar-bg{flex:1;height:10px;background:var(--border2);border-radius:20px;overflow:hidden}
+.chart-bar-fill{height:100%;border-radius:20px;background:linear-gradient(90deg,var(--accent),var(--accent2));transition:width .6s ease}
+.chart-bar-val{width:36px;text-align:right;font-size:12px;font-weight:600;flex-shrink:0;color:var(--text2)}
+/* API error */
+.err{background:#fef2f2;border:1.5px solid rgba(239,68,68,.25);border-radius:10px;padding:10px 14px;font-size:13px;color:var(--red2);margin-bottom:10px;display:none;font-weight:500}
+/* Empty */
+.empty-state{text-align:center;padding:52px 20px;color:var(--text2)}
+.empty-icon{font-size:44px;opacity:.2;margin-bottom:12px;display:block}
+/* Toast */
+.toast{position:fixed;bottom:24px;right:24px;background:var(--text);color:#fff;border-radius:14px;padding:13px 20px;font-size:14px;font-weight:600;z-index:2000;transform:translateY(80px);opacity:0;transition:all .3s;max-width:340px;box-shadow:var(--shadow-lg);display:flex;align-items:center;gap:10px}
+.toast.show{transform:translateY(0);opacity:1}
+.toast.err{background:var(--red)}
+/* QR */
+.qr-box{background:#fff;border-radius:14px;padding:14px;display:inline-block;box-shadow:var(--shadow-md)}
+.qr-box img{width:160px;height:160px;display:block}
+/* Event cards */
+.event-card{background:var(--bg2);border:1px solid var(--border);border-radius:14px;margin-bottom:16px;overflow:hidden;box-shadow:var(--shadow)}
+.event-card-header{padding:16px 20px;display:flex;justify-content:space-between;align-items:flex-start;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:10px}
+.event-name{font-size:16px;font-weight:700;color:var(--text)}
+.event-meta{font-size:12px;color:var(--text2);margin-top:3px;font-weight:500}
+.event-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--border)}
+.event-stat{background:var(--bg2);padding:14px;text-align:center}
+.event-stat-num{font-size:20px;font-weight:800;color:var(--text)}
+.event-stat-label{font-size:11px;color:var(--text2);margin-top:3px;font-weight:500}
+/* Responsive */
+@media(max-width:768px){.sidebar{position:fixed;top:0;bottom:0;left:-248px;z-index:200;transition:left .25s;height:100vh}.sidebar.open{left:0}.topbar{display:flex}.page{padding:16px}.modal-2col{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<!-- <div id="login-screen" class="login-wrap">
+  <div class="login-card">
+    <a href="/" class="login-back">← Back to Home</a>
+    <div class="login-logo">
+      <div class="login-logo-icon">🏢</div>
+      <h2>Organizer Portal</h2>
+      <p>LetsKonnect · Event Management</p>
+    </div>
+    <div class="field">
+      <label>Email Address</label>
+      <input type="email" id="email" placeholder="organizer@techfest.com" value="organizer@techfest.com">
+    </div>
+    <div class="field">
+      <label>Password</label>
+      <input type="password" id="password" placeholder="••••••••" value="Organizer@123" onkeydown="if(event.key==='Enter')doLogin()">
+    </div>
+    <div id="login-err" class="err"></div>
+    <button class="btn-primary" onclick="doLogin()" id="login-btn">Sign In to Portal</button>
+    <p style="font-size:12px;color:var(--text3);text-align:center;margin-top:14px">Demo: organizer@techfest.com / Organizer@123</p>
+  </div>
+</div> -->
+
+<!-- APP -->
+<div id="app" class="app" style="display:none">
+  <div class="topbar">
+    <button class="menu-btn" onclick="document.getElementById('sidebar').classList.toggle('open')">☰</button>
+    <span style="font-size:15px;font-weight:700;color:var(--accent)">Organizer Portal</span>
+  </div>
+
+  <div class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-logo">🏢 Organizer</div>
+      <div class="brand-role">LetsKonnect Portal</div>
+    </div>
+    <div class="sidebar-user">
+      <div class="user-name" id="sb-name">—</div>
+      <div class="user-sub" id="sb-company">—</div>
+    </div>
+    <nav class="nav">
+      <div class="nav-section">Overview</div>
+      <div class="nav-item active" onclick="nav('dashboard',this)"><span class="nav-icon">🏠</span> Dashboard</div>
+      <div class="nav-section">Events</div>
+      <div class="nav-item" onclick="nav('events',this)"><span class="nav-icon">🎪</span> My Events</div>
+      <div class="nav-item" onclick="nav('stalls',this)"><span class="nav-icon">🏪</span> Stall Owners</div>
+      <div class="nav-item" onclick="nav('visitors',this)"><span class="nav-icon">👥</span> Visitors</div>
+      <div class="nav-item" onclick="nav('analytics',this)"><span class="nav-icon">📊</span> Analytics</div>
+    </nav>
+    <div class="sidebar-foot">
+      <button class="logout-btn" onclick="doLogout()">Sign Out</button>
+    </div>
+  </div>
+
+  <div class="main">
+    <!-- DASHBOARD -->
+    <div class="page active" id="page-dashboard">
+      <div class="page-head"><div><div class="page-title">Dashboard</div><div class="page-sub" id="dash-sub">Welcome back</div></div></div>
+      <div class="stats-grid" id="dash-stats"></div>
+      <div id="dash-events"></div>
+    </div>
+
+    <!-- EVENTS -->
+    <div class="page" id="page-events">
+      <div class="page-head">
+        <div><div class="page-title">My Events</div><div class="page-sub">Manage your events and QR codes</div></div>
+        <!-- <button class="btn btn-g" onclick="openModal('m-event')">+ Create Event</button> -->
+      </div>
+      <div id="events-list"></div>
+    </div>
+
+    <!-- STALLS -->
+    <div class="page" id="page-stalls">
+      <div class="page-head">
+        <div><div class="page-title">Stall Owners</div><div class="page-sub">Manage exhibitor accounts</div></div>
+        <div class="tbl-actions">
+          <select class="filter-sel" id="stall-event-sel" onchange="loadStalls()">
+            <option value="">Select Event</option>
+          </select>
+          <button class="btn btn-g" onclick="openBulkStallModal()">+ Add Stalls</button>
+          <button class="btn btn-g" onclick="openModal('m-import-stalls')">+ Bulk Upload</button>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <div id="stalls-tbl"><div class="empty"><div class="empty-icon">🏪</div>Select an event above</div></div>
+      </div>
+    </div>
+
+    <!-- VISITORS -->
+    <div class="page" id="page-visitors">
+      <div class="page-head">
+        <div><div class="page-title">Visitors</div><div class="page-sub">Registered visitors across your events</div></div>
+        <div class="tbl-actions">
+          <select class="filter-sel" id="visitor-event-sel" onchange="loadVisitors()"><option value="">Select Event</option></select>
+          <input class="search" id="visitor-search" placeholder="Search name/mobile..." oninput="loadVisitors()">
+          <button class="btn btn-o btn-sm" onclick="exportVisitors()">⬇ Export</button>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <div id="visitors-tbl"><div class="empty"><div class="empty-icon">👥</div>Select an event above</div></div>
+      </div>
+    </div>
+
+    <!-- ANALYTICS -->
+    <div class="page" id="page-analytics">
+      <div class="page-head">
+        <div><div class="page-title">Analytics</div><div class="page-sub">Event performance metrics</div></div>
+        <select class="filter-sel" id="analytics-event-sel" onchange="loadAnalytics()"><option value="">Select Event</option></select>
+      </div>
+      <div id="analytics-content"><div class="empty"><div class="empty-icon">📊</div>Select an event above</div></div>
+    </div>
+
+    <!-- Details Screen -->
+    <div class="page" id="opage-details">
+      <div class="page-head" style="display:flex;justify-content:space-between;align-items:center;flex-direction: row-reverse;">
+        <button class="btn btn-o btn-sm" onclick="closeDetails()">
+          ← Back
+        </button>
+
+        <div class="page-title" id="odetails-title">
+          Details
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:16px">
+        <div id="details-content"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODALS -->
+<div class="modal-overlay" id="m-event" onclick="if(event.target===this)closeModal('m-event')">
+  <div class="modal">
+    <div class="modal-title">Create Event <button class="mc" onclick="closeModal('m-event')">✕</button></div>
+    <div id="ev-err" class="err"></div>
+    <div class="form-grid">
+      <div class="mf"><label>Event Name *</label><input type="text" id="ev-name" placeholder="e.g. Tech Expo 2025"></div>
+      <div class="mf"><label>Venue *</label><input type="text" id="ev-venue" placeholder="Venue name"></div>
+      <div class="mf"><label>City</label><input type="text" id="ev-city" placeholder="Chennai"></div>
+      <div class="mf"><label>Max Visitors</label><input type="number" id="ev-max" placeholder="Optional"></div>
+      <div class="mf"><label>Start Date *</label><input type="date" id="ev-start"></div>
+      <div class="mf"><label>End Date *</label><input type="date" id="ev-end"></div>
+    </div>
+    <div class="mf"><label>Description</label><textarea id="ev-desc" rows="2" placeholder="Event description..."></textarea></div>
+    <div class="mf"><label>Status</label><select id="ev-status"><option value="draft">Draft</option><option value="active">Active</option></select></div>
+    <div class="modal-foot">
+      <button class="btn btn-o" onclick="closeModal('m-event')">Cancel</button>
+      <button class="btn btn-g" onclick="handleCreateEvent()">Create Event</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="m-stall" onclick="if(event.target===this)closeModal('m-stall')">
+  <div class="modal">
+    <div class="modal-title">Edit Stall Owner <button class="mc" onclick="closeModal('m-stall')">✕</button></div>
+    <div id="st-err" class="err"></div>
+    <input type="hidden" id="st-id">
+    <div class="form-grid">
+      <div class="mf"><label>Full Name *</label><input type="text" id="st-name" placeholder="Contact name"></div>
+      <div class="mf"><label>Mobile Number *</label><input type="tel" id="st-mobile" placeholder="9876543210" readonly></div>
+      <div class="mf"><label>Company Name *</label><input type="text" id="st-company" placeholder="Company / business name"></div>
+      <div class="mf"><label>Stall Number</label><input type="text" id="st-num" placeholder="e.g. A1"></div>
+      <div class="mf"><label>Category</label>
+        <select id="st-cat">
+          <option value="">Select</option>
+          <option>IT Services</option><option>Finance</option><option>Marketing</option>
+          <option>Education</option><option>Healthcare</option><option>Retail</option>
+          <option>Manufacturing</option><option>Energy</option><option>Startup</option><option>Other</option>
+        </select>
+      </div>
+      <div class="mf"><label>Email</label><input type="email" id="st-email" placeholder="Optional"></div>
+      <div class="mf"><label>Website</label><input type="text" id="st-web" placeholder="Optional"></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-o" onclick="closeModal('m-stall')">Cancel</button>
+      <button class="btn btn-g" id="st-save-btn" onclick="saveStall()">Add Stall Owner</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="m-m-stall" onclick="if(event.target===this)closeModal('m-m-stall')">
+  <div class="modal" style="max-width:1200px;width:95%">
+    <div class="modal-title">
+      Add Multiple Stall Owners
+      <button class="mc" onclick="closeModal('m-m-stall')">✕</button>
+    </div>
+
+    <div id="st-o-bulk-err" class="err"></div>
+
+    <div style="margin-bottom:12px">
+      <button class="btn btn-g" onclick="addStallRow()">
+        + Add Row
+      </button>
+    </div>
+
+    <div style="overflow:auto">
+      <table class="table" id="stall-table">
+        <thead>
+          <tr>
+            <th>Full Name *</th>
+            <th>Mobile *</th>
+            <th>Company *</th>
+            <th>Stall No</th>
+            <th>Category</th>
+            <th>Email</th>
+            <th>Website</th>
+            <th></th>
+          </tr>
+        </thead>
+
+        <tbody id="stall-table-body">
+        </tbody>
+      </table>
+    </div>
+
+    <div class="modal-foot">
+      <button class="btn btn-o" onclick="closeModal('m-m-stall')">
+        Cancel
+      </button>
+
+      <button class="btn btn-g" onclick="createMultipleStalls()">
+        Add Stall Owners
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="m-import-stalls" onclick="if(event.target===this)closeModal('m-import-stalls')">
+  <div class="modal">
+    <div class="modal-title">
+      Import Stall Owners
+      <button class="mc" onclick="closeModal('m-import-stalls')">✕</button>
+    </div>
+
+    <div id="import-err" class="err"></div>
+
+    <div class="mf">
+      <label>Upload CSV File *</label>
+
+      <input
+        type="file"
+        id="stall-import-file"
+        accept=".csv"
+        style="width:100%;padding:10px"
+      >
+
+      <p style="margin-top:8px;font-size:12px;color:var(--text2)">
+        Supported format: CSV
+      </p>
+    </div>
+
+    <div style="margin-top:16px;padding:12px;background:var(--bg3);border-radius:8px;font-size:12px">
+      <strong>Required Columns:</strong>
+      <div style="margin-top:6px">
+        full_name,
+        mobile_number,
+        company_name,
+        stall_number,
+        category,
+        email,
+        website
+      </div>
+    </div>
+
+    <div style="margin-top:12px">
+      <a
+        href="/sample_stall_owners.csv"
+        download
+        style="color:var(--accent);font-size:13px;text-decoration:none"
+      >
+        Download Sample CSV
+      </a>
+    </div>
+
+    <div class="modal-foot">
+      <button
+        class="btn btn-o"
+        onclick="closeModal('m-import-stalls')"
+      >
+        Cancel
+      </button>
+
+      <button
+        class="btn btn-g"
+        onclick="importStallOwners()"
+        id="import-btn"
+      >
+        Import
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="m-qr" onclick="if(event.target===this)closeModal('m-qr')">
+  <div class="modal" style="text-align:center">
+    <div class="modal-title" id="qr-title" style="justify-content:center">Event QR Code <button class="mc" style="position:absolute;right:28px" onclick="closeModal('m-qr')">✕</button></div>
+    <p style="font-size:13px;color:var(--text2);margin-bottom:16px" id="qr-event-name"></p>
+    <div id="qr-content"></div>
+    <p style="font-size:12px;color:var(--text3);margin-top:12px">Visitors scan this QR to register</p>
+    <div style="margin-top:16px"><a id="qr-reg-link" href="#" target="_blank" style="font-size:12px;color:var(--accent);word-break:break-all"></a></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const API = "/api/v1";
+const token = sessionStorage.getItem("org_token");
+const me = JSON.parse(sessionStorage.getItem("org_user") || "null");
+
+if (!token || !me) {
+  window.location.href = "/login.html";
+} else {
+  bootApp();
+}
+let myEvents = [];
+
+// if (token && me) bootApp();
+
+// ── Auth ──────────────────────────────────────────────────────────────────
+/* async function doLogin() {
+  const email = document.getElementById("email").value.trim();
+  const pass  = document.getElementById("password").value;
+  const btn   = document.getElementById("login-btn");
+  const err   = document.getElementById("login-err");
+  err.style.display = "none";
+  btn.disabled = true; btn.textContent = "Signing in…";
+  try {
+    const res = await post("/organizer/sign_in", { email, password: pass });
+    if (res.success) {
+      token = res.data.token; me = res.data.organizer;
+      sessionStorage.setItem("org_token", token);
+      sessionStorage.setItem("org_user", JSON.stringify(me));
+      bootApp();
+    } else {
+      err.style.display = "block"; err.textContent = res.error || "Invalid credentials";
+    }
+  } catch(e) { err.style.display = "block"; err.textContent = "Connection error"; }
+  finally { btn.disabled = false; btn.textContent = "Sign In to Portal"; }
+} */
+
+function bootApp() {
+  // document.getElementById("login-screen").style.display = "none";
+  document.getElementById("app").style.display = "flex";
+  document.getElementById("sb-name").textContent = me.name || "Organizer";
+  document.getElementById("sb-company").textContent = me.company_name || me.email;
+  loadDashboard();
+  loadEventSelectors();
+}
+
+function doLogout() {
+  sessionStorage.clear();
+  location.reload();
+}
+
+// ── Navigation ────────────────────────────────────────────────────────────
+function nav(page, el) {
+  openPage(page);
+
+  document.querySelectorAll(".nav-item")
+    .forEach(n => n.classList.remove("active"));
+
+  if (el) {
+    el.classList.add("active");
+  }
+
+  document.getElementById("sidebar")
+    ?.classList.remove("open");
+
+  if (page === "events") {
+    loadEvents();
+  }
+}
+
+function openPage(page) {
+  document.querySelectorAll(".page")
+    .forEach(p => p.classList.remove("active"));
+
+  document.getElementById("page-" + page)
+    .classList.add("active");
+}
+
+// ── API helpers ───────────────────────────────────────────────────────────
+function h() {
+  return {
+    "Content-Type": "application/json",
+    "Authorization": "Bearer " + token
+  };
+}
+async function get(path) {
+  const r = await fetch(API + path, { headers: h() });
+  if (r.status === 401) { doLogout(); return {}; }
+  return r.json();
+}
+async function post(path, body) {
+  const r = await fetch(API + path, { method:"POST", headers: h(), body: JSON.stringify(body) });
+  return r.json();
+}
+async function patch(path, body) {
+  const r = await fetch(API + path, { method:"PATCH", headers: h(), body: JSON.stringify(body) });
+  return r.json();
+}
+
+// ── Dashboard ─────────────────────────────────────────────────────────────
+async function loadDashboard() {
+  const res = await get("/organizer/dashboard");
+  if (!res.success) return;
+  const d = res.data;
+  document.getElementById("dash-sub").textContent = d.organizer?.company ? `${d.organizer.company} — Overview` : "Overview";
+  const s = d.events_summary || {};
+  document.getElementById("dash-stats").innerHTML = `
+    ${sc("🎪","Total Events", s.total||0, "")}
+    ${sc("✅","Active Events", s.active||0, "hi")}
+    ${sc("📋","Draft Events", s.draft||0, "")}
+  `;
+  const evHtml = (d.events||[]).map(e => `
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:8px">
+      <div>
+        <div style="font-weight:600;font-size:14px">${e.name}</div>
+        <div style="font-size:12px;color:var(--text2);margin-top:2px">📍 ${e.venue} · ${fd(e.start_date)} – ${fd(e.end_date)}</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px">
+        <span style="font-weight:700;font-size:16px">${e.registered_count||0} <span style="font-size:12px;font-weight:400;color:var(--text2)">visitors</span></span>
+        <span class="badge ${sb(e.status)}">${e.status}</span>
+        <button class="btn btn-o btn-sm" onclick='showQr("${e.id}","${e.name}","${e.qr_image_url||""}","${e.registration_qr_token}")'>QR</button>
+      </div>
+    </div>
+  `).join("");
+  document.getElementById("dash-events").innerHTML = `
+    <div class="table-wrap">
+      <div class="table-head"><div class="table-title">Your Events</div></div>
+      <div style="padding:0 20px">${evHtml || `<div class="empty"><div class="empty-icon">🎪</div>No events yet</div>`}</div>
+    </div>`;
+}
+
+// ── Events ────────────────────────────────────────────────────────────────
+async function loadEvents() {
+  const res = await get("/organizer/events");
+  myEvents  = res.data || [];
+  document.getElementById("events-list").innerHTML = myEvents.map(e => `
+    <div class="table-wrap" style="margin-bottom:16px">
+      <div class="table-head">
+        <div>
+          <div class="table-title">
+            <a href="javascript:void(0)"
+              onclick="showEventDetails('${e.id}', 'events')"
+              style="color:inherit;font-weight:600;text-decoration:none">
+              ${e.name}
+            </a>
+          </div>
+          <div style="font-size:12px;color:var(--text2);margin-top:2px">📍 ${e.venue}${e.city?', '+e.city:''} · ${fd(e.start_date)} – ${fd(e.end_date)}</div>
+        </div>
+        <div class="tbl-actions">
+          <span class="badge ${sb(e.status)}">${e.status}</span>
+          <button class="btn btn-o btn-sm" onclick='showQr("${e.id}","${e.name}","${e.qr_image_url||""}","${e.registration_qr_token}")'>📱 QR Code</button>
+          ${e.status==="draft"?`<button class="btn btn-g btn-sm" onclick='activateEvent("${e.id}")'>Activate</button>`:""}
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:1px;background:var(--border)">
+        <div style="background:var(--bg);padding:14px;text-align:center"><div style="font-size:20px;font-weight:700">${e.registered_count||0}</div><div style="font-size:11px;color:var(--text2)">Visitors</div></div>
+        <div style="background:var(--bg);padding:14px;text-align:center"><div style="font-size:20px;font-weight:700">${e.max_visitors||'∞'}</div><div style="font-size:11px;color:var(--text2)">Max Visitors</div></div>
+        <!--<div style="background:var(--bg);padding:14px;text-align:center">
+          <a href="/register/${e.registration_qr_token}" target="_blank" style="font-size:12px;color:var(--accent);text-decoration:none">Open Reg Page ↗</a>
+        </div>-->
+      </div>
+    </div>
+  `).join("") || `<div class="empty"><div class="empty-icon">🎪</div>No events yet. Create your first event!</div>`;
+}
+
+async function handleCreateEvent() {
+  const err = document.getElementById("ev-err");
+  err.style.display = "none";
+  const body = { event: {
+    name: document.getElementById("ev-name").value.trim(),
+    venue: document.getElementById("ev-venue").value.trim(),
+    city: document.getElementById("ev-city").value.trim(),
+    start_date: document.getElementById("ev-start").value,
+    end_date: document.getElementById("ev-end").value,
+    max_visitors: document.getElementById("ev-max").value || null,
+    status: document.getElementById("ev-status").value,
+    description: document.getElementById("ev-desc").value.trim(),
+  }};
+  const res = await post("/organizer/events", body);
+  if (res.success) {
+    closeModal("m-event"); toast("Event created! ✅", "ok");
+    loadEvents(); loadDashboard(); loadEventSelectors();
+  } else {
+    err.style.display = "block";
+    err.textContent = res.error || (res.errors||[]).join(", ");
+  }
+}
+
+async function activateEvent(id) {
+  const res = await post(`/organizer/events/${id}/activate`, {});
+  if (res.success) { toast("Event activated! 🎉", "ok"); loadEvents(); loadDashboard(); }
+  else toast(res.error||"Failed","err");
+}
+
+function showQr(id, name, qrUrl, token) {
+  document.getElementById("qr-event-name").textContent = name;
+  const url = `${location.origin}/register/${token}`;
+  document.getElementById("qr-content").innerHTML = qrUrl
+    ? `<div class="qr-box"><img src="${qrUrl}" alt="QR"></div>`
+    : `<div style="background:rgba(255,255,255,0.05);border-radius:12px;padding:24px;color:var(--text2);font-size:13px">QR is being generated…<br>Check back in a moment.</div>`;
+  document.getElementById("qr-reg-link").href = url;
+  document.getElementById("qr-reg-link").textContent = url;
+  openModal("m-qr");
+}
+
+// ── Stalls ────────────────────────────────────────────────────────────────
+async function loadStalls() {
+  const eid = document.getElementById("stall-event-sel").value;
+  if (!eid) return;
+  const res = await get(`/organizer/events/${eid}/stall_owners`);
+  const rows = (res.data||[]).map(s => `
+    <tr>
+      <td><div style="font-weight:600"><a href="javascript:void(0)"
+          onclick="showStallOwnerDetails('${s.id}', 'stalls')"
+          style="color:inherit;font-weight:600;text-decoration:none">${s.company_name}</a></div><div style="font-size:12px;color:var(--text2)">${s.name}</div></td>
+      <td>${s.stall_number||"—"}</td>
+      <td>${s.stall_category||"—"}</td>
+      <td>${s.mobile_number}</td>
+      <td>${s.pass_code||"—"}</td>
+      <td style="font-weight:700;color:var(--accent)">${s.total_leads_count||0}</td>
+      <td><span class="badge ${s.active?"bg":"bgr"}">${s.active?"Active":"Inactive"}</span></td>
+      <td>
+        <div style="display:flex;gap:6px">
+          <button class="btn btn-o btn-sm" onclick='editStall(${JSON.stringify(s)})'>Edit</button>
+          <button class="btn btn-o btn-sm" onclick='toggleStall("${s.id}","${eid}",${s.active})'>${s.active?"Deactivate":"Activate"}</button>
+        </div>
+      </td>
+    </tr>
+  `).join("");
+  document.getElementById("stalls-tbl").innerHTML = rows
+    ? `<table><thead><tr><th>Company</th><th>Stall</th><th>Category</th><th>Mobile</th><th>Password</th><th>Leads</th><th>Status</th><th></th></tr></thead><tbody>${rows}</tbody></table>`
+    : `<div class="empty"><div class="empty-icon">🏪</div>No stall owners yet. Add your first exhibitor!</div>`;
+}
+
+async function createStall() {
+  const eid = document.getElementById("stall-event-sel").value;
+  const err = document.getElementById("st-err");
+  err.style.display = "none";
+  if (!eid) { err.style.display="block"; err.textContent="Please select an event first"; return; }
+  const res = await post(`/organizer/events/${eid}/stall_owners`, { stall_owner: {
+    name: document.getElementById("st-name").value.trim(),
+    mobile_number: document.getElementById("st-mobile").value.trim(),
+    company_name: document.getElementById("st-company").value.trim(),
+    stall_number: document.getElementById("st-num").value.trim(),
+    stall_category: document.getElementById("st-cat").value,
+    email: document.getElementById("st-email").value.trim(),
+    website: document.getElementById("st-web").value.trim(),
+  }});
+  if (res.success) { closeModal("m-stall"); toast("Stall owner added! Credentials sent via WhatsApp ✅","ok"); loadStalls(); }
+  else { err.style.display="block"; err.textContent = res.error||(res.errors||[]).join(", "); }
+}
+
+async function sendCreds(sid, eid) {
+  const res = await post(`/organizer/events/${eid}/stall_owners/${sid}/send_credentials`, {});
+  toast(res.success ? "Credentials sent! 📱" : res.error||"Failed", res.success?"ok":"err");
+}
+
+async function toggleStall(sid, eid, currently) {
+  const res = await patch(`/organizer/events/${eid}/stall_owners/${sid}/toggle_active`, {});
+  toast(res.success ? "Updated!" : "Failed", res.success?"ok":"err");
+  loadStalls();
+}
+
+// ── Visitors ──────────────────────────────────────────────────────────────
+async function loadVisitors() {
+  const eid  = document.getElementById("visitor-event-sel").value;
+  const q    = document.getElementById("visitor-search").value;
+  if (!eid) return;
+  const res  = await get(`/organizer/events/${eid}/visitors?search=${encodeURIComponent(q)}&per_page=50`);
+  const rows = (res.data||[]).map(v => `
+    <tr>
+      <td><span class="badge bp"><a href="javascript:void(0)"
+          onclick="showVisitorDetails('${v.id}', 'visitors')"
+          style="color:inherit;font-weight:600;text-decoration:none">${v.visitor_id_code}</a></span></td>
+      <td><div style="font-weight:600">${v.full_name}</div></td>
+      <td>${v.mobile_number}</td>
+      <td>${v.business_name||"—"}</td>
+      <td>${v.business_category||"—"}</td>
+      <td>${v.location||"—"}</td>
+      <td style="font-weight:600">${v.stalls_visited||0}</td>
+      <td style="font-size:12px;color:var(--text2)">${fd(v.registered_at)}</td>
+    </tr>
+  `).join("");
+  const total = res.meta?.total || 0;
+  document.getElementById("visitors-tbl").innerHTML = `
+    <div style="padding:10px 20px;font-size:13px;color:var(--text2)">${total} visitor${total!==1?'s':''} registered</div>
+    ${rows ? `<table><thead><tr><th>ID</th><th>Name</th><th>Mobile</th><th>Business</th><th>Category</th><th>Location</th><th>Stalls</th><th>Registered</th></tr></thead><tbody>${rows}</tbody></table>`
+    : `<div class="empty"><div class="empty-icon">👥</div>No visitors registered yet</div>`}
+  `;
+}
+
+async function exportVisitors() {
+  const eid = document.getElementById("visitor-event-sel").value;
+  if (!eid) { toast("Select an event first","err"); return; }
+  const res = await post(`/organizer/events/${eid}/visitors/export`, { format: "excel" });
+  toast(res.success ? "Export started! Download link will be sent via WhatsApp 📊" : res.error||"Failed", res.success?"ok":"err");
+}
+
+// ── Analytics ─────────────────────────────────────────────────────────────
+async function loadAnalytics() {
+  const eid = document.getElementById("analytics-event-sel").value;
+  if (!eid) return;
+  const res = await get(`/organizer/events/${eid}/analytics`);
+  if (!res.success) return;
+  const d = res.data; const o = d.overview;
+  document.getElementById("analytics-content").innerHTML = `
+    <div class="stats-grid" style="grid-template-columns:repeat(auto-fit,minmax(140px,1fr))">
+      ${sc("👥","Visitors",o.total_visitors,"")}
+      ${sc("🎯","Total Leads",o.total_leads,"hi")}
+      ${sc("🔥","Hot Leads",o.hot_leads,"")}
+      ${sc("♨️","Warm Leads",o.warm_leads,"")}
+      ${sc("❄️","Cold Leads",o.cold_leads,"")}
+      ${sc("🏪","Stalls",o.total_stalls||"—","")}
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:4px">
+      ${barChart("Visitors by Category", d.visitors_by_category)}
+      ${barChart("Visitors by Location", d.visitors_by_location)}
+    </div>
+    ${topStalls(d.top_stalls)}
+  `;
+}
+
+function barChart(title, data) {
+  if (!data||!Object.keys(data).length) return `<div class="chart-wrap"><div class="chart-title">${title}</div><p style="color:var(--text3);font-size:13px">No data yet</p></div>`;
+  const max = Math.max(...Object.values(data),1);
+  const rows = Object.entries(data).sort((a,b)=>b[1]-a[1]).slice(0,8).map(([k,v])=>`
+    <div class="bar-row"><div class="bar-lbl">${k||"Unknown"}</div>
+    <div class="bar-bg"><div class="bar-fill" style="width:${Math.round(v/max*100)}%"></div></div>
+    <div class="bar-val">${v}</div></div>
+  `).join("");
+  return `<div class="chart-wrap"><div class="chart-title">${title}</div>${rows}</div>`;
+}
+
+function topStalls(stalls) {
+  if (!stalls?.length) return "";
+  const max = Math.max(...stalls.map(s=>s.leads),1);
+  const rows = stalls.map((s,i)=>`
+    <div class="bar-row"><div class="bar-lbl">${i+1}. ${s.company_name||s.name}</div>
+    <div class="bar-bg"><div class="bar-fill" style="width:${Math.round(s.leads/max*100)}%"></div></div>
+    <div class="bar-val">${s.leads}</div></div>
+  `).join("");
+  return `<div class="chart-wrap"><div class="chart-title">Top Stalls by Leads</div>${rows}</div>`;
+}
+
+// ── Helpers ───────────────────────────────────────────────────────────────
+async function loadEventSelectors() {
+  const res = await get("/organizer/events");
+  myEvents  = res.data || [];
+  ["stall-event-sel","visitor-event-sel","analytics-event-sel"].forEach(id => {
+    const sel = document.getElementById(id);
+    if (!sel) return;
+    const cur = sel.value;
+    sel.innerHTML = `<option value="">Select Event</option>` + myEvents.map(e=>`<option value="${e.id}">${e.name}</option>`).join("");
+    if (cur) sel.value = cur;
+  });
+  // Pre-fill stall modal event select
+  const sm = document.getElementById("st-event-sel");
+  if (sm) sm.innerHTML = myEvents.map(e=>`<option value="${e.id}">${e.name}</option>`).join("");
+}
+
+function openModal(id)  { 
+  document.getElementById(id).style.display = "flex"; 
+  if (id == "m-import-stalls") {
+    document.getElementById("stall-import-file").value = "";
+    document.getElementById("import-err").style.display = "none";
+    document.getElementById("import-err").textContent = "";
+  }
+}
+function closeModal(id) { 
+  if (id=="m-stall") { resetStallForm(); }
+  else if (id=="m-event") { resetEventForm(); }
+  document.getElementById(id).style.display = "none"; 
+}
+
+function sc(icon, label, val, cls) {
+  return `<div class="stat-card ${cls}"><div class="stat-icon">${icon}</div><div class="stat-num">${val}</div><div class="stat-label">${label}</div></div>`;
+}
+function sb(s) { return {active:"bg",draft:"ba",completed:"bb",archived:"bgr"}[s]||"bgr"; }
+function fd(d) {
+  if (!d) return "—";
+  return new Date(d).toLocaleDateString("en-IN",{day:"numeric",month:"short",year:"numeric"});
+}
+function toast(msg, type="ok") {
+  const t = document.getElementById("toast");
+  t.textContent = msg; t.className = "toast "+type+" show";
+  setTimeout(()=>{ t.className="toast"; },3500);
+}
+function resetStallForm() {
+  document.getElementById("st-name").value = "";
+  document.getElementById("st-mobile").value = "";
+  document.getElementById("st-company").value = "";
+  document.getElementById("st-num").value = "";
+  document.getElementById("st-cat").value = "";
+  document.getElementById("st-email").value = "";
+  document.getElementById("st-web").value = "";
+
+  const err = document.getElementById("st-err");
+  err.style.display = "none";
+  err.textContent = "";
+}
+function resetEventForm() {
+  document.getElementById("ev-name").value = "";
+  document.getElementById("ev-venue").value = "";
+  document.getElementById("ev-city").value = "";
+  document.getElementById("ev-start").value = "";
+  document.getElementById("ev-end").value = "";
+  document.getElementById("ev-max").value = "";
+  document.getElementById("ev-status").value = "";
+  document.getElementById("ev-desc").value = "";
+
+  const err = document.getElementById("ev-err");
+  err.style.display = "none";
+  err.textContent = "";
+}
+async function importStallOwners() {
+  const fileInput = document.getElementById("stall-import-file");
+  const err = document.getElementById("import-err");
+  const btn = document.getElementById("import-btn");
+  const eid = document.getElementById("stall-event-sel").value;
+  err.style.display = "none";
+  if (!eid) { err.style.display="block"; err.textContent="Please select an event first"; return; }
+
+  if (!fileInput.files.length) {
+    err.style.display = "block";
+    err.textContent = "Please select a CSV file";
+    return;
+  }
+
+  try {
+    btn.disabled = true;
+    btn.textContent = "Importing...";
+
+    const formData = new FormData();
+    formData.append("file", fileInput.files[0]);
+
+    const response = await fetch(
+      `/api/v1/organizer/events/${eid}/stall_owners/bulk_upload`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`
+        },
+        body: formData
+      }
+    );
+
+    const result = await response.json();
+
+    if (!response.ok || !result.success) {
+      throw new Error(result.error || "Import failed");
+    }
+
+    // closeModal("m-import-stalls");
+
+    // alert(
+    //   `${result.data.created_count} stall owners imported successfully`
+    // );
+
+    const {
+      created_count,
+      failed_count,
+      errors
+    } = result.data;
+
+    err.style.display = "block";
+
+    err.innerHTML = `
+      <strong>Import Completed</strong><br>
+      Created: ${created_count}<br>
+      Failed: ${failed_count}
+      ${
+        errors.length
+          ? `<hr>
+            ${errors.map(e =>
+              `Line ${e.line}: ${e.errors.join(", ")}`
+            ).join("<br>")}`
+          : ""
+      }
+    `;
+
+    // loadStallOwners();
+
+  } catch (error) {
+    err.style.display = "block";
+    err.textContent = error.message;
+  } finally {
+    btn.disabled = false;
+    btn.textContent = "Import Stall Owners";
+  }
+}
+function editStall(stall) {
+  document.getElementById("st-id").value = stall.id;
+  document.getElementById("st-name").value = stall.name || "";
+  document.getElementById("st-mobile").value = stall.mobile_number || "";
+  document.getElementById("st-company").value = stall.company_name || "";
+  document.getElementById("st-num").value = stall.stall_number || "";
+  document.getElementById("st-cat").value = stall.stall_category || "";
+  document.getElementById("st-email").value = stall.email || "";
+  document.getElementById("st-web").value = stall.website || "";
+
+  document.getElementById("st-save-btn").textContent = "Update Stall Owner";
+
+  document.getElementById("st-mobile").readOnly = true;
+
+  openModal("m-stall");
+}
+async function updateStall() {
+  const stallId = document.getElementById("st-id").value;
+  const eid = document.getElementById("stall-event-sel").value;
+  const err = document.getElementById("st-err");
+
+  err.style.display = "none";
+
+  if (!stallId) {
+    err.style.display = "block";
+    err.textContent = "Invalid stall owner.";
+    return;
+  }
+
+  try {
+    const result = await patch(
+      `/organizer/events/${eid}/stall_owners/${stallId}`,
+      {
+        stall_owner: {
+          name: document.getElementById("st-name").value.trim(),
+          company_name: document.getElementById("st-company").value.trim(),
+          stall_number: document.getElementById("st-num").value.trim(),
+          stall_category: document.getElementById("st-cat").value,
+          email: document.getElementById("st-email").value.trim(),
+          website: document.getElementById("st-web").value.trim()
+        }
+      }
+    );
+
+    if (!result.success) {
+      throw new Error(result.error || "Update failed");
+    }
+
+    closeModal("m-stall");
+    toast("Stall owner updated successfully", "ok");
+    loadStalls();
+  } catch (error) {
+    err.style.display = "block";
+    err.textContent = error.message;
+  }
+}
+async function saveStall() {
+  const stallId = document.getElementById("st-id").value;
+
+  if (stallId) {
+    await updateStall(stallId);
+  } else {
+    await createStall();
+  }
+}
+
+function addStallRow() {
+  const tbody = document.getElementById("stall-table-body");
+
+  const row = document.createElement("tr");
+
+  row.innerHTML = `
+    <td class="mf">
+      <input type="text" class="st-name" placeholder="Full Name">
+    </td>
+
+    <td class="mf">
+      <input type="tel" class="st-mobile" placeholder="9876543210">
+    </td>
+
+    <td  class="mf">
+      <input type="text" class="st-company" placeholder="Company Name">
+    </td>
+
+    <td class="mf">
+      <input type="text" class="st-number" placeholder="A1">
+    </td>
+
+    <td class="mf">
+      <select class="st-category">
+        <option value="">Select</option>
+        <option>IT Services</option>
+        <option>Finance</option>
+        <option>Marketing</option>
+        <option>Education</option>
+        <option>Healthcare</option>
+        <option>Retail</option>
+        <option>Manufacturing</option>
+        <option>Energy</option>
+        <option>Startup</option>
+        <option>Other</option>
+      </select>
+    </td>
+
+    <td class="mf">
+      <input type="email" class="st-email" placeholder="Email">
+    </td>
+
+    <td class="mf">
+      <input type="text" class="st-website" placeholder="Website">
+    </td>
+
+    <td class="mf">
+      <button
+        class="btn btn-o"
+        type="button"
+        onclick="this.closest('tr').remove()"
+      >
+        ✕
+      </button>
+    </td>
+  `;
+
+  tbody.appendChild(row);
+}
+function openBulkStallModal() {
+  const err = document.getElementById("st-o-bulk-err");
+  err.style.display = "none";
+  document.getElementById("stall-table-body").innerHTML = "";
+
+  for (let i = 0; i < 2; i++) {
+    addStallRow();
+  }
+
+  openModal("m-m-stall");
+}
+async function createMultipleStalls() {
+  const eid = document.getElementById("stall-event-sel").value;
+  const err = document.getElementById("st-o-bulk-err");
+
+  err.style.display = "none";
+  if (!eid) { err.style.display="block"; err.textContent="Please select an event first"; return; }
+
+  const rows = [...document.querySelectorAll("#stall-table-body tr")];
+
+  const stallOwners = rows
+    .map(row => ({
+      name: row.querySelector(".st-name").value.trim(),
+      mobile_number: row.querySelector(".st-mobile").value.trim(),
+      company_name: row.querySelector(".st-company").value.trim(),
+      stall_number: row.querySelector(".st-number").value.trim(),
+      stall_category: row.querySelector(".st-category").value,
+      email: row.querySelector(".st-email").value.trim(),
+      website: row.querySelector(".st-website").value.trim()
+    }))
+    .filter(stall =>
+      stall.name &&
+      stall.mobile_number &&
+      stall.company_name
+    );
+
+  if (stallOwners.length === 0) {
+    err.style.display = "block";
+    err.textContent =
+      "Please enter at least one valid stall owner.";
+    return;
+  }
+
+  try {
+    const result = await post(
+      `/organizer/events/${eid}/stall_owners/bulk_create`,
+      {
+        stall_owners: stallOwners
+      }
+    );
+
+    if (!result.success) {
+      throw new Error(result.error || "Creation failed");
+    }
+
+    closeModal("m-m-stall");
+
+    toast(`${result.data.created_count} stall owners created successfully`, "ok");
+
+    loadStallOwners();
+
+  } catch (error) {
+    err.style.display = "block";
+    err.textContent = error.message;
+  }
+}
+function showDetails(title, fields) {
+
+  document.getElementById("odetails-title").textContent = title;
+
+  let html = '<div class="form-grid">';
+
+  fields.forEach(field => {
+    html += `
+      <div class="field">
+        <label>${field.label}</label>
+        <div style="font-weight:600;font-size:14px;">
+          ${field.value || "-"}
+        </div>
+      </div>
+    `;
+  });
+
+  html += '</div>';
+
+  document.getElementById("details-content").innerHTML = html;
+
+  document.querySelectorAll(".page")
+    .forEach(p => p.classList.remove("active"));
+
+  document.getElementById("opage-details")
+    .classList.add("active");
+}
+async function showEventDetails(eventId, pageName = "events") {
+  previousPage = pageName;
+
+  const result = await get(
+    `/organizer/events/${eventId}`
+  );
+
+  const e = result.data;
+
+  showDetails("Event Details", [
+    { label: "Event ID", value: e.id },
+    { label: "Event Name", value: e.name },
+    { label: "Venue", value: e.venue },
+    { label: "City", value: e.city },
+    { label: "Start Date", value: fd(e.start_date) },
+    { label: "End Date", value: fd(e.end_date) },
+    { label: "Organizer", value: e.organizer?.name },
+    { label: "Max Visitors", value: e.visitors_count },
+    { label: "Status", value: e.status },
+    { label: "Description", value: e.description }
+  ]);
+}
+async function showOrganizerDetails(orgId, pageName = "organizers") {
+  previousPage = pageName;
+
+  const result = await get(
+    `/organizer/event_organizers/${orgId}`
+  );
+
+  const o = result.data;
+
+  showDetails("Organizer Details", [
+    { label: "Organizer ID", value: o.id },
+    { label: "Name", value: o.name },
+    { label: "Email", value: o.email },
+    { label: "Company", value: o.company_name },
+    { label: "Mobile No.", value: o.mobile_number },
+    { label: "Status", value: o.active?'Active':'Inactive' },
+    { label: "Joined", value: fd(o.created_at) }
+  ]);
+}
+async function showStallOwnerDetails(stallOwnerId, pageName = "stalls") {
+  const eid = document.getElementById("stall-event-sel").value;
+  previousPage = pageName;
+
+  const result = await get(
+    `/organizer/events/${eid}/stall_owners/${stallOwnerId}`
+  );
+
+  const s = result.data;
+
+  showDetails("Stall Owner Details", [
+    { label: "Stall Owner ID", value: s.id },
+    { label: "Name", value: s.name },
+    { label: "Email", value: s.email },
+    { label: "Mobile No.", value: s.mobile_number },
+    { label: "Company", value: s.company_name },
+    { label: "Stall No.", value: s.stall_number },
+    { label: "Stall Category", value: s.stall_category },
+    { label: "Event", value: s.event?.name || "N/A" },
+    { label: "Website", value: s.website },
+    { label: "Description", value: s.description },
+    { label: "Status", value: s.active?'Active':'Inactive' },
+    { label: "Pass Code", value: s.pass_code }
+  ]);
+}
+async function showVisitorDetails(visitorId, pageName = "visitors") {
+  const eid  = document.getElementById("visitor-event-sel").value;
+  previousPage = pageName;
+
+  const result = await get(
+    `/organizer/events/${eid}/visitors/${visitorId}`
+  );
+
+  const v = result.data;
+
+  showDetails("Visitor Details", [
+    { label: "Visitor ID", value: v.visitor_id_code },
+    { label: "Name", value: v.full_name },
+    { label: "Mobile No.", value: v.mobile_number },
+    { label: "Location", value: v.location },
+    { label: "Profession", value: v.profession },
+    { label: "Business Category", value: v.business_category },
+    { label: "Business Name", value: v.business_name },
+    { label: "Designation", value: v.designation },
+    { label: "Email", value: v.email },
+    { label: "Website", value: v.website },
+    { label: "Event", value: v.event?.name || "N/A" },
+    { label: "Looking For", value: v.looking_for },
+    { label: "Decision Maker", value: v.decision_maker?'Yes':'No' },
+    { label: "Status", value: v.active?'Active':'Inactive' },
+    { label: "Registered At", value: fd(v.created_at) }
+  ]);
+}
+function closeDetails() {
+  openPage(previousPage || "events");
+}
+</script>
+</body>
+</html>
+</body></html>

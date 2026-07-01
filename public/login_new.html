@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sign In — LetsKonnect</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--t:#14b8a6;--t2:#0d9488;--o:#f59e0b;--o2:#d97706;--g:#22c55e;--r:#ef4444;--bg:#f8fafc;--w:#fff;--text:#0f172a;--text2:#64748b;--text3:#94a3b8;--bdr:#e2e8f0;--bdr2:#f1f5f9}
+body{font-family:'Inter',system-ui,sans-serif;background:linear-gradient(135deg,#f0fdfa 0%,#f8fafc 60%,#fffbeb 100%);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;-webkit-font-smoothing:antialiased}
+.login-wrap{width:100%;display:flex;align-items:center;justify-content:center}
+.login-card{background:var(--w);border-radius:24px;padding:40px 36px;width:100%;max-width:440px;box-shadow:0 8px 32px rgba(0,0,0,.12);border:1px solid var(--bdr)}
+.login-back{display:inline-flex;align-items:center;gap:6px;color:var(--text2);font-size:13px;text-decoration:none;margin-bottom:28px;font-weight:500;transition:color .2s}
+.login-back:hover{color:var(--t)}
+.login-logo{display:flex;align-items:center;gap:14px;margin-bottom:28px}
+.login-logo-icon{width:56px;height:56px;background:linear-gradient(135deg,var(--t),var(--t2));border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:26px;box-shadow:0 6px 20px rgba(20,184,166,.3);flex-shrink:0}
+.login-logo h2{font-size:22px;font-weight:700;color:var(--text)}
+.login-logo p{font-size:14px;color:var(--text2);margin-top:3px}
+/* tabs */
+.tabs{display:flex;background:var(--bdr2);border-radius:12px;padding:4px;margin-bottom:24px;gap:4px}
+.tab{flex:1;padding:10px 16px;border-radius:9px;font-size:14px;font-weight:600;font-family:'Inter',sans-serif;cursor:pointer;text-align:center;color:var(--text2);transition:all .2s;border:none;background:none}
+.tab.active{background:var(--w);color:var(--t);box-shadow:0 1px 4px rgba(0,0,0,.1)}
+.login-form{display:none}
+.login-form.active{display:block}
+/* fields */
+.field{margin-bottom:16px}
+.field label{display:block;font-size:13px;font-weight:600;color:var(--text);margin-bottom:7px}
+.field input{width:100%;background:var(--bg);border:1.5px solid var(--bdr);border-radius:12px;padding:13px 15px;color:var(--text);font-size:15px;font-family:'Inter',sans-serif;outline:none;transition:all .2s}
+.field input:focus{border-color:var(--t);background:var(--w);box-shadow:0 0 0 4px rgba(20,184,166,.1)}
+.field input::placeholder{color:var(--text3)}
+/* OTP */
+.otp-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin:14px 0}
+.otp-inp{background:var(--bg);border:2px solid var(--bdr);border-radius:12px;padding:13px 0;text-align:center;font-size:22px;font-weight:700;color:var(--text);font-family:'Inter',sans-serif;width:100%;outline:none;transition:all .2s}
+.otp-inp:focus{border-color:var(--t);background:var(--w);box-shadow:0 0 0 4px rgba(20,184,166,.1)}
+/* buttons */
+.btn-primary{width:100%;padding:14px;background:linear-gradient(135deg,var(--t),var(--t2));color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:700;font-family:'Inter',sans-serif;cursor:pointer;transition:all .2s;box-shadow:0 4px 16px rgba(20,184,166,.3);margin-top:4px}
+.btn-primary:hover:not(:disabled){transform:translateY(-1px);box-shadow:0 6px 20px rgba(20,184,166,.4)}
+.btn-primary:disabled{opacity:.55;cursor:not-allowed;transform:none}
+/* error */
+.err{background:#fef2f2;border:1.5px solid rgba(239,68,68,.25);border-radius:10px;padding:11px 14px;font-size:13px;color:var(--r);margin-top:10px;display:none;font-weight:500}
+</style>
+</head>
+<body>
+<div id="login-screen" class="login-wrap">
+  <div class="login-card">
+    <a href="/" class="login-back">← Back to Home</a>
+    <div class="login-logo">
+      <div class="login-logo-icon">🏢</div>
+      <div><h2>LetsKonnect Portal</h2><p>Select your role and sign in</p></div>
+    </div>
+    <div class="tabs" id="login-tabs">
+      <div class="tab active" onclick="switchTab('organizer')">Organizer</div>
+      <div class="tab" onclick="switchTab('stall_owner')">Stall Owner</div>
+    </div>
+    <!-- Organizer Login -->
+    <div id="organizer-form" class="login-form active">
+      <div class="field"><label>Email Address</label><input type="email" id="org-email" placeholder="organizer@techfest.com"></div>
+      <div class="field"><label>Password</label><input type="password" id="org-password" placeholder="Enter password" onkeydown="if(event.key==='Enter')doLogin()"></div>
+    </div>
+    <!-- Stall Owner Login -->
+    <div id="stall-form" class="login-form">
+      <div class="field"><label>Mobile Number</label><input type="text" id="stall-mobile" placeholder="9876543210" inputmode="numeric"></div>
+      <div class="field"><label>Pass Code</label><input type="text" id="stall-password" placeholder="6-digit pass code" inputmode="numeric" onkeydown="if(event.key==='Enter')doLogin()"></div>
+    </div>
+    <!-- OTP step -->
+    <div id="step-otp" style="display:none">
+      <p style="font-size:13px;color:var(--text2);text-align:center;margin-bottom:4px">Enter 6-digit OTP sent to</p>
+      <p style="font-size:15px;font-weight:700;text-align:center;margin-bottom:16px;color:var(--text)" id="otp-phone-lbl"></p>
+      <div class="otp-grid">
+        <input class="otp-inp" type="tel" maxlength="1" inputmode="numeric" oninput="oi(this,0)" onkeydown="ok(event,0)">
+        <input class="otp-inp" type="tel" maxlength="1" inputmode="numeric" oninput="oi(this,1)" onkeydown="ok(event,1)">
+        <input class="otp-inp" type="tel" maxlength="1" inputmode="numeric" oninput="oi(this,2)" onkeydown="ok(event,2)">
+        <input class="otp-inp" type="tel" maxlength="1" inputmode="numeric" oninput="oi(this,3)" onkeydown="ok(event,3)">
+        <input class="otp-inp" type="tel" maxlength="1" inputmode="numeric" oninput="oi(this,4)" onkeydown="ok(event,4)">
+        <input class="otp-inp" type="tel" maxlength="1" inputmode="numeric" oninput="oi(this,5)" onkeydown="ok(event,5)">
+      </div>
+      <div id="otp-err" class="err"></div>
+      <button class="btn-primary" onclick="verifyOtp()" id="btn-verify">Verify & Login</button>
+      <p style="text-align:center;margin-top:12px">
+        <button onclick="document.getElementById('step-otp').style.display='none';document.getElementById('stall-form').style.display='block'" style="background:none;border:none;color:var(--text2);font-size:13px;cursor:pointer;font-family:'Inter',sans-serif;font-weight:500">← Change mobile</button>
+      </p>
+    </div>
+    <div id="login-err" class="err"></div>
+    <button class="btn-primary" onclick="doLogin()" id="login-btn" style="margin-top:8px">Sign In →</button>
+    <p style="font-size:12px;color:var(--text3);text-align:center;margin-top:14px">Demo: organizer@techfest.com · Organizer@123</p>
+  </div>
+</div>
+<script>
+let currentTab = "organizer";
+
+function switchTab(tab) {
+  currentTab = tab;
+
+  document.querySelectorAll(".tab").forEach(t =>
+    t.classList.remove("active")
+  );
+
+  document.querySelectorAll(".login-form").forEach(f =>
+    f.classList.remove("active")
+  );
+
+  if (tab === "organizer") {
+    document.querySelectorAll(".tab")[0].classList.add("active");
+    document.getElementById("organizer-form").classList.add("active");
+  } else {
+    document.querySelectorAll(".tab")[1].classList.add("active");
+    document.getElementById("stall-form").classList.add("active");
+  }
+
+  document.getElementById("login-err").style.display = "none";
+}
+
+async function doLogin() {
+  if (currentTab === "organizer") {
+    await loginOrganizer();
+  } else {
+    await loginStallOwner();
+  }
+}
+
+async function loginOrganizer() {
+  const email = document.getElementById("org-email").value.trim();
+  const password = document.getElementById("org-password").value;
+
+  const errorEl = document.getElementById("login-err");
+  const loginBtn = document.getElementById("login-btn");
+
+  errorEl.style.display = "none";
+
+  try {
+    loginBtn.disabled = true;
+    loginBtn.textContent = "Signing In...";
+
+    const response = await fetch("/api/v1/organizer/sign_in", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        email,
+        password
+      })
+    });
+
+    const result = await response.json();
+
+    if (!response.ok || !result.success) {
+      throw new Error(result.error || "Invalid credentials");
+    }
+
+    sessionStorage.setItem(
+      "org_token",
+      result.data.token
+    );
+
+    sessionStorage.setItem(
+      "org_user",
+      JSON.stringify(result.data.organizer)
+    );
+
+    sessionStorage.setItem(
+      "user_type",
+      "organizer"
+    );
+
+    window.location.href = "/organizer.html";
+
+  } catch(error) {
+    errorEl.style.display = "block";
+    errorEl.textContent = error.message;
+  } finally {
+    loginBtn.disabled = false;
+    loginBtn.textContent = "Sign In";
+  }
+}
+
+async function loginStallOwner() {
+  const mobile = document.getElementById("stall-mobile").value.trim();
+  const password = document.getElementById("stall-password").value.trim();
+
+  const errorEl = document.getElementById("login-err");
+  const loginBtn = document.getElementById("login-btn");
+
+  errorEl.style.display = "none";
+
+  try {
+    loginBtn.disabled = true;
+    loginBtn.textContent = "Signing In...";
+
+    const response = await fetch("/api/v1/stall/sign_in", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        mobile,
+        password
+      })
+    });
+
+    const result = await response.json();
+
+    if (!response.ok || !result.success) {
+      throw new Error(result.error || "Invalid credentials");
+    }
+
+    sessionStorage.setItem(
+      "stall_token",
+      result.data.token
+    );
+
+    sessionStorage.setItem(
+      "stall_user",
+      JSON.stringify(result.data.stall_owner)
+    );
+
+    sessionStorage.setItem(
+      "user_type",
+      "stall_owner"
+    );
+
+    window.location.href = "/stall.html";
+
+  } catch(error) {
+    errorEl.style.display = "block";
+    errorEl.textContent = error.message;
+  } finally {
+    loginBtn.disabled = false;
+    loginBtn.textContent = "Sign In";
+  }
+}
+
+async function requestOtp() {
+  const mobile = document.getElementById("stall-mobile").value.trim();
+  // const event_id = document.getElementById("stall-event-id").value.trim();
+  const password = document.getElementById("stall-password").value.trim();
+
+  const err = document.getElementById("login-err");
+  const btn = document.getElementById("login-btn");
+
+  err.style.display = "none";
+
+  if (!/^[6-9]\d{9}$/.test(mobile)) {
+    err.style.display = "block";
+    err.textContent = "Enter valid mobile number";
+    return;
+  }
+
+  // if (!event_id) {
+  //   err.style.display = "block";
+  //   err.textContent = "Enter Event ID";
+  //   return;
+  // }
+
+  if (!password) {
+    err.style.display = "block";
+    err.textContent = "Enter Password";
+    return;
+  }
+
+  try {
+    btn.disabled = true;
+    btn.textContent = "Sending OTP...";
+
+    const response = await fetch("/api/v1/stall/request_otp", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        mobile_number: mobile,
+        password
+      })
+    });
+
+    const result = await response.json();
+
+    if (!response.ok || !result.success) {
+      throw new Error(result.error || "Failed to send OTP");
+    }
+
+    document.getElementById("stall-form").style.display = "none";
+    document.getElementById("login-tabs").style.display = "none";
+    document.getElementById("login-btn").style.display = "none";
+
+    document.getElementById("step-otp").style.display = "block";
+
+    document.getElementById("otp-phone-lbl").textContent =
+      "+91 " + mobile;
+
+  } catch(error) {
+    err.style.display = "block";
+    err.textContent = error.message;
+  } finally {
+    btn.disabled = false;
+    btn.textContent = "Sign In";
+  }
+}
+
+async function verifyOtp() {
+  const otp = Array.from(
+    document.querySelectorAll(".otp-inp")
+  ).map(i => i.value).join("");
+
+  const mobile = document.getElementById("stall-mobile").value.trim();
+  // const event_id = document.getElementById("stall-event-id").value.trim();
+  const password = document.getElementById("stall-password").value.trim();
+
+  const err = document.getElementById("login-err");
+  const btn = document.getElementById("btn-verify");
+
+  if (otp.length !== 6) {
+    return;
+  }
+
+  err.style.display = "none";
+
+  try {
+
+    btn.disabled = true;
+    btn.textContent = "Verifying...";
+
+    const response = await fetch("/api/v1/stall/verify_otp", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        mobile_number: mobile,
+        otp,
+        password
+      })
+    });
+
+    const result = await response.json();
+
+    if (!response.ok || !result.success) {
+      throw new Error(result.error || "Invalid OTP");
+    }
+
+    sessionStorage.setItem(
+      "stall_token",
+      result.data.token
+    );
+
+    sessionStorage.setItem(
+      "stall_user",
+      JSON.stringify(result.data.stall_owner)
+    );
+
+    sessionStorage.setItem(
+      "user_type",
+      "stall_owner"
+    );
+
+    window.location.href = "/stall.html";
+
+  } catch(error) {
+
+    err.style.display = "block";
+    err.textContent = error.message;
+
+    document.querySelectorAll(".otp-inp").forEach(i => {
+      i.value = "";
+    });
+
+    document.querySelectorAll(".otp-inp")[0].focus();
+
+  } finally {
+
+    btn.disabled = false;
+    btn.textContent = "Verify OTP";
+  }
+}
+function oi(el, idx) {
+  el.value = el.value.replace(/\D/,"");
+  if (el.value && idx < 5) document.querySelectorAll(".otp-inp")[idx+1].focus();
+  const otp = Array.from(document.querySelectorAll(".otp-inp")).map(i=>i.value).join("");
+  if (otp.length === 6) verifyOtp();
+}
+function ok(e, idx) { if (e.key==="Backspace" && !e.target.value && idx>0) document.querySelectorAll(".otp-inp")[idx-1].focus(); }
+</script>
+
+</body>
+</body></html>
