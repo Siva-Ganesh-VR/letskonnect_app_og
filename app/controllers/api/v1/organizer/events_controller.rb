@@ -87,7 +87,7 @@ module Api
             start_date: e.start_date, end_date: e.end_date, status: e.status,
             slug: e.slug, registration_qr_token: e.registration_qr_token,
             qr_image_url: e.qr_image_url, registered_count: e.registered_count,
-            max_visitors: e.max_visitors, created_at: e.created_at,
+            max_visitors: e.max_visitors, created_at: e.created_at, description: e.description,
             organizer: { name: e.event_organizer.name } }
         end
 

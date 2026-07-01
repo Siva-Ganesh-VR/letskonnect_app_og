@@ -514,6 +514,11 @@ function nav(page, el) {
 function openPage(page) {
   document.querySelectorAll(".page")
     .forEach(p => p.classList.remove("active"));
+  
+  if (page === "stalls") {
+    document.getElementById("stall-event-sel").value = "";
+    document.getElementById("stalls-tbl").innerHTML = '<div class="empty"><div class="empty-icon">🏪</div>No stall owners yet. Add your first exhibitor!</div>';
+  }
 
   document.getElementById("page-" + page)
     .classList.add("active");
@@ -893,35 +898,14 @@ async function importStallOwners() {
       throw new Error(result.error || "Import failed");
     }
 
-    // closeModal("m-import-stalls");
+    closeModal("m-import-stalls");
 
-    // alert(
-    //   `${result.data.created_count} stall owners imported successfully`
-    // );
+    toast(
+      `${result.data.message}`,
+      "success"
+    );
 
-    const {
-      created_count,
-      failed_count,
-      errors
-    } = result.data;
-
-    err.style.display = "block";
-
-    err.innerHTML = `
-      <strong>Import Completed</strong><br>
-      Created: ${created_count}<br>
-      Failed: ${failed_count}
-      ${
-        errors.length
-          ? `<hr>
-            ${errors.map(e =>
-              `Line ${e.line}: ${e.errors.join(", ")}`
-            ).join("<br>")}`
-          : ""
-      }
-    `;
-
-    // loadStallOwners();
+    loadStalls();
 
   } catch (error) {
     err.style.display = "block";
@@ -1115,7 +1099,7 @@ async function createMultipleStalls() {
 
     toast(`${result.data.created_count} stall owners created successfully`, "ok");
 
-    loadStallOwners();
+    loadStalls();
 
   } catch (error) {
     err.style.display = "block";
@@ -1149,27 +1133,354 @@ function showDetails(title, fields) {
   document.getElementById("opage-details")
     .classList.add("active");
 }
+
+// ─────────────────────────────────────────────────────────────────
+//  EVENT DETAILS PAGE — replace showEventDetails() and add helpers
+//  Drop this entire block in place of the existing showEventDetails
+//  function in admin.html
+// ─────────────────────────────────────────────────────────────────
+
+// State for the details page
+const detailsState = {
+  eventId: null,
+  stallPage: 1,
+  stallTotal: 0,
+  stallPerPage: 10,
+  stallSearch: "",
+  visitorPage: 1,
+  visitorTotal: 0,
+  visitorPerPage: 10,
+  visitorSearch: "",
+};
+
 async function showEventDetails(eventId, pageName = "events") {
   previousPage = pageName;
+  detailsState.eventId   = eventId;
+  detailsState.stallPage    = 1;
+  detailsState.visitorPage  = 1;
+  detailsState.stallSearch  = "";
+  detailsState.visitorSearch = "";
 
-  const result = await get(
-    `/organizer/events/${eventId}`
-  );
+  // Switch to details page first
+  document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
+  document.getElementById("opage-details").classList.add("active");
 
-  const e = result.data;
+  // Show skeleton while loading
+  document.getElementById("odetails-title").textContent = "Event Details";
+  document.getElementById("details-content").innerHTML = `
+    <div style="color:var(--text2);padding:20px;text-align:center">⏳ Loading event details…</div>`;
 
-  showDetails("Event Details", [
-    { label: "Event ID", value: e.id },
-    { label: "Event Name", value: e.name },
-    { label: "Venue", value: e.venue },
-    { label: "City", value: e.city },
-    { label: "Start Date", value: fd(e.start_date) },
-    { label: "End Date", value: fd(e.end_date) },
-    { label: "Organizer", value: e.organizer?.name },
-    { label: "Max Visitors", value: e.visitors_count },
-    { label: "Status", value: e.status },
-    { label: "Description", value: e.description }
-  ]);
+  try {
+    const result = await get(`/organizer/events/${eventId}`);
+    const e = result.data;
+    document.getElementById("odetails-title").textContent = e.name;
+    try {
+      const html = buildEventDetailsHTML(e);
+      document.getElementById("details-content").innerHTML = html;
+    } catch(err) {
+      console.error("buildEventDetailsHTML failed", err);
+    }
+
+    // Load both tables
+    await Promise.all([
+      loadEventStalls(),
+      loadEventVisitors(),
+    ]);
+    document.getElementById("stall-event-sel").value = eventId;
+  } catch(err) {
+    document.getElementById("details-content").innerHTML =
+      `<div style="color:var(--red2);padding:20px">Failed to load event details. Please try again.</div>`;
+  }
+}
+
+// ── Build the static info section ──────────────────────────────────
+function buildEventDetailsHTML(e) {
+  const statusColor = {active:"var(--green2)",draft:"var(--amber2)",completed:"#2563eb",archived:"var(--text3)"}[e.status] || "var(--text2)";
+  return `
+    <!-- Event info card -->
+    <div style="background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:20px;margin-bottom:20px;box-shadow:var(--shadow)">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:16px">
+        <div>
+          <div style="font-size:18px;font-weight:800;color:var(--text)">${e.name}</div>
+          <div style="font-size:13px;color:var(--text2);margin-top:4px">📍 ${e.venue}${e.city ? ", " + e.city : ""}</div>
+        </div>
+        <span style="background:${statusColor}1a;color:${statusColor};border:1.5px solid ${statusColor}40;border-radius:20px;padding:4px 14px;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.04em">${e.status}</span>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px">
+        ${detailChip("📅 Start Date",   fd(e.start_date))}
+        ${detailChip("📅 End Date",     fd(e.end_date))}
+        ${detailChip("👥 Visitors",     (e.registered_count||0).toLocaleString())}
+        ${detailChip("🏪 Max Capacity", e.max_visitors ? e.max_visitors.toLocaleString() : "Unlimited")}
+        ${detailChip("🏢 Organizer",    e.organizer?.name || "—")}
+        ${detailChip("🆔 Event ID",     `<span style="font-family:monospace;font-size:11px">${e.id}</span>`)}
+      </div>
+      ${e.description ? `<div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border);font-size:14px;color:var(--text2);line-height:1.6">${e.description}</div>` : ""}
+      <div style="display:flex;gap:8px;margin-top:16px;padding-top:14px;border-top:1px solid var(--border);flex-wrap:wrap">
+        <button class="btn btn-p btn-sm" onclick='showQr("${e.id}","${e.name}","${e.qr_image_url||""}","${e.registration_qr_token||""}")'>📱 QR Code</button>
+      </div>
+    </div>
+
+    <!-- Stall Owners table -->
+    <div style="background:var(--bg2);border:1px solid var(--border);border-radius:14px;overflow:hidden;margin-bottom:20px;box-shadow:var(--shadow)">
+      <div style="padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">
+        <div style="font-size:15px;font-weight:700;color:var(--text)">🏪 Stall Owners</div>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+          <input
+            id="stall-search-inp"
+            style="background:var(--bg);border:1.5px solid var(--border);border-radius:10px;padding:7px 12px;color:var(--text);font-size:13px;font-family:'Inter',sans-serif;outline:none;width:180px;transition:all .2s"
+            placeholder="Search stalls…"
+            oninput="detailsState.stallSearch=this.value;detailsState.stallPage=1;loadEventStalls()"
+            onfocus="this.style.borderColor='var(--accent)'"
+            onblur="this.style.borderColor='var(--border)'"
+          >
+          <button class="btn btn-p btn-sm" onclick="refreshEventStalls()">↻ Refresh</button>
+        </div>
+      </div>
+      <div id="event-stalls-table">
+        <div style="padding:40px;text-align:center;color:var(--text2)">⏳ Loading stalls…</div>
+      </div>
+      <div id="event-stalls-pagination" style="padding:10px 18px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;display:none">
+      </div>
+    </div>
+
+    <!-- Visitors table -->
+    <div style="background:var(--bg2);border:1px solid var(--border);border-radius:14px;overflow:hidden;margin-bottom:20px;box-shadow:var(--shadow)">
+      <div style="padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">
+        <div style="font-size:15px;font-weight:700;color:var(--text)">👥 Registered Visitors</div>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+          <input
+            id="visitor-search-inp"
+            style="background:var(--bg);border:1.5px solid var(--border);border-radius:10px;padding:7px 12px;color:var(--text);font-size:13px;font-family:'Inter',sans-serif;outline:none;width:180px;transition:all .2s"
+            placeholder="Search visitors…"
+            oninput="detailsState.visitorSearch=this.value;detailsState.visitorPage=1;loadEventVisitors()"
+            onfocus="this.style.borderColor='var(--accent)'"
+            onblur="this.style.borderColor='var(--border)'"
+          >
+          <button class="btn btn-p btn-sm" onclick="refreshEventVisitors()">↻ Refresh</button>
+        </div>
+      </div>
+      <div id="event-visitors-table">
+        <div style="padding:40px;text-align:center;color:var(--text2)">⏳ Loading visitors…</div>
+      </div>
+      <div id="event-visitors-pagination" style="padding:10px 18px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;display:none">
+      </div>
+    </div>
+  `;
+}
+
+function detailChip(label, value) {
+  return `
+    <div style="background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:10px 14px">
+      <div style="font-size:11px;color:var(--text3);font-weight:600;text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px">${label}</div>
+      <div style="font-size:14px;font-weight:600;color:var(--text)">${value}</div>
+    </div>`;
+}
+
+// ── Stall Owners Table ──────────────────────────────────────────────
+async function loadEventStalls() {
+  const { eventId, stallPage, stallPerPage, stallSearch } = detailsState;
+  const el = document.getElementById("event-stalls-table");
+  if (!el) return;
+  el.innerHTML = `<div style="padding:30px;text-align:center;color:var(--text2)">⏳ Loading…</div>`;
+
+  try {
+    const params = new URLSearchParams({
+      event_id: eventId,
+      page: stallPage,
+      per_page: stallPerPage,
+      ...(stallSearch ? { search: stallSearch } : {}),
+    });
+    const res = await get(`/organizer/events/${eventId}/stall_owners?${params}`);
+    const data  = res.data || [];
+    const meta  = res.meta || {};
+    detailsState.stallTotal = meta.total || data.length;
+
+    if (!data.length) {
+      el.innerHTML = `<div style="padding:40px;text-align:center;color:var(--text2)"><div style="font-size:36px;opacity:.2;margin-bottom:10px">🏪</div>No stall owners found</div>`;
+      document.getElementById("event-stalls-pagination").style.display = "none";
+      return;
+    }
+
+    const rows = data.map(s => `
+      <tr style="cursor:pointer" onclick="showStallOwnerDetails('${s.id}','events')">
+        <td>
+          <div style="font-weight:600;color:var(--text)">${s.company_name}</div>
+          <div style="font-size:12px;color:var(--text2);margin-top:1px">${s.name}</div>
+        </td>
+        <td>${s.stall_number || "—"}</td>
+        <td>${s.stall_category || "—"}</td>
+        <td style="font-family:monospace;font-size:13px">${s.mobile_number}</td>
+        <td>
+          <span style="background:rgba(20,184,166,.1);color:var(--accent);border:1.5px solid rgba(20,184,166,.2);border-radius:8px;padding:3px 10px;font-size:13px;font-weight:700;letter-spacing:.08em">${s.pass_code || "—"}</span>
+        </td>
+        <td style="font-weight:700;color:var(--accent)">${s.total_leads_count || 0}</td>
+        <td>
+          <span class="badge ${s.active ? "badge-green" : "badge-gray"}">${s.active ? "Active" : "Inactive"}</span>
+        </td>
+        <td>
+          <div style="display:flex;gap:5px">
+            <button class="btn btn-sm btn-o" onclick="event.stopPropagation();editStall(${JSON.stringify(s).replace(/"/g,'&quot;')})">✏️</button>
+            <button class="btn btn-sm btn-o" onclick="event.stopPropagation();toggleStall('${s.id}', '${eventId}', ${s.active})">${s.active ? "Deactivate" : "Activate"}</button>
+          </div>
+        </td>
+      </tr>`).join("");
+
+    el.innerHTML = `
+      <div style="overflow-x:auto">
+        <table style="width:100%;border-collapse:collapse">
+          <thead>
+            <tr>
+              <th style="text-align:left;padding:10px 16px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text3);border-bottom:1px solid var(--border);white-space:nowrap">Company</th>
+              <th style="text-align:left;padding:10px 16px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text3);border-bottom:1px solid var(--border)">Stall #</th>
+              <th style="text-align:left;padding:10px 16px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text3);border-bottom:1px solid var(--border)">Category</th>
+              <th style="text-align:left;padding:10px 16px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text3);border-bottom:1px solid var(--border)">Mobile</th>
+              <th style="text-align:left;padding:10px 16px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text3);border-bottom:1px solid var(--border)">Pass Code 🔑</th>
+              <th style="text-align:left;padding:10px 16px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text3);border-bottom:1px solid var(--border)">Leads</th>
+              <th style="text-align:left;padding:10px 16px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text3);border-bottom:1px solid var(--border)">Status</th>
+              <th style="text-align:left;padding:10px 16px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text3);border-bottom:1px solid var(--border)">Actions</th>
+            </tr>
+          </thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>`;
+
+    renderPagination("event-stalls-pagination", detailsState.stallPage, detailsState.stallTotal, detailsState.stallPerPage, "stall");
+  } catch(err) {
+    el.innerHTML = `<div style="padding:30px;text-align:center;color:var(--red2)">⚠️ Failed to load stalls. <button onclick="loadEventStalls()" style="background:none;border:none;color:var(--accent);cursor:pointer;font-family:inherit;font-weight:600">Retry</button></div>`;
+  }
+}
+
+async function refreshEventStalls() {
+  detailsState.stallPage = 1;
+  const inp = document.getElementById("stall-search-inp");
+  if (inp) inp.value = "";
+  detailsState.stallSearch = "";
+  const btn = document.querySelector("#event-stalls-table")?.closest("[style*='border-radius:14px']")?.querySelector("button.btn-p");
+  await loadEventStalls();
+  toast("Stalls refreshed ✅");
+}
+
+// ── Visitors Table ───────────────────────────────────────────────────
+async function loadEventVisitors() {
+  const { eventId, visitorPage, visitorPerPage, visitorSearch } = detailsState;
+  const el = document.getElementById("event-visitors-table");
+  if (!el) return;
+  el.innerHTML = `<div style="padding:30px;text-align:center;color:var(--text2)">⏳ Loading…</div>`;
+
+  try {
+    const params = new URLSearchParams({
+      event_id: eventId,
+      page: visitorPage,
+      per_page: visitorPerPage,
+      ...(visitorSearch ? { search: visitorSearch } : {}),
+    });
+    const res  = await get(`/organizer/events/${eventId}/visitors?${params}`);
+    const data = res.data || [];
+    const meta = res.meta || {};
+
+    detailsState.visitorTotal = meta.total || data.length;
+
+    if (!data.length) {
+      el.innerHTML = `<div style="padding:40px;text-align:center;color:var(--text2)"><div style="font-size:36px;opacity:.2;margin-bottom:10px">👥</div>No visitors registered yet</div>`;
+      document.getElementById("event-visitors-pagination").style.display = "none";
+      return;
+    }
+
+    const rows = data.map(v => `
+      <tr style="cursor:pointer" onclick="showVisitorDetails('${v.id}','events')">
+        <td><span style="background:rgba(108,99,255,.1);color:#6c63ff;border-radius:20px;padding:3px 10px;font-size:11px;font-weight:700">${v.visitor_id_code}</span></td>
+        <td><div style="font-weight:600;color:var(--text)">${v.full_name}</div></td>
+        <td style="font-family:monospace;font-size:13px">${v.mobile_number}</td>
+        <td>${v.business_name || "—"}</td>
+        <td>${v.business_category || "—"}</td>
+        <td>${v.profession || "—"}</td>
+        <td>${v.designation || "—"}</td>
+        <td>${v.location || "—"}</td>
+        <td style="font-weight:600;text-align:center">${v.stalls_visited || 0}</td>
+        <td style="font-size:12px;color:var(--text2);white-space:nowrap">${fd(v.registered_at || v.created_at)}</td>
+      </tr>`).join("");
+
+    el.innerHTML = `
+      <div style="overflow-x:auto">
+        <table style="width:100%;border-collapse:collapse">
+          <thead>
+            <tr>
+              ${["ID","Name","Mobile","Business","Category","Looking For","Decision Maker","Location","Stalls","Registered"].map(h =>
+                `<th style="text-align:left;padding:10px 16px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text3);border-bottom:1px solid var(--border);white-space:nowrap">${h}</th>`
+              ).join("")}
+            </tr>
+          </thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>`;
+
+    renderPagination("event-visitors-pagination", detailsState.visitorPage, detailsState.visitorTotal, detailsState.visitorPerPage, "visitor");
+  } catch(err) {
+    el.innerHTML = `<div style="padding:30px;text-align:center;color:var(--red2)">⚠️ Failed to load visitors. <button onclick="loadEventVisitors()" style="background:none;border:none;color:var(--accent);cursor:pointer;font-family:inherit;font-weight:600">Retry</button></div>`;
+  }
+}
+
+async function refreshEventVisitors() {
+  detailsState.visitorPage = 1;
+  const inp = document.getElementById("visitor-search-inp");
+  if (inp) inp.value = "";
+  detailsState.visitorSearch = "";
+  await loadEventVisitors();
+  toast("Visitors refreshed ✅");
+}
+
+// ── Shared Pagination renderer ───────────────────────────────────────
+function renderPagination(containerId, currentPage, total, perPage, type) {
+  const container = document.getElementById(containerId);
+  if (!container) return;
+  const totalPages = Math.ceil(total / perPage);
+  if (totalPages <= 1) { container.style.display = "none"; return; }
+
+  container.style.display = "flex";
+
+  const start = (currentPage - 1) * perPage + 1;
+  const end   = Math.min(currentPage * perPage, total);
+
+  // Build page buttons: always show first, last, current ±1
+  const pages = new Set([1, totalPages, currentPage, currentPage-1, currentPage+1].filter(p => p >= 1 && p <= totalPages));
+  const sorted = [...pages].sort((a,b) => a-b);
+
+  let btns = "";
+  let prev = null;
+  sorted.forEach(p => {
+    if (prev !== null && p - prev > 1) btns += `<span style="color:var(--text3);padding:0 4px">…</span>`;
+    const active = p === currentPage;
+    btns += `<button
+      onclick="goPage('${type}',${p})"
+      style="width:32px;height:32px;border-radius:8px;border:1.5px solid ${active ? "var(--accent)" : "var(--border)"};background:${active ? "var(--accent)" : "var(--bg2)"};color:${active ? "#fff" : "var(--text2)"};font-size:13px;font-weight:${active ? "700" : "500"};cursor:pointer;font-family:'Inter',sans-serif;transition:all .15s"
+    >${p}</button>`;
+    prev = p;
+  });
+
+  container.innerHTML = `
+    <div style="font-size:13px;color:var(--text2);font-weight:500">${start}–${end} of <strong>${total.toLocaleString()}</strong></div>
+    <div style="display:flex;align-items:center;gap:5px;flex-wrap:wrap">
+      <button onclick="goPage('${type}',${currentPage-1})" ${currentPage<=1?"disabled":""} style="padding:5px 10px;border-radius:8px;border:1.5px solid var(--border);background:none;color:${currentPage<=1?"var(--text4)":"var(--text2)"};cursor:${currentPage<=1?"not-allowed":"pointer"};font-family:'Inter',sans-serif;font-size:13px">← Prev</button>
+      ${btns}
+      <button onclick="goPage('${type}',${currentPage+1})" ${currentPage>=totalPages?"disabled":""} style="padding:5px 10px;border-radius:8px;border:1.5px solid var(--border);background:none;color:${currentPage>=totalPages?"var(--text4)":"var(--text2)"};cursor:${currentPage>=totalPages?"not-allowed":"pointer"};font-family:'Inter',sans-serif;font-size:13px">Next →</button>
+    </div>`;
+}
+
+function goPage(type, page) {
+  if (type === "stall") {
+    const max = Math.ceil(detailsState.stallTotal / detailsState.stallPerPage);
+    if (page < 1 || page > max) return;
+    detailsState.stallPage = page;
+    loadEventStalls();
+  } else {
+    const max = Math.ceil(detailsState.visitorTotal / detailsState.visitorPerPage);
+    if (page < 1 || page > max) return;
+    detailsState.visitorPage = page;
+    loadEventVisitors();
+  }
+  // Scroll the respective section into view
+  const id = type === "stall" ? "event-stalls-table" : "event-visitors-table";
+  document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
 }
 async function showOrganizerDetails(orgId, pageName = "organizers") {
   previousPage = pageName;

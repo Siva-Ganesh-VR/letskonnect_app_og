@@ -7,7 +7,29 @@ module Api
 
         def index
           stalls = @event.stall_owners.order(:stall_number)
-          json_success(stalls.map { |s| stall_response(s) })
+
+          if params[:search].present?
+            q = "%#{params[:search]}%"
+            stalls = stalls.where(
+              "name ILIKE ? OR company_name ILIKE ? OR mobile_number ILIKE ?",
+              q, q, q
+            )
+          end
+
+          pagy, paginated = pagy(
+            stalls,
+            items: params[:per_page] || 10
+          )
+
+          json_success(
+            paginated.map { |s| stall_response(s) },
+            meta: {
+              total: pagy.count,
+              page: pagy.page,
+              per_page: pagy.items,
+              pages: pagy.pages
+            }
+          )
         end
 
         def show
@@ -61,42 +83,27 @@ module Api
 
         # POST /api/v1/organizer/events/:event_id/stall_owners/bulk_upload
         def bulk_upload
-          require "csv"
           file = params[:file]
+
           return json_error("CSV file is required") unless file
 
-          created, errors = [], []
-          CSV.foreach(
-            file.path,
-            headers: true,
-            encoding: "bom|utf-8"
-          ).with_index(2) do |row, line_no|
+          temp_file_path = Rails.root.join(
+            "tmp",
+            "imports",
+            "#{SecureRandom.uuid}_#{file.original_filename}"
+          )
 
-            generated_password = SecureRandom.alphanumeric(8)
+          FileUtils.mkdir_p(File.dirname(temp_file_path))
+          File.binwrite(temp_file_path, file.read)
 
-            stall = @event.stall_owners.build(
-              name: row["name"]&.strip,
-              mobile_number: row["mobile_number"]&.strip,
-              company_name: row["company_name"]&.strip,
-              stall_number: row["stall_number"]&.strip,
-              stall_category: row["stall_category"]&.strip,
-              email: row["email"]&.strip,
-              password: generated_password,
-              password_confirmation: generated_password
-            )
+          StallOwnerImportJob.perform_later(
+            temp_file_path.to_s,
+            params[:event_id]
+          )
 
-            stall.event_organizer = @current_organizer
-            stall.pass_code = rand(100000..999999).to_s
-
-            if stall.save
-              created << stall.id
-              # WhatsappNotificationJob.perform_later(stall.id, "stall_credentials", stall.password)
-            else
-              errors << { line: line_no, errors: stall.errors.full_messages }
-            end
-          end
-
-          json_success({ created_count: created.size, failed_count: errors.size, errors: errors })
+          json_success({
+            message: "Stall owner import has been initiated."
+          })
         end
 
         def bulk_create
