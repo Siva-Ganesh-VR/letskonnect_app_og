@@ -4,77 +4,66 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Register — <%= @event.name %> | LetsKonnect</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
-*{box-sizing:border-box;margin:0;padding:0}
-:root{--t:#14b8a6;--t2:#0d9488;--o:#f59e0b;--g:#22c55e;--r:#ef4444;--bg:#f8fafc;--w:#fff;--text:#0f172a;--text2:#64748b;--text3:#94a3b8;--bdr:#e2e8f0}
-body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);min-height:100vh;color:var(--text);-webkit-font-smoothing:antialiased}
-/* Hero */
-.hero{background:linear-gradient(135deg,var(--t),var(--t2));padding:28px 20px 24px;text-align:center}
-.logo{display:inline-flex;align-items:center;gap:8px;font-size:19px;font-weight:800;color:#fff;margin-bottom:14px}
-.logo-dot{width:8px;height:8px;background:rgba(255,255,255,.8);border-radius:50%}
-.event-name{font-size:22px;font-weight:700;color:#fff;line-height:1.2;margin-bottom:6px}
-.event-meta{font-size:13px;color:rgba(255,255,255,.8);display:flex;justify-content:center;gap:16px;flex-wrap:wrap}
-.event-meta span{display:flex;align-items:center;gap:5px}
-/* Container */
-.container{max-width:480px;margin:0 auto;padding:24px 16px 60px}
-.card{background:var(--w);border:1px solid var(--bdr);border-radius:18px;padding:24px 22px;margin-bottom:16px;box-shadow:0 1px 3px rgba(0,0,0,.08)}
-/* Steps */
-.step-indicator{display:flex;align-items:center;justify-content:center;margin-bottom:24px}
-.step{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:600}
-.step-num{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;transition:all .3s;border:2px solid var(--bdr)}
-.step.active .step-num{background:var(--t);border-color:var(--t);color:#fff}
-.step.done .step-num{background:var(--g);border-color:var(--g);color:#fff}
-.step.pending .step-num{background:var(--bg);border-color:var(--bdr);color:var(--text3)}
-.step-line{width:40px;height:2px;background:var(--bdr);margin:0 6px}
-/* Section title */
-.section-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--t);margin-bottom:16px}
-/* Fields */
-.field{margin-bottom:14px}
-label{display:block;font-size:13px;font-weight:600;color:var(--text);margin-bottom:7px}
-.required{color:var(--t)}
-input,select{width:100%;background:var(--bg);border:1.5px solid var(--bdr);border-radius:12px;padding:13px 15px;color:var(--text);font-size:15px;font-family:'Inter',sans-serif;outline:none;transition:all .2s;-webkit-appearance:none}
-input:focus,select:focus{border-color:var(--t);background:var(--w);box-shadow:0 0 0 4px rgba(20,184,166,.1)}
-input::placeholder{color:var(--text3)}
-select option{background:var(--w);color:var(--text)}
-.row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-/* phone prefix */
-.phone-prefix{background:var(--bdr);border:1.5px solid var(--bdr);border-right:none;border-radius:12px 0 0 12px;padding:13px 14px;color:var(--text2);font-size:15px;font-family:'Inter',sans-serif;white-space:nowrap;font-weight:500}
-.phone-wrap{display:flex}
-.phone-wrap input{border-radius:0 12px 12px 0}
-/* Buttons */
-.btn-primary{width:100%;padding:15px;background:linear-gradient(135deg,var(--t),var(--t2));color:#fff;border:none;border-radius:12px;font-size:16px;font-weight:700;font-family:'Inter',sans-serif;cursor:pointer;transition:all .2s;box-shadow:0 4px 16px rgba(20,184,166,.3);margin-top:8px}
-.btn-primary:hover:not(:disabled){transform:translateY(-1px);box-shadow:0 6px 20px rgba(20,184,166,.4)}
-.btn-primary:disabled{opacity:.55;cursor:not-allowed;transform:none}
-/* OTP */
-.otp-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin:18px 0}
-.otp-input{background:var(--bg);border:2px solid var(--bdr);border-radius:12px;padding:14px 0;text-align:center;font-size:22px;font-weight:700;color:var(--text);font-family:'Inter',sans-serif;width:100%;outline:none;transition:all .2s}
-.otp-input:focus{border-color:var(--t);background:var(--w);box-shadow:0 0 0 4px rgba(20,184,166,.1)}
-.otp-hint{font-size:14px;color:var(--text2);text-align:center;margin-bottom:8px;font-weight:500}
-.resend-link{background:none;border:none;color:var(--t);font-size:13px;cursor:pointer;font-family:'Inter',sans-serif;font-weight:600;padding:0}
-.resend-link:disabled{color:var(--text3);cursor:not-allowed}
-/* Success */
-.success-screen{text-align:center;padding:16px 0}
-.success-icon{width:80px;height:80px;background:linear-gradient(135deg,#f0fdf4,#dcfce7);border:2px solid rgba(34,197,94,.3);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 20px;font-size:36px}
-.success-title{font-size:24px;font-weight:800;margin-bottom:8px;color:var(--text)}
-.success-sub{color:var(--text2);font-size:14px;margin-bottom:24px;line-height:1.6}
-.visitor-id-badge{background:linear-gradient(135deg,#f0fdfa,#ccfbf1);border:1.5px solid rgba(20,184,166,.3);border-radius:16px;padding:18px;margin-bottom:20px;text-align:center}
-.visitor-id-label{font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:var(--t);margin-bottom:5px;font-weight:700}
-.visitor-id-value{font-size:28px;font-weight:800;color:var(--t);letter-spacing:.06em}
-.qr-container{background:#fff;border-radius:18px;padding:18px;display:inline-block;margin-bottom:20px;box-shadow:0 4px 16px rgba(0,0,0,.1)}
-.qr-container img{width:180px;height:180px;display:block}
-.pass-info{background:var(--bg);border:1px solid var(--bdr);border-radius:14px;padding:16px;margin-bottom:20px;text-align:left}
-.pass-row{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--bdr);font-size:14px}
-.pass-row:last-child{border-bottom:none}
-.pass-key{color:var(--text2);font-weight:500}
-.pass-val{font-weight:600;color:var(--text);text-align:right}
-.whatsapp-note{background:rgba(37,211,102,.08);border:1.5px solid rgba(37,211,102,.25);border-radius:12px;padding:14px 16px;font-size:13px;color:#065f46;display:flex;align-items:center;gap:10px;font-weight:500}
-.error-msg{background:#fef2f2;border:1.5px solid rgba(239,68,68,.25);border-radius:10px;padding:11px 14px;font-size:13px;color:var(--r);margin-top:10px;display:none;font-weight:500}
-.loading-spinner{display:inline-block;width:18px;height:18px;border:2px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;margin-right:6px}
-@keyframes spin{to{transform:rotate(360deg)}}
-#step-otp,#step-success{display:none}
-@media(max-width:400px){.row2{grid-template-columns:1fr}}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#0f0f1a;min-height:100vh;color:#fff}
+  .hero{background:linear-gradient(135deg,#1a1a2e 0%,#16213e 50%,#0f3460 100%);padding:28px 20px 24px;text-align:center;border-bottom:1px solid rgba(255,255,255,0.08)}
+  .logo{display:inline-flex;align-items:center;gap:8px;font-size:20px;font-weight:700;color:#fff;margin-bottom:16px}
+  .logo-dot{width:8px;height:8px;background:#6c63ff;border-radius:50%}
+  .event-name{font-size:22px;font-weight:700;color:#fff;line-height:1.2;margin-bottom:6px}
+  .event-meta{font-size:13px;color:rgba(255,255,255,0.6);display:flex;justify-content:center;gap:16px;flex-wrap:wrap}
+  .event-meta span{display:flex;align-items:center;gap:5px}
+  .container{max-width:480px;margin:0 auto;padding:24px 20px 60px}
+  .card{background:#1a1a2e;border:1px solid rgba(255,255,255,0.1);border-radius:16px;padding:28px 24px;margin-bottom:16px}
+  .step-indicator{display:flex;align-items:center;gap:0;margin-bottom:28px;justify-content:center}
+  .step{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:500}
+  .step-num{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;transition:all 0.3s}
+  .step.active .step-num{background:#6c63ff;color:#fff}
+  .step.done .step-num{background:#22c55e;color:#fff}
+  .step.pending .step-num{background:rgba(255,255,255,0.1);color:rgba(255,255,255,0.4)}
+  .step-line{width:40px;height:2px;background:rgba(255,255,255,0.1);margin:0 4px}
+  .step.active~.step-line,.step.done~.step-line{background:#6c63ff}
+  .section-title{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.08em;color:#6c63ff;margin-bottom:16px}
+  .field{margin-bottom:14px}
+  label{display:block;font-size:13px;font-weight:500;color:rgba(255,255,255,0.7);margin-bottom:6px}
+  .required{color:#6c63ff}
+  input,select{width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:12px 14px;color:#fff;font-size:15px;outline:none;transition:all 0.2s;-webkit-appearance:none}
+  input:focus,select:focus{border-color:#6c63ff;background:rgba(108,99,255,0.08);box-shadow:0 0 0 3px rgba(108,99,255,0.15)}
+  input::placeholder{color:rgba(255,255,255,0.25)}
+  select option{background:#1a1a2e;color:#fff}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .btn-primary{width:100%;padding:15px;background:#6c63ff;color:#fff;border:none;border-radius:12px;font-size:16px;font-weight:600;cursor:pointer;transition:all 0.2s;margin-top:8px}
+  .btn-primary:hover{background:#5a52e0;transform:translateY(-1px)}
+  .btn-primary:active{transform:translateY(0);opacity:0.9}
+  .btn-primary:disabled{opacity:0.5;cursor:not-allowed;transform:none}
+  .otp-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin:20px 0}
+  .otp-input{background:rgba(255,255,255,0.05);border:2px solid rgba(255,255,255,0.1);border-radius:12px;padding:14px 0;text-align:center;font-size:22px;font-weight:700;color:#fff;width:100%;outline:none;transition:all 0.2s}
+  .otp-input:focus{border-color:#6c63ff;background:rgba(108,99,255,0.1)}
+  .otp-hint{font-size:13px;color:rgba(255,255,255,0.5);text-align:center;margin-bottom:12px}
+  .resend-link{background:none;border:none;color:#6c63ff;font-size:13px;cursor:pointer;text-decoration:underline;padding:0}
+  .resend-link:disabled{color:rgba(255,255,255,0.3);text-decoration:none;cursor:not-allowed}
+  .success-screen{text-align:center;padding:20px 0}
+  .success-icon{width:80px;height:80px;background:rgba(34,197,94,0.15);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 20px;font-size:36px}
+  .success-title{font-size:24px;font-weight:700;margin-bottom:8px}
+  .success-sub{color:rgba(255,255,255,0.6);font-size:14px;margin-bottom:24px;line-height:1.5}
+  .visitor-id-badge{background:rgba(108,99,255,0.15);border:1px solid rgba(108,99,255,0.4);border-radius:12px;padding:16px;margin-bottom:20px;text-align:center}
+  .visitor-id-label{font-size:11px;text-transform:uppercase;letter-spacing:0.1em;color:#6c63ff;margin-bottom:4px}
+  .visitor-id-value{font-size:26px;font-weight:700;color:#fff;letter-spacing:0.05em}
+  .qr-container{background:#fff;border-radius:16px;padding:20px;display:inline-block;margin-bottom:20px}
+  .qr-container img{width:180px;height:180px;display:block}
+  .pass-info{background:rgba(255,255,255,0.04);border-radius:12px;padding:16px;margin-bottom:20px;text-align:left}
+  .pass-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.06);font-size:14px}
+  .pass-row:last-child{border-bottom:none}
+  .pass-key{color:rgba(255,255,255,0.5)}
+  .pass-val{font-weight:500;color:#fff;text-align:right}
+  .whatsapp-note{background:rgba(37,211,102,0.1);border:1px solid rgba(37,211,102,0.3);border-radius:10px;padding:12px 16px;font-size:13px;color:rgba(255,255,255,0.7);display:flex;align-items:center;gap:10px}
+  .error-msg{background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);border-radius:8px;padding:10px 14px;font-size:13px;color:#fca5a5;margin-top:10px;display:none}
+  .loading-spinner{display:inline-block;width:18px;height:18px;border:2px solid rgba(255,255,255,0.3);border-top-color:#fff;border-radius:50%;animation:spin 0.7s linear infinite;vertical-align:middle;margin-right:6px}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  #step-otp,#step-success{display:none}
+  .phone-prefix{background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.1);border-right:none;border-radius:10px 0 0 10px;padding:12px 12px;color:rgba(255,255,255,0.6);font-size:15px;white-space:nowrap}
+  .phone-wrap{display:flex}
+  .phone-wrap input{border-radius:0 10px 10px 0}
 </style>
 </head>
 <body>
@@ -89,6 +78,7 @@ select option{background:var(--w);color:var(--text)}
 </div>
 
 <div class="container">
+
   <div class="step-indicator">
     <div class="step active" id="ind-1"><span class="step-num">1</span></div>
     <div class="step-line"></div>
@@ -97,22 +87,37 @@ select option{background:var(--w);color:var(--text)}
     <div class="step pending" id="ind-3"><span class="step-num">✓</span></div>
   </div>
 
-  <!-- STEP 1 -->
+  <!-- STEP 1: Registration Form -->
   <div id="step-form">
     <div class="card">
       <div class="section-title">Personal Details</div>
-      <div class="field"><label>Full Name <span class="required">*</span></label><input type="text" id="full_name" placeholder="Your full name" autocomplete="name"></div>
-      <div class="field"><label>Mobile Number <span class="required">*</span></label>
-        <div class="phone-wrap"><span class="phone-prefix">+91</span><input type="tel" id="mobile_number" placeholder="10-digit mobile" maxlength="10" inputmode="numeric"></div>
+      <div class="field">
+        <label>Full Name <span class="required">*</span></label>
+        <input type="text" id="full_name" placeholder="Your full name" autocomplete="name">
+      </div>
+      <div class="field">
+        <label>Mobile Number <span class="required">*</span></label>
+        <div class="phone-wrap">
+          <span class="phone-prefix">+91</span>
+          <input type="tel" id="mobile_number" placeholder="10-digit mobile" maxlength="10" pattern="[6-9][0-9]{9}">
+        </div>
       </div>
       <div class="row2">
-        <div class="field"><label>Location / City <span class="required">*</span></label><input type="text" id="location" placeholder="City"></div>
-        <div class="field"><label>Profession <span class="required">*</span></label><input type="text" id="profession" placeholder="Your role"></div>
+        <div class="field">
+          <label>Location / City <span class="required">*</span></label>
+          <input type="text" id="location" placeholder="City">
+        </div>
+        <div class="field">
+          <label>Profession <span class="required">*</span></label>
+          <input type="text" id="profession" placeholder="Your role">
+        </div>
       </div>
     </div>
+
     <div class="card">
       <div class="section-title">Business Details</div>
-      <div class="field"><label>Business Category <span class="required">*</span></label>
+      <div class="field">
+        <label>Business Category <span class="required">*</span></label>
         <select id="business_category">
           <option value="">Select category</option>
           <option>IT Services</option><option>Finance</option><option>Marketing</option>
@@ -121,130 +126,258 @@ select option{background:var(--w);color:var(--text)}
           <option>Energy</option><option>Startup</option><option>Consulting</option><option>Other</option>
         </select>
       </div>
-      <div class="field"><label>Business / Company Name <span class="required">*</span></label><input type="text" id="business_name" placeholder="Company or business name"></div>
+      <div class="field">
+        <label>Business / Company Name <span class="required">*</span></label>
+        <input type="text" id="business_name" placeholder="Company or business name">
+      </div>
       <div class="row2">
-        <div class="field"><label>Designation</label><input type="text" id="designation" placeholder="Optional"></div>
-        <div class="field"><label>Email Address</label><input type="email" id="email" placeholder="Optional"></div>
+        <div class="field">
+          <label>Designation</label>
+          <input type="text" id="designation" placeholder="Optional">
+        </div>
+        <div class="field">
+          <label>Email Address</label>
+          <input type="email" id="email" placeholder="Optional">
+        </div>
       </div>
     </div>
+
     <div id="error-reg" class="error-msg"></div>
-    <button class="btn-primary" onclick="submitRegistration()" id="btn-register">Get My Event Pass →</button>
+    <button class="btn-primary" onclick="submitRegistration()" id="btn-register">
+      Get My Event Pass →
+    </button>
   </div>
 
-  <!-- STEP 2: OTP -->
+  <!-- STEP 2: OTP Verification -->
   <div id="step-otp">
     <div class="card">
       <div class="section-title">Verify Mobile</div>
       <p class="otp-hint">Enter the 6-digit OTP sent to <strong id="otp-phone-display"></strong></p>
       <div class="otp-grid">
-        <input class="otp-input" type="tel" maxlength="1" inputmode="numeric" oninput="otpInput(this,0)" onkeydown="otpKey(event,0)">
-        <input class="otp-input" type="tel" maxlength="1" inputmode="numeric" oninput="otpInput(this,1)" onkeydown="otpKey(event,1)">
-        <input class="otp-input" type="tel" maxlength="1" inputmode="numeric" oninput="otpInput(this,2)" onkeydown="otpKey(event,2)">
-        <input class="otp-input" type="tel" maxlength="1" inputmode="numeric" oninput="otpInput(this,3)" onkeydown="otpKey(event,3)">
-        <input class="otp-input" type="tel" maxlength="1" inputmode="numeric" oninput="otpInput(this,4)" onkeydown="otpKey(event,4)">
-        <input class="otp-input" type="tel" maxlength="1" inputmode="numeric" oninput="otpInput(this,5)" onkeydown="otpKey(event,5)">
+        <input class="otp-input" type="tel" maxlength="1" oninput="otpInput(this,0)" onkeydown="otpKey(event,0)">
+        <input class="otp-input" type="tel" maxlength="1" oninput="otpInput(this,1)" onkeydown="otpKey(event,1)">
+        <input class="otp-input" type="tel" maxlength="1" oninput="otpInput(this,2)" onkeydown="otpKey(event,2)">
+        <input class="otp-input" type="tel" maxlength="1" oninput="otpInput(this,3)" onkeydown="otpKey(event,3)">
+        <input class="otp-input" type="tel" maxlength="1" oninput="otpInput(this,4)" onkeydown="otpKey(event,4)">
+        <input class="otp-input" type="tel" maxlength="1" oninput="otpInput(this,5)" onkeydown="otpKey(event,5)">
       </div>
-      <div style="text-align:center;margin-bottom:14px"><button class="resend-link" id="resend-btn" onclick="resendOtp()" disabled>Resend OTP (<span id="resend-timer">30</span>s)</button></div>
+      <div style="text-align:center;margin-bottom:16px">
+        <button class="resend-link" id="resend-btn" onclick="resendOtp()" disabled>
+          Resend OTP (<span id="resend-timer">30</span>s)
+        </button>
+      </div>
       <div id="error-otp" class="error-msg"></div>
       <button class="btn-primary" onclick="verifyOtp()" id="btn-verify">Verify & Get Pass</button>
     </div>
   </div>
 
-  <!-- STEP 3: Success -->
+  <!-- STEP 3: Success / Digital Pass -->
   <div id="step-success">
     <div class="card">
       <div class="success-screen">
         <div class="success-icon">🎉</div>
         <div class="success-title">Welcome to the Event!</div>
         <div class="success-sub">Your digital pass is ready. Show this QR code at any exhibitor stall to instantly share your details.</div>
+
         <div class="visitor-id-badge">
-          <div class="visitor-id-label">Your Visitor ID</div>
+          <div class="visitor-id-label">Visitor ID</div>
           <div class="visitor-id-value" id="pass-visitor-id">—</div>
         </div>
-        <div id="qr-section" class="qr-container" style="display:none"><img id="qr-img" src="" alt="Your QR Code"></div>
-        <div id="qr-loading" style="padding:20px;color:var(--text2);font-size:14px;font-weight:500">⏳ Generating your QR code…</div>
+
+        <div id="qr-section" class="qr-container" style="display:none">
+          <img id="qr-img" src="" alt="Your QR Code">
+        </div>
+        <div id="qr-loading" style="padding:20px;color:rgba(255,255,255,0.5);font-size:14px">
+          ⏳ Generating your QR code…
+        </div>
+
         <div class="pass-info">
           <div class="pass-row"><span class="pass-key">Name</span><span class="pass-val" id="pass-name">—</span></div>
           <div class="pass-row"><span class="pass-key">Event</span><span class="pass-val"><%= @event.name %></span></div>
           <div class="pass-row"><span class="pass-key">Venue</span><span class="pass-val"><%= @event.venue %></span></div>
           <div class="pass-row"><span class="pass-key">Date</span><span class="pass-val"><%= "#{@event.start_date.strftime('%b %d')} – #{@event.end_date.strftime('%b %d, %Y')}" %></span></div>
         </div>
-        <div class="whatsapp-note"><span style="font-size:22px">📱</span><span>Your QR code and event details have been sent to your WhatsApp.</span></div>
+
+        <div class="whatsapp-note">
+          <span style="font-size:20px">📱</span>
+          <span>Your QR code and event details have been sent to your WhatsApp.</span>
+        </div>
       </div>
     </div>
   </div>
+
 </div>
 
 <script>
 const EVENT_TOKEN = "<%= @event.registration_qr_token %>";
-const API_BASE = "/api/v1";
-let visitorId = null, resendInterval = null;
+const API_BASE    = "/api/v1";
+let visitorId     = null;
+let resendInterval= null;
 
-function showError(el, msg) { el.style.display="block"; el.textContent=msg; }
-function clearError(el) { el.style.display="none"; }
+function showError(el, msg) {
+  el.style.display = "block";
+  el.textContent   = msg;
+}
+function clearError(el) {
+  el.style.display = "none";
+}
 
 async function submitRegistration() {
   const btn = document.getElementById("btn-register");
   clearError(document.getElementById("error-reg"));
+
   const mobile = document.getElementById("mobile_number").value.trim();
-  if (!/^[6-9]\d{9}$/.test(mobile)) { showError(document.getElementById("error-reg"),"Please enter a valid 10-digit Indian mobile number"); return; }
+  if (!/^[6-9]\d{9}$/.test(mobile)) {
+    showError(document.getElementById("error-reg"), "Please enter a valid 10-digit Indian mobile number");
+    return;
+  }
   const required = ["full_name","mobile_number","location","profession","business_category","business_name"];
-  for (const f of required) { if (!document.getElementById(f).value.trim()) { showError(document.getElementById("error-reg"),"Please fill in all required fields"); return; } }
-  btn.disabled = true; btn.innerHTML = '<span class="loading-spinner"></span> Sending OTP…';
-  const body = { event_token: EVENT_TOKEN, visitor: { full_name: document.getElementById("full_name").value.trim(), mobile_number: mobile, location: document.getElementById("location").value.trim(), profession: document.getElementById("profession").value.trim(), business_category: document.getElementById("business_category").value, business_name: document.getElementById("business_name").value.trim(), designation: document.getElementById("designation").value.trim(), email: document.getElementById("email").value.trim() } };
+  for (const f of required) {
+    if (!document.getElementById(f).value.trim()) {
+      showError(document.getElementById("error-reg"), "Please fill in all required fields");
+      return;
+    }
+  }
+
+  btn.disabled  = true;
+  btn.innerHTML = '<span class="loading-spinner"></span> Sending OTP…';
+
+  const body = {
+    event_token: EVENT_TOKEN,
+    visitor: {
+      full_name:         document.getElementById("full_name").value.trim(),
+      mobile_number:     mobile,
+      location:          document.getElementById("location").value.trim(),
+      profession:        document.getElementById("profession").value.trim(),
+      business_category: document.getElementById("business_category").value,
+      business_name:     document.getElementById("business_name").value.trim(),
+      designation:       document.getElementById("designation").value.trim(),
+      email:             document.getElementById("email").value.trim(),
+    }
+  };
+
   try {
-    const res = await fetch(`${API_BASE}/visitors/register`, { method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify(body) });
+    const res  = await fetch(`${API_BASE}/visitors/register`, {
+      method: "POST", headers: {"Content-Type":"application/json"}, body: JSON.stringify(body)
+    });
     const data = await res.json();
     if (data.success) {
       visitorId = data.data.visitor_id;
-      document.getElementById("step-form").style.display = "none";
-      document.getElementById("step-otp").style.display = "block";
-      document.getElementById("otp-phone-display").textContent = "+91 " + mobile.slice(0,2) + "XXXXXX" + mobile.slice(-2);
+      document.getElementById("step-form").style.display  = "none";
+      document.getElementById("step-otp").style.display   = "block";
+      document.getElementById("otp-phone-display").textContent = "+91" + mobile.slice(0,2) + "XXXXXX" + mobile.slice(-2);
       document.getElementById("ind-1").className = "step done";
       document.getElementById("ind-2").className = "step active";
       document.querySelectorAll(".otp-input")[0].focus();
       startResendTimer();
-    } else { showError(document.getElementById("error-reg"), data.error || "Registration failed. Please try again."); btn.disabled=false; btn.innerHTML="Get My Event Pass →"; }
-  } catch(e) { showError(document.getElementById("error-reg"),"Network error. Please check your connection."); btn.disabled=false; btn.innerHTML="Get My Event Pass →"; }
+    } else {
+      showError(document.getElementById("error-reg"), data.error || "Registration failed. Please try again.");
+      btn.disabled  = false;
+      btn.innerHTML = "Get My Event Pass →";
+    }
+  } catch(e) {
+    showError(document.getElementById("error-reg"), "Network error. Please check your connection.");
+    btn.disabled  = false;
+    btn.innerHTML = "Get My Event Pass →";
+  }
 }
 
-function otpInput(el, idx) { el.value=el.value.replace(/\D/g,""); if(el.value&&idx<5) document.querySelectorAll(".otp-input")[idx+1].focus(); const otp=Array.from(document.querySelectorAll(".otp-input")).map(i=>i.value).join(""); if(otp.length===6) verifyOtp(); }
-function otpKey(e, idx) { if(e.key==="Backspace"&&!e.target.value&&idx>0) document.querySelectorAll(".otp-input")[idx-1].focus(); }
+function otpInput(el, idx) {
+  el.value = el.value.replace(/\D/g,"");
+  if (el.value && idx < 5) document.querySelectorAll(".otp-input")[idx+1].focus();
+  const otp = Array.from(document.querySelectorAll(".otp-input")).map(i => i.value).join("");
+  if (otp.length === 6) verifyOtp();
+}
+function otpKey(e, idx) {
+  if (e.key === "Backspace" && !e.target.value && idx > 0)
+    document.querySelectorAll(".otp-input")[idx-1].focus();
+}
 
 function startResendTimer() {
   let secs = 30;
   document.getElementById("resend-btn").disabled = true;
-  resendInterval = setInterval(()=>{ secs--; document.getElementById("resend-timer").textContent=secs; if(secs<=0){ clearInterval(resendInterval); document.getElementById("resend-btn").disabled=false; document.getElementById("resend-btn").textContent="Resend OTP"; } }, 1000);
+  resendInterval = setInterval(() => {
+    secs--;
+    document.getElementById("resend-timer").textContent = secs;
+    if (secs <= 0) {
+      clearInterval(resendInterval);
+      document.getElementById("resend-btn").disabled  = false;
+      document.getElementById("resend-btn").textContent = "Resend OTP";
+    }
+  }, 1000);
 }
-async function resendOtp() { document.getElementById("resend-btn").disabled=true; document.getElementById("resend-btn").innerHTML="Resend OTP (30s)"; await fetch(`${API_BASE}/visitors/resend_otp`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({visitor_id:visitorId})}); startResendTimer(); }
+
+async function resendOtp() {
+  document.getElementById("resend-btn").disabled  = true;
+  document.getElementById("resend-btn").innerHTML = "Resend OTP (30s)";
+  await fetch(`${API_BASE}/visitors/resend_otp`, {
+    method:"POST", headers:{"Content-Type":"application/json"},
+    body: JSON.stringify({ visitor_id: visitorId })
+  });
+  startResendTimer();
+}
 
 async function verifyOtp() {
-  const otp = Array.from(document.querySelectorAll(".otp-input")).map(i=>i.value).join("");
-  if (otp.length!==6) return;
+  const otp  = Array.from(document.querySelectorAll(".otp-input")).map(i => i.value).join("");
+  if (otp.length !== 6) return;
   clearError(document.getElementById("error-otp"));
-  const btn = document.getElementById("btn-verify");
-  btn.disabled=true; btn.innerHTML='<span class="loading-spinner"></span> Verifying…';
+
+  const btn  = document.getElementById("btn-verify");
+  btn.disabled  = true;
+  btn.innerHTML = '<span class="loading-spinner"></span> Verifying…';
+
   try {
-    const res = await fetch(`${API_BASE}/visitors/verify_otp`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({visitor_id:visitorId,otp})});
+    const res  = await fetch(`${API_BASE}/visitors/verify_otp`, {
+      method:"POST", headers:{"Content-Type":"application/json"},
+      body: JSON.stringify({ visitor_id: visitorId, otp: otp })
+    });
     const data = await res.json();
-    if (data.success) { showSuccess(data.data); }
-    else { showError(document.getElementById("error-otp"),data.error||"Verification failed"); btn.disabled=false; btn.innerHTML="Verify & Get Pass"; document.querySelectorAll(".otp-input").forEach(i=>{i.value="";i.style.borderColor="#ef4444";}); document.querySelectorAll(".otp-input")[0].focus(); }
-  } catch(e) { showError(document.getElementById("error-otp"),"Network error. Please try again."); btn.disabled=false; btn.innerHTML="Verify & Get Pass"; }
+    if (data.success) {
+      showSuccess(data.data);
+    } else {
+      showError(document.getElementById("error-otp"), data.error || "Verification failed");
+      btn.disabled  = false;
+      btn.innerHTML = "Verify & Get Pass";
+      document.querySelectorAll(".otp-input").forEach(i => { i.value = ""; i.style.borderColor = "#ef4444"; });
+      document.querySelectorAll(".otp-input")[0].focus();
+    }
+  } catch(e) {
+    showError(document.getElementById("error-otp"), "Network error. Please try again.");
+    btn.disabled  = false;
+    btn.innerHTML = "Verify & Get Pass";
+  }
 }
 
 function showSuccess(data) {
-  document.getElementById("step-otp").style.display = "none";
+  document.getElementById("step-otp").style.display     = "none";
   document.getElementById("step-success").style.display = "block";
   document.getElementById("ind-2").className = "step done";
   document.getElementById("ind-3").className = "step active";
+
   document.getElementById("pass-visitor-id").textContent = data.visitor.visitor_id_code;
-  document.getElementById("pass-name").textContent = data.visitor.full_name;
-  if (data.visitor.qr_image_url) { document.getElementById("qr-loading").style.display="none"; document.getElementById("qr-section").style.display="inline-block"; document.getElementById("qr-img").src=data.visitor.qr_image_url; }
-  else { pollQrCode(data.visitor.id); }
+  document.getElementById("pass-name").textContent       = data.visitor.full_name;
+
+  if (data.visitor.qr_image_url) {
+    document.getElementById("qr-loading").style.display = "none";
+    document.getElementById("qr-section").style.display = "inline-block";
+    document.getElementById("qr-img").src               = data.visitor.qr_image_url;
+  } else {
+    pollQrCode(data.visitor.id);
+  }
 }
 
 async function pollQrCode(vid) {
-  for (let i=0;i<20;i++) { await new Promise(r=>setTimeout(r,2000)); const res=await fetch(`${API_BASE}/visitors/qr/${vid}`); const data=await res.json(); if(data.success&&data.data.qr_image_url){document.getElementById("qr-loading").style.display="none";document.getElementById("qr-section").style.display="inline-block";document.getElementById("qr-img").src=data.data.qr_image_url;return;} }
+  for (let i = 0; i < 20; i++) {
+    await new Promise(r => setTimeout(r, 2000));
+    const res  = await fetch(`${API_BASE}/visitors/qr/${vid}`);
+    const data = await res.json();
+    if (data.success && data.data.qr_image_url) {
+      document.getElementById("qr-loading").style.display = "none";
+      document.getElementById("qr-section").style.display = "inline-block";
+      document.getElementById("qr-img").src               = data.data.qr_image_url;
+      return;
+    }
+  }
 }
 </script>
 </body>
