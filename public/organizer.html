@@ -215,7 +215,7 @@ tr:hover td{background:rgba(255,255,255,0.02)}
           <select class="filter-sel" id="stall-event-sel" onchange="loadStalls()">
             <option value="">Select Event</option>
           </select>
-          <button class="btn btn-g" onclick="openBulkStallModal()">+ Add Stall</button>
+          <button class="btn btn-g" onclick="openBulkStallModal()">+ Add Stalls</button>
           <button class="btn btn-g" onclick="openModal('m-import-stalls')">+ Bulk Upload</button>
         </div>
       </div>
@@ -324,7 +324,7 @@ tr:hover td{background:rgba(255,255,255,0.02)}
       <button class="mc" onclick="closeModal('m-m-stall')">✕</button>
     </div>
 
-    <div id="st-err" class="err"></div>
+    <div id="st-o-bulk-err" class="err"></div>
 
     <div style="margin-bottom:12px">
       <button class="btn btn-g" onclick="addStallRow()">
@@ -801,7 +801,14 @@ async function loadEventSelectors() {
   if (sm) sm.innerHTML = myEvents.map(e=>`<option value="${e.id}">${e.name}</option>`).join("");
 }
 
-function openModal(id)  { document.getElementById(id).style.display = "flex"; }
+function openModal(id)  { 
+  document.getElementById(id).style.display = "flex"; 
+  if (id == "m-import-stalls") {
+    document.getElementById("stall-import-file").value = "";
+    document.getElementById("import-err").style.display = "none";
+    document.getElementById("import-err").textContent = "";
+  }
+}
 function closeModal(id) { 
   if (id=="m-stall") { resetStallForm(); }
   else if (id=="m-event") { resetEventForm(); }
@@ -973,7 +980,7 @@ async function updateStall() {
     }
 
     closeModal("m-stall");
-    alert("Stall owner updated successfully");
+    toast("Stall owner updated successfully", "ok");
     loadStalls();
   } catch (error) {
     err.style.display = "block";
@@ -1050,6 +1057,8 @@ function addStallRow() {
   tbody.appendChild(row);
 }
 function openBulkStallModal() {
+  const err = document.getElementById("st-o-bulk-err");
+  err.style.display = "none";
   document.getElementById("stall-table-body").innerHTML = "";
 
   for (let i = 0; i < 2; i++) {
@@ -1060,9 +1069,10 @@ function openBulkStallModal() {
 }
 async function createMultipleStalls() {
   const eid = document.getElementById("stall-event-sel").value;
-  const err = document.getElementById("st-err");
+  const err = document.getElementById("st-o-bulk-err");
 
   err.style.display = "none";
+  if (!eid) { err.style.display="block"; err.textContent="Please select an event first"; return; }
 
   const rows = [...document.querySelectorAll("#stall-table-body tr")];
 
@@ -1103,9 +1113,7 @@ async function createMultipleStalls() {
 
     closeModal("m-m-stall");
 
-    alert(
-      `${result.data.created_count} stall owners created successfully`
-    );
+    toast(`${result.data.created_count} stall owners created successfully`, "ok");
 
     loadStallOwners();
 

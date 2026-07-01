@@ -421,7 +421,7 @@ tr:hover td{background:rgba(255,255,255,0.02)}
       <button class="mc" onclick="closeModal('m-m-stall')">✕</button>
     </div>
 
-    <div id="st-err" class="err"></div>
+    <div id="st-bulk-err" class="err"></div>
 
     <div style="margin-bottom:12px">
       <button class="btn btn-primary btn-sm" onclick="addStallRow()">
@@ -1060,6 +1060,10 @@ function openModal(id)  {
       document.getElementById("ef-submit-btn").innerHTML = "Create Event";
       document.getElementById("modal-event-title").innerHTML = "Create New Event";
     }
+  } else if (id ==="m-import-stalls") {
+    document.getElementById("stall-import-file").value = "";
+    document.getElementById("stall-import-event-sel").value = "";
+    document.getElementById("import-err").style.display = "none";
   }
 }
 function closeModal(id) { 
@@ -1273,7 +1277,7 @@ async function updateStall() {
     }
 
     closeModal("m-stall");
-    alert("Stall owner updated successfully");
+    toast("Stall owner updated successfully", "success");
     loadStalls();
   } catch (error) {
     err.style.display = "block";
@@ -1351,6 +1355,8 @@ function addStallRow() {
 }
 function openBulkStallModal() {
   document.getElementById("stall-table-body").innerHTML = "";
+  document.getElementById("st-bulk-err").style.display = "none";
+  document.getElementById("admin-stall-event-sel").value = "";
 
   for (let i = 0; i < 2; i++) {
     addStallRow();
@@ -1360,7 +1366,7 @@ function openBulkStallModal() {
 }
 async function createMultipleStalls() {
   const eid = document.getElementById("admin-stall-event-sel").value;
-  const err = document.getElementById("st-err");
+  const err = document.getElementById("st-bulk-err");
 
   err.style.display = "none";
   if (!eid) { err.style.display="block"; err.textContent="Please select an event first"; return; }
@@ -1405,8 +1411,9 @@ async function createMultipleStalls() {
 
     closeModal("m-m-stall");
 
-    alert(
-      `${result.data.created_count} stall owners created successfully`
+    toast(
+      `${result.data.created_count} stall owners created successfully`,
+      "success"
     );
 
     loadStallOwners();
