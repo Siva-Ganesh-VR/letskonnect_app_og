@@ -247,6 +247,23 @@ tr:hover td{background:rgba(255,255,255,0.02)}
       </div>
       <div id="analytics-content"><div class="empty"><div class="empty-icon">📊</div>Select an event above</div></div>
     </div>
+
+    <!-- Details Screen -->
+    <div class="page" id="opage-details">
+      <div class="page-head" style="display:flex;justify-content:space-between;align-items:center;flex-direction: row-reverse;">
+        <button class="btn btn-o btn-sm" onclick="closeDetails()">
+          ← Back
+        </button>
+
+        <div class="page-title" id="odetails-title">
+          Details
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:16px">
+        <div id="details-content"></div>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -477,17 +494,29 @@ function doLogout() {
 
 // ── Navigation ────────────────────────────────────────────────────────────
 function nav(page, el) {
-  document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
-  document.querySelectorAll(".nav-item").forEach(n => n.classList.remove("active"));
+  openPage(page);
 
-  document.getElementById("page-" + page).classList.add("active");
-  el.classList.add("active");
+  document.querySelectorAll(".nav-item")
+    .forEach(n => n.classList.remove("active"));
 
-  document.getElementById("sidebar").classList.remove("open");
+  if (el) {
+    el.classList.add("active");
+  }
+
+  document.getElementById("sidebar")
+    ?.classList.remove("open");
 
   if (page === "events") {
     loadEvents();
   }
+}
+
+function openPage(page) {
+  document.querySelectorAll(".page")
+    .forEach(p => p.classList.remove("active"));
+
+  document.getElementById("page-" + page)
+    .classList.add("active");
 }
 
 // ── API helpers ───────────────────────────────────────────────────────────
@@ -551,7 +580,13 @@ async function loadEvents() {
     <div class="table-wrap" style="margin-bottom:16px">
       <div class="table-head">
         <div>
-          <div class="table-title">${e.name}</div>
+          <div class="table-title">
+            <a href="javascript:void(0)"
+              onclick="showEventDetails('${e.id}', 'events')"
+              style="color:inherit;font-weight:600;text-decoration:none">
+              ${e.name}
+            </a>
+          </div>
           <div style="font-size:12px;color:var(--text2);margin-top:2px">📍 ${e.venue}${e.city?', '+e.city:''} · ${fd(e.start_date)} – ${fd(e.end_date)}</div>
         </div>
         <div class="tbl-actions">
@@ -560,12 +595,12 @@ async function loadEvents() {
           ${e.status==="draft"?`<button class="btn btn-g btn-sm" onclick='activateEvent("${e.id}")'>Activate</button>`:""}
         </div>
       </div>
-      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--border)">
+      <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:1px;background:var(--border)">
         <div style="background:var(--bg);padding:14px;text-align:center"><div style="font-size:20px;font-weight:700">${e.registered_count||0}</div><div style="font-size:11px;color:var(--text2)">Visitors</div></div>
         <div style="background:var(--bg);padding:14px;text-align:center"><div style="font-size:20px;font-weight:700">${e.max_visitors||'∞'}</div><div style="font-size:11px;color:var(--text2)">Max Visitors</div></div>
-        <div style="background:var(--bg);padding:14px;text-align:center">
+        <!--<div style="background:var(--bg);padding:14px;text-align:center">
           <a href="/register/${e.registration_qr_token}" target="_blank" style="font-size:12px;color:var(--accent);text-decoration:none">Open Reg Page ↗</a>
-        </div>
+        </div>-->
       </div>
     </div>
   `).join("") || `<div class="empty"><div class="empty-icon">🎪</div>No events yet. Create your first event!</div>`;
@@ -618,10 +653,13 @@ async function loadStalls() {
   const res = await get(`/organizer/events/${eid}/stall_owners`);
   const rows = (res.data||[]).map(s => `
     <tr>
-      <td><div style="font-weight:600">${s.company_name}</div><div style="font-size:12px;color:var(--text2)">${s.name}</div></td>
+      <td><div style="font-weight:600"><a href="javascript:void(0)"
+          onclick="showStallOwnerDetails('${s.id}', 'stalls')"
+          style="color:inherit;font-weight:600;text-decoration:none">${s.company_name}</a></div><div style="font-size:12px;color:var(--text2)">${s.name}</div></td>
       <td>${s.stall_number||"—"}</td>
       <td>${s.stall_category||"—"}</td>
       <td>${s.mobile_number}</td>
+      <td>${s.pass_code||"—"}</td>
       <td style="font-weight:700;color:var(--accent)">${s.total_leads_count||0}</td>
       <td><span class="badge ${s.active?"bg":"bgr"}">${s.active?"Active":"Inactive"}</span></td>
       <td>
@@ -633,7 +671,7 @@ async function loadStalls() {
     </tr>
   `).join("");
   document.getElementById("stalls-tbl").innerHTML = rows
-    ? `<table><thead><tr><th>Company</th><th>Stall</th><th>Category</th><th>Mobile</th><th>Leads</th><th>Status</th><th></th></tr></thead><tbody>${rows}</tbody></table>`
+    ? `<table><thead><tr><th>Company</th><th>Stall</th><th>Category</th><th>Mobile</th><th>Password</th><th>Leads</th><th>Status</th><th></th></tr></thead><tbody>${rows}</tbody></table>`
     : `<div class="empty"><div class="empty-icon">🏪</div>No stall owners yet. Add your first exhibitor!</div>`;
 }
 
@@ -674,7 +712,9 @@ async function loadVisitors() {
   const res  = await get(`/organizer/events/${eid}/visitors?search=${encodeURIComponent(q)}&per_page=50`);
   const rows = (res.data||[]).map(v => `
     <tr>
-      <td><span class="badge bp">${v.visitor_id_code}</span></td>
+      <td><span class="badge bp"><a href="javascript:void(0)"
+          onclick="showVisitorDetails('${v.id}', 'visitors')"
+          style="color:inherit;font-weight:600;text-decoration:none">${v.visitor_id_code}</a></span></td>
       <td><div style="font-weight:600">${v.full_name}</div></td>
       <td>${v.mobile_number}</td>
       <td>${v.business_name||"—"}</td>
@@ -1073,6 +1113,130 @@ async function createMultipleStalls() {
     err.style.display = "block";
     err.textContent = error.message;
   }
+}
+function showDetails(title, fields) {
+
+  document.getElementById("odetails-title").textContent = title;
+
+  let html = '<div class="form-grid">';
+
+  fields.forEach(field => {
+    html += `
+      <div class="field">
+        <label>${field.label}</label>
+        <div style="font-weight:600;font-size:14px;">
+          ${field.value || "-"}
+        </div>
+      </div>
+    `;
+  });
+
+  html += '</div>';
+
+  document.getElementById("details-content").innerHTML = html;
+
+  document.querySelectorAll(".page")
+    .forEach(p => p.classList.remove("active"));
+
+  document.getElementById("opage-details")
+    .classList.add("active");
+}
+async function showEventDetails(eventId, pageName = "events") {
+  previousPage = pageName;
+
+  const result = await get(
+    `/organizer/events/${eventId}`
+  );
+
+  const e = result.data;
+
+  showDetails("Event Details", [
+    { label: "Event ID", value: e.id },
+    { label: "Event Name", value: e.name },
+    { label: "Venue", value: e.venue },
+    { label: "City", value: e.city },
+    { label: "Start Date", value: fd(e.start_date) },
+    { label: "End Date", value: fd(e.end_date) },
+    { label: "Organizer", value: e.organizer?.name },
+    { label: "Max Visitors", value: e.visitors_count },
+    { label: "Status", value: e.status },
+    { label: "Description", value: e.description }
+  ]);
+}
+async function showOrganizerDetails(orgId, pageName = "organizers") {
+  previousPage = pageName;
+
+  const result = await get(
+    `/organizer/event_organizers/${orgId}`
+  );
+
+  const o = result.data;
+
+  showDetails("Organizer Details", [
+    { label: "Organizer ID", value: o.id },
+    { label: "Name", value: o.name },
+    { label: "Email", value: o.email },
+    { label: "Company", value: o.company_name },
+    { label: "Mobile No.", value: o.mobile_number },
+    { label: "Status", value: o.active?'Active':'Inactive' },
+    { label: "Joined", value: fd(o.created_at) }
+  ]);
+}
+async function showStallOwnerDetails(stallOwnerId, pageName = "stalls") {
+  const eid = document.getElementById("stall-event-sel").value;
+  previousPage = pageName;
+
+  const result = await get(
+    `/organizer/events/${eid}/stall_owners/${stallOwnerId}`
+  );
+
+  const s = result.data;
+
+  showDetails("Stall Owner Details", [
+    { label: "Stall Owner ID", value: s.id },
+    { label: "Name", value: s.name },
+    { label: "Email", value: s.email },
+    { label: "Mobile No.", value: s.mobile_number },
+    { label: "Company", value: s.company_name },
+    { label: "Stall No.", value: s.stall_number },
+    { label: "Stall Category", value: s.stall_category },
+    { label: "Event", value: s.event?.name || "N/A" },
+    { label: "Website", value: s.website },
+    { label: "Description", value: s.description },
+    { label: "Status", value: s.active?'Active':'Inactive' },
+    { label: "Pass Code", value: s.pass_code }
+  ]);
+}
+async function showVisitorDetails(visitorId, pageName = "visitors") {
+  const eid  = document.getElementById("visitor-event-sel").value;
+  previousPage = pageName;
+
+  const result = await get(
+    `/organizer/events/${eid}/visitors/${visitorId}`
+  );
+
+  const v = result.data;
+
+  showDetails("Visitor Details", [
+    { label: "Visitor ID", value: v.visitor_id_code },
+    { label: "Name", value: v.full_name },
+    { label: "Mobile No.", value: v.mobile_number },
+    { label: "Location", value: v.location },
+    { label: "Profession", value: v.profession },
+    { label: "Business Category", value: v.business_category },
+    { label: "Business Name", value: v.business_name },
+    { label: "Designation", value: v.designation },
+    { label: "Email", value: v.email },
+    { label: "Website", value: v.website },
+    { label: "Event", value: v.event?.name || "N/A" },
+    { label: "Looking For", value: v.looking_for },
+    { label: "Decision Maker", value: v.decision_maker?'Yes':'No' },
+    { label: "Status", value: v.active?'Active':'Inactive' },
+    { label: "Registered At", value: fd(v.created_at) }
+  ]);
+}
+function closeDetails() {
+  openPage(previousPage || "events");
 }
 </script>
 </body>

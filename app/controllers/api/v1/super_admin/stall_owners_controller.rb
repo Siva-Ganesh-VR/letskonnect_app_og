@@ -126,7 +126,7 @@ module Api
         def stall_resp(s)
           { id: s.id, name: s.name, email: s.email, mobile_number: s.mobile_number,
             company_name: s.company_name, stall_number: s.stall_number,
-            stall_category: s.stall_category, active: s.active, website: s.website, pass_code: s.pass_code,
+            stall_category: s.stall_category, active: s.active, website: s.website, pass_code: s.pass_code, description: s.description,
             total_leads_count: s.total_leads_count,
             event: { id: s.event.id, name: s.event.name } }
         end

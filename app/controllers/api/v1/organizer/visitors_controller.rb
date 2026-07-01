@@ -57,7 +57,9 @@ module Api
             mobile_number: v.mobile_number, email: v.email, profession: v.profession,
             business_name: v.business_name, business_category: v.business_category,
             location: v.location, designation: v.designation,
-            stalls_visited: v.leads.count, registered_at: v.created_at.iso8601 }
+            stalls_visited: v.leads.count, registered_at: v.created_at.iso8601, 
+            email: v.email, active: v.active, looking_for: v.looking_for, 
+            decision_maker: v.decision_maker, created_at: v.created_at }
         end
       end
     end

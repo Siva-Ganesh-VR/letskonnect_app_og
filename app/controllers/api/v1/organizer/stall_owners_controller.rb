@@ -165,7 +165,7 @@ module Api
           { id: s.id, name: s.name, email: s.email, mobile_number: s.mobile_number,
             company_name: s.company_name, stall_number: s.stall_number,
             stall_category: s.stall_category, active: s.active,
-            total_leads_count: s.total_leads_count, created_at: s.created_at, website: s.website }
+            total_leads_count: s.total_leads_count, created_at: s.created_at, website: s.website, pass_code: s.pass_code }
         end
       end
     end

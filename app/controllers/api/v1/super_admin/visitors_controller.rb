@@ -27,7 +27,7 @@ module Api
         def visitor_resp(v)
           { id: v.id, visitor_id_code: v.visitor_id_code, full_name: v.full_name,
             mobile_number: v.mobile_number, business_name: v.business_name,
-            business_category: v.business_category, location: v.location,
+            business_category: v.business_category, location: v.location, profession: v.profession, designation: v.designation, email: v.email, active: v.active, looking_for: v.looking_for, decision_maker: v.decision_maker, created_at: v.created_at,
             profession: v.profession, stalls_visited: v.leads.count,
             event_name: v.event.name, registered_at: v.created_at }
         end
