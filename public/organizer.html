@@ -505,10 +505,6 @@ function nav(page, el) {
 
   document.getElementById("sidebar")
     ?.classList.remove("open");
-
-  if (page === "events") {
-    loadEvents();
-  }
 }
 
 function openPage(page) {
@@ -522,6 +518,10 @@ function openPage(page) {
     document.getElementById("visitor-event-sel").value = "";
     document.getElementById("visitor-search").value = "";
     document.getElementById("visitors-tbl").innerHTML = '<div class="empty"><div class="empty-icon">👥</div>Select an event above</div>';
+  }
+
+  if (page === "events") {
+    loadEvents();
   }
 
   document.getElementById("page-" + page)
@@ -564,7 +564,13 @@ async function loadDashboard() {
   const evHtml = (d.events||[]).map(e => `
     <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:8px">
       <div>
-        <div style="font-weight:600;font-size:14px">${e.name}</div>
+        <div style="font-weight:600;font-size:14px">
+          <a href="javascript:void(0)"
+            onclick="showEventDetails('${e.id}', 'dashboard')"
+            style="color:inherit;font-weight:600;text-decoration:none">
+            ${e.name}
+          </a>
+        </div>
         <div style="font-size:12px;color:var(--text2);margin-top:2px">📍 ${e.venue} · ${fd(e.start_date)} – ${fd(e.end_date)}</div>
       </div>
       <div style="display:flex;align-items:center;gap:10px">
@@ -906,7 +912,7 @@ async function importStallOwners() {
 
     toast(
       `${result.data.message}`,
-      "success"
+      "ok"
     );
 
     loadStalls();
@@ -1239,6 +1245,8 @@ function buildEventDetailsHTML(e) {
             onblur="this.style.borderColor='var(--border)'"
           >
           <button class="btn btn-p btn-sm" onclick="refreshEventStalls()">↻ Refresh</button>
+          <button class="btn btn-g" onclick="openBulkStallModal()">+ Add Stalls</button>
+          <button class="btn btn-g" onclick="openModal('m-import-stalls')">+ Bulk Upload</button>
         </div>
       </div>
       <div id="event-stalls-table">
