@@ -518,6 +518,10 @@ function openPage(page) {
   if (page === "stalls") {
     document.getElementById("stall-event-sel").value = "";
     document.getElementById("stalls-tbl").innerHTML = '<div class="empty"><div class="empty-icon">🏪</div>No stall owners yet. Add your first exhibitor!</div>';
+  } else if (page === "visitors") {
+    document.getElementById("visitor-event-sel").value = "";
+    document.getElementById("visitor-search").value = "";
+    document.getElementById("visitors-tbl").innerHTML = '<div class="empty"><div class="empty-icon">👥</div>Select an event above</div>';
   }
 
   document.getElementById("page-" + page)
@@ -1187,6 +1191,7 @@ async function showEventDetails(eventId, pageName = "events") {
       loadEventVisitors(),
     ]);
     document.getElementById("stall-event-sel").value = eventId;
+    document.getElementById("visitor-event-sel").value = eventId;
   } catch(err) {
     document.getElementById("details-content").innerHTML =
       `<div style="color:var(--red2);padding:20px">Failed to load event details. Please try again.</div>`;
