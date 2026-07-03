@@ -16,10 +16,12 @@ class RegistrationsController < ActionController::Base
     event = Event.find_by!(registration_qr_token: params[:event_token])
     case handle_event_access(event)
     when "invalid"
-      redirect_to whatsapp_fallback_message("Invalid event QR code") and return
+      redirect_to whatsapp_fallback_message("Invalid event QR code"),
+            allow_other_host: true and return
 
     when "closed"
-      redirect_to whatsapp_fallback_message("Event registration is closed") and return
+      redirect_to whatsapp_fallback_message("Event registration is closed"),
+            allow_other_host: true and return
     end
 
     whatsapp_number = ENV["TWILIO_WHATSAPP_FROM"]
@@ -27,7 +29,7 @@ class RegistrationsController < ActionController::Base
                     .delete("+")
     message = "Hi, I would like to register for #{event.name}. EVENT_ID:#{event.id}"
 
-    whatsapp_url = "https://wa.me/#{whatsapp_number}?text=#{message}"
+    whatsapp_url = "https://wa.me/#{whatsapp_number}?text=#{CGI.escape(message)}"
 
     redirect_to whatsapp_url, allow_other_host: true
   end
@@ -36,5 +38,14 @@ class RegistrationsController < ActionController::Base
     return "invalid" if event.nil?
     return "closed" unless event.active?
     "valid"
+  end
+
+  private
+
+  def whatsapp_fallback_message(message)
+    whatsapp_number = ENV["TWILIO_WHATSAPP_FROM"].to_s.delete_prefix("whatsapp:+")
+    text = CGI.escape(message)
+
+    "https://wa.me/#{whatsapp_number}?text=#{text}"
   end
 end

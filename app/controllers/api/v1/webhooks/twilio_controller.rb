@@ -22,13 +22,10 @@ module Api
         end
 
         def receive
-          from = params["From"]
-          body = params["Body"]
+          from = params["From"].to_s
+          body = params["Body"].to_s.strip
 
-          mobile_number = from
-                            .to_s
-                            .gsub("whatsapp:", "")
-                            .sub("+91", "")
+          mobile_number = from.delete_prefix("whatsapp:").delete_prefix("+91")
 
           event_id = body[/EVENT_ID:([a-f0-9\-]+)/i, 1]
 
@@ -54,12 +51,16 @@ module Api
 
               return head :ok
             end
+
+            # Remove EVENT_ID from the message before passing it to the flow
+            body = body.sub(/EVENT_ID:[a-f0-9\-]+/i, "").strip
           else
             visitor = Visitor.where(
               mobile_number: mobile_number
             ).where.not(
               whatsapp_state: "completed"
-            ).order(created_at: :desc).first
+            ).order(created_at: :desc)
+            .first
           end
 
           return head :ok unless visitor

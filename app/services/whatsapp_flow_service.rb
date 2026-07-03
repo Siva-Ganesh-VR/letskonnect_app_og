@@ -1,28 +1,74 @@
 class WhatsappFlowService
+  CATEGORY_OPTIONS = {
+    "1" => "Clothing",
+    "2" => "Gold Jewellery",
+    "3" => "Manufacturing",
+    "4" => "Services",
+    "5" => "BNI Member",
+    "6" => "Other",
+
+    "clothing" => "Clothing",
+    "gold jewellery" => "Gold Jewellery",
+    "gold jewelry" => "Gold Jewellery",
+    "manufacturing" => "Manufacturing",
+    "services" => "Services",
+    "bni member" => "BNI Member",
+    "other" => "Other"
+  }.freeze
+
+  LOOKING_FOR_OPTIONS = {
+    "1" => "Business Networking",
+    "2" => "Suppliers",
+    "3" => "Distributors",
+    "4" => "Customers",
+    "5" => "Partnerships",
+    "6" => "Investment",
+
+    "business networking" => "Business Networking",
+    "networking" => "Business Networking",
+    "suppliers" => "Suppliers",
+    "distributors" => "Distributors",
+    "customers" => "Customers",
+    "partnerships" => "Partnerships",
+    "investment" => "Investment"
+  }.freeze
+
+  YES_VALUES = %w[
+    yes y yeah yep true 1
+  ].freeze
+
+  NO_VALUES = %w[
+    no n nope false 0
+  ].freeze
+
   def initialize(visitor, message_body)
     @visitor = visitor
-    @message = message_body.strip.downcase
+    @message = message_body.to_s.strip
   end
 
   def process
-    case @visitor.whatsapp_state
-    when "start"
-      ask_name
+    @visitor.with_lock do
+      @visitor.reload
 
-    when "ask_name"
-      save_name
+      case @visitor.whatsapp_state
+      when "start"
+        ask_name
 
-    when "ask_location"
-      save_location
+      when "ask_name"
+        save_name
 
-    when "ask_category"
-      save_category
+      when "ask_location"
+        save_location
 
-    when "ask_looking_for"
-      save_looking_for
+      when "ask_category"
+        save_category
 
-    when "ask_decision"
-      save_decision
+      when "ask_looking_for"
+        save_looking_for
+
+      when "ask_decision"
+        save_decision
+      end
     end
   end
 
@@ -38,7 +84,20 @@ class WhatsappFlowService
   end
 
   def save_name
-    @visitor.update!(full_name: @message.titleize, whatsapp_state: "ask_location")
+    if @message.blank?
+      WhatsappService.send_message(
+        @visitor.mobile_number,
+        "Please enter your name."
+      )
+      return
+    end
+
+    save_answer("name", @message)
+
+    @visitor.update!(
+      full_name: @message.titleize,
+      whatsapp_state: "ask_location"
+    )
 
     WhatsappService.send_message(
       @visitor.mobile_number,
@@ -47,13 +106,20 @@ class WhatsappFlowService
   end
 
   def save_location
-    save_answer("location", @message)
-    @visitor.update!(location: @message, whatsapp_state: "ask_category")
+    if @message.blank?
+      WhatsappService.send_message(
+        @visitor.mobile_number,
+        "Please enter your location."
+      )
+      return
+    end
 
-    # WhatsappService.send_message(
-    #   @visitor.mobile_number,
-    #   "🏢 Which category best describes your business?\n1. Clothing\n2. Gold Jewellery\n3. Manufacturing\n4. Services\n5. BNI Member\n6. Other"
-    # )
+    save_answer("location", @message)
+
+    @visitor.update!(
+      location: @message,
+      whatsapp_state: "ask_category"
+    )
 
     WhatsappService.send_template(
       @visitor.mobile_number,
@@ -62,13 +128,22 @@ class WhatsappFlowService
   end
 
   def save_category
-    save_answer("category", @message)
-    @visitor.update!(business_category: @message, whatsapp_state: "ask_looking_for")
+    category = CATEGORY_OPTIONS[@message.downcase]
 
-    # WhatsappService.send_message(
-    #   @visitor.mobile_number,
-    #   "🤝 What are you looking for?\n1. Business Networking\n2. Suppliers\n3. Distributors\n4. Customers\n5. Partnerships\n6. Investment"
-    # )
+    unless category
+      WhatsappService.send_template(
+        @visitor.mobile_number,
+        ENV["TWILIO_CATEGORY_TEMPLATE_SID"]
+      )
+      return
+    end
+
+    save_answer("category", category)
+
+    @visitor.update!(
+      business_category: category,
+      whatsapp_state: "ask_looking_for"
+    )
 
     WhatsappService.send_template(
       @visitor.mobile_number,
@@ -77,31 +152,67 @@ class WhatsappFlowService
   end
 
   def save_looking_for
-    save_answer("looking_for", @message)
-    @visitor.update!(looking_for: @message, whatsapp_state: "ask_decision")
+    looking_for = LOOKING_FOR_OPTIONS[@message.downcase]
 
-    # WhatsappService.send_message(
-    #   @visitor.mobile_number,
-    #   "🧑‍💼 Are you a Business Owner / Decision Maker? (Yes/No)"
-    # )
+    unless looking_for
+      WhatsappService.send_template(
+        @visitor.mobile_number,
+        ENV["TWILIO_LOOKING_FOR_TEMPLATE_SID"]
+      )
+      return
+    end
+
+    save_answer("looking_for", looking_for)
+
+    @visitor.update!(
+      looking_for: looking_for,
+      whatsapp_state: "ask_decision"
+    )
 
     WhatsappService.send_template(
       @visitor.mobile_number,
       ENV["TWILIO_QUICK_REPLY_TEMPLATE_SID"],
-      { "quick_reply_msg_body" => "🧑‍💼 Are you a Business Owner / Decision Maker?" }
+      {
+        "quick_reply_msg_body" =>
+          "🧑‍💼 Are you a Business Owner / Decision Maker?"
+      }
     )
   end
 
   def save_decision
-    save_answer("decision", @message)
-    @visitor.update!(decision_maker: @message.downcase == "yes", whatsapp_state: "completed", whatsapp_completed_at: Time.current, mobile_verified: true)
+    value = @message.downcase
+
+    decision =
+      if YES_VALUES.include?(value)
+        true
+      elsif NO_VALUES.include?(value)
+        false
+      else
+        nil
+      end
+
+    if decision.nil?
+      WhatsappService.send_template(
+        @visitor.mobile_number,
+        ENV["TWILIO_QUICK_REPLY_TEMPLATE_SID"],
+        {
+          "quick_reply_msg_body" =>
+            "🧑‍💼 Are you a Business Owner / Decision Maker?"
+        }
+      )
+      return
+    end
+
+    save_answer("decision", decision ? "Yes" : "No")
+
+    @visitor.update!(
+      decision_maker: decision,
+      whatsapp_state: "completed",
+      whatsapp_completed_at: Time.current,
+      mobile_verified: true
+    )
 
     WhatsappService.send_registration_confirmation(@visitor)
-
-    # WhatsappService.send_message(
-    #   @visitor.mobile_number,
-    #   "✅ Thank you! Your registration is complete."
-    # )
   end
 
   def save_answer(question_key, answer)
