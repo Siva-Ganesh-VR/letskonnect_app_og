@@ -83,7 +83,7 @@ module Api
         end
 
         def event_detail(e)
-          { id: e.id, name: e.name, venue: e.venue, city: e.city,
+          { id: e.id, event_code: e.event_code, name: e.name, venue: e.venue, city: e.city,
             start_date: e.start_date, end_date: e.end_date, status: e.status,
             registered_count: e.registered_count, qr_image_url: e.qr_image_url,
             organizer: { id: e.event_organizer.id, name: e.event_organizer.name },

@@ -70,8 +70,16 @@ module Api
         end
 
         def organizer_response(o)
-          { id: o.id, name: o.name, email: o.email, mobile_number: o.mobile_number,
-            company_name: o.company_name, active: o.active, created_at: o.created_at }
+          {
+            id: o.id,
+            org_code: o.org_code,   # ← add here
+            name: o.name,
+            email: o.email,
+            mobile_number: o.mobile_number,
+            company_name: o.company_name,
+            active: o.active,
+            created_at: o.created_at
+          }
         end
       end
     end
