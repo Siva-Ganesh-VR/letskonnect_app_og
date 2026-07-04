@@ -1,21 +1,24 @@
+
 class Event < ApplicationRecord
   belongs_to :event_organizer
   has_many :stall_owners, dependent: :destroy
-  has_many :visitors, dependent: :destroy
-  has_many :leads, dependent: :destroy
+  has_many :visitors,     dependent: :destroy
+  has_many :leads,        dependent: :destroy
   has_one  :event_analytics, dependent: :destroy
 
   before_create :generate_slug
   before_create :generate_registration_qr_token
+  before_create :generate_event_code          # ← NEW
   after_create  :generate_qr_image_async
   after_create  :initialize_analytics
 
   STATUSES = %w[draft active completed archived].freeze
 
-  validates :name, :venue, :start_date, :end_date, presence: true
-  validates :status, inclusion: { in: STATUSES }
-  validates :slug, uniqueness: true
+  validates :name,    :venue, :start_date, :end_date, presence: true
+  validates :status,  inclusion: { in: STATUSES }
+  validates :slug,    uniqueness: true
   validates :registration_qr_token, uniqueness: true
+  validates :event_code, uniqueness: true, allow_nil: true  # nil only during migration backfill
   validate  :end_date_after_start_date
 
   scope :active_events, -> { where(status: "active") }
@@ -37,10 +40,25 @@ class Event < ApplicationRecord
 
   private
 
+  # ── Generates EXP-YYYY-XXXX ──────────────────────────────────────────────
+  def generate_event_code
+    year = Time.current.year
+
+    # SELECT ... FOR UPDATE prevents two simultaneous creates getting the same number
+    last = Event
+             .where("event_code LIKE ?", "EXP-#{year}-%")
+             .order(:event_code)
+             .lock
+             .last
+
+    next_seq = last ? last.event_code.split("-").last.to_i + 1 : 1
+
+    self.event_code = format("EXP-%d-%04d", year, next_seq)
+  end
+
   def generate_slug
     base = name.parameterize
     self.slug = "#{base}-#{SecureRandom.hex(4)}"
-    # Ensure uniqueness
     while Event.exists?(slug: self.slug)
       self.slug = "#{base}-#{SecureRandom.hex(4)}"
     end

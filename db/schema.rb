@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_06_30_051314) do
+ActiveRecord::Schema[7.2].define(version: 2026_07_04_080526) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pgcrypto"
   enable_extension "plpgsql"
@@ -73,10 +73,12 @@ ActiveRecord::Schema[7.2].define(version: 2026_06_30_051314) do
     t.uuid "super_admin_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "org_code", limit: 20, null: false
     t.index ["active"], name: "index_event_organizers_on_active"
     t.index ["email"], name: "index_event_organizers_on_email", unique: true
     t.index ["jti"], name: "index_event_organizers_on_jti", unique: true
     t.index ["mobile_number"], name: "index_event_organizers_on_mobile_number"
+    t.index ["org_code"], name: "index_event_organizers_on_org_code", unique: true
     t.index ["super_admin_id"], name: "index_event_organizers_on_super_admin_id"
   end
 
@@ -101,6 +103,8 @@ ActiveRecord::Schema[7.2].define(version: 2026_06_30_051314) do
     t.uuid "event_organizer_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "event_code", limit: 20, null: false
+    t.index ["event_code"], name: "index_events_on_event_code", unique: true
     t.index ["event_organizer_id"], name: "index_events_on_event_organizer_id"
     t.index ["registration_qr_token"], name: "index_events_on_registration_qr_token", unique: true
     t.index ["slug"], name: "index_events_on_slug", unique: true
@@ -231,6 +235,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_06_30_051314) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "pass_code"
+    t.string "stall_code", limit: 30, null: false
     t.index ["event_id", "active"], name: "index_stall_owners_on_event_id_and_active"
     t.index ["event_id", "stall_number"], name: "index_stall_owners_on_event_id_and_stall_number", unique: true, where: "(stall_number IS NOT NULL)"
     t.index ["event_id"], name: "index_stall_owners_on_event_id"
@@ -238,6 +243,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_06_30_051314) do
     t.index ["jti"], name: "index_stall_owners_on_jti", unique: true
     t.index ["mobile_number"], name: "index_stall_owners_on_mobile_number"
     t.index ["pass_code"], name: "index_stall_owners_on_pass_code", unique: true
+    t.index ["stall_code"], name: "index_stall_owners_on_stall_code", unique: true
   end
 
   create_table "super_admins", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|

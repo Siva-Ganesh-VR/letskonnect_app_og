@@ -1223,7 +1223,7 @@ function buildEventDetailsHTML(e) {
         ${detailChip("👥 Visitors",     (e.registered_count||0).toLocaleString())}
         ${detailChip("🏪 Max Capacity", e.max_visitors ? e.max_visitors.toLocaleString() : "Unlimited")}
         ${detailChip("🏢 Organizer",    e.organizer?.name || "—")}
-        ${detailChip("🆔 Event ID",     `<span style="font-family:monospace;font-size:11px">${e.id}</span>`)}
+        ${detailChip("🆔 Event Code",     `<span style="font-family:monospace;font-size:11px">${e.event_code}</span>`)}
       </div>
       ${e.description ? `<div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border);font-size:14px;color:var(--text2);line-height:1.6">${e.description}</div>` : ""}
       <div style="display:flex;gap:8px;margin-top:16px;padding-top:14px;border-top:1px solid var(--border);flex-wrap:wrap">
@@ -1505,7 +1505,7 @@ async function showOrganizerDetails(orgId, pageName = "organizers") {
   const o = result.data;
 
   showDetails("Organizer Details", [
-    { label: "Organizer ID", value: o.id },
+    { label: "Organizer Code", value: o.org_code },
     { label: "Name", value: o.name },
     { label: "Email", value: o.email },
     { label: "Company", value: o.company_name },

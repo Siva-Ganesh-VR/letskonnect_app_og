@@ -1205,7 +1205,7 @@ async function showStallOwnerDetails(stallOwnerId, pageName = "stalls") {
   const s = result.data;
 
   showDetails("Stall Owner Details", [
-    { label: "Stall Owner ID", value: s.id },
+    { label: "Stall Owner Code", value: s.stall_code },
     { label: "Name", value: s.name },
     { label: "Email", value: s.email },
     { label: "Mobile No.", value: s.mobile_number },
