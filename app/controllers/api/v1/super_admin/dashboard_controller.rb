@@ -36,9 +36,8 @@ module Api
                 {
                   id: o.id,
                   name: o.name,
-                  email: o.email,
-                  active: o.active,
-                  created_at: o.created_at
+                  company_name: o.company_name,
+                  active: o.active
                 }
               end
           })

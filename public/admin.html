@@ -681,58 +681,203 @@ async function apiLoginPost(path, body) {
 // ── Dashboard ─────────────────────────────────────────────────────────────
 async function loadDashboard() {
   try {
-    const endpoint = currentUser?.role === "super_admin" ? "/super_admin/dashboard" : "/organizer/dashboard";
-    const res      = await apiGet(endpoint);
+    const endpoint =
+      currentUser?.role === "super_admin"
+        ? "/super_admin/dashboard"
+        : "/organizer/dashboard";
+
+    const res = await apiGet(endpoint);
     if (!res.success) return;
-    const d        = res.data;
 
-    document.getElementById("dash-subtitle").textContent = currentUser?.role === "super_admin"
-      ? "Platform-wide overview" : `${currentUser?.company_name || ""} — Organizer Dashboard`;
+    const d = res.data;
 
+    document.getElementById("dash-subtitle").textContent =
+      currentUser?.role === "super_admin"
+        ? "Platform-wide overview"
+        : `${currentUser?.company_name || ""} — Organizer Dashboard`;
+
+    // =====================================================
+    // SUPER ADMIN DASHBOARD
+    // =====================================================
     if (currentUser?.role === "super_admin") {
       const p = d.platform;
+
+      // Top statistics cards
       document.getElementById("dash-stats").innerHTML = `
-        ${statCard("🎪","Events",p.active_events + " active / " + p.total_events + " total","accent")}
-        ${statCard("🏢","Organizers",p.active_organizers + " active","")}
+        ${statCard("🎪","Events",`${p.active_events} active / ${p.total_events} total`,"accent")}
+        ${statCard("🏢","Organizers",`${p.active_organizers} active`,"")}
         ${statCard("👥","Visitors",p.total_visitors.toLocaleString(),"accent")}
         ${statCard("🎯","Leads",p.total_leads.toLocaleString(),"")}
         ${statCard("🏪","Stall Owners",p.total_stalls,"")}
       `;
-      const evHtml = d.recent_events.map(e => `
-        <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--border)">
+
+      // =====================================================
+      // Recent Events
+      // =====================================================
+      const evHtml = (d.recent_events || []).map(e => `
+        <div style="
+          display:flex;
+          align-items:center;
+          justify-content:space-between;
+          padding:12px 0;
+          border-bottom:1px solid var(--border)">
+          
           <div>
             <div style="font-weight:600;font-size:14px">
               <a href="javascript:void(0)"
-                onclick="showEventDetails('${e.id}', 'dashboard')"
-                style="color:inherit;font-weight:600;text-decoration:none">
+                 onclick="showEventDetails('${e.id}','dashboard')"
+                 style="color:inherit;text-decoration:none">
                 ${e.name}
               </a>
             </div>
-            <div style="font-size:12px;color:var(--text2);margin-top:2px">${fmtDate(e.start_date)} · ${e.registered_count} visitors</div>
+
+            <div style="
+              font-size:12px;
+              color:var(--text2);
+              margin-top:2px">
+              ${fmtDate(e.start_date)}
+              · ${e.registered_count} visitors
+            </div>
           </div>
-          <span class="badge ${statusBadge(e.status)}">${e.status}</span>
+
+          <span class="badge ${statusBadge(e.status)}">
+            ${e.status}
+          </span>
         </div>
       `).join("");
+
+      // =====================================================
+      // Recent Organizers
+      // =====================================================
+      const orgHtml = (d.recent_organizers || []).map(o => `
+        <div style="
+          display:flex;
+          align-items:center;
+          justify-content:space-between;
+          padding:12px 0;
+          border-bottom:1px solid var(--border)">
+          
+          <div>
+            <div style="
+              font-weight:600;
+              font-size:14px">
+              ${o.company_name || "-"}
+            </div>
+
+            <div style="
+              font-size:12px;
+              color:var(--text2);
+              margin-top:2px">
+              ${o.name || "-"}
+            </div>
+          </div>
+
+          <span class="badge ${o.active ? "badge-green" : "badge-red"}">
+            ${o.active ? "active" : "inactive"}
+          </span>
+        </div>
+      `).join("");
+
+      // =====================================================
+      // Two-column layout (50% + 50%)
+      // =====================================================
       document.getElementById("dash-events").innerHTML = `
-        <div class="table-wrap"><div class="table-header"><div class="table-title">Recent Events</div></div>
-        <div style="padding:0 20px">${evHtml || emptyHtml("🎪","No events yet")}</div></div>
-      `;
-    } else {
-      // Organizer dashboard
-      const evHtml = (d.events || []).map(e => `
-        <div class="stat-card ${e.status==='active'?'accent':''}">
-          <div class="stat-icon"></div>
-          <div class="stat-num">${e.registered_count}</div>
-          <div class="stat-label">${e.name}<br><small>${e.status}</small></div>
+        <div style="
+          display:grid;
+          grid-template-columns:1fr 1fr;
+          gap:20px;
+          margin-top:20px">
+
+          <!-- Recent Events -->
+          <div class="table-wrap">
+            <div class="table-header"
+                style="display:flex;justify-content:space-between;align-items:center">
+              <div class="table-title">
+                Recent Events
+              </div>
+
+              <a href="javascript:void(0)"
+                onclick="showPage('events')"
+                style="
+                    color:var(--primary);
+                    font-size:13px;
+                    font-weight:600;
+                    text-decoration:none;">
+                View All →
+              </a>
+            </div>
+
+            <div style="padding:0 20px">
+              ${evHtml || emptyHtml("🎪","No events yet")}
+            </div>
+          </div>
+
+          <!-- Recent Organizers -->
+          <div class="table-wrap">
+            <div class="table-header"
+              style="display:flex;justify-content:space-between;align-items:center">
+            <div class="table-title">
+              Recent Organizers
+            </div>
+
+            <a href="javascript:void(0)"
+              onclick="showPage('organizers')"
+              style="
+                  color:var(--primary);
+                  font-size:13px;
+                  font-weight:600;
+                  text-decoration:none;">
+              View All →
+            </a>
+          </div>
+
+            <div style="padding:0 20px">
+              ${orgHtml || emptyHtml("🏢","No organizers yet")}
+            </div>
+          </div>
+
         </div>
-      `).join("");
-      document.getElementById("dash-stats").innerHTML = `
-        ${statCard("","Total Events",d.events_summary?.total || 0,"")}
-        ${statCard("","Active Events",d.events_summary?.active || 0,"accent")}
       `;
-      document.getElementById("dash-events").innerHTML = `<div class="stats-grid" style="margin-top:20px">${evHtml}</div>`;
     }
-  } catch(e) { console.error(e); }
+
+    // =====================================================
+    // ORGANIZER DASHBOARD
+    // =====================================================
+    else {
+      const evHtml = (d.events || [])
+        .map(
+          e => `
+          <div class="stat-card ${
+            e.status === "active" ? "accent" : ""
+          }">
+            <div class="stat-icon"></div>
+            <div class="stat-num">
+              ${e.registered_count}
+            </div>
+            <div class="stat-label">
+              ${e.name}
+              <br>
+              <small>${e.status}</small>
+            </div>
+          </div>
+        `
+        )
+        .join("");
+
+      document.getElementById("dash-stats").innerHTML = `
+        ${statCard("", "Total Events", d.events_summary?.total || 0, "")}
+        ${statCard("", "Active Events", d.events_summary?.active || 0, "accent")}
+      `;
+
+      document.getElementById("dash-events").innerHTML = `
+        <div class="stats-grid" style="margin-top:20px">
+          ${evHtml}
+        </div>
+      `;
+    }
+  } catch (e) {
+    console.error(e);
+  }
 }
 
 function statCard(icon, label, value, cls) {
