@@ -133,6 +133,23 @@ tr:hover td{background:rgba(255,255,255,0.02)}
   .page{padding:16px}
   .form-grid{grid-template-columns:1fr}
 }
+.sidebar-top{
+    padding:24px 20px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    border-bottom:1px solid rgba(255,255,255,.08);
+}
+
+.sidebar-logo-image{
+    width: 225px;
+    height: auto;
+    display: block;
+    margin-bottom: 18px;
+    object-fit: contain;
+    filter: drop-shadow(0 0 12px rgba(100, 108, 255, 0.25));
+}
+
 </style>
 </head>
 <body>
@@ -168,9 +185,17 @@ tr:hover td{background:rgba(255,255,255,0.02)}
   </div>
 
   <div class="sidebar" id="sidebar">
-    <div class="sidebar-brand">
-      <div class="brand-logo">🏢 Organizer</div>
-      <div class="brand-role">LetsKonnect Portal</div>
+    <div class="sidebar-brand">      
+      <div class="sidebar-top">
+        <img
+            src="/logo_dark.png"
+            alt="LetsKonnect Logo"
+            class="sidebar-logo-image">
+      </div>
+      <!-- <div class="sidebar-role" id="sb-role">
+          Organizer
+      </div> -->
+      <!-- <div class="brand-logo">🏢 Organizer</div> -->
     </div>
     <div class="sidebar-user">
       <div class="user-name" id="sb-name">—</div>

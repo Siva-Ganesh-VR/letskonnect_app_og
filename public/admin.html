@@ -132,6 +132,24 @@ tr:hover td{background:rgba(255,255,255,0.02)}
 @media(max-width:700px){.menu-btn{display:block}}
 .topbar{display:none;align-items:center;padding:12px 16px;background:var(--bg2);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:50}
 @media(max-width:700px){.topbar{display:flex}}
+.sidebar-top{
+    padding:24px 20px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    border-bottom:1px solid rgba(255,255,255,.08);
+}
+
+.sidebar-logo-image{
+    width: 225px;
+    height: auto;
+    display: block;
+    margin-bottom: 18px;
+    object-fit: contain;
+    filter: drop-shadow(0 0 12px rgba(100, 108, 255, 0.25));
+}
+
+
 </style>
 </head>
 <body>
@@ -170,10 +188,16 @@ tr:hover td{background:rgba(255,255,255,0.02)}
   </div>
 
   <div class="sidebar" id="sidebar">
-    <div class="sidebar-top">
-      <div class="sidebar-logo">⚡ LetsKonnect</div>
-      <div class="sidebar-role" id="sb-role">Super Admin</div>
-    </div>
+  <div class="sidebar-top">
+      <img
+          src="/logo_dark.png"
+          alt="LetsKonnect Logo"
+          class="sidebar-logo-image">
+
+      <!-- <div class="sidebar-role" id="sb-role">
+          SUPER ADMIN
+      </div> -->
+  </div>
     <div class="sidebar-user">
       <div class="user-name" id="sb-name">—</div>
       <div class="user-email" id="sb-email">—</div>
