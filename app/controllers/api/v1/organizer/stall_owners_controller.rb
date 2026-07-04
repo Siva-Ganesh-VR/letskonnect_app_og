@@ -178,10 +178,46 @@ module Api
         end
 
         def stall_response(s)
-          { id: s.id, name: s.name, email: s.email, mobile_number: s.mobile_number,
-            company_name: s.company_name, stall_number: s.stall_number,
-            stall_category: s.stall_category, active: s.active,
-            total_leads_count: s.total_leads_count, created_at: s.created_at, website: s.website, pass_code: s.pass_code }
+          {
+            id: s.id,
+
+            # Codes
+            stall_code: s.stall_code,
+            event_code: s.event&.event_code,
+            org_code: s.event_organizer&.org_code,
+
+            # Details
+            name: s.name,
+            email: s.email,
+            mobile_number: s.mobile_number,
+            company_name: s.company_name,
+            stall_number: s.stall_number,
+            stall_category: s.stall_category,
+
+            # Event & Organizer info
+            event: {
+              id: s.event&.id,
+              name: s.event&.name,
+              code: s.event&.event_code
+            },
+
+            organizer: {
+              id: s.event_organizer&.id,
+              name: s.event_organizer&.company_name,
+              code: s.event_organizer&.org_code
+            },
+
+            # Status
+            active: s.active,
+            total_leads_count: s.total_leads_count,
+
+            # Credentials
+            pass_code: s.pass_code,
+
+            # Misc
+            website: s.website,
+            created_at: s.created_at
+          }
         end
       end
     end

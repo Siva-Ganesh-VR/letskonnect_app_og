@@ -83,28 +83,62 @@ module Api
         end
 
         def event_summary(e)
-          { id: e.id, name: e.name, venue: e.venue, city: e.city,
-            start_date: e.start_date, end_date: e.end_date, status: e.status,
-            slug: e.slug, registration_qr_token: e.registration_qr_token,
-            qr_image_url: e.qr_image_url, registered_count: e.registered_count,
-            max_visitors: e.max_visitors, created_at: e.created_at, description: e.description,
-            organizer: { name: e.event_organizer.name } }
+          {
+            id: e.id,
+
+            event_code: e.event_code,      # ADD
+
+            name: e.name,
+            venue: e.venue,
+            city: e.city,
+            start_date: e.start_date,
+            end_date: e.end_date,
+            status: e.status,
+            slug: e.slug,
+            registration_qr_token: e.registration_qr_token,
+            qr_image_url: e.qr_image_url,
+            registered_count: e.registered_count,
+            max_visitors: e.max_visitors,
+            created_at: e.created_at,
+            description: e.description,
+
+            organizer: {
+              id: e.event_organizer.id,
+              org_code: e.event_organizer.org_code,   # ADD
+              name: e.event_organizer.name
+            }
+          }
         end
 
         def event_detail(e)
           event_summary(e).merge(
-            stall_owners: e.stall_owners.active.map { |s|
-              { id: s.id, name: s.name, company_name: s.company_name,
-                stall_number: s.stall_number, category: s.stall_category,
-                total_leads: s.total_leads_count, active: s.active }
-            }
+            stall_owners: e.stall_owners.active.map do |s|
+              {
+                id: s.id,
+                stall_code: s.stall_code,
+                name: s.name,
+                company_name: s.company_name,
+                stall_number: s.stall_number,
+                category: s.stall_category,
+                total_leads: s.total_leads_count,
+                active: s.active
+              }
+            end
           )
         end
 
         def top_stalls
-          @event.stall_owners.order(total_leads_count: :desc).limit(10).map do |s|
-            { id: s.id, company_name: s.company_name, stall_number: s.stall_number,
-              leads: s.total_leads_count }
+          @event.stall_owners
+                .order(total_leads_count: :desc)
+                .limit(10)
+                .map do |s|
+            {
+              id: s.id,
+              stall_code: s.stall_code,   # ADD
+              company_name: s.company_name,
+              stall_number: s.stall_number,
+              leads: s.total_leads_count
+            }
           end
         end
       end
