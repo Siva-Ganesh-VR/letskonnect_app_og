@@ -113,12 +113,17 @@ module Api
             stall.pass_code = rand(100000..999999).to_s
             stall.password = stall.password_confirmation = generated_password
 
-            if stall.save
+            begin
+              stall.save!
               created << stall.id
-            else
+            rescue => e
+              Rails.logger.error "ERROR: #{e.class}"
+              Rails.logger.error e.message
+              Rails.logger.error e.backtrace.first(20)
+
               errors << {
                 row: index + 1,
-                errors: stall.errors.full_messages
+                errors: "#{e.class}: #{e.message}"
               }
             end
           end

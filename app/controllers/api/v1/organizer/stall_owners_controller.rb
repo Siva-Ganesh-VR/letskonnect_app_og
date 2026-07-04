@@ -112,6 +112,7 @@ module Api
 
           params[:stall_owners].each_with_index do |row, index|
             generated_password = SecureRandom.alphanumeric(8)
+
             stall = @event.stall_owners.build(
               row.permit(
                 :name,
@@ -124,13 +125,21 @@ module Api
               )
             )
 
+            # Explicitly set associations
+            stall.event = @event
             stall.event_organizer = @current_organizer
+
             stall.pass_code = rand(100000..999999).to_s
-            stall.password = stall.password_confirmation = generated_password
+            stall.password = generated_password
+            stall.password_confirmation = generated_password
 
             if stall.save
               created << stall.id
             else
+              Rails.logger.error(
+                "STALL CREATE FAILED: #{stall.errors.full_messages.inspect}"
+              )
+
               errors << {
                 row: index + 1,
                 errors: stall.errors.full_messages
