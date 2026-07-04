@@ -689,14 +689,14 @@ async function loadDashboard() {
       // Organizer dashboard
       const evHtml = (d.events || []).map(e => `
         <div class="stat-card ${e.status==='active'?'accent':''}">
-          <div class="stat-icon">🎪</div>
+          <div class="stat-icon"></div>
           <div class="stat-num">${e.registered_count}</div>
           <div class="stat-label">${e.name}<br><small>${e.status}</small></div>
         </div>
       `).join("");
       document.getElementById("dash-stats").innerHTML = `
-        ${statCard("🎪","Total Events",d.events_summary?.total || 0,"")}
-        ${statCard("✅","Active Events",d.events_summary?.active || 0,"accent")}
+        ${statCard("","Total Events",d.events_summary?.total || 0,"")}
+        ${statCard("","Active Events",d.events_summary?.active || 0,"accent")}
       `;
       document.getElementById("dash-events").innerHTML = `<div class="stats-grid" style="margin-top:20px">${evHtml}</div>`;
     }
@@ -704,7 +704,7 @@ async function loadDashboard() {
 }
 
 function statCard(icon, label, value, cls) {
-  return `<div class="stat-card ${cls}"><div class="stat-icon">${icon}</div><div class="stat-num">${value}</div><div class="stat-label">${label}</div></div>`;
+  return `<div class="stat-card ${cls}"><div class="stat-icon"></div><div class="stat-num">${value}</div><div class="stat-label">${label}</div></div>`;
 }
 
 // ── Events ────────────────────────────────────────────────────────────────
