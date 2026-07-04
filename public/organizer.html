@@ -538,7 +538,7 @@ function openPage(page) {
   
   if (page === "stalls") {
     document.getElementById("stall-event-sel").value = "";
-    document.getElementById("stalls-tbl").innerHTML = '<div class="empty"><div class="empty-icon">🏪</div>No stall owners yet. Add your first exhibitor!</div>';
+    document.getElementById("stalls-tbl").innerHTML = '<div class="empty"><div class="empty-icon">🏪</div>Please select an event from the Event filter above to view stall owners.</div>';
   } else if (page === "visitors") {
     document.getElementById("visitor-event-sel").value = "";
     document.getElementById("visitor-search").value = "";
@@ -712,7 +712,7 @@ async function loadStalls() {
   `).join("");
   document.getElementById("stalls-tbl").innerHTML = rows
     ? `<table><thead><tr><th>Company</th><th>Stall</th><th>Category</th><th>Mobile</th><th>Password</th><th>Leads</th><th>Status</th><th></th></tr></thead><tbody>${rows}</tbody></table>`
-    : `<div class="empty"><div class="empty-icon">🏪</div>No stall owners yet. Add your first exhibitor!</div>`;
+    : `<div class="empty"><div class="empty-icon">🏪</div>Please select an event from the Event filter above to view stall owners.</div>`;
 }
 
 async function createStall() {
