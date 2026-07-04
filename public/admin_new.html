@@ -2,131 +2,154 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>Super Admin — LetsKonnect</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LetsKonnect Admin</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-:root{--accent:#14b8a6;--accent2:#0d9488;--accent3:#0f766e;--bg:#f8fafc;--bg2:#ffffff;--text:#0f172a;--text2:#64748b;--text3:#94a3b8;--text4:#cbd5e1;--border:#e2e8f0;--border2:#f1f5f9;--green:#22c55e;--green2:#16a34a;--amber:#f59e0b;--amber2:#d97706;--red:#ef4444;--red2:#dc2626;--purple:#6c63ff;--shadow:0 1px 3px rgba(0,0,0,.08),0 1px 2px rgba(0,0,0,.05);--shadow-md:0 4px 16px rgba(0,0,0,.1);--shadow-lg:0 8px 32px rgba(0,0,0,.12)}
-body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;-webkit-font-smoothing:antialiased}
-/* Login */
-.login-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#f0fdfa 0%,#f8fafc 60%,#fffbeb 100%);padding:24px}
-.login-card{background:var(--bg2);border-radius:24px;padding:40px 36px;width:100%;max-width:420px;box-shadow:var(--shadow-lg);border:1px solid var(--border)}
-.login-logo{text-align:center;margin-bottom:28px}
-.login-logo h1{font-size:28px;font-weight:800;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-.login-logo p{font-size:14px;color:var(--text2);margin-top:5px}
-/* Sidebar layout */
+:root{--bg:#0f0f1a;--bg2:#1a1a2e;--bg3:#16213e;--accent:#6c63ff;--accent2:#4a43d4;--green:#22c55e;--amber:#f59e0b;--red:#ef4444;--text:#fff;--text2:rgba(255,255,255,0.6);--text3:rgba(255,255,255,0.35);--border:rgba(255,255,255,0.08)}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+/* Layout */
 .app{display:flex;height:100vh;overflow:hidden}
-.sidebar{width:248px;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;box-shadow:1px 0 0 var(--border)}
+.sidebar{width:240px;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0}
 .main{flex:1;overflow-y:auto;background:var(--bg)}
-/* Topbar (mobile) */
-.topbar{display:none;align-items:center;padding:12px 16px;background:var(--bg2);border-bottom:1px solid var(--border);gap:12px;position:sticky;top:0;z-index:50;box-shadow:var(--shadow)}
-.menu-btn{background:none;border:none;color:var(--text);font-size:22px;cursor:pointer;padding:4px}
-/* Sidebar internals */
-.sidebar-top{padding:20px 18px 14px;border-bottom:1px solid var(--border)}
-.sidebar-logo{font-size:17px;font-weight:800;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;display:flex;align-items:center;gap:8px}
-.sidebar-role{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.1em;margin-top:3px;font-weight:600}
-.sidebar-user{padding:12px 18px;border-bottom:1px solid var(--border)}
-.user-name{font-size:14px;font-weight:600;color:var(--text)}
+/* Login */
+.login-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;background:var(--bg);padding:20px}
+.login-card{background:var(--bg2);border:1px solid var(--border);border-radius:20px;padding:40px 36px;width:100%;max-width:400px}
+.login-logo{text-align:center;margin-bottom:32px}
+.login-logo h1{font-size:28px;font-weight:800;color:var(--accent)}
+.login-logo p{font-size:14px;color:var(--text2);margin-top:4px}
+/* Sidebar */
+.sidebar-top{padding:20px 16px 16px;border-bottom:1px solid var(--border)}
+.sidebar-logo{font-size:18px;font-weight:700;color:var(--accent);display:flex;align-items:center;gap:8px}
+.sidebar-role{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;margin-top:2px}
+.sidebar-user{padding:12px 16px;border-bottom:1px solid var(--border)}
+.user-name{font-size:14px;font-weight:600}
 .user-email{font-size:12px;color:var(--text2);margin-top:2px}
 .nav{padding:8px;flex:1;overflow-y:auto}
-.nav-section{font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);padding:12px 10px 4px;font-weight:600}
-.nav-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;font-size:14px;cursor:pointer;color:var(--text2);transition:all .15s;user-select:none;font-weight:500}
-.nav-item:hover{background:var(--border2);color:var(--text)}
-.nav-item.active{background:rgba(20,184,166,.1);color:var(--accent);font-weight:600}
-.nav-icon{font-size:17px;width:22px;text-align:center;flex-shrink:0}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;font-size:14px;cursor:pointer;color:var(--text2);transition:all 0.15s;user-select:none}
+.nav-item:hover{background:rgba(255,255,255,0.05);color:var(--text)}
+.nav-item.active{background:rgba(108,99,255,0.15);color:var(--accent)}
+.nav-icon{font-size:18px;width:22px;text-align:center}
+.nav-section{font-size:10px;text-transform:uppercase;letter-spacing:0.1em;color:var(--text3);padding:12px 12px 4px}
 .sidebar-footer{padding:12px 16px;border-top:1px solid var(--border)}
-.logout-btn{width:100%;background:none;border:1.5px solid var(--border);color:var(--text2);border-radius:10px;padding:9px;font-size:13px;cursor:pointer;font-family:'Inter',sans-serif;font-weight:500;transition:all .15s}
+.logout-btn{width:100%;background:none;border:1px solid var(--border);color:var(--text2);border-radius:8px;padding:8px;font-size:13px;cursor:pointer;transition:all 0.15s}
 .logout-btn:hover{border-color:var(--red);color:var(--red)}
-/* Pages */
+/* Content */
 .page{padding:28px 32px;display:none}
 .page.active{display:block}
-.page-title{font-size:22px;font-weight:800;color:var(--text);margin-bottom:4px}
+.page-title{font-size:22px;font-weight:700;margin-bottom:4px}
 .page-sub{font-size:14px;color:var(--text2);margin-bottom:24px}
-/* Stat cards */
-.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px;margin-bottom:24px}
-.stat-card{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:20px;cursor:default;transition:all .2s;box-shadow:var(--shadow)}
-.stat-card:hover{transform:translateY(-2px);box-shadow:var(--shadow-md);border-color:rgba(20,184,166,.3)}
-.stat-card.highlight{border-color:rgba(20,184,166,.3);background:linear-gradient(135deg,rgba(20,184,166,.06),rgba(13,148,136,.02))}
+/* Stats cards */
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;margin-bottom:28px}
+.stat-card{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:20px 20px 16px;cursor:pointer;transition:all 0.15s}
+.stat-card:hover{border-color:rgba(108,99,255,0.4);transform:translateY(-2px)}
 .stat-icon{font-size:22px;margin-bottom:10px}
-.stat-num{font-size:28px;font-weight:800;line-height:1;color:var(--text)}
-.stat-label{font-size:12px;color:var(--text2);margin-top:6px;font-weight:500}
+.stat-num{font-size:28px;font-weight:700;line-height:1}
+.stat-label{font-size:12px;color:var(--text2);margin-top:6px}
+.stat-card.accent{border-color:rgba(108,99,255,0.3);background:rgba(108,99,255,0.07)}
 /* Table */
-.table-wrap{background:var(--bg2);border:1px solid var(--border);border-radius:14px;overflow:hidden;margin-bottom:20px;box-shadow:var(--shadow)}
-.table-header{padding:14px 20px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:10px}
-.table-title{font-size:15px;font-weight:700;color:var(--text)}
-.table-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.table-wrap{background:var(--bg2);border:1px solid var(--border);border-radius:14px;overflow:hidden}
+.table-header{padding:16px 20px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border)}
+.table-title{font-size:15px;font-weight:600}
+.table-actions{display:flex;gap:10px;align-items:center}
 table{width:100%;border-collapse:collapse}
-th{text-align:left;padding:10px 16px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text3);border-bottom:1px solid var(--border);white-space:nowrap}
-td{padding:12px 16px;font-size:14px;border-bottom:1px solid var(--border2);color:var(--text)}
+th{text-align:left;padding:11px 16px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;color:var(--text3);border-bottom:1px solid var(--border)}
+td{padding:12px 16px;font-size:14px;border-bottom:1px solid rgba(255,255,255,0.04)}
 tr:last-child td{border-bottom:none}
-tr:hover td{background:var(--border2)}
-.td-main{font-weight:600;color:var(--text)}
-.td-sub{font-size:12px;color:var(--text2);margin-top:2px}
+tr:hover td{background:rgba(255,255,255,0.02)}
 /* Badges */
-.badge{display:inline-flex;align-items:center;gap:3px;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;white-space:nowrap}
-.badge-green{background:#f0fdf4;color:var(--green2)}
-.badge-amber{background:#fffbeb;color:var(--amber2)}
-.badge-red{background:#fef2f2;color:var(--red2)}
-.badge-blue{background:#eff6ff;color:#2563eb}
-.badge-purple{background:rgba(108,99,255,.1);color:var(--purple)}
-.badge-gray{background:var(--border2);color:var(--text2)}
-/* Buttons */
-.btn{padding:9px 16px;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;border:none;transition:all .15s;display:inline-flex;align-items:center;gap:6px;font-family:'Inter',sans-serif;white-space:nowrap}
-.btn:disabled{opacity:.5;cursor:not-allowed}
-.btn-primary{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;box-shadow:0 2px 8px rgba(20,184,166,.25)}
-.btn-primary:hover:not(:disabled){transform:translateY(-1px);box-shadow:0 4px 12px rgba(20,184,166,.35)}
-.btn-outline{background:none;border:1.5px solid var(--border);color:var(--text2)}
-.btn-outline:hover:not(:disabled){border-color:var(--accent);color:var(--accent)}
-.btn-danger{background:#fef2f2;border:1.5px solid rgba(239,68,68,.3);color:var(--red2)}
-.btn-danger:hover:not(:disabled){background:var(--red);color:#fff}
-.btn-sm{padding:6px 12px;font-size:12px}
-/* Search */
-.search-bar{background:var(--bg);border:1.5px solid var(--border);border-radius:10px;padding:9px 14px;color:var(--text);font-size:14px;font-family:'Inter',sans-serif;outline:none;width:220px;transition:all .2s}
-.search-bar:focus{border-color:var(--accent);width:260px}
-.search-bar::placeholder{color:var(--text3)}
-.filter-select{background:var(--bg);border:1.5px solid var(--border);border-radius:10px;padding:8px 12px;color:var(--text2);font-size:13px;font-family:'Inter',sans-serif;cursor:pointer;outline:none}
-.filter-select:focus{border-color:var(--accent)}
-.filter-select option{background:var(--bg2);color:var(--text)}
-/* Modal */
-.modal-overlay{position:fixed;inset:0;background:rgba(15,23,42,.5);backdrop-filter:blur(6px);z-index:1000;display:none;align-items:center;justify-content:center;padding:20px}
-.modal-overlay.open{display:flex}
-.modal{background:var(--bg2);border:1px solid var(--border);border-radius:20px;padding:28px;width:100%;max-width:520px;max-height:88vh;overflow-y:auto;box-shadow:var(--shadow-lg)}
-.modal-title{font-size:18px;font-weight:700;margin-bottom:20px;display:flex;justify-content:space-between;align-items:center;color:var(--text)}
-.modal-close{background:none;border:none;color:var(--text2);font-size:20px;cursor:pointer;line-height:1;transition:color .15s;font-family:'Inter',sans-serif}
-.modal-close:hover{color:var(--red)}
-.modal-grid{display:grid;grid-template-columns:1fr 1fr;gap:13px}
-.modal-footer{display:flex;gap:10px;justify-content:flex-end;margin-top:16px;padding-top:16px;border-top:1px solid var(--border)}
-/* Fields */
-.field{margin-bottom:14px}
-.field label{display:block;font-size:12px;font-weight:600;color:var(--text2);margin-bottom:5px}
-.field input,.field select,.field textarea{width:100%;background:var(--bg);border:1.5px solid var(--border);border-radius:10px;padding:10px 13px;color:var(--text);font-size:14px;font-family:'Inter',sans-serif;outline:none;transition:all .2s}
-.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--accent);background:var(--bg2);box-shadow:0 0 0 3px rgba(20,184,166,.1)}
+.badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600}
+.badge-green{background:rgba(34,197,94,0.15);color:#86efac}
+.badge-amber{background:rgba(245,158,11,0.15);color:#fcd34d}
+.badge-red{background:rgba(239,68,68,0.15);color:#fca5a5}
+.badge-blue{background:rgba(59,130,246,0.15);color:#93c5fd}
+.badge-purple{background:rgba(108,99,255,0.15);color:#a5b4fc}
+.badge-gray{background:rgba(255,255,255,0.08);color:var(--text2)}
+/* Forms */
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.field{margin-bottom:16px}
+.field label{display:block;font-size:13px;font-weight:500;color:var(--text2);margin-bottom:6px}
+.field input,.field select,.field textarea{width:100%;background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:10px;padding:11px 14px;color:var(--text);font-size:14px;outline:none;transition:all 0.2s;font-family:inherit}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--accent);background:rgba(108,99,255,0.06)}
 .field input::placeholder{color:var(--text3)}
-.field select option{background:var(--bg2);color:var(--text)}
-/* API error */
-.api-err{background:#fef2f2;border:1.5px solid rgba(239,68,68,.25);border-radius:10px;padding:10px 14px;font-size:13px;color:var(--red2);margin-bottom:12px;display:none;font-weight:500}
-.api-err.show{display:block}
-/* Charts */
-.chart-bar-wrap{display:flex;align-items:center;gap:10px;margin-bottom:10px}
-.chart-bar-label{width:130px;font-size:13px;color:var(--text2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex-shrink:0;font-weight:500}
-.chart-bar-bg{flex:1;height:10px;background:var(--border2);border-radius:20px;overflow:hidden}
-.chart-bar-fill{height:100%;border-radius:20px;background:linear-gradient(90deg,var(--accent),var(--accent2));transition:width .6s ease}
-.chart-bar-val{width:36px;text-align:right;font-size:12px;font-weight:600;flex-shrink:0;color:var(--text2)}
-/* Empty */
-.empty-state{text-align:center;padding:52px 20px;color:var(--text2)}
-.empty-icon{font-size:44px;opacity:.2;margin-bottom:12px;display:block}
-.empty-title{font-size:16px;font-weight:600;margin-bottom:4px;color:var(--text2)}
+.field select option{background:#1a1a2e}
+/* Buttons */
+.btn{padding:10px 18px;border-radius:9px;font-size:14px;font-weight:500;cursor:pointer;border:none;transition:all 0.15s}
+.btn-primary{background:var(--accent);color:#fff}
+.btn-primary:hover{background:var(--accent2)}
+.btn-sm{padding:6px 14px;font-size:13px}
+.btn-outline{background:none;border:1px solid var(--border);color:var(--text2)}
+.btn-outline:hover{border-color:var(--accent);color:var(--accent)}
+.btn-danger{background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);color:#fca5a5}
+/* Modal */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.7);backdrop-filter:blur(4px);z-index:1000;display:flex;align-items:center;justify-content:center;padding:20px;display:none}
+.modal{background:var(--bg2);border:1px solid var(--border);border-radius:20px;padding:28px;width:100%;max-width:520px;max-height:85vh;overflow-y:auto}
+.modal-title{font-size:18px;font-weight:700;margin-bottom:20px;display:flex;justify-content:space-between;align-items:center}
+.modal-close{background:none;border:none;color:var(--text2);font-size:20px;cursor:pointer;padding:0;line-height:1}
+.modal-foot{display:flex;gap:10px;justify-content:flex-end;margin-top:8px}
+/* Search & filter */
+.search-bar{background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:9px;padding:9px 14px;color:var(--text);font-size:14px;outline:none;width:220px}
+.search-bar:focus{border-color:var(--accent)}
+.filter-select{background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:9px;padding:9px 12px;color:var(--text2);font-size:13px;cursor:pointer;outline:none}
+.filter-select option{background:#1a1a2e}
 /* Toast */
-.toast{position:fixed;bottom:24px;right:24px;background:var(--text);color:#fff;border-radius:14px;padding:13px 20px;font-size:14px;font-weight:600;z-index:2000;transform:translateY(80px);opacity:0;transition:all .3s;max-width:340px;box-shadow:var(--shadow-lg);display:flex;align-items:center;gap:10px}
+.toast{position:fixed;bottom:24px;right:24px;background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:14px 18px;font-size:14px;z-index:2000;transform:translateY(100px);opacity:0;transition:all 0.3s;max-width:320px}
 .toast.show{transform:translateY(0);opacity:1}
-.toast.err{background:var(--red)}
-/* QR box */
-.qr-box{background:#fff;border-radius:14px;padding:14px;display:inline-block;box-shadow:var(--shadow-md)}
-.qr-box img{width:160px;height:160px;display:block}
-/* Responsive */
-@media(max-width:768px){.sidebar{position:fixed;top:0;bottom:0;left:-248px;z-index:200;transition:left .25s;height:100vh}.sidebar.open{left:0}.topbar{display:flex}.page{padding:16px}.modal-grid{grid-template-columns:1fr}}
+.toast.success{border-color:rgba(34,197,94,0.4);color:#86efac}
+.toast.error{border-color:rgba(239,68,68,0.4);color:#fca5a5}
+/* QR display */
+.qr-display{background:#fff;border-radius:12px;padding:16px;display:inline-block;margin:8px 0}
+.qr-display img{width:160px;height:160px;display:block}
+/* Charts */
+.chart-bar-wrap{display:flex;flex-direction:column;gap:8px;margin-top:12px}
+.chart-row{display:flex;align-items:center;gap:10px;font-size:13px}
+.chart-label{width:120px;color:var(--text2);text-overflow:ellipsis;overflow:hidden;white-space:nowrap;flex-shrink:0}
+.chart-bar-bg{flex:1;height:10px;background:rgba(255,255,255,0.06);border-radius:20px;overflow:hidden}
+.chart-bar-fill{height:100%;border-radius:20px;background:var(--accent);transition:width 0.5s ease}
+.chart-val{width:40px;text-align:right;font-weight:600;flex-shrink:0}
+/* Empty state */
+.empty{text-align:center;padding:60px 20px;color:var(--text2)}
+.empty-icon{font-size:48px;margin-bottom:12px;opacity:0.4}
+/* Error */
+.api-err{background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);border-radius:8px;padding:10px 14px;font-size:13px;color:#fca5a5;margin-bottom:12px;display:none}
+.mf{margin-bottom:14px}
+.mf label{display:block;font-size:12px;font-weight:500;color:var(--text2);margin-bottom:5px}
+.mf input,.mf select,.mf textarea{width:100%;background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:9px;padding:10px 13px;color:var(--text);font-size:14px;outline:none;font-family:inherit;transition:all 0.2s}
+.mf input:focus,.mf select:focus,.mf textarea:focus{border-color:var(--accent)}
+.mf input::placeholder{color:var(--text3)}
+.mf select option{background:#1a1a2e}
+.mc{background:none;border:none;color:var(--text2);font-size:20px;cursor:pointer}
+/* Responsive mobile */
+@media(max-width:700px){
+  .sidebar{position:fixed;left:-240px;top:0;bottom:0;z-index:100;transition:left 0.25s}
+  .sidebar.open{left:0}
+  .page{padding:20px 16px}
+  .stats-grid{grid-template-columns:1fr 1fr}
+  .form-grid{grid-template-columns:1fr}
+}
+.menu-btn{display:none;background:none;border:none;color:var(--text);font-size:22px;padding:0 16px;cursor:pointer}
+.err{background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);border-radius:8px;padding:10px 14px;font-size:13px;color:#fca5a5;margin-top:10px;display:none}
+@media(max-width:700px){.menu-btn{display:block}}
+.topbar{display:none;align-items:center;padding:12px 16px;background:var(--bg2);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:50}
+@media(max-width:700px){.topbar{display:flex}}
+.sidebar-top{
+    padding:24px 20px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    border-bottom:1px solid rgba(255,255,255,.08);
+}
+
+.sidebar-logo-image{
+    width: 225px;
+    height: auto;
+    display: block;
+    margin-bottom: -20px;
+    object-fit: contain;
+    /* filter: drop-shadow(0 0 12px rgba(100, 108, 255, 0.25)); */
+}
+
+
 </style>
 </head>
 <body>
@@ -165,10 +188,16 @@ tr:hover td{background:var(--border2)}
   </div>
 
   <div class="sidebar" id="sidebar">
-    <div class="sidebar-top">
-      <div class="sidebar-logo">⚡ LetsKonnect</div>
-      <div class="sidebar-role" id="sb-role">Super Admin</div>
-    </div>
+  <div class="sidebar-top">
+      <img
+          src="/logo_dark.png"
+          alt="LetsKonnect Logo"
+          class="sidebar-logo-image">
+
+      <div class="sidebar-role" id="sb-role" style="display:none;">
+          SUPER ADMIN
+      </div>
+  </div>
     <div class="sidebar-user">
       <div class="user-name" id="sb-name">—</div>
       <div class="user-email" id="sb-email">—</div>
@@ -564,7 +593,6 @@ async function doLogin() {
       currentUser = { ...res.data.admin, role: "super_admin" };
     } else {
       // try organizer
-      console.log("Super admin login failed, trying organizer login...");
       res  = await apiLoginPost("/organizer/sign_in", { email, password: pass });
       if (res.success) {
         token       = res.data.token;
@@ -621,8 +649,6 @@ function toggleSidebar() { document.getElementById("sidebar").classList.toggle("
 
 // ── API helpers ───────────────────────────────────────────────────────────
 async function apiFetch(path, options={}) {
-  console.log("TOKEN AFTER LOGIN:", token);
-  console.log("LOCALSTORAGE TOKEN:", localStorage.getItem("lk_admin_token"));
   const headers = { "Content-Type": "application/json", ...(token ? { Authorization: "Bearer " + token } : {}) };
   const res     = await fetch(API + path, { ...options, headers });
   const data    = await res.json();
@@ -675,7 +701,13 @@ async function loadDashboard() {
       const evHtml = d.recent_events.map(e => `
         <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--border)">
           <div>
-            <div style="font-weight:600;font-size:14px">${e.name}</div>
+            <div style="font-weight:600;font-size:14px">
+              <a href="javascript:void(0)"
+                onclick="showEventDetails('${e.id}', 'dashboard')"
+                style="color:inherit;font-weight:600;text-decoration:none">
+                ${e.name}
+              </a>
+            </div>
             <div style="font-size:12px;color:var(--text2);margin-top:2px">${fmtDate(e.start_date)} · ${e.registered_count} visitors</div>
           </div>
           <span class="badge ${statusBadge(e.status)}">${e.status}</span>
@@ -800,7 +832,6 @@ async function activateEvent(id) {
 }
 
 function showEventQr(id, name, qrUrl, token) {
-  console.log("Showing QR for event:", id, name, qrUrl, token);
   document.getElementById("qr-modal-event-name").textContent = name;
   const regUrl = `${location.origin}/register/${token}`;
   document.getElementById("qr-modal-content").innerHTML = qrUrl
@@ -1042,7 +1073,7 @@ async function showEventAnalyticsInline(id, name) {
 }
 
 // ── Modals ────────────────────────────────────────────────────────────────
-function openModal(id)  { 
+function openModal(id, eid = null)  { 
   document.getElementById(id).style.display = "flex"; 
   if (id === "modal-create-event"){
     const modal = document.getElementById("modal-create-event");
@@ -1057,7 +1088,14 @@ function openModal(id)  {
     }
   } else if (id ==="m-import-stalls") {
     document.getElementById("stall-import-file").value = "";
-    document.getElementById("stall-import-event-sel").value = "";
+    const eventSel = document.getElementById("stall-import-event-sel");
+    if (eid) {
+      eventSel.value = eid;
+      eventSel.disabled = true;
+    } else {
+      eventSel.value = "";
+      eventSel.disabled = false;
+    }
     document.getElementById("import-err").style.display = "none";
   }
 }
@@ -1186,35 +1224,14 @@ async function importStallOwners() {
       throw new Error(result.error || "Import failed");
     }
 
-    // closeModal("m-import-stalls");
+    closeModal("m-import-stalls");
 
-    // alert(
-    //   `${result.data.created_count} stall owners imported successfully`
-    // );
+    toast(
+      `${result.data.message}`,
+      "success"
+    );
 
-    const {
-      created_count,
-      failed_count,
-      errors
-    } = result.data;
-
-    err.style.display = "block";
-
-    err.innerHTML = `
-      <strong>Import Completed</strong><br>
-      Created: ${created_count}<br>
-      Failed: ${failed_count}
-      ${
-        errors.length
-          ? `<hr>
-            ${errors.map(e =>
-              `Line ${e.line}: ${e.errors.join(", ")}`
-            ).join("<br>")}`
-          : ""
-      }
-    `;
-
-    // loadStallOwners();
+    loadStalls();
 
   } catch (error) {
     err.style.display = "block";
@@ -1348,10 +1365,17 @@ function addStallRow() {
 
   tbody.appendChild(row);
 }
-function openBulkStallModal() {
+function openBulkStallModal(eventId = null) {
   document.getElementById("stall-table-body").innerHTML = "";
   document.getElementById("st-bulk-err").style.display = "none";
-  document.getElementById("admin-stall-event-sel").value = "";
+  const select = document.getElementById("admin-stall-event-sel");
+  if (eventId) {
+    select.value = eventId;
+    select.disabled = true;
+  } else {
+    select.value = "";
+    select.disabled = false;
+  }
 
   for (let i = 0; i < 2; i++) {
     addStallRow();
@@ -1411,7 +1435,7 @@ async function createMultipleStalls() {
       "success"
     );
 
-    loadStallOwners();
+    loadStalls();
 
   } catch (error) {
     err.style.display = "block";
@@ -1459,27 +1483,354 @@ function showDetails(title, fields) {
   document.getElementById("page-details")
     .classList.add("active");
 }
+
+// ─────────────────────────────────────────────────────────────────
+//  EVENT DETAILS PAGE — replace showEventDetails() and add helpers
+//  Drop this entire block in place of the existing showEventDetails
+//  function in admin.html
+// ─────────────────────────────────────────────────────────────────
+
+// State for the details page
+const detailsState = {
+  eventId: null,
+  stallPage: 1,
+  stallTotal: 0,
+  stallPerPage: 10,
+  stallSearch: "",
+  visitorPage: 1,
+  visitorTotal: 0,
+  visitorPerPage: 10,
+  visitorSearch: "",
+};
+
 async function showEventDetails(eventId, pageName = "events") {
   previousPage = pageName;
+  detailsState.eventId   = eventId;
+  detailsState.stallPage    = 1;
+  detailsState.visitorPage  = 1;
+  detailsState.stallSearch  = "";
+  detailsState.visitorSearch = "";
 
-  const result = await apiGet(
-    `/super_admin/events/${eventId}`
-  );
+  // Switch to details page first
+  document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
+  document.getElementById("page-details").classList.add("active");
 
-  const e = result.data;
+  // Show skeleton while loading
+  document.getElementById("details-title").textContent = "Event Details";
+  document.getElementById("details-content").innerHTML = `
+    <div style="color:var(--text2);padding:20px;text-align:center">⏳ Loading event details…</div>`;
 
-  showDetails("Event Details", [
-    { label: "Event ID", value: e.id },
-    { label: "Event Name", value: e.name },
-    { label: "Venue", value: e.venue },
-    { label: "City", value: e.city },
-    { label: "Start Date", value: fmtDate(e.start_date) },
-    { label: "End Date", value: fmtDate(e.end_date) },
-    { label: "Organizer", value: e.organizer?.name },
-    { label: "Max Visitors", value: e.visitors_count },
-    { label: "Status", value: e.status },
-    { label: "Description", value: e.description }
-  ]);
+  try {
+    const result = await apiGet(`/super_admin/events/${eventId}`);
+    const e = result.data;
+    document.getElementById("details-title").textContent = e.name;
+    document.getElementById("details-content").innerHTML = buildEventDetailsHTML(e);
+
+    // Load both tables
+    await Promise.all([
+      loadEventStalls(),
+      loadEventVisitors(),
+    ]);
+  } catch(err) {
+    document.getElementById("details-content").innerHTML =
+      `<div style="color:var(--red2);padding:20px">Failed to load event details. Please try again.</div>`;
+  }
+}
+
+// ── Build the static info section ──────────────────────────────────
+function buildEventDetailsHTML(e) {
+  const statusColor = {active:"var(--green2)",draft:"var(--amber2)",completed:"#2563eb",archived:"var(--text3)"}[e.status] || "var(--text2)";
+  return `
+    <!-- Event info card -->
+    <div style="background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:20px;margin-bottom:20px;box-shadow:var(--shadow)">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:16px">
+        <div>
+          <div style="font-size:18px;font-weight:800;color:var(--text)">${e.name}</div>
+          <div style="font-size:13px;color:var(--text2);margin-top:4px">📍 ${e.venue}${e.city ? ", " + e.city : ""}</div>
+        </div>
+        <span style="background:${statusColor}1a;color:${statusColor};border:1.5px solid ${statusColor}40;border-radius:20px;padding:4px 14px;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.04em">${e.status}</span>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px">
+        ${detailChip("📅 Start Date",   fmtDate(e.start_date))}
+        ${detailChip("📅 End Date",     fmtDate(e.end_date))}
+        ${detailChip("👥 Visitors",     (e.registered_count||0).toLocaleString())}
+        ${detailChip("🏪 Max Capacity", e.max_visitors ? e.max_visitors.toLocaleString() : "Unlimited")}
+        ${detailChip("🏢 Organizer",    e.organizer?.name || "—")}
+        ${detailChip("🆔 Event Code",     `<span style="font-family:monospace;font-size:11px">${e.event_code}</span>`)}
+      </div>
+      ${e.description ? `<div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border);font-size:14px;color:var(--text2);line-height:1.6">${e.description}</div>` : ""}
+      <div style="display:flex;gap:8px;margin-top:16px;padding-top:14px;border-top:1px solid var(--border);flex-wrap:wrap">
+        <button class="btn btn-primary btn-sm" onclick='showEventQr("${e.id}","${e.name}","${e.qr_image_url||""}","${e.registration_qr_token||""}")'>📱 QR Code</button>
+        <button class="btn btn-outline btn-sm" onclick='showEventAnalytics("${e.id}","${e.name}")'>📊 Analytics</button>
+        <button class="btn btn-outline btn-sm" onclick='openEditEventModalById("${e.id}")'>✏️ Edit Event</button>
+        ${e.status === "draft" ? `<button class="btn btn-outline btn-sm" onclick='activateEvent("${e.id}")'>🚀 Activate</button>` : ""}
+      </div>
+    </div>
+
+    <!-- Stall Owners table -->
+    <div style="background:var(--bg2);border:1px solid var(--border);border-radius:14px;overflow:hidden;margin-bottom:20px;box-shadow:var(--shadow)">
+      <div style="padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">
+        <div style="font-size:15px;font-weight:700;color:var(--text)">🏪 Stall Owners</div>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+          <input
+            id="stall-search-inp"
+            style="background:var(--bg);border:1.5px solid var(--border);border-radius:10px;padding:7px 12px;color:var(--text);font-size:13px;font-family:'Inter',sans-serif;outline:none;width:180px;transition:all .2s"
+            placeholder="Search stalls…"
+            oninput="detailsState.stallSearch=this.value;detailsState.stallPage=1;loadEventStalls()"
+            onfocus="this.style.borderColor='var(--accent)'"
+            onblur="this.style.borderColor='var(--border)'"
+          >
+          <button class="btn btn-primary btn-sm" onclick="refreshEventStalls()">↻ Refresh</button>
+          <button class="btn btn-primary btn-sm" onclick="openBulkStallModal('${e.id}')">+ Add Stalls</button>
+          <button class="btn btn-primary btn-sm" onclick="openModal('m-import-stalls', '${e.id}')">+ Bulk Upload</button>
+        </div>
+      </div>
+      <div id="event-stalls-table">
+        <div style="padding:40px;text-align:center;color:var(--text2)">⏳ Loading stalls…</div>
+      </div>
+      <div id="event-stalls-pagination" style="padding:10px 18px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;display:none">
+      </div>
+    </div>
+
+    <!-- Visitors table -->
+    <div style="background:var(--bg2);border:1px solid var(--border);border-radius:14px;overflow:hidden;margin-bottom:20px;box-shadow:var(--shadow)">
+      <div style="padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">
+        <div style="font-size:15px;font-weight:700;color:var(--text)">👥 Registered Visitors</div>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+          <input
+            id="visitor-search-inp"
+            style="background:var(--bg);border:1.5px solid var(--border);border-radius:10px;padding:7px 12px;color:var(--text);font-size:13px;font-family:'Inter',sans-serif;outline:none;width:180px;transition:all .2s"
+            placeholder="Search visitors…"
+            oninput="detailsState.visitorSearch=this.value;detailsState.visitorPage=1;loadEventVisitors()"
+            onfocus="this.style.borderColor='var(--accent)'"
+            onblur="this.style.borderColor='var(--border)'"
+          >
+          <button class="btn btn-primary btn-sm" onclick="refreshEventVisitors()">↻ Refresh</button>
+        </div>
+      </div>
+      <div id="event-visitors-table">
+        <div style="padding:40px;text-align:center;color:var(--text2)">⏳ Loading visitors…</div>
+      </div>
+      <div id="event-visitors-pagination" style="padding:10px 18px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;display:none">
+      </div>
+    </div>
+  `;
+}
+
+function detailChip(label, value) {
+  return `
+    <div style="background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:10px 14px">
+      <div style="font-size:11px;color:var(--text3);font-weight:600;text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px">${label}</div>
+      <div style="font-size:14px;font-weight:600;color:var(--text)">${value}</div>
+    </div>`;
+}
+
+// ── Stall Owners Table ──────────────────────────────────────────────
+async function loadEventStalls() {
+  const { eventId, stallPage, stallPerPage, stallSearch } = detailsState;
+  document.getElementById("admin-stall-event-sel").value = eventId;
+  document.getElementById("stall-import-event-sel").value = eventId;
+  const el = document.getElementById("event-stalls-table");
+  if (!el) return;
+  el.innerHTML = `<div style="padding:30px;text-align:center;color:var(--text2)">⏳ Loading…</div>`;
+
+  try {
+    const params = new URLSearchParams({
+      event_id: eventId,
+      page: stallPage,
+      per_page: stallPerPage,
+      ...(stallSearch ? { search: stallSearch } : {}),
+    });
+    const res = await apiGet(`/super_admin/stall_owners?${params}`);
+    const data  = res.data || [];
+    const meta  = res.meta || {};
+    detailsState.stallTotal = meta.total || data.length;
+
+    if (!data.length) {
+      el.innerHTML = `<div style="padding:40px;text-align:center;color:var(--text2)"><div style="font-size:36px;opacity:.2;margin-bottom:10px">🏪</div>No stall owners found</div>`;
+      document.getElementById("event-stalls-pagination").style.display = "none";
+      return;
+    }
+
+    const rows = data.map(s => `
+      <tr style="cursor:pointer" onclick="showStallOwnerDetails('${s.id}','events')">
+        <td>
+          <div style="font-weight:600;color:var(--text)">${s.company_name}</div>
+          <div style="font-size:12px;color:var(--text2);margin-top:1px">${s.name}</div>
+        </td>
+        <td>${s.stall_number || "—"}</td>
+        <td>${s.stall_category || "—"}</td>
+        <td style="font-family:monospace;font-size:13px">${s.mobile_number}</td>
+        <td>
+          <span style="background:rgba(20,184,166,.1);color:var(--accent);border:1.5px solid rgba(20,184,166,.2);border-radius:8px;padding:3px 10px;font-size:13px;font-weight:700;letter-spacing:.08em">${s.pass_code || "—"}</span>
+        </td>
+        <td style="font-weight:700;color:var(--accent)">${s.total_leads_count || 0}</td>
+        <td>
+          <span class="badge ${s.active ? "badge-green" : "badge-gray"}">${s.active ? "Active" : "Inactive"}</span>
+        </td>
+        <td>
+          <div style="display:flex;gap:5px">
+            <button class="btn btn-sm btn-outline" onclick="event.stopPropagation();editStall(${JSON.stringify(s).replace(/"/g,'&quot;')})">✏️</button>
+            <button class="btn btn-sm btn-outline" onclick="event.stopPropagation();toggleStallOwner('${s.id}',${s.active})">${s.active ? "Deactivate" : "Activate"}</button>
+          </div>
+        </td>
+      </tr>`).join("");
+
+    el.innerHTML = `
+      <div style="overflow-x:auto">
+        <table style="width:100%;border-collapse:collapse">
+          <thead>
+            <tr>
+              <th style="text-align:left;padding:10px 16px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text3);border-bottom:1px solid var(--border);white-space:nowrap">Company</th>
+              <th style="text-align:left;padding:10px 16px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text3);border-bottom:1px solid var(--border)">Stall #</th>
+              <th style="text-align:left;padding:10px 16px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text3);border-bottom:1px solid var(--border)">Category</th>
+              <th style="text-align:left;padding:10px 16px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text3);border-bottom:1px solid var(--border)">Mobile</th>
+              <th style="text-align:left;padding:10px 16px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text3);border-bottom:1px solid var(--border)">Pass Code 🔑</th>
+              <th style="text-align:left;padding:10px 16px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text3);border-bottom:1px solid var(--border)">Leads</th>
+              <th style="text-align:left;padding:10px 16px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text3);border-bottom:1px solid var(--border)">Status</th>
+              <th style="text-align:left;padding:10px 16px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text3);border-bottom:1px solid var(--border)">Actions</th>
+            </tr>
+          </thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>`;
+
+    renderPagination("event-stalls-pagination", detailsState.stallPage, detailsState.stallTotal, detailsState.stallPerPage, "stall");
+  } catch(err) {
+    el.innerHTML = `<div style="padding:30px;text-align:center;color:var(--red2)">⚠️ Failed to load stalls. <button onclick="loadEventStalls()" style="background:none;border:none;color:var(--accent);cursor:pointer;font-family:inherit;font-weight:600">Retry</button></div>`;
+  }
+}
+
+async function refreshEventStalls() {
+  detailsState.stallPage = 1;
+  const inp = document.getElementById("stall-search-inp");
+  if (inp) inp.value = "";
+  detailsState.stallSearch = "";
+  const btn = document.querySelector("#event-stalls-table")?.closest("[style*='border-radius:14px']")?.querySelector("button.btn-primary");
+  await loadEventStalls();
+  toast("Stalls refreshed ✅");
+}
+
+// ── Visitors Table ───────────────────────────────────────────────────
+async function loadEventVisitors() {
+  const { eventId, visitorPage, visitorPerPage, visitorSearch } = detailsState;
+  const el = document.getElementById("event-visitors-table");
+  if (!el) return;
+  el.innerHTML = `<div style="padding:30px;text-align:center;color:var(--text2)">⏳ Loading…</div>`;
+
+  try {
+    const params = new URLSearchParams({
+      event_id: eventId,
+      page: visitorPage,
+      per_page: visitorPerPage,
+      ...(visitorSearch ? { search: visitorSearch } : {}),
+    });
+    const res  = await apiGet(`/super_admin/visitors?${params}`);
+    const data = res.data || [];
+    const meta = res.meta || {};
+    detailsState.visitorTotal = meta.total || data.length;
+
+    if (!data.length) {
+      el.innerHTML = `<div style="padding:40px;text-align:center;color:var(--text2)"><div style="font-size:36px;opacity:.2;margin-bottom:10px">👥</div>No visitors registered yet</div>`;
+      document.getElementById("event-visitors-pagination").style.display = "none";
+      return;
+    }
+
+    const rows = data.map(v => `
+      <tr style="cursor:pointer" onclick="showVisitorDetails('${v.id}','events')">
+        <td><span style="background:rgba(108,99,255,.1);color:#6c63ff;border-radius:20px;padding:3px 10px;font-size:11px;font-weight:700">${v.visitor_id_code}</span></td>
+        <td><div style="font-weight:600;color:var(--text)">${v.full_name}</div></td>
+        <td style="font-family:monospace;font-size:13px">${v.mobile_number}</td>
+        <td>${v.business_name || "—"}</td>
+        <td>${v.business_category || "—"}</td>
+        <td>${v.profession || "—"}</td>
+        <td>${v.designation || "—"}</td>
+        <td>${v.location || "—"}</td>
+        <td style="font-weight:600;text-align:center">${v.stalls_visited || 0}</td>
+        <td style="font-size:12px;color:var(--text2);white-space:nowrap">${fmtDate(v.registered_at || v.created_at)}</td>
+      </tr>`).join("");
+
+    el.innerHTML = `
+      <div style="overflow-x:auto">
+        <table style="width:100%;border-collapse:collapse">
+          <thead>
+            <tr>
+              ${["ID","Name","Mobile","Business","Category","Looking For","Decision Maker","Location","Stalls","Registered"].map(h =>
+                `<th style="text-align:left;padding:10px 16px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text3);border-bottom:1px solid var(--border);white-space:nowrap">${h}</th>`
+              ).join("")}
+            </tr>
+          </thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>`;
+
+    renderPagination("event-visitors-pagination", detailsState.visitorPage, detailsState.visitorTotal, detailsState.visitorPerPage, "visitor");
+  } catch(err) {
+    el.innerHTML = `<div style="padding:30px;text-align:center;color:var(--red2)">⚠️ Failed to load visitors. <button onclick="loadEventVisitors()" style="background:none;border:none;color:var(--accent);cursor:pointer;font-family:inherit;font-weight:600">Retry</button></div>`;
+  }
+}
+
+async function refreshEventVisitors() {
+  detailsState.visitorPage = 1;
+  const inp = document.getElementById("visitor-search-inp");
+  if (inp) inp.value = "";
+  detailsState.visitorSearch = "";
+  await loadEventVisitors();
+  toast("Visitors refreshed ✅");
+}
+
+// ── Shared Pagination renderer ───────────────────────────────────────
+function renderPagination(containerId, currentPage, total, perPage, type) {
+  const container = document.getElementById(containerId);
+  if (!container) return;
+  const totalPages = Math.ceil(total / perPage);
+  if (totalPages <= 1) { container.style.display = "none"; return; }
+
+  container.style.display = "flex";
+
+  const start = (currentPage - 1) * perPage + 1;
+  const end   = Math.min(currentPage * perPage, total);
+
+  // Build page buttons: always show first, last, current ±1
+  const pages = new Set([1, totalPages, currentPage, currentPage-1, currentPage+1].filter(p => p >= 1 && p <= totalPages));
+  const sorted = [...pages].sort((a,b) => a-b);
+
+  let btns = "";
+  let prev = null;
+  sorted.forEach(p => {
+    if (prev !== null && p - prev > 1) btns += `<span style="color:var(--text3);padding:0 4px">…</span>`;
+    const active = p === currentPage;
+    btns += `<button
+      onclick="goPage('${type}',${p})"
+      style="width:32px;height:32px;border-radius:8px;border:1.5px solid ${active ? "var(--accent)" : "var(--border)"};background:${active ? "var(--accent)" : "var(--bg2)"};color:${active ? "#fff" : "var(--text2)"};font-size:13px;font-weight:${active ? "700" : "500"};cursor:pointer;font-family:'Inter',sans-serif;transition:all .15s"
+    >${p}</button>`;
+    prev = p;
+  });
+
+  container.innerHTML = `
+    <div style="font-size:13px;color:var(--text2);font-weight:500">${start}–${end} of <strong>${total.toLocaleString()}</strong></div>
+    <div style="display:flex;align-items:center;gap:5px;flex-wrap:wrap">
+      <button onclick="goPage('${type}',${currentPage-1})" ${currentPage<=1?"disabled":""} style="padding:5px 10px;border-radius:8px;border:1.5px solid var(--border);background:none;color:${currentPage<=1?"var(--text4)":"var(--text2)"};cursor:${currentPage<=1?"not-allowed":"pointer"};font-family:'Inter',sans-serif;font-size:13px">← Prev</button>
+      ${btns}
+      <button onclick="goPage('${type}',${currentPage+1})" ${currentPage>=totalPages?"disabled":""} style="padding:5px 10px;border-radius:8px;border:1.5px solid var(--border);background:none;color:${currentPage>=totalPages?"var(--text4)":"var(--text2)"};cursor:${currentPage>=totalPages?"not-allowed":"pointer"};font-family:'Inter',sans-serif;font-size:13px">Next →</button>
+    </div>`;
+}
+
+function goPage(type, page) {
+  if (type === "stall") {
+    const max = Math.ceil(detailsState.stallTotal / detailsState.stallPerPage);
+    if (page < 1 || page > max) return;
+    detailsState.stallPage = page;
+    loadEventStalls();
+  } else {
+    const max = Math.ceil(detailsState.visitorTotal / detailsState.visitorPerPage);
+    if (page < 1 || page > max) return;
+    detailsState.visitorPage = page;
+    loadEventVisitors();
+  }
+  // Scroll the respective section into view
+  const id = type === "stall" ? "event-stalls-table" : "event-visitors-table";
+  document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
 }
 async function showOrganizerDetails(orgId, pageName = "organizers") {
   previousPage = pageName;
@@ -1491,7 +1842,7 @@ async function showOrganizerDetails(orgId, pageName = "organizers") {
   const o = result.data;
 
   showDetails("Organizer Details", [
-    { label: "Organizer ID", value: o.id },
+    { label: "Organizer Code", value: o.org_code },
     { label: "Name", value: o.name },
     { label: "Email", value: o.email },
     { label: "Company", value: o.company_name },
@@ -1499,9 +1850,6 @@ async function showOrganizerDetails(orgId, pageName = "organizers") {
     { label: "Status", value: o.active?'Active':'Inactive' },
     { label: "Joined", value: fmtDate(o.created_at) }
   ]);
-}
-function closeDetails() {
-  showPage(previousPage || "events");
 }
 async function showStallOwnerDetails(stallOwnerId, pageName = "stalls") {
   previousPage = pageName;
@@ -1513,7 +1861,7 @@ async function showStallOwnerDetails(stallOwnerId, pageName = "stalls") {
   const s = result.data;
 
   showDetails("Stall Owner Details", [
-    { label: "Stall Owner ID", value: s.id },
+    { label: "Stall Owner Code", value: s.stall_code },
     { label: "Name", value: s.name },
     { label: "Email", value: s.email },
     { label: "Mobile No.", value: s.mobile_number },
@@ -1560,4 +1908,3 @@ function closeDetails() {
 </script>
 </body>
 </html>
-</body></html>
