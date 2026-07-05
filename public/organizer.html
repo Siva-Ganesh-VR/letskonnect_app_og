@@ -230,8 +230,251 @@ tr:hover td{background:rgba(255,255,255,0.02)}
         <!-- <button class="btn btn-g" onclick="openModal('m-event')">+ Create Event</button> -->
       </div>
       <div id="events-list"></div>
+ <div class="events-grid">
+      <div class="event-card">
+
+    <div class="event-banner">
+        <img src="images/event_1.jpeg">
+        <span class="event-status">LIVE</span>
     </div>
 
+    <div class="event-body">
+
+        <h3>Industrial Expo 2026</h3>
+
+        <div class="event-meta">
+            Chennai Trade Centre
+        </div>
+
+        <div class="event-date">
+            12 - 14 Aug 2026
+        </div>
+
+        <div class="stats">
+
+            <div class="stat">
+                <span class="value">128</span>
+                <span class="label">Booths</span>
+            </div>
+
+            <div class="stat">
+                <span class="value">5.6K</span>
+                <span class="label">Visitors</span>
+            </div>
+
+            <div class="stat">
+                <span class="value">2.8K</span>
+                <span class="label">Matches</span>
+            </div>
+
+        </div>
+
+        <a href="#" class="view-btn">
+            View Event
+        </a>
+
+    </div>
+
+</div>
+<div class="event-card">
+
+    <div class="event-banner">
+        <img src="images/event_2.jpeg">
+        <span class="event-status">LIVE</span>
+    </div>
+
+    <div class="event-body">
+
+        <h3>Industrial Expo 2026</h3>
+
+        <div class="event-meta">
+            Chennai Trade Centre
+        </div>
+
+        <div class="event-date">
+            12 - 14 Aug 2026
+        </div>
+
+        <div class="stats">
+
+            <div class="stat">
+                <span class="value">128</span>
+                <span class="label">Booths</span>
+            </div>
+
+            <div class="stat">
+                <span class="value">5.6K</span>
+                <span class="label">Visitors</span>
+            </div>
+
+            <div class="stat">
+                <span class="value">2.8K</span>
+                <span class="label">Matches</span>
+            </div>
+
+        </div>
+
+        <a href="#" class="view-btn">
+            View Event
+        </a>
+
+    </div>
+
+</div>
+<div class="event-card">
+
+    <div class="event-banner">
+        <img src="images/event_3.jpeg">
+        <span class="event-status">LIVE</span>
+    </div>
+
+    <div class="event-body">
+
+        <h3>Industrial Expo 2026</h3>
+
+        <div class="event-meta">
+            Chennai Trade Centre
+        </div>
+
+        <div class="event-date">
+            12 - 14 Aug 2026
+        </div>
+
+        <div class="stats">
+
+            <div class="stat">
+                <span class="value">128</span>
+                <span class="label">Booths</span>
+            </div>
+
+            <div class="stat">
+                <span class="value">5.6K</span>
+                <span class="label">Visitors</span>
+            </div>
+
+            <div class="stat">
+                <span class="value">2.8K</span>
+                <span class="label">Matches</span>
+            </div>
+
+        </div>
+
+        <a href="#" class="view-btn">
+            View Event
+        </a>
+
+    </div>
+
+</div>
+</div>
+    </div>
+<style>
+  .events-grid{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:24px;
+}
+
+@media(max-width:1200px){
+    .events-grid{
+        grid-template-columns:repeat(2,1fr);
+    }
+}
+
+@media(max-width:768px){
+    .events-grid{
+        grid-template-columns:1fr;
+    }
+}
+.event-card{
+    border:1px solid var(--border);
+    border-radius:20px;
+    overflow:hidden;
+    box-shadow:0 4px 15px rgba(15,23,42,.06);
+    transition:.2s;
+}
+
+.event-card:hover{
+    transform:translateY(-4px);
+}
+
+.event-banner{
+    position:relative;
+    height:180px;
+}
+
+.event-banner img{
+    width:100%;
+    height:100%;
+    object-fit:cover;
+}
+
+.event-status{
+    position:absolute;
+    top:12px;
+    right:12px;
+    background:#DCFCE7;
+    color:#16A34A;
+    padding:6px 10px;
+    border-radius:999px;
+    font-size:11px;
+    font-weight:700;
+}
+
+.event-body{
+    padding:18px;
+}
+
+.event-body h3{
+    font-size:22px;
+    margin-bottom:6px;
+}
+
+.event-meta,
+.event-date{
+    font-size:14px;
+}
+
+.event-date{
+    margin-bottom:18px;
+}
+
+.stats{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:10px;
+    margin-bottom:18px;
+}
+
+.stat{
+    text-align:center;
+    border-radius:12px;
+    padding:12px 8px;
+}
+
+.value{
+    display:block;
+    font-size:22px;
+    font-weight:700;
+    color:#14B8A6;
+}
+
+.label{
+    font-size:12px;
+    color:#64748B;
+}
+
+.view-btn{
+    display:block;
+    text-align:center;
+    background:#14B8A6;
+    color:white;
+    text-decoration:none;
+    padding:12px;
+    border-radius:12px;
+    font-weight:600;
+}
+</style>
     <!-- STALLS -->
     <div class="page" id="page-stalls">
       <div class="page-head">
@@ -586,31 +829,77 @@ async function loadDashboard() {
     ${sc("✅","Active Events", s.active||0, "hi")}
     ${sc("📋","Draft Events", s.draft||0, "")}
   `;
-  const evHtml = (d.events||[]).map(e => `
-    <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:8px">
-      <div>
-        <div style="font-weight:600;font-size:14px">
-          <a href="javascript:void(0)"
-            onclick="showEventDetails('${e.id}', 'dashboard')"
-            style="color:inherit;font-weight:600;text-decoration:none">
-            ${e.name}
-          </a>
-        </div>
-        <div style="font-size:12px;color:var(--text2);margin-top:2px">📍 ${e.venue} · ${fd(e.start_date)} – ${fd(e.end_date)}</div>
-      </div>
-      <div style="display:flex;align-items:center;gap:10px">
-        <span style="font-weight:700;font-size:16px">${e.registered_count||0} <span style="font-size:12px;font-weight:400;color:var(--text2)">visitors</span></span>
-        <span class="badge ${sb(e.status)}">${e.status}</span>
-        <button class="btn btn-o btn-sm" onclick='showQr("${e.id}","${e.name}","${e.qr_image_url||""}","${e.registration_qr_token}")'>QR</button>
-      </div>
+  const evHtml = (d.events || []).map(e => `
+  <div class="event-card">
+
+    <div class="event-banner">
+      <img src="${e.banner_url || 'images/event_' + (Math.floor(Math.random() * 4)) +'.jpeg'}" alt="${e.name}">
+      <span class="event-status">${e.status.toUpperCase() || 'LIVE'}</span>
     </div>
-  `).join("");
+
+    <div class="event-body">
+
+      <h3>${e.name}</h3>
+
+      <div class="event-meta">
+        📍 ${e.venue || '-'}
+      </div>
+
+      <div class="event-date">
+       📅 ${fd(e.start_date)} - ${fd(e.end_date)}
+      </div>
+
+      <div class="stats">
+
+        <div class="stat">
+          <span class="value">${e.booth_count || 0}</span>
+          <span class="label">Booths</span>
+        </div>
+
+        <div class="stat">
+          <span class="value">${e.registered_count || 0}</span>
+          <span class="label">Visitors</span>
+        </div>
+
+        <div class="stat">
+          <span class="value">${e.match_count || 0}</span>
+          <span class="label">Matches</span>
+        </div>
+
+      </div>
+
+      <div style="display:flex;gap:10px;margin-top:16px">
+
+        <button
+          class="btn btn-o btn-sm"
+          style="flex:1"
+          onclick='showQr("${e.id}","${e.name}","${e.qr_image_url || ""}","${e.registration_qr_token}")'>
+          QR
+        </button>
+
+        <button
+          class="view-btn"
+          style="flex:2"
+          onclick="showEventDetails('${e.id}','dashboard')">
+          View Event
+        </button>
+
+      </div>
+
+    </div>
+
+  </div>
+`).join("");
   document.getElementById("dash-events").innerHTML = `
-    <div class="table-wrap">
-      <div class="table-head"><div class="table-title">Your Events</div></div>
-      <div style="padding:0 20px">${evHtml || `<div class="empty"><div class="empty-icon">🎪</div>No events yet</div>`}</div>
-    </div>`;
+    <div class="table-title">Events</div>
+    <br/>
+     <div style="padding:0 2px" class="events-grid">${evHtml || `<div class="empty"><div class="empty-icon">🎪</div>No events yet</div>`}</div>
+    `;
+    
 }
+
+
+
 
 // ── Events ────────────────────────────────────────────────────────────────
 async function loadEvents() {
