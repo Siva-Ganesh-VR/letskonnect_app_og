@@ -242,7 +242,6 @@ ActiveRecord::Schema[7.2].define(version: 2026_07_04_080526) do
     t.index ["event_organizer_id"], name: "index_stall_owners_on_event_organizer_id"
     t.index ["jti"], name: "index_stall_owners_on_jti", unique: true
     t.index ["mobile_number"], name: "index_stall_owners_on_mobile_number"
-    t.index ["pass_code"], name: "index_stall_owners_on_pass_code", unique: true
     t.index ["stall_code"], name: "index_stall_owners_on_stall_code", unique: true
   end
 

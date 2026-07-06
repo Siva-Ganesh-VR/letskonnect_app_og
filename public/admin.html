@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>LetsKonnect Admin</title>
+<title>Expoza Admin</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 :root{--bg:#0f0f1a;--bg2:#1a1a2e;--bg3:#16213e;--accent:#6c63ff;--accent2:#4a43d4;--green:#22c55e;--amber:#f59e0b;--red:#ef4444;--text:#fff;--text2:rgba(255,255,255,0.6);--text3:rgba(255,255,255,0.35);--border:rgba(255,255,255,0.08)}
@@ -15,9 +15,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 /* Login */
 .login-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;background:var(--bg);padding:20px}
 .login-card{background:var(--bg2);border:1px solid var(--border);border-radius:20px;padding:40px 36px;width:100%;max-width:400px}
-.login-logo{text-align:center;margin-bottom:32px}
+.login-logo{text-align:left;margin-bottom:0px;}
 .login-logo h1{font-size:28px;font-weight:800;color:var(--accent)}
 .login-logo p{font-size:14px;color:var(--text2);margin-top:4px}
+.login-logo img{width: 100%; height: auto; object-fit: contain;}
 /* Sidebar */
 .sidebar-top{padding:20px 16px 16px;border-bottom:1px solid var(--border)}
 .sidebar-logo{font-size:18px;font-weight:700;color:var(--accent);display:flex;align-items:center;gap:8px}
@@ -93,7 +94,7 @@ tr:hover td{background:rgba(255,255,255,0.02)}
 .filter-select{background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:9px;padding:9px 12px;color:var(--text2);font-size:13px;cursor:pointer;outline:none}
 .filter-select option{background:#1a1a2e}
 /* Toast */
-.toast{position:fixed;bottom:24px;right:24px;background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:14px 18px;font-size:14px;z-index:2000;transform:translateY(100px);opacity:0;transition:all 0.3s;max-width:320px}
+.toast{position:fixed;top:24px;right:24px;background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:14px 18px;font-size:14px;z-index:2000;transform:translateY(-100px);opacity:0;transition:all 0.3s;max-width:320px}
 .toast.show{transform:translateY(0);opacity:1}
 .toast.success{border-color:rgba(34,197,94,0.4);color:#86efac}
 .toast.error{border-color:rgba(239,68,68,0.4);color:#fca5a5}
@@ -158,24 +159,21 @@ tr:hover td{background:rgba(255,255,255,0.02)}
 <div id="login-screen" class="login-wrap">
   <div class="login-card">
     <div class="login-logo">
-      <h1>LetsKonnect</h1>
-      <p>Event Lead Platform — Admin</p>
+      <img src="logo_dark.png"/>
+      <!-- <p>Event Lead Platform — Admin</p> -->
     </div>
     <div class="field">
       <label>Email Address</label>
-      <input type="email" id="login-email" placeholder="admin@letskonnect.in" value="admin@letskonnect.in">
+      <input type="email" id="login-email" placeholder="admin@expoza.in">
     </div>
     <div class="field">
       <label>Password</label>
-      <input type="password" id="login-password" placeholder="••••••••" value="Admin@1234" onkeydown="if(event.key==='Enter')doLogin()">
+      <input type="password" id="login-password" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()">
     </div>
     <div id="login-err" class="api-err"></div>
     <button class="btn btn-primary" style="width:100%;padding:13px;font-size:15px;margin-top:4px" onclick="doLogin()" id="login-btn">
       Sign In
     </button>
-    <p style="font-size:12px;color:var(--text3);text-align:center;margin-top:16px">
-      Super Admin · Organizer login at their portal
-    </p>
   </div>
 </div>
 
@@ -184,14 +182,14 @@ tr:hover td{background:rgba(255,255,255,0.02)}
   <!-- Mobile topbar -->
   <div class="topbar">
     <button class="menu-btn" onclick="toggleSidebar()">☰</button>
-    <span style="font-size:16px;font-weight:700;color:var(--accent)">LetsKonnect</span>
+    <span style="font-size:16px;font-weight:700;color:var(--accent)">Expoza</span>
   </div>
 
   <div class="sidebar" id="sidebar">
   <div class="sidebar-top">
       <img
           src="/logo_dark.png"
-          alt="LetsKonnect Logo"
+          alt="Expoza Logo"
           class="sidebar-logo-image">
 
       <div class="sidebar-role" id="sb-role" style="display:none;">
@@ -211,10 +209,9 @@ tr:hover td{background:rgba(255,255,255,0.02)}
       <div class="nav-item" onclick="showPage('organizers')" id="nav-organizers"><span class="nav-icon">🏢</span> Organizers</div>
       <div class="nav-item" onclick="showPage('stalls')"><span class="nav-icon">🏪</span> Stall Owners</div>
       <div class="nav-item" onclick="showPage('visitors')"><span class="nav-icon">👥</span> Visitors</div>
-      <!--<div class="nav-item" onclick="showPage('leads')"><span class="nav-icon">🎯</span> Leads</div>-->
-
+      <!--<div class="nav-item" onclick="showPage('leads')"><span class="nav-icon">🎯</span> Leads</div>
       <div class="nav-section">Tools</div>
-      <div class="nav-item" onclick="showPage('analytics')"><span class="nav-icon">📊</span> Analytics</div>
+      <div class="nav-item" onclick="showPage('analytics')"><span class="nav-icon">📊</span> Analytics</div>-->
     </nav>
     <div class="sidebar-footer">
       <button class="logout-btn" onclick="doLogout()">Sign Out</button>
@@ -270,8 +267,8 @@ tr:hover td{background:rgba(255,255,255,0.02)}
           <div class="table-title">All Stall Owners</div>
           <div class="table-actions">
             <input class="search-bar" placeholder="Search..." oninput="filterTable('stalls-table',this.value)">
-            <button class="btn btn-primary btn-sm" onclick="openBulkStallModal()">+ Add Stalls</button>
-            <button class="btn btn-primary btn-sm" onclick="openModal('m-import-stalls')">+ Bulk Upload</button>
+            <!--<button class="btn btn-primary btn-sm" onclick="openBulkStallModal()">+ Add Stalls</button>
+            <button class="btn btn-primary btn-sm" onclick="openModal('m-import-stalls')">+ Bulk Upload</button>-->
           </div>
         </div>
         <div id="stalls-table"><div class="empty"><div class="empty-icon">🏪</div>Loading...</div></div>
@@ -346,6 +343,23 @@ tr:hover td{background:rgba(255,255,255,0.02)}
 
       <div class="card" style="margin-top:16px">
         <div id="details-content"></div>
+      </div>
+    </div>
+
+    <!-- ORGANIZER EVENTS --> 
+    <div id="page-organizer-details" class="page">
+      <div class="page-head" style="display:flex;justify-content:space-between;align-items:center;flex-direction: row-reverse;">
+        <button class="btn btn-outline btn-sm" onclick="closeDetails()">
+          ← Back
+        </button>
+
+        <div class="page-title" id="organizer-details-title">
+          Details
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:16px">
+        <div id="organizer-details-content"></div>
       </div>
     </div>
   </div>
@@ -704,8 +718,8 @@ async function loadDashboard() {
 
       // Top statistics cards
       document.getElementById("dash-stats").innerHTML = `
-        ${statCard("🎪","Events",`${p.active_events} active / ${p.total_events} total`,"accent")}
-        ${statCard("🏢","Organizers",`${p.active_organizers} active`,"")}
+        ${statCard("🎪","Events",`${p.active_events} Active / ${p.total_events} Total`,"accent")}
+        ${statCard("🏢","Organizers",`${p.active_organizers} Active`,"")}
         ${statCard("👥","Visitors",p.total_visitors.toLocaleString(),"accent")}
         ${statCard("🎯","Leads",p.total_leads.toLocaleString(),"")}
         ${statCard("🏪","Stall Owners",p.total_stalls,"")}
@@ -741,10 +755,16 @@ async function loadDashboard() {
           </div>
 
           <span class="badge ${statusBadge(e.status)}">
-            ${e.status}
+            ${e.status.charAt(0).toUpperCase() + e.status.slice(1)}
           </span>
         </div>
       `).join("");
+
+      // Populate organizer dropdown
+      const orgRes = currentUser?.role === "super_admin" ? await apiGet("/super_admin/event_organizers") : null;
+      if (orgRes?.data) {
+        document.getElementById("ef-organizer").innerHTML = orgRes.data.map(o => `<option value="${o.id}">${o.name} — ${o.company_name||""}</option>`).join("");
+      }
 
       // =====================================================
       // Recent Organizers
@@ -761,7 +781,11 @@ async function loadDashboard() {
             <div style="
               font-weight:600;
               font-size:14px">
-              ${o.company_name || "-"}
+              <a href="javascript:void(0)"
+                 onclick="showOrganizerDetails('${o.id}','dashboard')"
+                 style="color:inherit;text-decoration:none">
+                ${o.company_name || "-"}
+              </a>
             </div>
 
             <div style="
@@ -773,7 +797,7 @@ async function loadDashboard() {
           </div>
 
           <span class="badge ${o.active ? "badge-green" : "badge-red"}">
-            ${o.active ? "active" : "inactive"}
+            ${o.active ? "Active" : "Inactive"}
           </span>
         </div>
       `).join("");
@@ -796,15 +820,18 @@ async function loadDashboard() {
                 Recent Events
               </div>
 
-              <a href="javascript:void(0)"
-                onclick="showPage('events')"
-                style="
-                    color:var(--primary);
-                    font-size:13px;
-                    font-weight:600;
-                    text-decoration:none;">
-                View All →
-              </a>
+              <div style="display:flex;gap:10px;align-items:center">
+                <button class="btn btn-primary btn-sm" onclick="openModal('modal-create-event')">+ New Event</button>
+                <a href="javascript:void(0)"
+                  onclick="showPage('events')"
+                  style="
+                      color:var(--primary);
+                      font-size:13px;
+                      font-weight:600;
+                      text-decoration:none;">
+                  View All →
+                </a>
+              </div>
             </div>
 
             <div style="padding:0 20px">
@@ -820,15 +847,18 @@ async function loadDashboard() {
               Recent Organizers
             </div>
 
-            <a href="javascript:void(0)"
-              onclick="showPage('organizers')"
-              style="
-                  color:var(--primary);
-                  font-size:13px;
-                  font-weight:600;
-                  text-decoration:none;">
-              View All →
-            </a>
+            <div style="display:flex;gap:10px;align-items:center">
+              <button class="btn btn-primary btn-sm" onclick="openModal('modal-create-organizer')">+ New Organizer</button>
+              <a href="javascript:void(0)"
+                onclick="showPage('organizers')"
+                style="
+                    color:var(--primary);
+                    font-size:13px;
+                    font-weight:600;
+                    text-decoration:none;">
+                View All →
+              </a>
+            </div>
           </div>
 
             <div style="padding:0 20px">
@@ -904,7 +934,7 @@ async function loadEvents() {
       </td>
       <td>${e.venue}</td>
       <td>${fmtDate(e.start_date)} – ${fmtDate(e.end_date)}</td>
-      <td><span class="badge ${statusBadge(e.status)}">${e.status}</span></td>
+      <td><span class="badge ${statusBadge(e.status)}">${e.status.charAt(0).toUpperCase() + e.status.slice(1)}</span></td>
       <td style="font-weight:600">${(e.registered_count||0).toLocaleString()}</td>
       <td>
         <div style="display:flex;gap:6px;flex-wrap:wrap">
@@ -930,6 +960,8 @@ async function loadEvents() {
 async function handleCreateEvent() {
   const modal = document.getElementById("modal-create-event");
   const eventId = modal.dataset.eventId; // check if edit mode
+
+  console.log("Creating/updating event with ID:", eventId);
 
   const body = {
     event_organizer_id: document.getElementById("ef-organizer").value,
@@ -963,10 +995,16 @@ async function handleCreateEvent() {
     closeModal("modal-create-event");
     resetEventForm();
     toast(eventId ? "Event updated!" : "Event created!", "success");
-    loadEvents();
+    if (document.getElementById("page-organizer-details").classList.contains("active")) {
+      loadOrganizerEvents();
+    } else if (document.getElementById("page-dashboard").classList.contains("active")) {
+      loadDashboard();
+    } else if (document.getElementById("page-events").classList.contains("active")) {
+      loadEvents();
+    }
   } else {
     err.style.display = "block";
-    err.textContent = res.error || (res.errors || []).join(", ");
+    err.textContent = res.errors || (res.errors || []).join(", ");
   }
 }
 
@@ -1067,8 +1105,16 @@ async function createOrganizer() {
     },
     password: document.getElementById("of-password").value,
   });
-  if (res.success) { closeModal("modal-create-organizer"); toast("Organizer created!", "success"); loadOrganizers(); }
-  else { err.style.display="block"; err.textContent = res.error||(res.errors||[]).join(", "); }
+  if (res.success) { 
+    closeModal("modal-create-organizer");
+    toast("Organizer created!", "success");
+    if (document.getElementById("page-dashboard").classList.contains("active")) {
+      loadDashboard();
+    } else if (document.getElementById("page-organizers").classList.contains("active")) {
+      loadOrganizers();
+    }
+  }
+  else { err.style.display="block"; err.textContent = res.errors||(res.errors||[]).join(", "); }
 }
 
 async function toggleOrganizer(id, currently_active) {
@@ -1218,7 +1264,7 @@ async function showEventAnalyticsInline(id, name) {
 }
 
 // ── Modals ────────────────────────────────────────────────────────────────
-function openModal(id, eid = null)  { 
+function openModal(id, eid = null) { 
   document.getElementById(id).style.display = "flex"; 
   if (id === "modal-create-event"){
     const modal = document.getElementById("modal-create-event");
@@ -1231,6 +1277,16 @@ function openModal(id, eid = null)  {
       document.getElementById("ef-submit-btn").innerHTML = "Create Event";
       document.getElementById("modal-event-title").innerHTML = "Create New Event";
     }
+
+    const orgSel = document.getElementById("ef-organizer");
+    if (eid) {
+      orgSel.value = eid;
+      orgSel.disabled = true;
+    } else {
+      orgSel.value = "";
+      orgSel.disabled = false;
+    }
+    document.getElementById("import-err").style.display = "none";
   } else if (id ==="m-import-stalls") {
     document.getElementById("stall-import-file").value = "";
     const eventSel = document.getElementById("stall-import-event-sel");
@@ -1327,7 +1383,12 @@ async function openEditEventModal(event) {
   document.getElementById("ef-status").value = event.status || "";
   document.getElementById("ef-desc").value = event.description || "";
 
-  openModal("modal-create-event");
+  
+  if (document.getElementById("page-organizer-details").classList.contains("active")) {
+    openModal("modal-create-event", event.event_organizer_id);
+  } else {
+    openModal("modal-create-event");
+  }
 }
 async function importStallOwners() {
   const fileInput = document.getElementById("stall-import-file");
@@ -1376,7 +1437,11 @@ async function importStallOwners() {
       "success"
     );
 
-    loadStalls();
+    if (previousPage === "dashboard" || previousPage === "events") {
+      refreshEventStalls();
+    } else {
+      loadStalls();
+    }
 
   } catch (error) {
     err.style.display = "block";
@@ -1580,7 +1645,11 @@ async function createMultipleStalls() {
       "success"
     );
 
-    loadStalls();
+    if (previousPage === "dashboard" || previousPage === "events") {
+      refreshEventStalls();
+    } else {
+      loadStalls();
+    }
 
   } catch (error) {
     err.style.display = "block";
@@ -1681,6 +1750,7 @@ async function showEventDetails(eventId, pageName = "events") {
       `<div style="color:var(--red2);padding:20px">Failed to load event details. Please try again.</div>`;
   }
 }
+
 
 // ── Build the static info section ──────────────────────────────────
 function buildEventDetailsHTML(e) {
@@ -1962,39 +2032,43 @@ function renderPagination(containerId, currentPage, total, perPage, type) {
 }
 
 function goPage(type, page) {
+
   if (type === "stall") {
+
     const max = Math.ceil(detailsState.stallTotal / detailsState.stallPerPage);
     if (page < 1 || page > max) return;
+
     detailsState.stallPage = page;
     loadEventStalls();
-  } else {
+
+    document.getElementById("event-stalls-table")
+      ?.scrollIntoView({ behavior: "smooth", block: "start" });
+
+  } else if (type === "visitor") {
+
     const max = Math.ceil(detailsState.visitorTotal / detailsState.visitorPerPage);
     if (page < 1 || page > max) return;
+
     detailsState.visitorPage = page;
     loadEventVisitors();
+
+    document.getElementById("event-visitors-table")
+      ?.scrollIntoView({ behavior: "smooth", block: "start" });
+
+  } else if (type === "organizerEvents") {
+
+    const max = Math.ceil(
+      organizerDetailsState.eventTotal / organizerDetailsState.eventPerPage
+    );
+
+    if (page < 1 || page > max) return;
+
+    organizerDetailsState.eventPage = page;
+    loadOrganizerEvents();
+
+    document.getElementById("organizer-events-table")
+      ?.scrollIntoView({ behavior: "smooth", block: "start" });
   }
-  // Scroll the respective section into view
-  const id = type === "stall" ? "event-stalls-table" : "event-visitors-table";
-  document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
-}
-async function showOrganizerDetails(orgId, pageName = "organizers") {
-  previousPage = pageName;
-
-  const result = await apiGet(
-    `/super_admin/event_organizers/${orgId}`
-  );
-
-  const o = result.data;
-
-  showDetails("Organizer Details", [
-    { label: "Organizer Code", value: o.org_code },
-    { label: "Name", value: o.name },
-    { label: "Email", value: o.email },
-    { label: "Company", value: o.company_name },
-    { label: "Mobile No.", value: o.mobile_number },
-    { label: "Status", value: o.active?'Active':'Inactive' },
-    { label: "Joined", value: fmtDate(o.created_at) }
-  ]);
 }
 async function showStallOwnerDetails(stallOwnerId, pageName = "stalls") {
   previousPage = pageName;
@@ -2049,6 +2123,220 @@ async function showVisitorDetails(visitorId, pageName = "visitors") {
 }
 function closeDetails() {
   showPage(previousPage || "events");
+}
+
+const organizerDetailsState = {
+  organizerId: null,
+  eventPage: 1,
+  eventPerPage: 10,
+  eventTotal: 0,
+  eventSearch: ""
+};
+
+async function showOrganizerDetails(organizerId, pageName = "organizers") {
+  previousPage = pageName;
+
+  organizerDetailsState.organizerId = organizerId;
+  organizerDetailsState.eventPage = 1;
+  organizerDetailsState.eventSearch = "";
+
+  document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
+  document.getElementById("page-organizer-details").classList.add("active");
+
+  document.getElementById("organizer-details-title").textContent = "Organizer Details";
+  document.getElementById("organizer-details-content").innerHTML = `
+    <div style="color:var(--text2);padding:20px;text-align:center">
+      ⏳ Loading organizer details…
+    </div>`;
+
+  try {
+    const res = await apiGet(`/super_admin/event_organizers/${organizerId}`);
+
+    document.getElementById("organizer-details-title").textContent = res.data.name;
+    document.getElementById("organizer-details-content").innerHTML =
+      buildOrganizerDetailsHTML(res.data);
+
+    await loadOrganizerEvents();
+  } catch (err) {
+    console.error("Organizer details error:", err);
+    document.getElementById("organizer-details-content").innerHTML = `
+      <div style="color:var(--red2);padding:20px">
+        Failed to load organizer details.
+      </div>`;
+  }
+}
+
+// ── Build the static info section ──────────────────────────────────
+function buildOrganizerDetailsHTML(o) {
+  const statusColor = {
+    active: "var(--green2)",
+    draft: "var(--amber2)",
+    completed: "#2563eb",
+    archived: "var(--text3)"
+  }[o.status] || "var(--text2)";
+
+  return `
+    <!-- Organizer Details -->
+    <div style="background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:20px;margin-bottom:20px;box-shadow:var(--shadow)">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:16px">
+        <div>
+          <h2>${o.name}</h2>
+          <div class="muted">${o.org_code || "—"}</div>
+        </div>
+
+        <span class="badge" style="
+          background:${statusColor}1a;
+          color:${statusColor};
+          border:1px solid ${statusColor}40;">
+          ${o.active ? "Active" : "Inactive"}
+        </span>
+      </div>
+
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px">
+        ${detailChip("🏢 Organizer", o.name)}
+        ${detailChip("🏢 Company", o.company_name || "—")}
+        ${detailChip("📧 Email", o.email || "—")}
+        ${detailChip("📱 Mobile", o.mobile_number || "—")}
+        ${detailChip("🆔 Code", o.org_code || "—")}
+      </div>
+    </div>
+
+    <!-- Events -->
+    <div class="table-wrap">
+      <div class="table-header">
+        <div>
+          <div class="table-title">Events</div>
+          <div class="page-sub">Events managed by this organizer</div>
+        </div>
+
+        <div class="table-actions">
+          <input
+            class="search-bar"
+            id="organizer-events-search"
+            placeholder="Search events..."
+            oninput="searchOrganizerEvents()"
+          >
+
+          <button
+            class="btn btn-primary btn-sm"
+            onclick="openModal('modal-create-event', '${o.id}')">
+            + New Event
+          </button>
+        </div>
+      </div>
+
+      <div id="organizer-events-table">
+        <div class="empty">
+          <div class="empty-icon">🎪</div>
+          Loading events...
+        </div>
+      </div>
+
+      <div id="organizer-events-pagination" style="padding:10px 18px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;display:none">
+    </div>
+  `;
+}
+async function loadOrganizerEvents(page = organizerDetailsState.eventPage) {
+  organizerDetailsState.eventPage = page;
+  organizerDetailsState.eventSearch =
+    document.getElementById("organizer-events-search")?.value.trim() || "";
+
+  const s = organizerDetailsState;
+
+  const res = await apiGet(
+    `/super_admin/event_organizers/${s.organizerId}/events?page=${s.eventPage}&per_page=${s.eventPerPage}&search=${encodeURIComponent(s.eventSearch)}`
+  );
+
+  if (!res.success) return;
+
+  organizerDetailsState.eventTotal = res.meta.total;
+
+  renderOrganizerEventsTable(res.data);
+  renderPagination("organizer-events-pagination", organizerDetailsState.eventPage, organizerDetailsState.eventTotal, organizerDetailsState.eventPerPage, "organizerEvents");
+}
+function renderOrganizerEventsTable(events) {
+  document.getElementById("organizer-events-table").innerHTML =
+    buildOrganizerEventsTable(events);
+}
+function changeOrganizerEventPage(page) {
+  organizerDetailsState.eventPage = page;
+  loadOrganizerEvents();
+}
+function buildOrganizerEventsTable(events) {
+  const tbody = events.map(e => `
+    <tr>
+      <td>
+        <a href="javascript:void(0)"
+          onclick="showEventDetails('${e.id}', 'organizer-details')"
+          style="color:inherit;font-weight:600;text-decoration:none">
+          ${e.name}
+        </a>
+
+        <div style="font-size:12px;color:var(--text2)">
+          ${e.city || ""}
+        </div>
+      </td>
+
+      <td>${e.venue || "—"}</td>
+
+      <td>${fmtDate(e.start_date)} – ${fmtDate(e.end_date)}</td>
+
+      <td>
+        <span class="badge ${statusBadge(e.status)}">
+          ${e.status.charAt(0).toUpperCase() + e.status.slice(1)}
+        </span>
+      </td>
+
+      <td style="font-weight:600">
+        ${(e.registered_count || 0).toLocaleString()}
+      </td>
+
+      <td>
+        <div style="display:flex;gap:6px;flex-wrap:wrap">
+          <button class="btn btn-sm btn-outline"
+            onclick='showEventQr("${e.id}","${e.name}","${e.qr_image_url || ""}","${e.registration_qr_token}")'>
+            🔳
+          </button>
+
+          <button class="btn btn-sm btn-outline"
+            onclick='showEventAnalytics("${e.id}","${e.name}")'>
+            📊
+          </button>
+
+          <button class="btn btn-sm btn-outline"
+            onclick='openEditEventModalById("${e.id}")'>
+            ✏️
+          </button>
+        </div>
+      </td>
+    </tr>
+  `).join("");
+
+  return `
+    <table>
+      <thead>
+        <tr>
+          <th>Event</th>
+          <th>Venue</th>
+          <th>Dates</th>
+          <th>Status</th>
+          <th>Visitors</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        ${
+          tbody ||
+          `<tr><td colspan="6">${emptyHtml("🎪","No events found")}</td></tr>`
+        }
+      </tbody>
+    </table>
+  `;
+}
+function searchOrganizerEvents() {
+  organizerDetailsState.eventPage = 1;
+  loadOrganizerEvents();
 }
 </script>
 </body>

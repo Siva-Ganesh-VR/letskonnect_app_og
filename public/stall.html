@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>Stall Owner App — LetsKonnect</title>
+<title>Stall Owner App — Expoza</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 :root{--bg:#0f0f1a;--bg2:#1a1a2e;--bg3:#16213e;--accent:#f59e0b;--accent2:#d97706;--green:#22c55e;--red:#ef4444;--blue:#6c63ff;--text:#fff;--text2:rgba(255,255,255,0.6);--text3:rgba(255,255,255,0.3);--border:rgba(255,255,255,0.08)}
@@ -188,6 +188,22 @@ textarea.note-area:focus{border-color:var(--accent)}
 /* Empty */
 .empty{text-align:center;padding:40px 16px;color:var(--text2)}
 .empty-icon{font-size:44px;opacity:0.3;margin-bottom:10px}
+
+#scan-area{
+    position:relative;
+    overflow:hidden;
+    cursor:pointer;
+}
+#reader{
+    width:100%;
+    height:100%;
+}
+#reader video{
+    width:100% !important;
+    height:100% !important;
+    object-fit:cover;
+    border-radius:12px;
+}
 </style>
 </head>
 <body>
@@ -199,7 +215,7 @@ textarea.note-area:focus{border-color:var(--accent)}
     <div class="login-logo">
       <div class="login-logo-icon">🏪</div>
       <h2>Stall Owner App</h2>
-      <p>LetsKonnect · Lead Capture</p>
+      <p>Expoza · Lead Capture</p>
     </div>-->
 
     <!-- Step 1: Mobile + Event -->
@@ -266,6 +282,11 @@ textarea.note-area:focus{border-color:var(--accent)}
           <h3>Welcome back! 👋</h3>
           <p id="event-name-display">Loading event info…</p>
         </div>
+        <div style="margin-bottom: 16px;">
+          <select class="status-sel" id="stall-owner-event-sel" style="margin-top: 0px;" onchange="onEventChange()">
+            <option value="">Select Event</option>
+          </select>
+        </div>
         <div class="stats-row" id="stats-row-1">
           <div class="stat-box"><div class="sbn" id="stat-total">—</div><div class="sbl">Total Leads</div></div>
           <div class="stat-box"><div class="sbn" id="stat-today">—</div><div class="sbl">Today</div></div>
@@ -293,12 +314,19 @@ textarea.note-area:focus{border-color:var(--accent)}
           <h2 style="font-size:20px;font-weight:700">Scan Visitor QR</h2>
           <p class="scan-hint">Enter the visitor QR token manually below, or tap the scanner area</p>
 
-          <div class="scan-icon-wrap" id="scan-area" onclick="focusScan()">
+          <div class="scan-icon-wrap" id="scan-area" onclick="startCameraScan()">
             <div class="scan-line"></div>
-            <div style="text-align:center">
+
+            <!-- Default placeholder -->
+            <div id="scan-placeholder" style="text-align:center">
               <div style="font-size:56px">📷</div>
-              <div style="font-size:12px;color:var(--text3);margin-top:8px">Tap to focus</div>
+              <div style="font-size:12px;color:var(--text3);margin-top:8px">
+                Tap to scan QR code
+              </div>
             </div>
+
+            <!-- Camera preview -->
+            <div id="reader" style="display:none;width:100%;height:100%;"></div>
           </div>
 
           <input class="scan-manual" id="qr-input" placeholder="Paste or type visitor QR token here"
@@ -424,7 +452,7 @@ textarea.note-area:focus{border-color:var(--accent)}
 </div>
 
 <div class="toast" id="toast"></div>
-
+<script src="https://unpkg.com/html5-qrcode"></script>
 <script>
 const API = "/api/v1";
 
@@ -595,11 +623,19 @@ async function apiFetch(path, method="GET", body=null, useToken=true) {
 }
 
 // ── Dashboard ─────────────────────────────────────────────────────────────
-async function loadDashboard() {
-  const res = await apiFetch("/stall_owner/dashboard");
+async function loadDashboard(eventId = null) {
+  let url = "/stall_owner/dashboard";
+
+  if (eventId) {
+    url += `?event_id=${encodeURIComponent(eventId)}`;
+  }
+
+  const res = await apiFetch(url);
   if (!res.success) return;
   const s   = res.data.summary;
   document.getElementById("event-name-display").textContent = res.data.stall_owner?.company_name || "";
+
+  updateStallOwner(res.data.stall_owner);
   document.getElementById("stat-total").textContent = s.total;
   document.getElementById("stat-today").textContent = s.today;
   document.getElementById("stat-hot").textContent   = s.hot;
@@ -607,6 +643,15 @@ async function loadDashboard() {
   document.getElementById("stat-cold").textContent  = s.cold;
   document.getElementById("stat-conv").textContent  = s.converted;
   document.getElementById("stat-fu").textContent    = s.follow_up_today;
+
+  const events = res.data.events || [];
+  const soel = document.getElementById("stall-owner-event-sel");
+
+  soel.innerHTML =
+    `<option value="">Select Event</option>` +
+    events.map(e => `<option value="${e.id}">${e.name}</option>`).join("");
+
+  soel.value = res.data.stall_owner?.event_id || "";
 
   const rl = document.getElementById("recent-leads");
   const recent = res.data.recent_leads || [];
@@ -624,6 +669,62 @@ async function loadDashboard() {
 }
 
 // ── Scan ──────────────────────────────────────────────────────────────────
+let html5QrCode;
+let cameraRunning = false;
+
+async function startCameraScan() {
+    if (cameraRunning) return;
+
+    cameraRunning = true;
+
+    document.getElementById("scan-placeholder").style.display = "none";
+    document.getElementById("reader").style.display = "block";
+    document.getElementById("scan-area").classList.add("scanning");
+
+    html5QrCode = new Html5Qrcode("reader");
+
+    try {
+        await html5QrCode.start(
+            { facingMode: "environment" }, // Rear camera on mobile
+            {
+                fps: 10,
+                qrbox: 220
+            },
+            async (decodedText) => {
+
+                document.getElementById("qr-input").value = decodedText;
+
+                await stopCamera();
+
+                doScan(); // Your existing function
+            },
+            () => {
+                // Ignore scan failures
+            }
+        );
+    } catch (err) {
+        console.error(err);
+        alert("Unable to access camera");
+        stopCamera();
+    }
+}
+
+async function stopCamera() {
+
+    if (html5QrCode && cameraRunning) {
+        try {
+            await html5QrCode.stop();
+            await html5QrCode.clear();
+        } catch (e) {}
+    }
+
+    cameraRunning = false;
+
+    document.getElementById("reader").style.display = "none";
+    document.getElementById("scan-placeholder").style.display = "block";
+    document.getElementById("scan-area").classList.remove("scanning");
+}
+
 function focusScan() {
   const area = document.getElementById("scan-area");
   const inp  = document.getElementById("qr-input");
@@ -640,11 +741,13 @@ async function doScan() {
   const qr  = document.getElementById("qr-input").value.trim();
   const err = document.getElementById("scan-err");
   const btn = document.getElementById("btn-do-scan");
+  const eventId = document.getElementById("stall-owner-event-sel").value;
+
   err.style.display = "none";
   if (!qr) { err.style.display="block"; err.textContent="Enter a QR token"; return; }
 
   btn.disabled = true; btn.textContent = "⏳ Scanning…";
-  const res = await apiFetch("/stall_owner/scan", "POST", { qr_token: qr });
+  const res = await apiFetch("/stall_owner/scan", "POST", { qr_token: qr, event_id: eventId });
   btn.disabled = false; btn.textContent = "⚡ Capture Lead";
 
   if (res.success) {
@@ -696,6 +799,7 @@ function selectTpl(i) {
   document.querySelectorAll(".wa-tpl").forEach((t,idx)=>t.className="wa-tpl"+(idx===i?" sel":""));
 }
 async function sendWa() {
+  eventId = document.getElementById("stall-owner-event-sel").value;
   if (!currentLead) return;
   const tpls = [
     "Thank you for visiting our stall! Our team will connect with you shortly.",
@@ -704,7 +808,7 @@ async function sendWa() {
   ];
   const custom = document.getElementById("wa-custom").value.trim();
   const msg    = custom || tpls[selectedTpl];
-  const res    = await apiFetch("/stall_owner/leads/"+currentLead.id+"/whatsapp", "POST", { message: msg });
+  const res    = await apiFetch("/stall_owner/leads/"+currentLead.id+"/whatsapp?event_id=" + eventId, "POST", { message: msg });
   closeWa();
   toast(res.success ? "WhatsApp sent! 📱" : res.error||"Failed", res.success?"ok":"err");
 }
@@ -731,8 +835,17 @@ function setFilter(f, btn) {
 }
 
 async function loadLeads() {
+  // Always return to the list view
+  currentLead = null;
+
+  document.getElementById("lead-detail").classList.remove("active");
+  document.getElementById("lead-detail").style.display = "none";
+  document.getElementById("leads-list-view").style.display = "block";
+
+  const eventId = document.getElementById("stall-owner-event-sel").value;
   const q   = document.getElementById("leads-search").value;
-  let path  = "/stall_owner/leads?per_page=50";
+  let path = `/stall_owner/leads?per_page=50&event_id=${encodeURIComponent(eventId)}`;
+
   if (activeFilter === "hot"||activeFilter==="warm"||activeFilter==="cold") path += "&temperature="+activeFilter;
   else if (activeFilter) path += "&status="+activeFilter;
   if (q) path += "&search="+encodeURIComponent(q);
@@ -758,11 +871,12 @@ async function loadLeads() {
 }
 
 async function openLeadById(id) {
+  eventId = document.getElementById("stall-owner-event-sel").value;
   document.getElementById("leads-list-view").style.display = "none";
   const ld = document.getElementById("lead-detail");
   ld.classList.add("active");
   ld.style.display = "block";
-  const res = await apiFetch("/stall_owner/leads/"+id);
+  const res = await apiFetch("/stall_owner/leads/"+id+"?event_id=" + eventId);
   if (!res.success) return;
   const l = res.data; const v = l.visitor;
   currentLead = l;
@@ -826,7 +940,8 @@ function backToList() {
 
 async function updateLeadField(field, val, btnEl, groupPrefix) {
   if (!currentLead) return;
-  await apiFetch("/stall_owner/leads/"+currentLead.id, "PATCH", { lead: { [field]: val } });
+  const eventId = document.getElementById("stall-owner-event-sel").value;
+  await apiFetch("/stall_owner/leads/"+currentLead.id+"?event_id=" + eventId, "PATCH", { lead: { [field]: val } });
   toast("Updated ✓","ok");
 }
 
@@ -845,24 +960,26 @@ async function saveNotes() {
 
 // ── Export ────────────────────────────────────────────────────────────────
 async function exportLeads(filter) {
+  const eventId = document.getElementById("stall-owner-event-sel").value;
+
   const body = filter ? { temperature: filter } : {};
-  const res  = await apiFetch("/stall_owner/leads/export", "POST", body);
+  const res  = await apiFetch("/stall_owner/leads/export?event_id=${encodeURIComponent(eventId)}", "POST", body);
   const el   = document.getElementById("export-status");
   el.style.display = "block";
   if (res.success) {
     el.textContent = "✅ Export started! You'll receive the download link on WhatsApp shortly.";
     el.style.color  = "#86efac";
-    pollExport(res.data.job_id);
+    pollExport(res.data.job_id, eventId);
   } else {
     el.textContent = "❌ " + (res.error||"Failed");
     el.style.color  = "#fca5a5";
   }
 }
 
-async function pollExport(jobId) {
+async function pollExport(jobId, eventId) {
   for (let i=0; i<30; i++) {
     await new Promise(r=>setTimeout(r,3000));
-    const res = await apiFetch("/stall_owner/leads/export/"+jobId+"/status");
+    const res = await apiFetch(`/stall_owner/leads/export/${jobId}/status?event_id=${encodeURIComponent(eventId)}`);
     if (res.data?.status === "completed") {
       const el = document.getElementById("export-status");
       el.innerHTML = `✅ Ready! <a href="${res.data.file_url}" target="_blank" style="color:var(--accent)">Download Excel ↗</a>`;
@@ -874,7 +991,9 @@ async function pollExport(jobId) {
 
 // ── Scan History ──────────────────────────────────────────────────────────
 async function loadScanHistory() {
-  const res = await apiFetch("/stall_owner/scan/history");
+  const eventId = document.getElementById("stall-owner-event-sel").value;
+
+  const res = await apiFetch("/stall_owner/scan/history?event_id=${encodeURIComponent(eventId)}");
   document.getElementById("scan-history").innerHTML = (res.data||[]).map(s=>`
     <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px">
       <span style="font-weight:500">${s.visitor_name}</span>
@@ -901,6 +1020,37 @@ function toast(msg, type="ok") {
   const t = document.getElementById("toast");
   t.textContent = msg; t.className = "toast "+type+" show";
   setTimeout(()=>{ t.className="toast"; },3000);
+}
+function updateStallOwner(stallOwner) {
+  document.getElementById("sb-name").textContent =
+    stallOwner.name || "Stall Owner";
+
+  document.getElementById("sb-stall").textContent =
+    `${stallOwner.company_name || ""}${
+      stallOwner.stall_number ? ` · Stall ${stallOwner.stall_number}` : ""
+    }`;
+
+  document.getElementById("profile-name").textContent =
+    stallOwner.name || "—";
+
+  document.getElementById("profile-company").textContent =
+    stallOwner.company_name || "—";
+
+  document.getElementById("profile-stall").textContent =
+    stallOwner.stall_number || "—";
+
+  document.getElementById("profile-mobile").textContent =
+    stallOwner.mobile_number || "—";
+}
+async function onEventChange() {
+  const eventId = document.getElementById("stall-owner-event-sel").value;
+
+  await loadDashboard(eventId);
+
+  // If user is on the Leads page, refresh it
+  if (document.getElementById("page-leads").classList.contains("active")) {
+    loadLeads();
+  }
 }
 </script>
 </body>

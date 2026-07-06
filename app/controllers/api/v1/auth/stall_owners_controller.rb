@@ -4,15 +4,13 @@ module Api
       class StallOwnersController < ApplicationController
 
         def sign_in
-          Rails.logger.info "params: #{params}"
-
           mobile   = params[:mobile]&.strip
           password = params[:password]&.strip
 
-          stall = ::StallOwner.find_by(
-            mobile_number: mobile,
-            pass_code: password
-          )
+          stall = ::StallOwner
+            .where(mobile_number: mobile, pass_code: password)
+            .order(:created_at)
+            .first
 
           unless stall&.active?
             Rails.logger.warn(
