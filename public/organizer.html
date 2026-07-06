@@ -205,7 +205,7 @@ tr:hover td{background:rgba(255,255,255,0.02)}
       <div class="nav-section">Overview</div>
       <div class="nav-item active" onclick="nav('dashboard',this)"><span class="nav-icon">🏠</span> Dashboard</div>
       <div class="nav-section">Events</div>
-      <div class="nav-item" onclick="nav('events',this)"><span class="nav-icon">🎪</span> My Events</div>
+      <!-- <div class="nav-item" onclick="nav('events',this)"><span class="nav-icon">🎪</span> My Events</div> -->
       <div class="nav-item" onclick="nav('stalls',this)"><span class="nav-icon">🏪</span> Stall Owners</div>
       <div class="nav-item" onclick="nav('visitors',this)"><span class="nav-icon">👥</span> Visitors</div>
       <div class="nav-item" onclick="nav('analytics',this)"><span class="nav-icon">📊</span> Analytics</div>
@@ -894,7 +894,7 @@ async function loadDashboard() {
   <div class="event-card">
 
     <div class="event-banner">
-      <img src="${e.banner_url || 'images/event_' + (Math.floor(Math.random() * 4)) +'.jpeg'}" alt="${e.name}">
+      <img src="${e.banner_url || 'images/event_0.jpeg'}" alt="${e.name}">
       <span class="event-status">${e.status.toUpperCase() || 'LIVE'}</span>
     </div>
 
