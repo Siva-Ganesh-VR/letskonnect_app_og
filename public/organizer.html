@@ -205,7 +205,7 @@ tr:hover td{background:rgba(255,255,255,0.02)}
       <div class="nav-section">Overview</div>
       <div class="nav-item active" onclick="nav('dashboard',this)"><span class="nav-icon">🏠</span> Dashboard</div>
       <div class="nav-section">Events</div>
-      <div class="nav-item" onclick="nav('events',this)"><span class="nav-icon">🎪</span> My Events</div>
+      <!-- <div class="nav-item" onclick="nav('events',this)"><span class="nav-icon">🎪</span> My Events</div> -->
       <div class="nav-item" onclick="nav('stalls',this)"><span class="nav-icon">🏪</span> Stall Owners</div>
       <div class="nav-item" onclick="nav('visitors',this)"><span class="nav-icon">👥</span> Visitors</div>
       <div class="nav-item" onclick="nav('analytics',this)"><span class="nav-icon">📊</span> Analytics</div>
@@ -230,22 +230,265 @@ tr:hover td{background:rgba(255,255,255,0.02)}
         <!-- <button class="btn btn-g" onclick="openModal('m-event')">+ Create Event</button> -->
       </div>
       <div id="events-list"></div>
+ <div class="events-grid">
+      <div class="event-card">
+
+    <div class="event-banner">
+        <img src="images/event_1.jpeg">
+        <span class="event-status">LIVE</span>
     </div>
 
+    <div class="event-body">
+
+        <h3>Industrial Expo 2026</h3>
+
+        <div class="event-meta">
+            Chennai Trade Centre
+        </div>
+
+        <div class="event-date">
+            12 - 14 Aug 2026
+        </div>
+
+        <div class="stats">
+
+            <div class="stat">
+                <span class="value">128</span>
+                <span class="label">Booths</span>
+            </div>
+
+            <div class="stat">
+                <span class="value">5.6K</span>
+                <span class="label">Visitors</span>
+            </div>
+
+            <div class="stat">
+                <span class="value">2.8K</span>
+                <span class="label">Matches</span>
+            </div>
+
+        </div>
+
+        <a href="#" class="view-btn">
+            View Event
+        </a>
+
+    </div>
+
+</div>
+<div class="event-card">
+
+    <div class="event-banner">
+        <img src="images/event_2.jpeg">
+        <span class="event-status">LIVE</span>
+    </div>
+
+    <div class="event-body">
+
+        <h3>Industrial Expo 2026</h3>
+
+        <div class="event-meta">
+            Chennai Trade Centre
+        </div>
+
+        <div class="event-date">
+            12 - 14 Aug 2026
+        </div>
+
+        <div class="stats">
+
+            <div class="stat">
+                <span class="value">128</span>
+                <span class="label">Booths</span>
+            </div>
+
+            <div class="stat">
+                <span class="value">5.6K</span>
+                <span class="label">Visitors</span>
+            </div>
+
+            <div class="stat">
+                <span class="value">2.8K</span>
+                <span class="label">Matches</span>
+            </div>
+
+        </div>
+
+        <a href="#" class="view-btn">
+            View Event
+        </a>
+
+    </div>
+
+</div>
+<div class="event-card">
+
+    <div class="event-banner">
+        <img src="images/event_3.jpeg">
+        <span class="event-status">LIVE</span>
+    </div>
+
+    <div class="event-body">
+
+        <h3>Industrial Expo 2026</h3>
+
+        <div class="event-meta">
+            Chennai Trade Centre
+        </div>
+
+        <div class="event-date">
+            12 - 14 Aug 2026
+        </div>
+
+        <div class="stats">
+
+            <div class="stat">
+                <span class="value">128</span>
+                <span class="label">Booths</span>
+            </div>
+
+            <div class="stat">
+                <span class="value">5.6K</span>
+                <span class="label">Visitors</span>
+            </div>
+
+            <div class="stat">
+                <span class="value">2.8K</span>
+                <span class="label">Matches</span>
+            </div>
+
+        </div>
+
+        <a href="#" class="view-btn">
+            View Event
+        </a>
+
+    </div>
+
+</div>
+</div>
+    </div>
+<style>
+  .events-grid{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:24px;
+}
+
+@media(max-width:1200px){
+    .events-grid{
+        grid-template-columns:repeat(2,1fr);
+    }
+}
+
+@media(max-width:768px){
+    .events-grid{
+        grid-template-columns:1fr;
+    }
+}
+.event-card{
+    border:1px solid var(--border);
+    border-radius:20px;
+    overflow:hidden;
+    box-shadow:0 4px 15px rgba(15,23,42,.06);
+    transition:.2s;
+}
+
+.event-card:hover{
+    transform:translateY(-4px);
+}
+
+.event-banner{
+    position:relative;
+    height:180px;
+}
+
+.event-banner img{
+    width:100%;
+    height:100%;
+    object-fit:cover;
+}
+
+.event-status{
+    position:absolute;
+    top:12px;
+    right:12px;
+    background:#DCFCE7;
+    color:#16A34A;
+    padding:6px 10px;
+    border-radius:999px;
+    font-size:11px;
+    font-weight:700;
+}
+
+.event-body{
+    padding:18px;
+}
+
+.event-body h3{
+    font-size:22px;
+    margin-bottom:6px;
+}
+
+.event-meta,
+.event-date{
+    font-size:14px;
+}
+
+.event-date{
+    margin-bottom:18px;
+}
+
+.stats{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:10px;
+    margin-bottom:18px;
+}
+
+.stat{
+    text-align:center;
+    border-radius:12px;
+    padding:12px 8px;
+}
+
+.value{
+    display:block;
+    font-size:22px;
+    font-weight:700;
+    color:#14B8A6;
+}
+
+.label{
+    font-size:12px;
+    color:#64748B;
+}
+
+.view-btn{
+    display:block;
+    text-align:center;
+    background:#14B8A6;
+    color:white;
+    text-decoration:none;
+    padding:12px;
+    border-radius:12px;
+    font-weight:600;
+}
+</style>
     <!-- STALLS -->
     <div class="page" id="page-stalls">
       <div class="page-head">
         <div><div class="page-title">Stall Owners</div><div class="page-sub">Manage exhibitor accounts</div></div>
         <div class="tbl-actions">
           <select class="filter-sel" id="stall-event-sel" onchange="loadStalls()">
-            <option value="">Select Event</option>
           </select>
-          <button class="btn btn-g" onclick="openBulkStallModal()">+ Add Stalls</button>
-          <button class="btn btn-g" onclick="openModal('m-import-stalls')">+ Bulk Upload</button>
+          <!-- <button class="btn btn-g" onclick="openBulkStallModal()">+ Add Stalls</button>
+          <button class="btn btn-g" onclick="openModal('m-import-stalls')">+ Bulk Upload</button> -->
         </div>
       </div>
       <div class="table-wrap">
-        <div id="stalls-tbl"><div class="empty"><div class="empty-icon">🏪</div>Select an event above</div></div>
+          <div id="stalls-tbl"><div class="empty"><div class="empty-icon">🏪</div>Select an event above</div></div>
+          <div id="stalls-pagination" style="display:none;margin-top:12px;display:flex;align-items:center;justify-content:space-between;gap:12px"></div>
       </div>
     </div>
 
@@ -254,13 +497,14 @@ tr:hover td{background:rgba(255,255,255,0.02)}
       <div class="page-head">
         <div><div class="page-title">Visitors</div><div class="page-sub">Registered visitors across your events</div></div>
         <div class="tbl-actions">
-          <select class="filter-sel" id="visitor-event-sel" onchange="loadVisitors()"><option value="">Select Event</option></select>
+          <select class="filter-sel" id="visitor-event-sel" onchange="loadVisitors()"></select>
           <input class="search" id="visitor-search" placeholder="Search name/mobile..." oninput="loadVisitors()">
           <button class="btn btn-o btn-sm" onclick="exportVisitors()">⬇ Export</button>
         </div>
       </div>
       <div class="table-wrap">
         <div id="visitors-tbl"><div class="empty"><div class="empty-icon">👥</div>Select an event above</div></div>
+        <div id="visitors-pagination" style="display:none;margin-top:12px;display:flex;align-items:center;justify-content:space-between;gap:12px"></div>
       </div>
     </div>
 
@@ -268,7 +512,7 @@ tr:hover td{background:rgba(255,255,255,0.02)}
     <div class="page" id="page-analytics">
       <div class="page-head">
         <div><div class="page-title">Analytics</div><div class="page-sub">Event performance metrics</div></div>
-        <select class="filter-sel" id="analytics-event-sel" onchange="loadAnalytics()"><option value="">Select Event</option></select>
+          <select class="filter-sel" id="analytics-event-sel" onchange="loadAnalytics()"></select>
       </div>
       <div id="analytics-content"><div class="empty"><div class="empty-icon">📊</div>Select an event above</div></div>
     </div>
@@ -478,6 +722,52 @@ if (!token || !me) {
   bootApp();
 }
 let myEvents = [];
+// Pagination state for main lists
+let stallsListState = { page: 1, perPage: 10, total: 0, search: "" };
+let visitorsListState = { page: 1, perPage: 10, total: 0, search: "" };
+let prevStallsEventId = null;
+let prevVisitorsEventId = null;
+
+function renderListPagination(containerId, currentPage, total, perPage, type) {
+  const container = document.getElementById(containerId);
+  if (!container) return;
+  const totalPages = Math.ceil(total / perPage) || 1;
+  if (totalPages <= 1) { container.style.display = "none"; return; }
+  container.style.display = "flex";
+  const start = (currentPage - 1) * perPage + 1;
+  const end = Math.min(currentPage * perPage, total);
+  const pages = new Set([1, totalPages, currentPage, currentPage-1, currentPage+1].filter(p => p >=1 && p <= totalPages));
+  const sorted = [...pages].sort((a,b)=>a-b);
+  let btns = "";
+  let prev = null;
+  sorted.forEach(p=>{
+    if (prev !== null && p - prev > 1) btns += `<span style="color:var(--text3);padding:0 6px">…</span>`;
+    const active = p === currentPage;
+    btns += `<button onclick="goListPage('${type}',${p})" style="width:36px;height:32px;border-radius:8px;border:1.5px solid ${active?"var(--accent)":"var(--border)"};background:${active?"var(--accent)":"var(--bg2)"};color:${active?"#fff":"var(--text2)"};font-size:13px;font-weight:${active?"700":"500"};cursor:pointer">${p}</button>`;
+    prev = p;
+  });
+  container.innerHTML = `
+    <div style="font-size:13px;color:var(--text2);font-weight:500; margin:25px;">${start}–${end} of <strong>${total.toLocaleString()}</strong></div>
+    <div style="display:flex;align-items:center;gap:8px"> 
+      <button onclick="goListPage('${type}',${currentPage-1})" ${currentPage<=1?"disabled":""} style="padding:6px 10px;border-radius:8px;border:1.5px solid var(--border);background:none;color:${currentPage<=1?"var(--text4)":"var(--text2)"};cursor:${currentPage<=1?"not-allowed":"pointer"}">← Prev</button>
+      ${btns}
+      <button onclick="goListPage('${type}',${currentPage+1})" ${currentPage>=totalPages?"disabled":""} style="padding:6px 10px;border-radius:8px;border:1.5px solid var(--border);background:none;color:${currentPage>=totalPages?"var(--text4)":"var(--text2)"};cursor:${currentPage>=totalPages?"not-allowed":"pointer"}">Next →</button>
+    </div>`;
+}
+
+function goListPage(type, page) {
+  if (type === 'stalls') {
+    const max = Math.ceil(stallsListState.total / stallsListState.perPage) || 1;
+    if (page < 1 || page > max) return;
+    stallsListState.page = page;
+    loadStalls();
+  } else if (type === 'visitors') {
+    const max = Math.ceil(visitorsListState.total / visitorsListState.perPage) || 1;
+    if (page < 1 || page > max) return;
+    visitorsListState.page = page;
+    loadVisitors();
+  }
+}
 
 // if (token && me) bootApp();
 
@@ -537,12 +827,19 @@ function openPage(page) {
     .forEach(p => p.classList.remove("active"));
   
   if (page === "stalls") {
-    document.getElementById("stall-event-sel").value = "";
-    document.getElementById("stalls-tbl").innerHTML = '<div class="empty"><div class="empty-icon">🏪</div>Please select an event from the Event filter above to view stall owners.</div>';
+    // default to showing stall owners across all events
+    const ses = document.getElementById("stall-event-sel");
+    if (ses) ses.value = "all";
+    document.getElementById("stalls-tbl").innerHTML = '<div style="padding:20px;color:var(--text2)">⏳ Loading stall owners across all events…</div>';
+    loadStalls();
   } else if (page === "visitors") {
-    document.getElementById("visitor-event-sel").value = "";
+    // default to showing visitors across all events
+    const ves = document.getElementById("visitor-event-sel");
+    if (ves) ves.value = "all";
     document.getElementById("visitor-search").value = "";
-    document.getElementById("visitors-tbl").innerHTML = '<div class="empty"><div class="empty-icon">👥</div>Select an event above</div>';
+    document.getElementById("visitors-tbl").innerHTML = `<div style="padding:20px;color:var(--text2)">⏳ Loading visitors across all events…</div>`;
+    // load immediately
+    loadVisitors();
   }
 
   if (page === "events") {
@@ -551,6 +848,13 @@ function openPage(page) {
 
   document.getElementById("page-" + page)
     .classList.add("active");
+}
+
+// Helper: programmatically open a page and set sidebar active item
+function openNav(page) {
+  const el = [...document.querySelectorAll('.nav-item')].find(n => n.textContent.trim().startsWith(page.charAt(0).toUpperCase() + page.slice(1)) || n.textContent.includes(page.charAt(0).toUpperCase() + page.slice(1)) || n.textContent.toLowerCase().includes(page));
+  if (el) return nav(page, el);
+  return nav(page);
 }
 
 // ── API helpers ───────────────────────────────────────────────────────────
@@ -586,31 +890,77 @@ async function loadDashboard() {
     ${sc("✅","Active Events", s.active||0, "hi")}
     ${sc("📋","Draft Events", s.draft||0, "")}
   `;
-  const evHtml = (d.events||[]).map(e => `
-    <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:8px">
-      <div>
-        <div style="font-weight:600;font-size:14px">
-          <a href="javascript:void(0)"
-            onclick="showEventDetails('${e.id}', 'dashboard')"
-            style="color:inherit;font-weight:600;text-decoration:none">
-            ${e.name}
-          </a>
-        </div>
-        <div style="font-size:12px;color:var(--text2);margin-top:2px">📍 ${e.venue} · ${fd(e.start_date)} – ${fd(e.end_date)}</div>
-      </div>
-      <div style="display:flex;align-items:center;gap:10px">
-        <span style="font-weight:700;font-size:16px">${e.registered_count||0} <span style="font-size:12px;font-weight:400;color:var(--text2)">visitors</span></span>
-        <span class="badge ${sb(e.status)}">${e.status}</span>
-        <button class="btn btn-o btn-sm" onclick='showQr("${e.id}","${e.name}","${e.qr_image_url||""}","${e.registration_qr_token}")'>QR</button>
-      </div>
+  const evHtml = (d.events || []).map(e => `
+  <div class="event-card">
+
+    <div class="event-banner">
+      <img src="${e.banner_url || 'images/event_0.jpeg'}" alt="${e.name}">
+      <span class="event-status">${e.status.toUpperCase() || 'LIVE'}</span>
     </div>
-  `).join("");
+
+    <div class="event-body">
+
+      <h3>${e.name}</h3>
+
+      <div class="event-meta">
+        📍 ${e.venue || '-'}
+      </div>
+
+      <div class="event-date">
+       📅 ${fd(e.start_date)} - ${fd(e.end_date)}
+      </div>
+
+      <div class="stats">
+
+        <div class="stat">
+          <span class="value">${e.booth_count || 0}</span>
+          <span class="label">Booths</span>
+        </div>
+
+        <div class="stat">
+          <span class="value">${e.registered_count || 0}</span>
+          <span class="label">Visitors</span>
+        </div>
+
+        <div class="stat">
+          <span class="value">${e.match_count || 0}</span>
+          <span class="label">Matches</span>
+        </div>
+
+      </div>
+
+      <div style="display:flex;gap:10px;margin-top:16px">
+
+        <button
+          class="btn btn-o btn-sm"
+          style="flex:1"
+          onclick='showQr("${e.id}","${e.name}","${e.qr_image_url || ""}","${e.registration_qr_token}")'>
+          QR
+        </button>
+
+        <button
+          class="view-btn"
+          style="flex:2"
+          onclick="showEventDetails('${e.id}','dashboard')">
+          View Event
+        </button>
+
+      </div>
+
+    </div>
+
+  </div>
+`).join("");
   document.getElementById("dash-events").innerHTML = `
-    <div class="table-wrap">
-      <div class="table-head"><div class="table-title">Your Events</div></div>
-      <div style="padding:0 20px">${evHtml || `<div class="empty"><div class="empty-icon">🎪</div>No events yet</div>`}</div>
-    </div>`;
+    <div class="table-title">Events</div>
+    <br/>
+     <div style="padding:0 2px" class="events-grid">${evHtml || `<div class="empty"><div class="empty-icon">🎪</div>No events yet</div>`}</div>
+    `;
+    
 }
+
+
+
 
 // ── Events ────────────────────────────────────────────────────────────────
 async function loadEvents() {
@@ -689,12 +1039,24 @@ function showQr(id, name, qrUrl, token) {
 // ── Stalls ────────────────────────────────────────────────────────────────
 async function loadStalls() {
   const eid = document.getElementById("stall-event-sel").value;
+  // reset page when selector changed
+  stallsListState.search = document.getElementById('stall-search')?.value || '';
+  if (prevStallsEventId !== eid) { stallsListState.page = 1; prevStallsEventId = eid; }
   if (!eid) return;
-  const res = await get(`/organizer/events/${eid}/stall_owners`);
-  const rows = (res.data||[]).map(s => `
-    <tr>
-      <td><div style="font-weight:600"><a href="javascript:void(0)"
-          onclick="showStallOwnerDetails('${s.id}', 'stalls')"
+  const perPage = stallsListState.perPage;
+  const page = stallsListState.page || 1;
+  let res;
+  if (eid === 'all') {
+    res = await get(`/organizer/stall_owners?search=${encodeURIComponent(stallsListState.search)}&page=${page}&per_page=${perPage}`);
+  } else {
+    res = await get(`/organizer/events/${eid}/stall_owners?page=${page}&per_page=${perPage}`);
+  }
+  const rows = (res.data||[]).map(s => {
+    const sev = (s.event && s.event.id) ? s.event.id : eid;
+    return `
+     <tr>
+       <td><div style="font-weight:600"><a href="javascript:void(0)"
+           onclick="showStallOwnerDetails('${s.id}', '${sev}', 'stalls')"
           style="color:inherit;font-weight:600;text-decoration:none">${s.company_name}</a></div><div style="font-size:12px;color:var(--text2)">${s.name}</div></td>
       <td>${s.stall_number||"—"}</td>
       <td>${s.stall_category||"—"}</td>
@@ -705,21 +1067,24 @@ async function loadStalls() {
       <td>
         <div style="display:flex;gap:6px">
           <button class="btn btn-o btn-sm" onclick='editStall(${JSON.stringify(s)})'>Edit</button>
-          <button class="btn btn-o btn-sm" onclick='toggleStall("${s.id}","${eid}",${s.active})'>${s.active?"Deactivate":"Activate"}</button>
+          <button class="btn btn-o btn-sm" onclick='toggleStall("${s.id}","${sev}",${s.active})'>${s.active?"Deactivate":"Activate"}</button>
         </div>
       </td>
     </tr>
-  `).join("");
+  `}).join("");
+  const total = res.meta?.total || (res.data||[]).length || 0;
+  stallsListState.total = total;
   document.getElementById("stalls-tbl").innerHTML = rows
-    ? `<table><thead><tr><th>Company</th><th>Stall</th><th>Category</th><th>Mobile</th><th>Password</th><th>Leads</th><th>Status</th><th></th></tr></thead><tbody>${rows}</tbody></table>`
-    : `<div class="empty"><div class="empty-icon">🏪</div>Please select an event from the Event filter above to view stall owners.</div>`;
+    ? `<div style="padding:10px 20px;font-size:13px;color:var(--text2)">${total} stall owner${total!==1?'s':''}</div><table><thead><tr><th>Company</th><th>Stall</th><th>Category</th><th>Mobile</th><th>Password</th><th>Leads</th><th>Status</th><th></th></tr></thead><tbody>${rows}</tbody></table>`
+    : `<div class="empty"><div class="empty-icon">🏪</div>No stall owners found</div>`;
+  renderListPagination('stalls-pagination', stallsListState.page, stallsListState.total, stallsListState.perPage, 'stalls');
 }
 
 async function createStall() {
   const eid = document.getElementById("stall-event-sel").value;
   const err = document.getElementById("st-err");
   err.style.display = "none";
-  if (!eid) { err.style.display="block"; err.textContent="Please select an event first"; return; }
+  if (!eid || eid === 'all') { err.style.display="block"; err.textContent="Please select an event first"; return; }
   const res = await post(`/organizer/events/${eid}/stall_owners`, { stall_owner: {
     name: document.getElementById("st-name").value.trim(),
     mobile_number: document.getElementById("st-mobile").value.trim(),
@@ -747,9 +1112,17 @@ async function toggleStall(sid, eid, currently) {
 // ── Visitors ──────────────────────────────────────────────────────────────
 async function loadVisitors() {
   const eid  = document.getElementById("visitor-event-sel").value;
-  const q    = document.getElementById("visitor-search").value;
+  visitorsListState.search = document.getElementById("visitor-search").value || "";
+  if (prevVisitorsEventId !== eid) { visitorsListState.page = 1; prevVisitorsEventId = eid; }
   if (!eid) return;
-  const res  = await get(`/organizer/events/${eid}/visitors?search=${encodeURIComponent(q)}&per_page=50`);
+  const perPage = visitorsListState.perPage;
+  const page = visitorsListState.page || 1;
+  let res;
+  if (eid === 'all') {
+    res = await get(`/organizer/visitors?search=${encodeURIComponent(visitorsListState.search)}&page=${page}&per_page=${perPage}`);
+  } else {
+    res = await get(`/organizer/events/${eid}/visitors?search=${encodeURIComponent(visitorsListState.search)}&page=${page}&per_page=${perPage}`);
+  }
   const rows = (res.data||[]).map(v => `
     <tr>
       <td><span class="badge bp"><a href="javascript:void(0)"
@@ -764,12 +1137,14 @@ async function loadVisitors() {
       <td style="font-size:12px;color:var(--text2)">${fd(v.registered_at)}</td>
     </tr>
   `).join("");
-  const total = res.meta?.total || 0;
+  const total = res.meta?.total || (res.data||[]).length || 0;
   document.getElementById("visitors-tbl").innerHTML = `
     <div style="padding:10px 20px;font-size:13px;color:var(--text2)">${total} visitor${total!==1?'s':''} registered</div>
     ${rows ? `<table><thead><tr><th>ID</th><th>Name</th><th>Mobile</th><th>Business</th><th>Category</th><th>Location</th><th>Stalls</th><th>Registered</th></tr></thead><tbody>${rows}</tbody></table>`
     : `<div class="empty"><div class="empty-icon">👥</div>No visitors registered yet</div>`}
   `;
+  visitorsListState.total = total;
+  renderListPagination('visitors-pagination', visitorsListState.page, visitorsListState.total, visitorsListState.perPage, 'visitors');
 }
 
 async function exportVisitors() {
@@ -833,7 +1208,11 @@ async function loadEventSelectors() {
     const sel = document.getElementById(id);
     if (!sel) return;
     const cur = sel.value;
-    sel.innerHTML = `<option value="">Select Event</option>` + myEvents.map(e=>`<option value="${e.id}">${e.name}</option>`).join("");
+    if (id === "visitor-event-sel" || id === "stall-event-sel") {
+      sel.innerHTML = `<option value="all">All Events</option>` + myEvents.map(e=>`<option value="${e.id}">${e.name}</option>`).join("");
+    } else {
+      sel.innerHTML = myEvents.map(e=>`<option value="${e.id}">${e.name}</option>`).join("");
+    }
     if (cur) sel.value = cur;
   });
   // Pre-fill stall modal event select
@@ -1496,7 +1875,7 @@ function renderPagination(containerId, currentPage, total, perPage, type) {
   });
 
   container.innerHTML = `
-    <div style="font-size:13px;color:var(--text2);font-weight:500">${start}–${end} of <strong>${total.toLocaleString()}</strong></div>
+    <div style="font-size:13px;color:var(--text2);font-weight:500; margin:25px;">${start}–${end} of <strong>${total.toLocaleString()}</strong></div>
     <div style="display:flex;align-items:center;gap:5px;flex-wrap:wrap">
       <button onclick="goPage('${type}',${currentPage-1})" ${currentPage<=1?"disabled":""} style="padding:5px 10px;border-radius:8px;border:1.5px solid var(--border);background:none;color:${currentPage<=1?"var(--text4)":"var(--text2)"};cursor:${currentPage<=1?"not-allowed":"pointer"};font-family:'Inter',sans-serif;font-size:13px">← Prev</button>
       ${btns}
@@ -1539,13 +1918,27 @@ async function showOrganizerDetails(orgId, pageName = "organizers") {
     { label: "Joined", value: fd(o.created_at) }
   ]);
 }
-async function showStallOwnerDetails(stallOwnerId, pageName = "stalls") {
-  const eid = document.getElementById("stall-event-sel").value;
+async function showStallOwnerDetails(stallOwnerId, arg2 = "stalls", arg3) {
+  // signature support:
+  // showStallOwnerDetails(id, eventId, pageName)
+  // showStallOwnerDetails(id, pageName)
+  let eid;
+  let pageName = "stalls";
+  const knownPages = ["stalls", "events", "details", "dashboard", "organizers"];
+  if (arg3) {
+    eid = arg2;
+    pageName = arg3;
+  } else if (knownPages.includes(arg2)) {
+    pageName = arg2;
+    eid = document.getElementById("stall-event-sel").value;
+  } else {
+    // arg2 is probably an event id
+    eid = arg2;
+    pageName = "stalls";
+  }
   previousPage = pageName;
 
-  const result = await get(
-    `/organizer/events/${eid}/stall_owners/${stallOwnerId}`
-  );
+  const result = await get(`/organizer/events/${eid}/stall_owners/${stallOwnerId}`);
 
   const s = result.data;
 

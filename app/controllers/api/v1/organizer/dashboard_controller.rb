@@ -6,6 +6,9 @@ module Api
 
         def show
           events = @current_organizer.events.includes(:event_analytics)
+          sample_images = Dir.children(Rails.root.join("public", "images")).select { |f| f.start_with?("event_") }.map { |f| "/images/#{f}" }.shuffle
+          image_count = sample_images.size
+
           json_success({
             organizer: { name: @current_organizer.name, company: @current_organizer.company_name },
             events_summary: {
@@ -13,13 +16,13 @@ module Api
               active: events.where(status: "active").count,
               draft:  events.where(status: "draft").count
             },
-            events: events.order(created_at: :desc).map { |e| event_card(e) }
+            events: events.order(created_at: :desc).map.with_index { |e, idx| event_card(e, image_count.positive? ? sample_images[idx % image_count] : nil) }
           })
         end
 
         private
 
-        def event_card(e)
+        def event_card(e, banner_url = nil)
           analytics = e.event_analytics
           {
             id: e.id, name: e.name, venue: e.venue, city: e.city,
@@ -27,7 +30,7 @@ module Api
             registered_count: e.registered_count,
             total_stalls: e.stall_owners.count,
             total_leads: analytics&.total_leads || 0,
-            qr_image_url: e.qr_image_url,
+            banner_url: banner_url,
             registration_qr_token: e.registration_qr_token,
           }
         end

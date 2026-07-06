@@ -3,16 +3,26 @@ module Api
     module Organizer
       class VisitorsController < ApplicationController
         before_action :authenticate_organizer!
-        before_action :set_event
+        # set event when event_id is provided (index may be called with or without)
+        before_action :set_event, if: -> { params[:event_id].present? }
 
         def index
-          visitors = @event.visitors.verified
+          if params[:event_id].present?
+            visitors = @event.visitors.verified
+          else
+            # collect visitors across all events owned by this organizer
+            event_ids = @current_organizer.events.pluck(:id)
+            visitors = ::Visitor.where(event_id: event_ids).verified
+          end
           visitors = visitors.where("full_name ILIKE ?", "%#{params[:search]}%") if params[:search].present?
           visitors = visitors.where(business_category: params[:category]) if params[:category].present?
           visitors = visitors.where(profession: params[:profession]) if params[:profession].present?
           visitors = visitors.order(created_at: :desc)
 
-          pagy, paginated = pagy(visitors, items: params[:per_page] || 25)
+          per_page = params[:per_page].to_i
+          per_page = 10 if per_page <= 0
+          per_page = [per_page, 100].min
+          pagy, paginated = pagy(visitors, items: per_page)
 
           json_success(
             paginated.map { |v| visitor_data(v) },
@@ -57,8 +67,8 @@ module Api
             mobile_number: v.mobile_number, email: v.email, profession: v.profession,
             business_name: v.business_name, business_category: v.business_category,
             location: v.location, designation: v.designation,
-            stalls_visited: v.leads.count, registered_at: v.created_at.iso8601, 
-            email: v.email, active: v.active, looking_for: v.looking_for, 
+            stalls_visited: v.leads.count, registered_at: v.created_at.iso8601,
+            email: v.email, active: v.active, looking_for: v.looking_for,
             decision_maker: v.decision_maker, created_at: v.created_at }
         end
       end

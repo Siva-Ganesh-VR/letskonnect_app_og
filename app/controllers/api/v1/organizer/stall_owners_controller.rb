@@ -3,10 +3,16 @@ module Api
     module Organizer
       class StallOwnersController < ApplicationController
         before_action :authenticate_organizer!
-        before_action :set_event
+        # set event when event_id is provided (index may be called with or without)
+        before_action :set_event, if: -> { params[:event_id].present? }
 
         def index
-          stalls = @event.stall_owners.order(:stall_number)
+          if params[:event_id].present?
+            stalls = @event.stall_owners.order(:stall_number)
+          else
+            event_ids = @current_organizer.events.pluck(:id)
+            stalls = ::StallOwner.where(event_id: event_ids).order(:stall_number)
+          end
 
           if params[:search].present?
             q = "%#{params[:search]}%"
@@ -16,10 +22,10 @@ module Api
             )
           end
 
-          pagy, paginated = pagy(
-            stalls,
-            items: params[:per_page] || 10
-          )
+          per_page = params[:per_page].to_i
+          per_page = 10 if per_page <= 0
+          per_page = [per_page, 100].min
+          pagy, paginated = pagy(stalls, items: per_page)
 
           json_success(
             paginated.map { |s| stall_response(s) },
