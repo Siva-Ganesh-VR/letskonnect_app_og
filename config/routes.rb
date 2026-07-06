@@ -61,6 +61,10 @@ Rails.application.routes.draw do
 
       # Organizer — protected routes
       namespace :organizer do
+        # allow listing stall owners across all organizer events
+        get "stall_owners", to: "stall_owners#index"
+          # allow listing visitors across all organizer events
+          get "visitors", to: "visitors#index"
         get "dashboard",                to: "dashboard#show"
         resources :events, only: [:index, :show, :create, :update] do
           member { get :analytics; get :qr_code; post :activate; post :archive }
