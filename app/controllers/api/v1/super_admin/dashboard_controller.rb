@@ -22,7 +22,7 @@ module Api
               .map do |e|
                 {
                   id: e.id,
-                  name: e.name,
+                  name: e.name.titleize,
                   status: e.status,
                   registered_count: e.registered_count,
                   start_date: e.start_date
@@ -35,8 +35,8 @@ module Api
               .map do |o|
                 {
                   id: o.id,
-                  name: o.name,
-                  company_name: o.company_name,
+                  name: o.name.titleize,
+                  company_name: o.company_name.titleize,
                   active: o.active
                 }
               end

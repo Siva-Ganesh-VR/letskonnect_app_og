@@ -7,7 +7,7 @@ module Api
 
         # GET /api/v1/stall_owner/leads
         def index
-          leads = @current_stall_owner.leads.includes(:visitor)
+          leads = selected_stall_owner.leads.includes(:visitor)
 
           leads = leads.where(temperature: params[:temperature]) if params[:temperature].present?
           leads = leads.where(status: params[:status])           if params[:status].present?
@@ -33,14 +33,14 @@ module Api
               page:     pagy.page,
               per_page: pagy.items,
               pages:    pagy.pages,
-              summary:  Lead.summary_for_stall(@current_stall_owner.id)
+              summary:  Lead.summary_for_stall(selected_stall_owner.id)
             }
           )
         end
 
         # GET /api/v1/stall_owner/leads/summary
         def summary
-          json_success(Lead.summary_for_stall(@current_stall_owner.id))
+          json_success(Lead.summary_for_stall(selected_stall_owner.id))
         end
 
         # GET /api/v1/stall_owner/leads/:id
@@ -59,7 +59,7 @@ module Api
 
         # POST /api/v1/stall_owner/leads/:id/whatsapp
         def whatsapp
-          WhatsappService.send_followup(@lead.visitor, @current_stall_owner, params[:message])
+          WhatsappService.send_followup(@lead.visitor, selected_stall_owner, params[:message])
           json_success({ message: "WhatsApp message sent" })
         end
 
@@ -72,11 +72,11 @@ module Api
         # POST /api/v1/stall_owner/leads/export
         def export
           job = ExportJob.create!(
-            exportable:        @current_stall_owner,
+            exportable:        selected_stall_owner,
             export_type:       "leads_excel",
             filters:           export_filter_params.to_h,
             requested_by_type: "StallOwner",
-            requested_by_id:   @current_stall_owner.id,
+            requested_by_id:   selected_stall_owner.id,
             expires_at:        24.hours.from_now
           )
           ExportLeadsJob.perform_later(job.id)
@@ -88,14 +88,14 @@ module Api
 
         # GET /api/v1/stall_owner/leads/export/:job_id/status
         def export_status
-          job = ExportJob.find_by!(id: params[:job_id], exportable: @current_stall_owner)
+          job = ExportJob.find_by!(id: params[:job_id], exportable: selected_stall_owner)
           json_success({ status: job.status, file_url: job.file_url, error: job.error_message })
         end
 
         private
 
         def set_lead
-          @lead = @current_stall_owner.leads.includes(:visitor).find(params[:id])
+          @lead = selected_stall_owner.leads.includes(:visitor).find(params[:id])
         end
 
         def lead_update_params
@@ -142,6 +142,13 @@ module Api
 
         def lead_with_visitor(l)
           lead_response(l).merge(visitor: visitor_data(l.visitor))
+        end
+
+        def selected_stall_owner
+          @selected_stall_owner ||= ::StallOwner.find_by(
+            mobile_number: @current_stall_owner.mobile_number,
+            event_id: params[:event_id]
+          ) || @current_stall_owner
         end
       end
     end

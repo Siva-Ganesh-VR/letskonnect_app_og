@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title><%= @visitor.full_name %> — LetsKonnect Pass</title>
+<title><%= @visitor.full_name %> — Expoza Pass</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
@@ -42,7 +42,7 @@ body{font-family:'Inter',system-ui,sans-serif;background:linear-gradient(135deg,
 <body>
 <div class="pass">
   <div class="pass-header">
-    <div class="logo-row"><div class="logo-dot"></div><span class="logo-text">LETSKONNECT</span></div>
+    <div class="logo-row"><div class="logo-dot"></div><span class="logo-text">Expoza</span></div>
     <div class="visitor-name"><%= @visitor.full_name %></div>
     <div class="visitor-role"><%= [@visitor.designation, @visitor.business_name].compact.join(" · ") %></div>
   </div>

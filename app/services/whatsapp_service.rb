@@ -16,9 +16,9 @@ class WhatsappService
 
       _Show this QR at any exhibitor stall to instantly share your details._
 
-      Powered by *LetsKonnect* 🤝
+      Powered by *Expoza* 🤝
     MSG
-    send_message(visitor.mobile_number, message)
+    send_message(visitor.mobile_number, message, visitor.qr_image_url)
   end
 
   def self.send_stall_visit(visitor, stall_owner)
@@ -29,7 +29,7 @@ class WhatsappService
 
       Our team will reach out to you soon. 🙏
 
-      Powered by *LetsKonnect* 🤝
+      Powered by *Expoza* 🤝
     MSG
     send_message(visitor.mobile_number, message)
   end
@@ -43,14 +43,14 @@ class WhatsappService
 
       #{body}
 
-      Powered by *LetsKonnect* 🤝
+      Powered by *Expoza* 🤝
     MSG
     send_message(visitor.mobile_number, message)
   end
 
   def self.send_stall_credentials(stall_owner, password)
     message = <<~MSG
-      🏪 *LetsKonnect — Exhibitor Login*
+      🏪 *Expoza — Exhibitor Login*
 
       Hi #{stall_owner.name},
 
@@ -60,9 +60,9 @@ class WhatsappService
       🔐 *Password:* #{password}
       🏪 *Stall:* #{stall_owner.stall_number || "N/A"} — #{stall_owner.company_name}
 
-      Login to the LetsKonnect app and scan visitor QR codes to capture leads instantly.
+      Login to the Expoza app and scan visitor QR codes to capture leads instantly.
 
-      Powered by *LetsKonnect* 🤝
+      Powered by *Expoza* 🤝
     MSG
     send_message(stall_owner.mobile_number, message)
   end
@@ -78,7 +78,7 @@ class WhatsappService
 
       _(Link valid for 24 hours)_
 
-      Powered by *LetsKonnect* 🤝
+      Powered by *Expoza* 🤝
     MSG
     send_message(stall_owner.mobile_number, message)
   end
@@ -101,12 +101,12 @@ class WhatsappService
 
       Login to the app to follow up on your hot leads!
 
-      Powered by *LetsKonnect* 🤝
+      Powered by *Expoza* 🤝
     MSG
     send_message(stall_owner.mobile_number, message)
   end
 
-  def self.send_message(mobile_number, body)
+  def self.send_message(mobile_number, body, media_url = nil)
     # return mock_send(mobile_number, body) if Rails.env.development? || Rails.env.test?
 
     client = Twilio::REST::Client.new(
@@ -114,11 +114,13 @@ class WhatsappService
       ENV.fetch("TWILIO_AUTH_TOKEN")
     )
 
-    response = client.messages.create(
+    params = {
       from: ENV.fetch("TWILIO_WHATSAPP_FROM", "whatsapp:+14155238886"),
-      to:   "whatsapp:#{INDIA_PREFIX}#{mobile_number}",
+      to: "whatsapp:#{INDIA_PREFIX}#{mobile_number}",
       body: body
-    )
+    }
+    params[:media_url] = [media_url] if media_url.present?
+    response = client.messages.create(**params)
 
     { success: true, sid: response.sid }
   rescue Twilio::REST::RestError => e

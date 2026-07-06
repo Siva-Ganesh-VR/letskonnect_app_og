@@ -63,6 +63,25 @@ class StallOwner < ApplicationRecord
     }
   end
 
+  # def dashboard_summary
+  #   all_leads = Lead.where(
+  #     stall_owner_id: StallOwner.where(mobile_number: mobile_number).select(:id)
+  #   )
+
+  #   {
+  #     total: all_leads.count,
+  #     today: all_leads.where("scanned_at >= ?", Time.zone.today.beginning_of_day).count,
+  #     hot: all_leads.where(temperature: "hot").count,
+  #     warm: all_leads.where(temperature: "warm").count,
+  #     cold: all_leads.where(temperature: "cold").count,
+  #     new_leads: all_leads.where(status: "new").count,
+  #     interested: all_leads.where(status: "interested").count,
+  #     follow_up: all_leads.where(status: "follow_up").count,
+  #     converted: all_leads.where(status: "converted").count,
+  #     follow_up_today: all_leads.where(follow_up_date: Date.current).count
+  #   }
+  # end
+
   private
 
   # Example:

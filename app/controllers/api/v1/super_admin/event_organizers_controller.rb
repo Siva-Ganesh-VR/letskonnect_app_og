@@ -26,6 +26,7 @@ module Api
             # TODO: send welcome WhatsApp/email with credentials
             json_success(organizer_response(organizer), status: :created)
           else
+            Rails.logger.error organizer.errors.full_messages
             json_error("Could not create organizer", errors: organizer.errors.full_messages)
           end
         end
@@ -55,6 +56,36 @@ module Api
           json_success({ message: "Password reset. New credentials sent to organizer." })
         end
 
+        def events
+          organizer = EventOrganizer.find(params[:id])
+
+          events = organizer.events.order(start_date: :desc)
+
+          if params[:search].present?
+            q = "%#{params[:search]}%"
+            events = events.where(
+              "name ILIKE ? OR venue ILIKE ? OR city ILIKE ?",
+              q, q, q
+            )
+          end
+
+          pagy_obj, records = pagy(
+            events,
+            page: params[:page],
+            items: params[:per_page] || 10
+          )
+
+          json_success(
+            records.map { |e| event_response(e) },
+            meta: {
+              total: pagy_obj.count,
+              page: pagy_obj.page,
+              per_page: pagy_obj.items,
+              pages: pagy_obj.pages
+            }
+          )
+        end
+
         private
 
         def set_organizer
@@ -73,12 +104,28 @@ module Api
           {
             id: o.id,
             org_code: o.org_code,   # ← add here
-            name: o.name,
+            name: o.name.titleize,
             email: o.email,
             mobile_number: o.mobile_number,
-            company_name: o.company_name,
+            company_name: o.company_name.titleize,
             active: o.active,
             created_at: o.created_at
+          }
+        end
+
+        def event_response(event)
+          {
+            id: event.id,
+            name: event.name,
+            venue: event.venue,
+            city: event.city,
+            status: event.status,
+            start_date: event.start_date,
+            end_date: event.end_date,
+            registered_count: event.visitors.count,
+            qr_image_url: event.qr_image_url,
+            registration_qr_token: event.registration_qr_token,
+            max_visitors: event.max_visitors
           }
         end
       end

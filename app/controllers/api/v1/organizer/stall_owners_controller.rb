@@ -116,6 +116,12 @@ module Api
           created = []
           errors = []
 
+          mobile_numbers = params[:stall_owners].map { |row| row[:mobile_number] }
+
+          existing_stall_owners = ::StallOwner
+            .where(mobile_number: mobile_numbers)
+            .index_by(&:mobile_number)
+
           params[:stall_owners].each_with_index do |row, index|
             generated_password = SecureRandom.alphanumeric(8)
 
@@ -138,6 +144,10 @@ module Api
             stall.pass_code = rand(100000..999999).to_s
             stall.password = generated_password
             stall.password_confirmation = generated_password
+
+            if (existing = existing_stall_owners[stall.mobile_number])
+              stall.pass_code = existing.pass_code
+            end
 
             if stall.save
               created << stall.id
