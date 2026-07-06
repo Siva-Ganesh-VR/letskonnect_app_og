@@ -69,6 +69,8 @@ td{padding:11px 16px;font-size:14px;border-bottom:1px solid rgba(255,255,255,0.0
 tr:last-child td{border-bottom:none}
 tr:hover td{background:rgba(255,255,255,0.02)}
 .badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600}
+.badge-green{background:rgba(34,197,94,0.15);color:#86efac}
+.badge-gray{background:rgba(255,255,255,0.08);color:var(--text2)}
 .bg{background:rgba(34,197,94,0.15);color:#86efac}
 .ba{background:rgba(245,158,11,0.15);color:#fcd34d}
 .br{background:rgba(239,68,68,0.15);color:#fca5a5}
@@ -1561,6 +1563,8 @@ const detailsState = {
   stallTotal: 0,
   stallPerPage: 10,
   stallSearch: "",
+  stallCategoryFilter: "all",
+  eventStallOwners: [],
   visitorPage: 1,
   visitorTotal: 0,
   visitorPerPage: 10,
@@ -1587,10 +1591,13 @@ async function showEventDetails(eventId, pageName = "events") {
   try {
     const result = await get(`/organizer/events/${eventId}`);
     const e = result.data;
+    detailsState.stallCategoryFilter = "all";
+    detailsState.eventStallOwners = e.stall_owners || [];
     document.getElementById("odetails-title").textContent = e.name;
     try {
       const html = buildEventDetailsHTML(e);
       document.getElementById("details-content").innerHTML = html;
+      renderStallAnalytics();
     } catch(err) {
       console.error("buildEventDetailsHTML failed", err);
     }
@@ -1610,7 +1617,12 @@ async function showEventDetails(eventId, pageName = "events") {
 
 // ── Build the static info section ──────────────────────────────────
 function buildEventDetailsHTML(e) {
-  const statusColor = {active:"var(--green2)",draft:"var(--amber2)",completed:"#2563eb",archived:"var(--text3)"}[e.status] || "var(--text2)";
+  const statusColor = {
+    active: "#22c55e",
+    draft: "#f59e0b",
+    completed: "#2563eb",
+    archived: "#94a3b8"
+  }[e.status] || "rgba(255,255,255,0.6)";
   return `
     <!-- Event info card -->
     <div style="background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:20px;margin-bottom:20px;box-shadow:var(--shadow)">
@@ -1630,8 +1642,18 @@ function buildEventDetailsHTML(e) {
         ${detailChip("🆔 Event Code",     `<span style="font-family:monospace;font-size:11px">${e.event_code}</span>`)}
       </div>
       ${e.description ? `<div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border);font-size:14px;color:var(--text2);line-height:1.6">${e.description}</div>` : ""}
-      <div style="display:flex;gap:8px;margin-top:16px;padding-top:14px;border-top:1px solid var(--border);flex-wrap:wrap">
-        <button class="btn btn-p btn-sm" onclick='showQr("${e.id}","${e.name}","${e.qr_image_url||""}","${e.registration_qr_token||""}")'>📱 QR Code</button>
+      <div style="display:grid;grid-template-columns:1fr auto;gap:12px;margin-top:16px;padding-top:14px;border-top:1px solid var(--border);align-items:center">
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <div style="font-size:13px;color:var(--text2)">Share this event registration QR with visitors.</div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+            <button class="btn btn-p btn-sm" onclick='showQr("${e.id}","${e.name}","${e.qr_image_url||""}","${e.registration_qr_token||""}")'>📱 View QR Code</button>
+            <a href="/register/${e.registration_qr_token||""}" target="_blank" style="display:inline-flex;align-items:center;gap:6px;padding:10px 14px;border-radius:12px;border:1px solid var(--border);color:var(--accent);text-decoration:none;font-size:13px;background:rgba(34,197,94,0.06)">🔗 Open registration</a>
+          </div>
+        </div>
+        <div style="background:rgba(34,197,94,0.08);border:1px solid rgba(34,197,94,0.2);border-radius:14px;padding:14px;min-width:220px">
+          <div style="font-size:12px;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:6px">Event Status</div>
+          <span style="display:inline-flex;align-items:center;justify-content:center;background:${statusColor}1a;color:${statusColor};border:1.5px solid ${statusColor}40;border-radius:20px;padding:6px 14px;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.04em">${e.status}</span>
+        </div>
       </div>
     </div>
 
@@ -1682,6 +1704,8 @@ function buildEventDetailsHTML(e) {
       <div id="event-visitors-pagination" style="padding:10px 18px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;display:none">
       </div>
     </div>
+
+    <div id="event-analytics-section"></div>
   `;
 }
 
@@ -1691,6 +1715,54 @@ function detailChip(label, value) {
       <div style="font-size:11px;color:var(--text3);font-weight:600;text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px">${label}</div>
       <div style="font-size:14px;font-weight:600;color:var(--text)">${value}</div>
     </div>`;
+}
+
+function renderStallAnalytics() {
+  const container = document.getElementById("event-analytics-section");
+  if (!container) return;
+
+  const stalls = detailsState.eventStallOwners || [];
+  const categories = [...new Set(stalls.map(s => s.category).filter(Boolean))].sort();
+  const selectedCategory = detailsState.stallCategoryFilter || "all";
+  let filtered = stalls;
+  if (selectedCategory !== "all") {
+    filtered = stalls.filter(s => s.category === selectedCategory);
+  }
+  const topStalls = [...filtered].sort((a, b) => (b.total_leads || 0) - (a.total_leads || 0)).slice(0, 5);
+  const totalLeads = filtered.reduce((sum, s) => sum + (s.total_leads || 0), 0);
+  const totalStalls = filtered.length;
+
+  container.innerHTML = `
+    <div style="background:var(--bg2);border:1px solid var(--border);border-radius:14px;overflow:hidden;margin-bottom:20px;box-shadow:var(--shadow)">
+      <div style="padding:18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
+        <div>
+          <div style="font-size:15px;font-weight:700;color:var(--text)">📈 Stall Based Leads</div>
+          <div style="font-size:13px;color:var(--text2);margin-top:4px">Top performing stalls by lead count. Filter by category to narrow the view.</div>
+        </div>
+        <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+          <div style="font-size:12px;color:var(--text2);font-weight:600">Category</div>
+          <select id="stall-analytics-category" class="filter-sel" onchange="detailsState.stallCategoryFilter=this.value;renderStallAnalytics()">
+            <option value="all" ${selectedCategory === 'all' ? 'selected' : ''}>All Categories</option>
+            ${categories.map(c => `<option value="${c}" ${selectedCategory===c ? 'selected' : ''}>${c}</option>`).join("")}
+          </select>
+        </div>
+      </div>
+      <div style="padding:18px;display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;">
+        ${detailChip("Stalls Shown", totalStalls || 0)}
+        ${detailChip("Total Leads", totalLeads || 0)}
+        ${detailChip("Top Stall", topStalls[0] ? `${topStalls[0].company_name} (${topStalls[0].total_leads || 0})` : "—")}
+      </div>
+      <div style="padding:0 18px 18px">
+        ${topStalls.length ? `<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse"><thead><tr><th style="text-align:left;padding:10px 12px;font-size:11px;font-weight:700;text-transform:uppercase;color:var(--text3);border-bottom:1px solid var(--border)">Rank</th><th style="text-align:left;padding:10px 12px;font-size:11px;font-weight:700;text-transform:uppercase;color:var(--text3);border-bottom:1px solid var(--border)">Stall</th><th style="text-align:left;padding:10px 12px;font-size:11px;font-weight:700;text-transform:uppercase;color:var(--text3);border-bottom:1px solid var(--border)">Category</th><th style="text-align:right;padding:10px 12px;font-size:11px;font-weight:700;text-transform:uppercase;color:var(--text3);border-bottom:1px solid var(--border)">Leads</th></tr></thead><tbody>${topStalls.map((s, index) => `
+            <tr>
+              <td style="padding:10px 12px;font-size:13px;color:var(--text2)">${index + 1}</td>
+              <td style="padding:10px 12px;font-size:13px;color:var(--text)">${s.company_name}</td>
+              <td style="padding:10px 12px;font-size:13px;color:var(--text2)">${s.category || '—'}</td>
+              <td style="padding:10px 12px;font-size:13px;text-align:right;color:var(--accent);font-weight:700">${s.total_leads || 0}</td>
+            </tr>`).join("")}</tbody></table></div>` : `<div class="empty"><div class="empty-icon">🏪</div>No stalls match this category</div>`}
+      </div>
+    </div>
+  `;
 }
 
 // ── Stall Owners Table ──────────────────────────────────────────────

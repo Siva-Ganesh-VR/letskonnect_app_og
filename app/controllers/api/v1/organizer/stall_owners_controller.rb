@@ -22,6 +22,10 @@ module Api
             )
           end
 
+          if params[:category].present? && params[:category] != "all"
+            stalls = stalls.where(stall_category: params[:category])
+          end
+
           per_page = params[:per_page].to_i
           per_page = 10 if per_page <= 0
           per_page = [per_page, 100].min
