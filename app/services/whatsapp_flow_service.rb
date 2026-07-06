@@ -128,7 +128,7 @@ class WhatsappFlowService
   end
 
   def save_category
-    category = CATEGORY_OPTIONS[@message.downcase]
+    category = CATEGORY_OPTIONS[normalized_message]
 
     unless category
       WhatsappService.send_template(
@@ -152,7 +152,7 @@ class WhatsappFlowService
   end
 
   def save_looking_for
-    looking_for = LOOKING_FOR_OPTIONS[@message.downcase]
+    looking_for = LOOKING_FOR_OPTIONS[normalized_message]
 
     unless looking_for
       WhatsappService.send_template(
@@ -180,7 +180,7 @@ class WhatsappFlowService
   end
 
   def save_decision
-    value = @message.downcase
+    value = normalized_message
 
     decision =
       if YES_VALUES.include?(value)
@@ -223,5 +223,16 @@ class WhatsappFlowService
       record.answer = answer
       record.save!
     end
+  end
+
+  private
+
+  def normalized_message
+    @message
+      .to_s
+      .downcase
+      .tr("_-", "  ")      # Convert _ and - to spaces
+      .gsub(/\s+/, " ")    # Collapse multiple spaces
+      .strip
   end
 end

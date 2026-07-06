@@ -88,7 +88,7 @@ Rails.application.routes.draw do
           member { get :analytics; post :generate_qr; post :activate; post :archive }
         end
         resources :event_organizers do
-          member { patch :activate; patch :deactivate; post :reset_password }
+          member { patch :activate; patch :deactivate; post :reset_password; get :events }
         end
         resources :stall_owners,  only: [:index, :show, :create, :update, :destroy] do
           member { patch :activate; patch :deactivate }

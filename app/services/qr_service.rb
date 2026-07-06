@@ -46,7 +46,7 @@ class QrService
         key:          path
       )
 
-      Rails.application.routes.url_helpers.rails_blob_url(
+      Rails.application.routes.url_helpers.rails_storage_proxy_url(
         blob,
         host: ENV.fetch("APP_HOST", "http://localhost:3000")
       )

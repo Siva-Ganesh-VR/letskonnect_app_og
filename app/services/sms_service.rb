@@ -1,6 +1,6 @@
 class SmsService
   def self.send_otp(mobile_number, otp)
-    message = "#{otp} is your OTP for LetsKonnect event registration. Valid for 10 minutes. Do not share with anyone."
+    message = "#{otp} is your OTP for Expoza event registration. Valid for 10 minutes. Do not share with anyone."
 
     return mock_send(mobile_number, otp) if Rails.env.development? || Rails.env.test?
 

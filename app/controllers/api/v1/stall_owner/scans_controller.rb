@@ -13,12 +13,12 @@ module Api
           return json_error("Invalid QR code. This visitor does not exist.", status: :not_found) unless visitor
           return json_error("Visitor has not completed registration.") unless visitor.mobile_verified?
 
-          unless visitor.event_id == @current_stall_owner.event_id
+          unless visitor.event_id == selected_stall_owner.event_id
             return json_error("This QR code belongs to a different event.", status: :forbidden)
           end
 
           # Check for duplicate scan
-          existing_lead = Lead.find_by(visitor_id: visitor.id, stall_owner_id: @current_stall_owner.id)
+          existing_lead = Lead.find_by(visitor_id: visitor.id, stall_owner_id: selected_stall_owner.id)
           if existing_lead
             return json_success({
               already_scanned: true,
@@ -30,8 +30,8 @@ module Api
 
           lead = Lead.create!(
             visitor:     visitor,
-            stall_owner: @current_stall_owner,
-            event:       @current_stall_owner.event,
+            stall_owner: selected_stall_owner,
+            event:       selected_stall_owner.event,
             scanned_at:  Time.current,
             temperature: "warm",
             interest_rating: 3,
@@ -48,7 +48,7 @@ module Api
 
         # GET /api/v1/stall_owner/scan/history
         def history
-          scans = @current_stall_owner.leads.includes(:visitor)
+          scans = selected_stall_owner.leads.includes(:visitor)
                     .order(scanned_at: :desc).limit(50).map do |l|
             { visitor_name: l.visitor.full_name, business: l.visitor.business_name,
               temperature: l.temperature, scanned_at: l.scanned_at.iso8601 }
@@ -87,6 +87,13 @@ module Api
           { id: l.id, temperature: l.temperature, status: l.status,
             interest_rating: l.interest_rating, notes: l.notes,
             follow_up_date: l.follow_up_date, scanned_at: l.scanned_at.iso8601 }
+        end
+
+        def selected_stall_owner
+          @selected_stall_owner ||= ::StallOwner.find_by(
+            mobile_number: @current_stall_owner.mobile_number,
+            event_id: params[:event_id]
+          ) || @current_stall_owner
         end
       end
     end

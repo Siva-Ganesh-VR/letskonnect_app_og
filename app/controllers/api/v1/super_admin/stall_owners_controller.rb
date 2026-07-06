@@ -86,6 +86,12 @@ module Api
           created = []
           errors = []
 
+          mobile_numbers = params[:stall_owners].map { |row| row[:mobile_number] }
+
+          existing_stall_owners = ::StallOwner
+            .where(mobile_number: mobile_numbers)
+            .index_by(&:mobile_number)
+
           params[:stall_owners].each_with_index do |row, index|
             generated_password = SecureRandom.alphanumeric(8)
             stall = ::StallOwner.new(
@@ -112,6 +118,10 @@ module Api
             stall.event_organizer = event.event_organizer
             stall.pass_code = rand(100000..999999).to_s
             stall.password = stall.password_confirmation = generated_password
+
+            if (existing = existing_stall_owners[stall.mobile_number])
+              stall.pass_code = existing.pass_code
+            end
 
             begin
               stall.save!
@@ -144,11 +154,11 @@ module Api
         end
 
         def stall_resp(s)
-          { id: s.id, stall_code: s.stall_code, name: s.name, email: s.email, mobile_number: s.mobile_number,
-            company_name: s.company_name, stall_number: s.stall_number,
+          { id: s.id, stall_code: s.stall_code, name: s.name.titleize, email: s.email, mobile_number: s.mobile_number,
+            company_name: s.company_name.titleize, stall_number: s.stall_number.upcase,
             stall_category: s.stall_category, active: s.active, website: s.website, pass_code: s.pass_code, description: s.description,
             total_leads_count: s.total_leads_count,
-            event: { id: s.event.id, name: s.event.name, event_code: s.event.event_code } }
+            event: { id: s.event.id, name: s.event.name.titleize, event_code: s.event.event_code } }
         end
       end
     end

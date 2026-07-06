@@ -7,15 +7,23 @@ class StallOwnerImportJob < ApplicationJob
     event = Event.find(event_id)
     organizer = event.event_organizer
 
-    created = []
-    errors = []
-
-    CSV.foreach(
+    rows = CSV.read(
       file_path,
       headers: true,
       encoding: "bom|utf-8"
-    ).with_index(2) do |row, line_no|
+    )
 
+    mobile_numbers = rows.map { |row| row["mobile_number"]&.strip }.compact
+
+    existing_stall_owners = StallOwner
+      .where(mobile_number: mobile_numbers)
+      .index_by(&:mobile_number)
+
+    created = []
+    errors = []
+
+    rows.each_with_index do |row, index|
+      line_no = index + 2
       generated_password = SecureRandom.alphanumeric(8)
 
       stall = StallOwner.new(
@@ -32,6 +40,10 @@ class StallOwnerImportJob < ApplicationJob
 
       stall.event_organizer = organizer
       stall.pass_code = rand(100000..999999).to_s
+
+      if (existing = existing_stall_owners[stall.mobile_number])
+        stall.pass_code = existing.pass_code
+      end
 
       if stall.save
         created << stall.id
@@ -52,7 +64,7 @@ class StallOwnerImportJob < ApplicationJob
     Rails.logger.info(
       "Stall import completed. Created: #{created.size}, Failed: #{errors.size}"
     )
-
+  ensure
     File.delete(file_path) if File.exist?(file_path)
   end
 end
