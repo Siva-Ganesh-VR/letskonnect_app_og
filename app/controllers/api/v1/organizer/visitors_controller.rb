@@ -69,7 +69,12 @@ module Api
             location: v.location, designation: v.designation,
             stalls_visited: v.leads.count, registered_at: v.created_at.iso8601,
             email: v.email, active: v.active, looking_for: v.looking_for,
-            decision_maker: v.decision_maker, created_at: v.created_at }
+            decision_maker: v.decision_maker, created_at: v.created_at,
+            event: {
+              id: v.event&.id,
+              name: v.event&.name,
+              code: v.event&.event_code
+            }, }
         end
       end
     end
