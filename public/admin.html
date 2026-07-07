@@ -2433,19 +2433,17 @@ async function showOrganizerDetails(organizerId, pageName = "organizers") {
 // ── Build the static info section ──────────────────────────────────
 function buildOrganizerDetailsHTML(o) {
   const statusColor = {
-    active: "var(--green2)",
-    draft: "var(--amber2)",
-    completed: "#2563eb",
-    archived: "var(--text3)"
-  }[o.status] || "var(--text2)";
+    true: "#22c55e",
+    false: "#f59e0b",
+  }[o.active] || "rgba(255,255,255,0.6)";
 
   return `
     <!-- Organizer Details -->
     <div style="background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:20px;margin-bottom:20px;box-shadow:var(--shadow)">
       <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:16px">
         <div>
-          <h2>${o.name}</h2>
-          <div class="muted">${o.org_code || "—"}</div>
+          <div style="font-size:18px;font-weight:800;color:var(--text)">${o.name}</div>
+          <div style="font-size:13px;color:var(--text2);margin-top:4px">${o.org_code || "—"}</div>
         </div>
 
         <span class="badge" style="
