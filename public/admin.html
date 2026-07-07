@@ -149,7 +149,26 @@ tr:hover td{background:rgba(255,255,255,0.02)}
     object-fit: contain;
     /* filter: drop-shadow(0 0 12px rgba(100, 108, 255, 0.25)); */
 }
+.qr-blink {
+  background: linear-gradient(135deg,#1e293b,#0f172a);
+  border: 1px solid rgba(16,185,129,.3);
+  color: #fff;
+  animation: expoGlow 1s infinite alternate;
+}
 
+@keyframes expoGlow {
+  from {
+    box-shadow:
+      0 0 0 rgba(16,185,129,0);
+  }
+
+  to {
+    box-shadow:
+      0 0 10px rgba(16,185,129,.6),
+      0 0 20px rgba(16,185,129,.4),
+      inset 0 0 10px rgba(16,185,129,.15);
+  }
+}
 
 </style>
 </head>
@@ -235,7 +254,7 @@ tr:hover td{background:rgba(255,255,255,0.02)}
         <div class="table-header">
           <div class="table-title">All Events</div>
           <div class="table-actions">
-            <input class="search-bar" placeholder="Search events..." oninput="filterTable('events-table',this.value)">
+            <input class="search-bar" id="events-search" placeholder="Search events..." oninput="loadEvents(1)">
             <button class="btn btn-primary btn-sm" onclick="openModal('modal-create-event')">+ New Event</button>
           </div>
         </div>
@@ -251,6 +270,7 @@ tr:hover td{background:rgba(255,255,255,0.02)}
         <div class="table-header">
           <div class="table-title">All Organizers</div>
           <div class="table-actions">
+            <input class="search-bar" id="organizers-search" placeholder="Search by name or phone" oninput="loadOrganizers(1)">
             <button class="btn btn-primary btn-sm" onclick="openModal('modal-create-organizer')">+ New Organizer</button>
           </div>
         </div>
@@ -266,7 +286,10 @@ tr:hover td{background:rgba(255,255,255,0.02)}
         <div class="table-header">
           <div class="table-title">All Stall Owners</div>
           <div class="table-actions">
-            <input class="search-bar" placeholder="Search..." oninput="filterTable('stalls-table',this.value)">
+            <input class="search-bar" id="stalls-search" placeholder="Search stalls..." oninput="loadStalls(1)">
+            <select class="filter-select" id="stalls-event-filter" onchange="loadStalls(1)">
+              <option value="">All Events</option>
+            </select>
             <!--<button class="btn btn-primary btn-sm" onclick="openBulkStallModal()">+ Add Stalls</button>
             <button class="btn btn-primary btn-sm" onclick="openModal('m-import-stalls')">+ Bulk Upload</button>-->
           </div>
@@ -915,10 +938,14 @@ function statCard(icon, label, value, cls) {
 }
 
 // ── Events ────────────────────────────────────────────────────────────────
-async function loadEvents() {
-  const endpoint = currentUser?.role === "super_admin" ? "/super_admin/events" : "/organizer/events";
+async function loadEvents(page = 1) {
+  const search = document.getElementById("events-search")?.value || "";
+  const endpoint = currentUser?.role === "super_admin"
+    ? `/super_admin/events?page=${page}&per_page=10${search ? `&search=${encodeURIComponent(search)}` : ""}`
+    : `/organizer/events?page=${page}&per_page=10${search ? `&search=${encodeURIComponent(search)}` : ""}`;
   const res      = await apiGet(endpoint);
   allEvents      = res.data || [];
+  const meta     = res.meta || {};
   const tbody    = allEvents.map(e => `
     <tr>
       <td>
@@ -949,6 +976,7 @@ async function loadEvents() {
   document.getElementById("events-table").innerHTML = `
     <table><thead><tr><th>Event</th><th>Venue</th><th>Dates</th><th>Status</th><th>Visitors</th><th>Actions</th></tr></thead>
     <tbody id="events-table-rows">${tbody || `<tr><td colspan="6">${emptyHtml("🎪","No events yet")}</td></tr>`}</tbody></table>
+    ${renderSimplePagination(meta, "events", page, "loadEvents")}
   `;
   // Populate organizer dropdown
   const orgRes = currentUser?.role === "super_admin" ? await apiGet("/super_admin/event_organizers") : null;
@@ -1071,8 +1099,9 @@ function topStallsHtml(stalls) {
 }
 
 // ── Organizers ────────────────────────────────────────────────────────────
-async function loadOrganizers() {
-  const res  = await apiGet("/super_admin/event_organizers");
+async function loadOrganizers(page = 1) {
+  const search = document.getElementById("organizers-search")?.value || "";
+  const res  = await apiGet(`/super_admin/event_organizers?page=${page}&per_page=10${search ? `&search=${encodeURIComponent(search)}` : ""}`);
   const rows = (res.data||[]).map(o => `
     <tr>
       <td><div style="font-weight:600"><a href="javascript:void(0)"
@@ -1090,6 +1119,7 @@ async function loadOrganizers() {
   document.getElementById("organizers-table").innerHTML = `
     <table><thead><tr><th>Name</th><th>Company</th><th>Mobile</th><th>Status</th><th>Joined</th><th></th></tr></thead>
     <tbody>${rows||`<tr><td colspan="6">${emptyHtml("🏢","No organizers yet")}</td></tr>`}</tbody></table>
+    ${renderSimplePagination(res.meta || {}, "organizers", page, "loadOrganizers")}
   `;
 }
 
@@ -1124,10 +1154,13 @@ async function toggleOrganizer(id, currently_active) {
 }
 
 // ── Stalls ────────────────────────────────────────────────────────────────
-async function loadStalls() {
+async function loadStalls(page = 1) {
   const endpoint = currentUser?.role === "super_admin" ? "/super_admin/stall_owners" : null;
   if (!endpoint) { document.getElementById("stalls-table").innerHTML = emptyHtml("🏪","Select an event first"); return; }
-  const res  = await apiGet(endpoint);
+  const search = document.getElementById("stalls-search")?.value || "";
+  const eventFilter = document.getElementById("stalls-event-filter")?.value || "";
+  const query = new URLSearchParams({ page, per_page: 10, ...(search ? { search } : {}), ...(eventFilter ? { event_filter: eventFilter } : {}) });
+  const res  = await apiGet(`/super_admin/stall_owners?${query.toString()}`);
   const rows = (res.data||[]).map(s => `
     <tr>
       <td><div style="font-weight:600"><a href="javascript:void(0)"
@@ -1148,7 +1181,8 @@ async function loadStalls() {
   `).join("");
   document.getElementById("stalls-table").innerHTML = `
     <table><thead><tr><th>Company</th><th>Stall</th><th>Category</th><th>Mobile</th><th>Event</th><th>Pass Code</th><th>Leads</th><th>Status</th></tr></thead>
-    <tbody>${rows||`<tr><td colspan="6">${emptyHtml("🏪","No stalls yet")}</td></tr>`}</tbody></table>
+    <tbody>${rows||`<tr><td colspan="8">${emptyHtml("🏪","No stalls yet")}</td></tr>`}</tbody></table>
+    ${renderSimplePagination(res.meta || {}, "stalls", page, "loadStalls")}
   `;
 }
 
@@ -1159,11 +1193,10 @@ async function toggleStallOwner(id, currently_active) {
 }
 
 // ── Visitors ──────────────────────────────────────────────────────────────
-async function loadVisitors() {
+async function loadVisitors(page = 1) {
   const eventId = document.getElementById("visitor-event-filter").value;
   const search  = document.getElementById("visitor-search").value;
-  // if (!eventId) { document.getElementById("visitors-table").innerHTML = emptyHtml("👥","Select an event to view visitors"); return; }
-  const endpoint = `/super_admin/visitors?search=${encodeURIComponent(search||"")}${eventId ? `&event_id=${eventId}` : ""}`;
+  const endpoint = `/super_admin/visitors?page=${page}&per_page=10&search=${encodeURIComponent(search||"")}${eventId ? `&event_id=${eventId}` : ""}`;
   const res  = await apiGet(endpoint);
   const rows = (res.data||[]).map(v => `
     <tr>
@@ -1182,6 +1215,7 @@ async function loadVisitors() {
   document.getElementById("visitors-table").innerHTML = `
     <table><thead><tr><th>ID</th><th>Name</th><th>Mobile</th><th>Business</th><th>Category</th><th>Location</th><th>Stalls</th><th>Registered</th></tr></thead>
     <tbody>${rows||`<tr><td colspan="8">${emptyHtml("👥","No visitors registered yet")}</td></tr>`}</tbody></table>
+    ${renderSimplePagination(res.meta || {}, "visitors", page, "loadVisitors")}
   `;
 }
 
@@ -1190,8 +1224,10 @@ async function loadEventsForFilter() {
     const endpoint = currentUser?.role === "super_admin" ? "/super_admin/events" : "/organizer/events";
     const res = await apiGet(endpoint);
     allEvents = res.data || [];
-    ["visitor-event-filter","leads-event-filter"].forEach(id => {
+    ["visitor-event-filter","leads-event-filter","stalls-event-filter"].forEach(id => {
       const sel = document.getElementById(id);
+      if (!sel) return;
+      sel.innerHTML = id === "stalls-event-filter" ? '<option value="">All Events</option>' : '<option value="">All Events</option>';
       allEvents.forEach(e => { const o = document.createElement("option"); o.value = e.id; o.textContent = e.name; sel.appendChild(o); });
     })
   } catch(e) {}
@@ -1310,6 +1346,26 @@ function filterTable(tableId, q) {
   const rows = document.querySelectorAll(`#${tableId} tbody tr`);
   q = q.toLowerCase();
   rows.forEach(r => { r.style.display = r.textContent.toLowerCase().includes(q) ? "" : "none"; });
+}
+
+function renderSimplePagination(meta = {}, scope, currentPage = 1, handlerName = "") {
+  const totalPages = meta.pages || 1;
+  if (totalPages <= 1) return "";
+  const total = meta.total || 0;
+  const perPage = meta.per_page || 10;
+  const start = total ? ((currentPage - 1) * perPage) + 1 : 0;
+  const end = Math.min(currentPage * perPage, total);
+  const prevPage = Math.max(1, currentPage - 1);
+  const nextPage = Math.min(totalPages, currentPage + 1);
+  return `
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;padding:12px 16px;border-top:1px solid var(--border)">
+      <div style="font-size:13px;color:var(--text2)">${start}-${end} of ${total.toLocaleString()}</div>
+      <div style="display:flex;gap:6px;align-items:center">
+        <button class="btn btn-outline btn-sm" ${currentPage <= 1 ? "disabled" : ""} onclick="${handlerName}(${prevPage})" style="opacity:${currentPage <= 1 ? 0.5 : 1}">← Prev</button>
+        <span style="font-size:13px;color:var(--text2)">Page ${currentPage} of ${totalPages}</span>
+        <button class="btn btn-outline btn-sm" ${currentPage >= totalPages ? "disabled" : ""} onclick="${handlerName}(${nextPage})" style="opacity:${currentPage >= totalPages ? 0.5 : 1}">Next →</button>
+      </div>
+    </div>`;
 }
 
 function fmtDate(d) {
@@ -1711,6 +1767,8 @@ const detailsState = {
   stallTotal: 0,
   stallPerPage: 10,
   stallSearch: "",
+  stallCategoryFilter: "all",
+  eventStallOwners: [],
   visitorPage: 1,
   visitorTotal: 0,
   visitorPerPage: 10,
@@ -1737,8 +1795,11 @@ async function showEventDetails(eventId, pageName = "events") {
   try {
     const result = await apiGet(`/super_admin/events/${eventId}`);
     const e = result.data;
+    detailsState.eventStallOwners = e.stall_owners || [];
+    detailsState.stallCategoryFilter = "all";
     document.getElementById("details-title").textContent = e.name;
     document.getElementById("details-content").innerHTML = buildEventDetailsHTML(e);
+    renderStallAnalytics();
 
     // Load both tables
     await Promise.all([
@@ -1754,7 +1815,12 @@ async function showEventDetails(eventId, pageName = "events") {
 
 // ── Build the static info section ──────────────────────────────────
 function buildEventDetailsHTML(e) {
-  const statusColor = {active:"var(--green2)",draft:"var(--amber2)",completed:"#2563eb",archived:"var(--text3)"}[e.status] || "var(--text2)";
+  const statusColor = {
+    active: "#22c55e",
+    draft: "#f59e0b",
+    completed: "#2563eb",
+    archived: "#94a3b8"
+  }[e.status] || "rgba(255,255,255,0.6)";
   return `
     <!-- Event info card -->
     <div style="background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:20px;margin-bottom:20px;box-shadow:var(--shadow)">
@@ -1775,7 +1841,7 @@ function buildEventDetailsHTML(e) {
       </div>
       ${e.description ? `<div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border);font-size:14px;color:var(--text2);line-height:1.6">${e.description}</div>` : ""}
       <div style="display:flex;gap:8px;margin-top:16px;padding-top:14px;border-top:1px solid var(--border);flex-wrap:wrap">
-        <button class="btn btn-primary btn-sm" onclick='showEventQr("${e.id}","${e.name}","${e.qr_image_url||""}","${e.registration_qr_token||""}")'>📱 QR Code</button>
+        <button class="btn btn-primary btn-sm qr-blink" onclick='showEventQr("${e.id}","${e.name}","${e.qr_image_url||""}","${e.registration_qr_token||""}")'>📱 View QR Code</button>
         <button class="btn btn-outline btn-sm" onclick='showEventAnalytics("${e.id}","${e.name}")'>📊 Analytics</button>
         <button class="btn btn-outline btn-sm" onclick='openEditEventModalById("${e.id}")'>✏️ Edit Event</button>
         ${e.status === "draft" ? `<button class="btn btn-outline btn-sm" onclick='activateEvent("${e.id}")'>🚀 Activate</button>` : ""}
@@ -1806,6 +1872,9 @@ function buildEventDetailsHTML(e) {
       <div id="event-stalls-pagination" style="padding:10px 18px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;display:none">
       </div>
     </div>
+
+    <!-- Stall-based leads analytics -->
+    <div id="event-analytics-section"></div>
 
     <!-- Visitors table -->
     <div style="background:var(--bg2);border:1px solid var(--border);border-radius:14px;overflow:hidden;margin-bottom:20px;box-shadow:var(--shadow)">
@@ -1838,6 +1907,54 @@ function detailChip(label, value) {
       <div style="font-size:11px;color:var(--text3);font-weight:600;text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px">${label}</div>
       <div style="font-size:14px;font-weight:600;color:var(--text)">${value}</div>
     </div>`;
+}
+
+function renderStallAnalytics() {
+  const container = document.getElementById("event-analytics-section");
+  if (!container) return;
+
+  const stalls = detailsState.eventStallOwners || [];
+  const categories = [...new Set(stalls.map(s => s.category).filter(Boolean))].sort();
+  const selectedCategory = detailsState.stallCategoryFilter || "all";
+  let filtered = stalls;
+  if (selectedCategory !== "all") {
+    filtered = stalls.filter(s => s.category === selectedCategory);
+  }
+  const topStalls = [...filtered].sort((a, b) => (b.total_leads || 0) - (a.total_leads || 0)).slice(0, 5);
+  const totalLeads = filtered.reduce((sum, s) => sum + (s.total_leads || 0), 0);
+  const totalStalls = filtered.length;
+
+  container.innerHTML = `
+    <div style="background:var(--bg2);border:1px solid var(--border);border-radius:14px;overflow:hidden;margin-bottom:20px;box-shadow:var(--shadow)">
+      <div style="padding:18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
+        <div>
+          <div style="font-size:15px;font-weight:700;color:var(--text)">📈 Stall Based Leads</div>
+          <div style="font-size:13px;color:var(--text2);margin-top:4px">Top performing stalls by lead count. Filter by category to narrow the view.</div>
+        </div>
+        <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+          <div style="font-size:12px;color:var(--text2);font-weight:600">Category</div>
+          <select id="stall-analytics-category" class="filter-select" onchange="detailsState.stallCategoryFilter=this.value;renderStallAnalytics()">
+            <option value="all" ${selectedCategory === 'all' ? 'selected' : ''}>All Categories</option>
+            ${categories.map(c => `<option value="${c}" ${selectedCategory===c ? 'selected' : ''}>${c}</option>`).join("")}
+          </select>
+        </div>
+      </div>
+      <div style="padding:18px;display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;">
+        ${detailChip("Stalls Shown", totalStalls || 0)}
+        ${detailChip("Total Leads", totalLeads || 0)}
+        ${detailChip("Top Stall", topStalls[0] ? `${topStalls[0].company_name} (${topStalls[0].total_leads || 0})` : "—")}
+      </div>
+      <div style="padding:0 18px 18px">
+        ${topStalls.length ? `<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse"><thead><tr><th style="text-align:left;padding:10px 12px;font-size:11px;font-weight:700;text-transform:uppercase;color:var(--text3);border-bottom:1px solid var(--border)">Rank</th><th style="text-align:left;padding:10px 12px;font-size:11px;font-weight:700;text-transform:uppercase;color:var(--text3);border-bottom:1px solid var(--border)">Stall</th><th style="text-align:left;padding:10px 12px;font-size:11px;font-weight:700;text-transform:uppercase;color:var(--text3);border-bottom:1px solid var(--border)">Category</th><th style="text-align:right;padding:10px 12px;font-size:11px;font-weight:700;text-transform:uppercase;color:var(--text3);border-bottom:1px solid var(--border)">Leads</th></tr></thead><tbody>${topStalls.map((s, index) => `
+            <tr>
+              <td style="padding:10px 12px;font-size:13px;color:var(--text2)">${index + 1}</td>
+              <td style="padding:10px 12px;font-size:13px;color:var(--text)">${s.company_name}</td>
+              <td style="padding:10px 12px;font-size:13px;color:var(--text2)">${s.category || '—'}</td>
+              <td style="padding:10px 12px;font-size:13px;text-align:right;color:var(--accent);font-weight:700">${s.total_leads || 0}</td>
+            </tr>`).join("")}</tbody></table></div>` : `<div class="empty"><div class="empty-icon">🏪</div>No stalls match this category</div>`}
+      </div>
+    </div>
+  `;
 }
 
 // ── Stall Owners Table ──────────────────────────────────────────────

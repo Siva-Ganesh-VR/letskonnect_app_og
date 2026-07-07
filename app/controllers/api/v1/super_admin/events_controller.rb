@@ -8,8 +8,17 @@ module Api
         def index
           events = Event.includes(:event_organizer, :event_analytics).order(created_at: :desc)
           events = events.where(status: params[:status]) if params[:status].present?
-          pagy, paginated = pagy(events, items: 20)
-          json_success(paginated.map { |e| event_detail(e) }, meta: { total: pagy.count, pages: pagy.pages })
+
+          if params[:search].present?
+            q = "%#{params[:search]}%"
+            events = events.where("name ILIKE ? OR venue ILIKE ? OR city ILIKE ?", q, q, q)
+          end
+
+          pagy_obj, paginated = pagy(events, page: params[:page], items: params[:per_page] || 10)
+          json_success(
+            paginated.map { |e| event_detail(e) },
+            meta: { total: pagy_obj.count, page: pagy_obj.page, per_page: pagy_obj.items, pages: pagy_obj.pages }
+          )
         end
 
         def show
@@ -97,7 +106,19 @@ module Api
             description: e.description,
             settings: e.settings,
             registration_qr_token: e.registration_qr_token,
-            registration_url: e.registration_url
+            registration_url: e.registration_url,
+            stall_owners: e.stall_owners.active.map do |s|
+              {
+                id: s.id,
+                stall_code: s.stall_code,
+                name: s.name,
+                company_name: s.company_name,
+                stall_number: s.stall_number,
+                category: s.stall_category,
+                total_leads: s.total_leads_count,
+                active: s.active
+              }
+            end
           )
         end
       end

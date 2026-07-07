@@ -17,18 +17,23 @@ module Api
             )
           end
 
-          pagy, paginated = pagy(
+          if params[:event_filter].present?
+            stalls = stalls.where(event_id: params[:event_filter])
+          end
+
+          pagy_obj, paginated = pagy(
             stalls,
+            page: params[:page],
             items: params[:per_page] || 10
           )
 
           json_success(
             paginated.map { |s| stall_resp(s) },
             meta: {
-              total: pagy.count,
-              page: pagy.page,
-              per_page: pagy.items,
-              pages: pagy.pages
+              total: pagy_obj.count,
+              page: pagy_obj.page,
+              per_page: pagy_obj.items,
+              pages: pagy_obj.pages
             }
           )
         end
