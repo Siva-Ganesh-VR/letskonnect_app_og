@@ -8,8 +8,16 @@ module Api
           visitors = Visitor.where(mobile_verified: true).includes(:event).order(created_at: :desc)
           visitors = visitors.where(event_id: params[:event_id]) if params[:event_id].present?
           visitors = visitors.where("full_name ILIKE ?", "%#{params[:search]}%") if params[:search].present?
-          pagy, paged = pagy(visitors, items: 10)
-          json_success(paged.map { |v| visitor_resp(v) }, meta: { total: pagy.count, pages: pagy.pages })
+
+          per_page = params[:per_page].to_i
+          per_page = 10 if per_page <= 0
+          per_page = [per_page, 100].min
+          pagy, paginated = pagy(visitors, items: per_page)
+
+          json_success(
+            paginated.map { |v| visitor_resp(v) },
+            meta: { total: pagy.count, page: pagy.page, pages: pagy.pages }
+          )
         end
 
         def show

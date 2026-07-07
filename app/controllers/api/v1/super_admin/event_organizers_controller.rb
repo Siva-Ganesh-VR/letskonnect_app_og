@@ -7,7 +7,28 @@ module Api
 
         def index
           organizers = EventOrganizer.order(created_at: :desc)
-          json_success(organizers.map { |o| organizer_response(o) })
+          if params[:search].present?
+            q = "%#{params[:search]}%"
+            organizers = organizers.where(
+              "name ILIKE ? OR company_name ILIKE ?",
+              q, q
+            )
+          end
+
+          per_page = params[:per_page].to_i
+          per_page = 10 if per_page <= 0
+          per_page = [per_page, 100].min
+          pagy, paginated = pagy(organizers, items: per_page)
+
+          json_success(
+            paginated.map { |o| organizer_response(o) },
+            meta: {
+              total: pagy.count,
+              page: pagy.page,
+              per_page: pagy.items,
+              pages: pagy.pages
+            }
+          )
         end
 
         def show

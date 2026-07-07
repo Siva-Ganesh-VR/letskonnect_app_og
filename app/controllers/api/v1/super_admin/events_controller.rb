@@ -8,8 +8,29 @@ module Api
         def index
           events = Event.includes(:event_organizer, :event_analytics).order(created_at: :desc)
           events = events.where(status: params[:status]) if params[:status].present?
-          pagy, paginated = pagy(events, items: 20)
-          json_success(paginated.map { |e| event_detail(e) }, meta: { total: pagy.count, pages: pagy.pages })
+
+          if params[:search].present?
+            q = "%#{params[:search]}%"
+            events = events.where(
+              "name ILIKE ? OR description ILIKE ?",
+              q, q
+            )
+          end
+
+          per_page = params[:per_page].to_i
+          per_page = 10 if per_page <= 0
+          per_page = [per_page, 100].min
+          pagy, paginated = pagy(events, items: per_page)
+
+          json_success(
+            paginated.map { |e| event_detail(e) },
+            meta: {
+              total: pagy.count,
+              page: pagy.page,
+              per_page: pagy.items,
+              pages: pagy.pages
+            }
+          )
         end
 
         def show

@@ -235,11 +235,12 @@ tr:hover td{background:rgba(255,255,255,0.02)}
         <div class="table-header">
           <div class="table-title">All Events</div>
           <div class="table-actions">
-            <input class="search-bar" placeholder="Search events..." oninput="filterTable('events-table',this.value)">
+            <input class="search-bar" id="event-search" placeholder="Search events..." oninput="loadEvents()">
             <button class="btn btn-primary btn-sm" onclick="openModal('modal-create-event')">+ New Event</button>
           </div>
         </div>
         <div id="events-table"><div class="empty"><div class="empty-icon">🎪</div>Loading events...</div></div>
+        <div id="events-pagination" style="display:none;margin-top:12px;display:flex;align-items:center;justify-content:space-between;gap:12px"></div>
       </div>
     </div>
 
@@ -251,10 +252,12 @@ tr:hover td{background:rgba(255,255,255,0.02)}
         <div class="table-header">
           <div class="table-title">All Organizers</div>
           <div class="table-actions">
+            <input class="search-bar" id="organizer-search" placeholder="Search organizers..." oninput="loadOrganizers()">
             <button class="btn btn-primary btn-sm" onclick="openModal('modal-create-organizer')">+ New Organizer</button>
           </div>
         </div>
         <div id="organizers-table"><div class="empty"><div class="empty-icon">🏢</div>Loading...</div></div>
+        <div id="organizers-pagination" style="display:none;margin-top:12px;display:flex;align-items:center;justify-content:space-between;gap:12px"></div>
       </div>
     </div>
 
@@ -266,12 +269,16 @@ tr:hover td{background:rgba(255,255,255,0.02)}
         <div class="table-header">
           <div class="table-title">All Stall Owners</div>
           <div class="table-actions">
-            <input class="search-bar" placeholder="Search..." oninput="filterTable('stalls-table',this.value)">
-            <!--<button class="btn btn-primary btn-sm" onclick="openBulkStallModal()">+ Add Stalls</button>
+            <input class="search-bar" id="stall-search" placeholder="Search..." oninput="loadStalls()">
+            <select class="filter-select" id="stall-event-filter" onchange="loadStalls()">
+              <option value="all">All Events</option>
+            </select>
+            <!-- <button class="btn btn-primary btn-sm" onclick="openBulkStallModal()">+ Add Stalls</button>
             <button class="btn btn-primary btn-sm" onclick="openModal('m-import-stalls')">+ Bulk Upload</button>-->
           </div>
         </div>
         <div id="stalls-table"><div class="empty"><div class="empty-icon">🏪</div>Loading...</div></div>
+        <div id="stalls-pagination" style="display:none;margin-top:12px;display:flex;align-items:center;justify-content:space-between;gap:12px"></div>
       </div>
     </div>
 
@@ -285,11 +292,16 @@ tr:hover td{background:rgba(255,255,255,0.02)}
           <div class="table-actions">
             <input class="search-bar" placeholder="Search visitors..." id="visitor-search" oninput="loadVisitors()">
             <select class="filter-select" id="visitor-event-filter" onchange="loadVisitors()">
-              <option value="">All Events</option>
+              <option value="all">All Events</option>
             </select>
           </div>
         </div>
-        <div id="visitors-table"><div class="empty"><div class="empty-icon">👥</div>Loading...</div></div>
+        <div id="visitors-table">
+          <div class="empty">
+            <div class="empty-icon">👥</div>Loading...
+          </div>
+        </div>
+        <div id="visitors-pagination" style="display:none;margin-top:12px;display:flex;align-items:center;justify-content:space-between;gap:12px"></div>
       </div>
     </div>
 
@@ -581,6 +593,66 @@ let token = localStorage.getItem("lk_admin_token");
 let currentUser = JSON.parse(localStorage.getItem("lk_admin_user") || "null");
 let allEvents = [];
 let previousPage = null;
+
+// Pagination state for main lists
+let eventListState = { page: 1, perPage: 10, total: 0, search: "" };
+let organizerListState = { page: 1, perPage: 10, total: 0, search: "" };
+let stallsListState = { page: 1, perPage: 10, total: 0, search: "" };
+let visitorsListState = { page: 1, perPage: 10, total: 0, search: "" };
+
+let prevStallsEventId = null;
+let prevVisitorsEventId = null;
+
+function renderListPagination(containerId, currentPage, total, perPage, type) {
+  const container = document.getElementById(containerId);
+  if (!container) return;
+  const totalPages = Math.ceil(total / perPage) || 1;
+  if (totalPages <= 1) { container.style.display = "none"; return; }
+  container.style.display = "flex";
+  const start = (currentPage - 1) * perPage + 1;
+  const end = Math.min(currentPage * perPage, total);
+  const pages = new Set([1, totalPages, currentPage, currentPage-1, currentPage+1].filter(p => p >=1 && p <= totalPages));
+  const sorted = [...pages].sort((a,b)=>a-b);
+  let btns = "";
+  let prev = null;
+  sorted.forEach(p=>{
+    if (prev !== null && p - prev > 1) btns += `<span style="color:var(--text3);padding:0 6px">…</span>`;
+    const active = p === currentPage;
+    btns += `<button onclick="goListPage('${type}',${p})" style="width:36px;height:32px;border-radius:8px;border:1.5px solid ${active?"var(--accent)":"var(--border)"};background:${active?"var(--accent)":"var(--bg2)"};color:${active?"#fff":"var(--text2)"};font-size:13px;font-weight:${active?"700":"500"};cursor:pointer">${p}</button>`;
+    prev = p;
+  });
+  container.innerHTML = `
+    <div style="font-size:13px;color:var(--text2);font-weight:500; margin:25px;">${start}–${end} of <strong>${total.toLocaleString()}</strong></div>
+    <div style="display:flex;align-items:center;gap:8px"> 
+      <button onclick="goListPage('${type}',${currentPage-1})" ${currentPage<=1?"disabled":""} style="padding:6px 10px;border-radius:8px;border:1.5px solid var(--border);background:none;color:${currentPage<=1?"var(--text4)":"var(--text2)"};cursor:${currentPage<=1?"not-allowed":"pointer"}">← Prev</button>
+      ${btns}
+      <button onclick="goListPage('${type}',${currentPage+1})" ${currentPage>=totalPages?"disabled":""} style="padding:6px 10px;border-radius:8px;border:1.5px solid var(--border);background:none;color:${currentPage>=totalPages?"var(--text4)":"var(--text2)"};cursor:${currentPage>=totalPages?"not-allowed":"pointer"}">Next →</button>
+    </div>`;
+}
+
+function goListPage(type, page) {
+  if (type === 'events') {
+    const max = Math.ceil(eventListState.total / eventListState.perPage) || 1;
+    if (page < 1 || page > max) return;
+    eventListState.page = page;
+    loadEvents();
+  } else if (type === 'organizers') {
+    const max = Math.ceil(organizerListState.total / organizerListState.perPage) || 1;
+    if (page < 1 || page > max) return;
+    organizerListState.page = page;
+    loadOrganizers();
+  } else if (type === 'stalls') {
+    const max = Math.ceil(stallsListState.total / stallsListState.perPage) || 1;
+    if (page < 1 || page > max) return;
+    stallsListState.page = page;
+    loadStalls();
+  } else if (type === 'visitors') {
+    const max = Math.ceil(visitorsListState.total / visitorsListState.perPage) || 1;
+    if (page < 1 || page > max) return;
+    visitorsListState.page = page;
+    loadVisitors();
+  }
+}
 
 // ── Boot ──────────────────────────────────────────────────────────────────
 if (token && currentUser) {
@@ -916,7 +988,10 @@ function statCard(icon, label, value, cls) {
 
 // ── Events ────────────────────────────────────────────────────────────────
 async function loadEvents() {
-  const endpoint = currentUser?.role === "super_admin" ? "/super_admin/events" : "/organizer/events";
+  eventListState.search = document.getElementById('event-search')?.value || '';
+  const perPage = eventListState.perPage;
+  const page = eventListState.page || 1;
+  const endpoint = "/super_admin/events?search=" + encodeURIComponent(eventListState.search) + "&page=" + page + "&per_page=" + perPage;
   const res      = await apiGet(endpoint);
   allEvents      = res.data || [];
   const tbody    = allEvents.map(e => `
@@ -955,6 +1030,9 @@ async function loadEvents() {
   if (orgRes?.data) {
     document.getElementById("ef-organizer").innerHTML = orgRes.data.map(o => `<option value="${o.id}">${o.name} — ${o.company_name||""}</option>`).join("");
   }
+  const total = res.meta?.total || (res.data||[]).length || 0;
+  eventListState.total = total;
+  renderListPagination('events-pagination', eventListState.page, eventListState.total, eventListState.perPage, 'events');
 }
 
 async function handleCreateEvent() {
@@ -1072,7 +1150,10 @@ function topStallsHtml(stalls) {
 
 // ── Organizers ────────────────────────────────────────────────────────────
 async function loadOrganizers() {
-  const res  = await apiGet("/super_admin/event_organizers");
+  organizerListState.search = document.getElementById('organizer-search')?.value || '';
+  const perPage = organizerListState.perPage;
+  const page = organizerListState.page || 1;
+  const res  = await apiGet("/super_admin/event_organizers?search=" + encodeURIComponent(organizerListState.search) + "&page=" + page + "&per_page=" + perPage);
   const rows = (res.data||[]).map(o => `
     <tr>
       <td><div style="font-weight:600"><a href="javascript:void(0)"
@@ -1091,6 +1172,9 @@ async function loadOrganizers() {
     <table><thead><tr><th>Name</th><th>Company</th><th>Mobile</th><th>Status</th><th>Joined</th><th></th></tr></thead>
     <tbody>${rows||`<tr><td colspan="6">${emptyHtml("🏢","No organizers yet")}</td></tr>`}</tbody></table>
   `;
+  const total = res.meta?.total || (res.data||[]).length || 0;
+  organizerListState.total = total;
+  renderListPagination('organizers-pagination', organizerListState.page, res.meta?.total || (res.data||[]).length || 0, organizerListState.perPage, 'organizers');
 }
 
 async function createOrganizer() {
@@ -1125,9 +1209,20 @@ async function toggleOrganizer(id, currently_active) {
 
 // ── Stalls ────────────────────────────────────────────────────────────────
 async function loadStalls() {
-  const endpoint = currentUser?.role === "super_admin" ? "/super_admin/stall_owners" : null;
-  if (!endpoint) { document.getElementById("stalls-table").innerHTML = emptyHtml("🏪","Select an event first"); return; }
-  const res  = await apiGet(endpoint);
+  const eid = document.getElementById("stall-event-filter").value;
+  // reset page when selector changed
+  stallsListState.search = document.getElementById('stall-search')?.value || '';
+  if (prevStallsEventId !== eid) { stallsListState.page = 1; prevStallsEventId = eid; }
+  if (!eid) return;
+  const perPage = stallsListState.perPage;
+  const page = stallsListState.page || 1;
+  let res;
+  if (eid === 'all') {
+    res = await apiGet(`/super_admin/stall_owners?search=${encodeURIComponent(stallsListState.search)}&page=${page}&per_page=${perPage}`);
+  } else {
+    res = await apiGet(`/super_admin/events/${eid}/stall_owners?search=${encodeURIComponent(stallsListState.search)}&page=${page}&per_page=${perPage}`);
+  }
+
   const rows = (res.data||[]).map(s => `
     <tr>
       <td><div style="font-weight:600"><a href="javascript:void(0)"
@@ -1150,6 +1245,9 @@ async function loadStalls() {
     <table><thead><tr><th>Company</th><th>Stall</th><th>Category</th><th>Mobile</th><th>Event</th><th>Pass Code</th><th>Leads</th><th>Status</th></tr></thead>
     <tbody>${rows||`<tr><td colspan="6">${emptyHtml("🏪","No stalls yet")}</td></tr>`}</tbody></table>
   `;
+  const total = res.meta?.total || (res.data||[]).length || 0;
+  stallsListState.total = total;
+  renderListPagination('stalls-pagination', stallsListState.page, stallsListState.total, stallsListState.perPage, 'stalls');
 }
 
 async function toggleStallOwner(id, currently_active) {
@@ -1162,9 +1260,19 @@ async function toggleStallOwner(id, currently_active) {
 async function loadVisitors() {
   const eventId = document.getElementById("visitor-event-filter").value;
   const search  = document.getElementById("visitor-search").value;
-  // if (!eventId) { document.getElementById("visitors-table").innerHTML = emptyHtml("👥","Select an event to view visitors"); return; }
-  const endpoint = `/super_admin/visitors?search=${encodeURIComponent(search||"")}${eventId ? `&event_id=${eventId}` : ""}`;
-  const res  = await apiGet(endpoint);
+  
+  visitorsListState.search = document.getElementById("visitor-search").value || "";
+  if (prevVisitorsEventId !== eventId) { visitorsListState.page = 1; prevVisitorsEventId = eventId; }
+  if (!eventId) return;
+  const perPage = visitorsListState.perPage;
+  const page = visitorsListState.page || 1;
+  let res;
+  if (eventId === 'all') {
+    res = await apiGet(`/super_admin/visitors?search=${encodeURIComponent(visitorsListState.search)}&page=${page}&per_page=${perPage}`);
+  } else {
+    res = await apiGet(`/super_admin/events/${eventId}/visitors?search=${encodeURIComponent(visitorsListState.search)}&page=${page}&per_page=${perPage}`);
+  }
+
   const rows = (res.data||[]).map(v => `
     <tr>
       <td><span class="badge badge-purple"><a href="javascript:void(0)"
@@ -1183,6 +1291,9 @@ async function loadVisitors() {
     <table><thead><tr><th>ID</th><th>Name</th><th>Mobile</th><th>Business</th><th>Category</th><th>Location</th><th>Stalls</th><th>Registered</th></tr></thead>
     <tbody>${rows||`<tr><td colspan="8">${emptyHtml("👥","No visitors registered yet")}</td></tr>`}</tbody></table>
   `;
+  const total = res.meta?.total || (res.data||[]).length || 0;
+  visitorsListState.total = total;
+  renderListPagination('visitors-pagination', visitorsListState.page, visitorsListState.total, visitorsListState.perPage, 'visitors');
 }
 
 async function loadEventsForFilter() {
@@ -1190,7 +1301,7 @@ async function loadEventsForFilter() {
     const endpoint = currentUser?.role === "super_admin" ? "/super_admin/events" : "/organizer/events";
     const res = await apiGet(endpoint);
     allEvents = res.data || [];
-    ["visitor-event-filter","leads-event-filter"].forEach(id => {
+    ["stall-event-filter", "visitor-event-filter","leads-event-filter"].forEach(id => {
       const sel = document.getElementById(id);
       allEvents.forEach(e => { const o = document.createElement("option"); o.value = e.id; o.textContent = e.name; sel.appendChild(o); });
     })

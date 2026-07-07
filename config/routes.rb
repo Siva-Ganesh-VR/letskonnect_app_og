@@ -90,6 +90,8 @@ Rails.application.routes.draw do
         get "dashboard",                to: "dashboard#show"
         resources :events do
           member { get :analytics; post :generate_qr; post :activate; post :archive }
+          resources :visitors, only: [:index]
+          resources :stall_owners, only: [:index]
         end
         resources :event_organizers do
           member { patch :activate; patch :deactivate; post :reset_password; get :events }
