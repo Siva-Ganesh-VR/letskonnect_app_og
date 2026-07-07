@@ -1950,7 +1950,15 @@
 
     async function activateEvent(id) {
       const res = await apiPost(`/super_admin/events/${id}/activate`, {});
-      if (res.success) { toast("Event activated!", "success"); loadEvents(); }
+      if (res.success) { 
+        toast("Event activated!", "success");
+        loadEvents();
+        if (previousPage === "dashboard" || previousPage === "events") {
+          showEventDetails(id, "dashboard");
+        } else {
+          loadEvents();
+        }
+      }
       else toast(res.error || "Failed", "error");
     }
 
@@ -2801,9 +2809,6 @@
       </div>
     </div>
 
-    <!-- Stall-based leads analytics -->
-    <div id="event-analytics-section"></div>
-
     <!-- Visitors table -->
     <div style="background:var(--bg2);border:1px solid var(--border);border-radius:14px;overflow:hidden;margin-bottom:20px;box-shadow:var(--shadow)">
       <div style="padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">
@@ -2826,6 +2831,9 @@
       <div id="event-visitors-pagination" style="padding:10px 18px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;display:none">
       </div>
     </div>
+
+    <!-- Stall-based leads analytics -->
+    <div id="event-analytics-section"></div>
   `;
     }
 

@@ -2003,10 +2003,12 @@
       } else {
         res = await get(`/organizer/events/${eid}/visitors?search=${encodeURIComponent(visitorsListState.search)}&page=${page}&per_page=${perPage}`);
       }
-      const rows = (res.data || []).map(v => `
+    const rows = (res.data||[]).map(v => {
+    const vev = (v.event && v.event.id) ? v.event.id : eid;
+    return `
     <tr>
       <td><span class="badge bp"><a href="javascript:void(0)"
-          onclick="showVisitorDetails('${v.id}', 'visitors')"
+          onclick="showVisitorDetails('${v.id}','${vev}', 'visitors')"
           style="color:inherit;font-weight:600;text-decoration:none">${v.visitor_id_code}</a></span></td>
       <td><div style="font-weight:600">${v.full_name}</div></td>
       <td>${v.mobile_number}</td>
@@ -2016,7 +2018,7 @@
       <td style="font-weight:600">${v.stalls_visited || 0}</td>
       <td style="font-size:12px;color:var(--text2)">${fd(v.registered_at)}</td>
     </tr>
-  `).join("");
+  `}).join("");
       const total = res.meta?.total || (res.data || []).length || 0;
       document.getElementById("visitors-tbl").innerHTML = `
     <div style="padding:10px 20px;font-size:13px;color:var(--text2)">${total} visitor${total !== 1 ? 's' : ''} registered</div>
@@ -2201,7 +2203,11 @@
           "ok"
         );
 
-        loadStalls();
+        if (previousPage === "dashboard" || previousPage === "events") {
+          refreshEventStalls();
+        } else {
+          loadStalls();
+        }
 
       } catch (error) {
         err.style.display = "block";
@@ -2405,7 +2411,11 @@
 
         toast(`${result.data.created_count} stall owners created successfully`, "ok");
 
-        loadStalls();
+        if (previousPage === "dashboard" || previousPage === "events") {
+          refreshEventStalls();
+        } else {
+          loadStalls();
+        }
 
       } catch (error) {
         err.style.display = "block";
@@ -2683,7 +2693,7 @@
         }
 
         const rows = data.map(s => `
-      <tr style="cursor:pointer" onclick="showStallOwnerDetails('${s.id}','events')">
+      <tr style="cursor:pointer" onclick="showStallOwnerDetails('${s.id}','dashboard')">
         <td>
           <div style="font-weight:600;color:var(--text)">${s.company_name}</div>
           <div style="font-size:12px;color:var(--text2);margin-top:1px">${s.name}</div>
@@ -2768,7 +2778,7 @@
         }
 
         const rows = data.map(v => `
-      <tr style="cursor:pointer" onclick="showVisitorDetails('${v.id}','events')">
+      <tr style="cursor:pointer" onclick="showVisitorDetails('${v.id}','dashboard')">
         <td><span style="background:rgba(108,99,255,.1);color:#6c63ff;border-radius:20px;padding:3px 10px;font-size:11px;font-weight:700">${v.visitor_id_code}</span></td>
         <td><div style="font-weight:600;color:var(--text)">${v.full_name}</div></td>
         <td style="font-family:monospace;font-size:13px">${v.mobile_number}</td>
@@ -2923,8 +2933,22 @@
         { label: "Pass Code", value: s.pass_code }
       ]);
     }
-    async function showVisitorDetails(visitorId, pageName = "visitors") {
-      const eid = document.getElementById("visitor-event-sel").value;
+    async function showVisitorDetails(visitorId, arg2 = "visitors", arg3) {
+      let eid;
+      let pageName = "visitors";
+      const knownPages = ["visitors", "events", "details", "dashboard", "organizers"];
+      
+      if (arg3) {
+        eid = arg2;
+        pageName = arg3;
+      } else if (knownPages.includes(arg2)) {
+        pageName = arg2;
+        eid  = document.getElementById("visitor-event-sel").value;
+      } else {
+        // arg2 is probably an event id
+        eid = arg2;
+        pageName = "visitors";
+      }
       previousPage = pageName;
 
       const result = await get(
