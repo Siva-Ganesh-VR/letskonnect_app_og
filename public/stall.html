@@ -204,6 +204,39 @@ textarea.note-area:focus{border-color:var(--accent)}
     object-fit:cover;
     border-radius:12px;
 }
+.favorite-btn {
+  background: none;
+  border: none;
+  outline: none;
+  box-shadow: none;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+
+  font-size: 24px;
+  line-height: 1;
+  color: #9ca3af; /* Grey */
+  transition: color .2s ease, transform .2s ease;
+}
+
+.favorite-btn:hover {
+  transform: scale(1.15);
+}
+
+.favorite-btn.active {
+  color: #fbbf24; /* Gold */
+}
+.fav-star {
+  font-size: 24px;
+  line-height: 1;
+  color: #cdcfd2; /* grey */
+}
+
+.fav-star.active {
+  color: #fbbf24; /* yellow/gold */
+}
 </style>
 </head>
 <body>
@@ -893,6 +926,15 @@ async function openLeadById(id) {
     </div>
     <div class="detail-card">
       <div class="detail-section">Lead Details</div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+        <span style="font-size:14px;font-weight:500;">Favorite Lead</span>
+        <button
+          id="favorite-btn"
+          class="favorite-btn ${l.is_favorite ? 'active' : ''}"
+          onclick="toggleFavorite('${l.id}', this)">
+          <span class="fav-star ${l.is_favorite ? 'active' : ''}">★</span>
+        </button>
+      </div>
       <div style="margin-bottom:12px">
         <div style="font-size:12px;color:var(--text2);margin-bottom:8px">Temperature</div>
         <div class="status-row">
@@ -1051,6 +1093,21 @@ async function onEventChange() {
   if (document.getElementById("page-leads").classList.contains("active")) {
     loadLeads();
   }
+}
+async function toggleFavorite(leadId, btn) {
+  const eventId = document.getElementById("stall-owner-event-sel").value;
+  const res = await apiFetch("/stall_owner/leads/" + leadId + "/toggle_favorite", "PATCH", { event_id: eventId });
+  if (!res.success) return;
+
+  const isFavorite = res.data.is_favorite;
+
+  btn.classList.toggle("active", isFavorite);
+  btn.innerHTML = isFavorite ? "⭐" : "☆";
+
+  toast(
+    res.data.message,
+    "ok"
+  );
 }
 </script>
 </body>

@@ -76,7 +76,7 @@
     }
 
     .login-logo {
-      text-align: left;
+      text-align: center;
       margin-bottom: 0px;
     }
 
@@ -93,6 +93,7 @@
     }
 
     .login-logo img {
+      max-width: 225px;
       width: 100%;
       height: auto;
       object-fit: contain;
@@ -778,7 +779,7 @@
     }
 
     .sidebar-top {
-      padding: 24px 20px;
+      padding: 0px 10px 10px 10px;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -786,7 +787,7 @@
     }
 
     .sidebar-logo-image {
-      width: 225px;
+      width: 180px;
       height: auto;
       display: block;
       margin-bottom: -20px;
@@ -1217,6 +1218,7 @@
             <option value="">Select</option>
           </select>
         </div>
+        <div class="mf"><label>Price</label><input type="price" id="st-price" placeholder="Optional"></div>
         <div class="mf"><label>Email</label><input type="email" id="st-email" placeholder="Optional"></div>
         <div class="mf"><label>Website</label><input type="text" id="st-web" placeholder="Optional"></div>
       </div>
@@ -1256,6 +1258,7 @@
               <th style="width: 150px">Category</th>
               <th style="width: 130px">Type</th>
               <th style="width: 110px">Size</th>
+              <th style="width: 110px">Price</th>
               <th style="width: 160px">Email</th>
               <th style="width: 130px">Website</th>
               <th style="width: 50px"></th>
@@ -2090,6 +2093,7 @@
       <td>${s.stall_category || "—"}</td>
       <td>${s.stall_type || "—"}</td>
       <td>${s.stall_size || "—"}</td>
+      <td>${s.price || "—"}</td>
       <td>${s.mobile_number}</td>
       <td>${s.event.name}</td>
       <td>${s.pass_code}</td>
@@ -2102,7 +2106,7 @@
     </tr>
   `).join("");
       document.getElementById("stalls-table").innerHTML = `
-    <table><thead><tr><th>Company</th><th>Stall</th><th>Category</th><th>Type</th><th>Size</th><th>Mobile</th><th>Event</th><th>Pass Code</th><th>Leads</th><th>Status</th></tr></thead>
+    <table><thead><tr><th>Company</th><th>Stall</th><th>Category</th><th>Type</th><th>Size</th><th>Price</th><th>Mobile</th><th>Event</th><th>Pass Code</th><th>Leads</th><th>Status</th></tr></thead>
     <tbody>${rows || `<tr><td colspan="10">${emptyHtml("🏪", "No stalls yet")}</td></tr>`}</tbody></table>
     ${renderSimplePagination(res.meta || {}, "stalls", page, "loadStalls")}
   `;
@@ -2440,6 +2444,7 @@
       document.getElementById("st-cat").value = stall.stall_category || "";
       document.getElementById("st-type").value = stall.stall_type || "";
       document.getElementById("st-size").value = stall.stall_size || "";
+      document.getElementById("st-price").value = stall.price || "";
       document.getElementById("st-email").value = stall.email || "";
       document.getElementById("st-web").value = stall.website || "";
 
@@ -2472,6 +2477,7 @@
               stall_category: document.getElementById("st-cat").value,
               stall_type: document.getElementById("st-type").value.trim(),
               stall_size: document.getElementById("st-size").value.trim(),
+              price: document.getElementById("st-price").value.trim(),
               email: document.getElementById("st-email").value.trim(),
               website: document.getElementById("st-web").value.trim()
             }
@@ -2541,6 +2547,10 @@
     </td>
 
     <td class="mf" style="padding: 6px 4px;">
+      <input type="text" class="st-price" placeholder="2000" style="width: 100%; min-width: 70px;">
+    </td>
+
+    <td class="mf" style="padding: 6px 4px;">
       <input type="email" class="st-email" placeholder="Email" style="width: 100%; min-width: 150px;">
     </td>
 
@@ -2598,6 +2608,7 @@
           stall_category: row.querySelector(".st-category").value,
           stall_type: row.querySelector(".st-type").value.trim(),
           stall_size: row.querySelector(".st-size").value.trim(),
+          price: row.querySelector(".st-price").value.trim(),
           email: row.querySelector(".st-email").value.trim(),
           website: row.querySelector(".st-website").value.trim(),
           event_id: eid
@@ -2928,6 +2939,7 @@
         </td>
         <td>${s.stall_number || "—"}</td>
         <td>${s.stall_category || "—"}</td>
+        <td>${s.price || "—"}</td>
         <td style="font-family:monospace;font-size:13px">${s.mobile_number}</td>
         <td>
           <span style="background:rgba(20,184,166,.1);color:var(--accent);border:1.5px solid rgba(20,184,166,.2);border-radius:8px;padding:3px 10px;font-size:13px;font-weight:700;letter-spacing:.08em">${s.pass_code || "—"}</span>
@@ -2952,6 +2964,7 @@
               <th style="text-align:left;padding:10px 16px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text3);border-bottom:1px solid var(--border);white-space:nowrap">Company</th>
               <th style="text-align:left;padding:10px 16px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text3);border-bottom:1px solid var(--border)">Stall #</th>
               <th style="text-align:left;padding:10px 16px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text3);border-bottom:1px solid var(--border)">Category</th>
+              <th style="text-align:left;padding:10px 16px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text3);border-bottom:1px solid var(--border)">Price</th>
               <th style="text-align:left;padding:10px 16px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text3);border-bottom:1px solid var(--border)">Mobile</th>
               <th style="text-align:left;padding:10px 16px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text3);border-bottom:1px solid var(--border)">Pass Code 🔑</th>
               <th style="text-align:left;padding:10px 16px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text3);border-bottom:1px solid var(--border)">Leads</th>
@@ -3142,6 +3155,7 @@
         { label: "Stall Category", value: s.stall_category },
         { label: "Stall Type", value: s.stall_type },
         { label: "Stall Size", value: s.stall_size },
+        { label: "Price", value: s.price },
         { label: "Event", value: s.event?.name || "N/A" },
         { label: "Website", value: s.website },
         { label: "Description", value: s.description },

@@ -3,7 +3,7 @@ module Api
     module StallOwner
       class LeadsController < ApplicationController
         before_action :authenticate_stall_owner!
-        before_action :set_lead, only: [:show, :update, :whatsapp, :call_log]
+        before_action :set_lead, only: [:show, :update, :whatsapp, :call_log, :toggle_favorite]
 
         # GET /api/v1/stall_owner/leads
         def index
@@ -92,9 +92,23 @@ module Api
           json_success({ status: job.status, file_url: job.file_url, error: job.error_message })
         end
 
+        def toggle_favorite
+          @lead.update!(
+            is_favorite: !@lead.is_favorite,
+            favorited_at: @lead.is_favorite ? nil : Time.current
+          )
+
+          json_success({
+            message: @lead.is_favorite ? "Lead marked as favorite" : "Lead removed from favorites",
+            is_favorite: @lead.is_favorite,
+          })
+        end
+
         private
 
         def set_lead
+          Rails.logger.info "Lead ID: #{params[:id]}"
+          Rails.logger.info "Selected Stall Owner: #{selected_stall_owner.id}"
           @lead = selected_stall_owner.leads.includes(:visitor).find(params[:id])
         end
 
@@ -121,7 +135,9 @@ module Api
             follow_up_date: l.follow_up_date,
             remarks:        l.remarks,
             scanned_at:     l.scanned_at.iso8601,
-            created_at:     l.created_at.iso8601
+            created_at:     l.created_at.iso8601,
+            is_favorite:     l.is_favorite,
+            favorited_at:    l.favorited_at&.iso8601
           }
         end
 

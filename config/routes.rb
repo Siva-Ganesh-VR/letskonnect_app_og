@@ -46,7 +46,7 @@ Rails.application.routes.draw do
         post   "scan",                  to: "scans#create"
         get    "scan/history",          to: "scans#history"
         resources :leads, only: [:index, :show, :update] do
-          member   { post :whatsapp; post :call_log }
+          member   { post :whatsapp; post :call_log; patch :toggle_favorite }
           collection do
             get  :summary
             post :export

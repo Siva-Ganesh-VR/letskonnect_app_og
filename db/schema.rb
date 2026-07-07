@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_07_07_000001) do
+ActiveRecord::Schema[7.2].define(version: 2026_07_07_125902) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pgcrypto"
   enable_extension "plpgsql"
@@ -147,6 +147,8 @@ ActiveRecord::Schema[7.2].define(version: 2026_07_07_000001) do
     t.string "scan_location"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.boolean "is_favorite", default: false, null: false
+    t.datetime "favorited_at"
     t.index ["event_id", "created_at"], name: "index_leads_on_event_id_and_created_at"
     t.index ["event_id"], name: "index_leads_on_event_id"
     t.index ["follow_up_date"], name: "index_leads_on_follow_up_date"
@@ -246,6 +248,8 @@ ActiveRecord::Schema[7.2].define(version: 2026_07_07_000001) do
     t.string "stall_code", limit: 30, null: false
     t.string "stall_type"
     t.string "stall_size"
+    t.decimal "price", precision: 10, scale: 2
+    t.string "currency", default: "INR", null: false
     t.index ["event_id", "active"], name: "index_stall_owners_on_event_id_and_active"
     t.index ["event_id", "stall_number"], name: "index_stall_owners_on_event_id_and_stall_number", unique: true, where: "(stall_number IS NOT NULL)"
     t.index ["event_id"], name: "index_stall_owners_on_event_id"

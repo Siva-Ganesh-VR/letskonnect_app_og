@@ -63,7 +63,11 @@ module Api
         end
 
         def update
-          stall = @event.stall_owners.find(params[:id])
+          if (params[:event_id] == "all")
+            stall = ::StallOwner.find(params[:id])
+          else
+            stall = @event.stall_owners.find(params[:id])
+          end
           if stall.update(stall_update_params)
             json_success(stall_response(stall))
           else
@@ -72,13 +76,21 @@ module Api
         end
 
         def destroy
-          stall = @event.stall_owners.find(params[:id])
+          if (params[:event_id] == "all")
+            stall = ::StallOwner.find(params[:id])
+          else
+            stall = @event.stall_owners.find(params[:id])
+          end
           stall.update!(active: false)
           json_success({ message: "Stall deactivated" })
         end
 
         def send_credentials
-          stall = @event.stall_owners.find(params[:id])
+          if (params[:event_id] == "all")
+            stall = ::StallOwner.find(params[:id])
+          else
+            stall = @event.stall_owners.find(params[:id])
+          end
           new_password = SecureRandom.alphanumeric(10)
           stall.update!(password: new_password)
           WhatsappNotificationJob.perform_later(stall.id, "stall_credentials", new_password)
@@ -86,7 +98,11 @@ module Api
         end
 
         def toggle_active
-          stall = @event.stall_owners.find(params[:id])
+          if (params[:event_id] == "all")
+            stall = ::StallOwner.find(params[:id])
+          else
+            stall = @event.stall_owners.find(params[:id])
+          end
           stall.update!(active: !stall.active)
           json_success({ active: stall.active, message: "Stall #{stall.active? ? "activated" : "deactivated"}" })
         end
@@ -182,20 +198,20 @@ module Api
         private
 
         def set_event
-          @event = @current_organizer.events.find(params[:event_id])
+          @event = @current_organizer.events.find(params[:event_id]) if params[:event_id] != "all"
         end
 
         def stall_params
           params.require(:stall_owner).permit(
             :name, :email, :mobile_number, :company_name,
-            :stall_number, :stall_category, :stall_type, :stall_size, :description, :website
+            :stall_number, :stall_category, :stall_type, :stall_size, :description, :website, :price
           )
         end
 
         def stall_update_params
           params.require(:stall_owner).permit(
             :name, :email, :company_name, :stall_number,
-            :stall_category, :stall_type, :stall_size, :description, :website, :active
+            :stall_category, :stall_type, :stall_size, :description, :website, :active, :price
           )
         end
 
@@ -217,6 +233,7 @@ module Api
             stall_category: s.stall_category,
             stall_type: s.stall_type,
             stall_size: s.stall_size,
+            price: s.price,
 
             # Event & Organizer info
             event: {

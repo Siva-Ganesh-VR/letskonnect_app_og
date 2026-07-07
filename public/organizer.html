@@ -185,7 +185,7 @@
     }
 
     .sidebar-brand {
-      padding: 20px 16px 16px;
+      /* padding: 20px 16px 16px; */
       border-bottom: 1px solid var(--border)
     }
 
@@ -806,7 +806,7 @@
     }
 
     .sidebar-top {
-      padding: 24px 20px;
+      padding: 0px 10px 10px 10px;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -814,7 +814,7 @@
     }
 
     .sidebar-logo-image {
-      width: 225px;
+      width: 180px;
       height: auto;
       display: block;
       margin-bottom: -20px;
@@ -1355,6 +1355,7 @@
             <option value="">Select</option>
           </select>
         </div>
+        <div class="mf"><label>Price</label><input type="text" id="st-price" placeholder="2000"></div>
         <div class="mf"><label>Email</label><input type="email" id="st-email" placeholder="Optional"></div>
         <div class="mf"><label>Website</label><input type="text" id="st-web" placeholder="Optional"></div>
       </div>
@@ -1936,6 +1937,7 @@
       <td>${s.stall_category || "—"}</td>
       <td>${s.stall_type || "—"}</td>
       <td>${s.stall_size || "—"}</td>
+      <td>${s.price || "—"}</td>
       <td>${s.mobile_number}</td>
       <td>${s.pass_code || "—"}</td>
       <td style="font-weight:700;color:var(--accent)">${s.total_leads_count || 0}</td>
@@ -1951,7 +1953,7 @@
       const total = res.meta?.total || (res.data || []).length || 0;
       stallsListState.total = total;
       document.getElementById("stalls-tbl").innerHTML = rows
-        ? `<div style="padding:10px 20px;font-size:13px;color:var(--text2)">${total} stall owner${total !== 1 ? 's' : ''}</div><table><thead><tr><th>Company</th><th>Stall</th><th>Category</th><th>Type</th><th>Size</th><th>Mobile</th><th>Password</th><th>Leads</th><th>Status</th><th></th></tr></thead><tbody>${rows}</tbody></table>`
+        ? `<div style="padding:10px 20px;font-size:13px;color:var(--text2)">${total} stall owner${total !== 1 ? 's' : ''}</div><table><thead><tr><th>Company</th><th>Stall</th><th>Category</th><th>Type</th><th>Size</th><th>Price</th><th>Mobile</th><th>Password</th><th>Leads</th><th>Status</th><th></th></tr></thead><tbody>${rows}</tbody></table>`
         : `<div class="empty"><div class="empty-icon">🏪</div>No stall owners found</div>`;
       renderListPagination('stalls-pagination', stallsListState.page, stallsListState.total, stallsListState.perPage, 'stalls');
     }
@@ -2137,6 +2139,7 @@
       document.getElementById("st-cat").value = "";
       document.getElementById("st-type").value = "";
       document.getElementById("st-size").value = "";
+      document.getElementById("st-price").value = "";
       document.getElementById("st-email").value = "";
       document.getElementById("st-web").value = "";
 
@@ -2227,6 +2230,7 @@
       document.getElementById("st-cat").value = stall.stall_category || "";
       document.getElementById("st-type").value = stall.stall_type || "";
       document.getElementById("st-size").value = stall.stall_size || "";
+      document.getElementById("st-price").value = stall.price || "";
       document.getElementById("st-email").value = stall.email || "";
       document.getElementById("st-web").value = stall.website || "";
 
@@ -2260,6 +2264,7 @@
               stall_category: document.getElementById("st-cat").value,
               stall_type: document.getElementById("st-type").value.trim(),
               stall_size: document.getElementById("st-size").value.trim(),
+              price: document.getElementById("st-price").value.trim(),
               email: document.getElementById("st-email").value.trim(),
               website: document.getElementById("st-web").value.trim()
             }
@@ -2329,6 +2334,10 @@
     </td>
 
     <td class="mf" style="padding: 6px 4px;">
+      <input type="text" class="st-price" placeholder="Price" style="width: 100%; min-width: 150px;">
+    </td>
+
+    <td class="mf" style="padding: 6px 4px;">
       <input type="email" class="st-email" placeholder="Email" style="width: 100%; min-width: 150px;">
     </td>
 
@@ -2379,6 +2388,7 @@
           stall_category: row.querySelector(".st-category").value,
           stall_type: row.querySelector(".st-type").value.trim(),
           stall_size: row.querySelector(".st-size").value.trim(),
+          price: row.querySelector(".st-price").value.trim(),
           email: row.querySelector(".st-email").value.trim(),
           website: row.querySelector(".st-website").value.trim()
         }))
@@ -2700,6 +2710,7 @@
         </td>
         <td>${s.stall_number || "—"}</td>
         <td>${s.stall_category || "—"}</td>
+        <td>${s.price || "—"}</td>
         <td style="font-family:monospace;font-size:13px">${s.mobile_number}</td>
         <td>
           <span style="background:rgba(20,184,166,.1);color:var(--accent);border:1.5px solid rgba(20,184,166,.2);border-radius:8px;padding:3px 10px;font-size:13px;font-weight:700;letter-spacing:.08em">${s.pass_code || "—"}</span>
@@ -2724,6 +2735,7 @@
               <th style="text-align:left;padding:10px 16px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text3);border-bottom:1px solid var(--border);white-space:nowrap">Company</th>
               <th style="text-align:left;padding:10px 16px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text3);border-bottom:1px solid var(--border)">Stall #</th>
               <th style="text-align:left;padding:10px 16px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text3);border-bottom:1px solid var(--border)">Category</th>
+              <th style="text-align:left;padding:10px 16px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text3);border-bottom:1px solid var(--border)">Price</th>
               <th style="text-align:left;padding:10px 16px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text3);border-bottom:1px solid var(--border)">Mobile</th>
               <th style="text-align:left;padding:10px 16px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text3);border-bottom:1px solid var(--border)">Pass Code 🔑</th>
               <th style="text-align:left;padding:10px 16px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text3);border-bottom:1px solid var(--border)">Leads</th>
@@ -2926,6 +2938,7 @@
         { label: "Stall Category", value: s.stall_category },
         { label: "Stall Type", value: s.stall_type },
         { label: "Stall Size", value: s.stall_size },
+        { label: "Price", value: s.price },
         { label: "Event", value: s.event?.name || "N/A" },
         { label: "Website", value: s.website },
         { label: "Description", value: s.description },
