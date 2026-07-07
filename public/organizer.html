@@ -916,157 +916,15 @@
           </div>
         </div>
         <div class="stats-grid" id="dash-stats"></div>
+        <div class="page" id="page-events" style="display: block;">
+          <div class="page-head" style="justify-content: end;">
+            <button class="btn btn-g" onclick="openModal('m-event')">📋 Request Event Creation</button>
+          </div>
+        </div>
         <div id="dash-events"></div>
       </div>
 
       <!-- EVENTS -->
-      <div class="page" id="page-events">
-        <div class="page-head">
-          <div>
-            <div class="page-title">My Events</div>
-            <div class="page-sub">Manage your events and QR codes</div>
-          </div>
-          <!-- <button class="btn btn-g" onclick="openModal('m-event')">+ Create Event</button> -->
-        </div>
-        <div id="events-list"></div>
-        <div class="events-grid">
-          <div class="event-card">
-
-            <div class="event-banner">
-              <img src="images/event_1.jpeg">
-              <span class="event-status">LIVE</span>
-            </div>
-
-            <div class="event-body">
-
-              <h3>Industrial Expo 2026</h3>
-
-              <div class="event-meta">
-                Chennai Trade Centre
-              </div>
-
-              <div class="event-date">
-                12 - 14 Aug 2026
-              </div>
-
-              <div class="stats">
-
-                <div class="stat">
-                  <span class="value">128</span>
-                  <span class="label">Booths</span>
-                </div>
-
-                <div class="stat">
-                  <span class="value">5.6K</span>
-                  <span class="label">Visitors</span>
-                </div>
-
-                <div class="stat">
-                  <span class="value">2.8K</span>
-                  <span class="label">Matches</span>
-                </div>
-
-              </div>
-
-              <a href="#" class="view-btn">
-                View Event
-              </a>
-
-            </div>
-
-          </div>
-          <div class="event-card">
-
-            <div class="event-banner">
-              <img src="images/event_2.jpeg">
-              <span class="event-status">LIVE</span>
-            </div>
-
-            <div class="event-body">
-
-              <h3>Industrial Expo 2026</h3>
-
-              <div class="event-meta">
-                Chennai Trade Centre
-              </div>
-
-              <div class="event-date">
-                12 - 14 Aug 2026
-              </div>
-
-              <div class="stats">
-
-                <div class="stat">
-                  <span class="value">128</span>
-                  <span class="label">Booths</span>
-                </div>
-
-                <div class="stat">
-                  <span class="value">5.6K</span>
-                  <span class="label">Visitors</span>
-                </div>
-
-                <div class="stat">
-                  <span class="value">2.8K</span>
-                  <span class="label">Matches</span>
-                </div>
-
-              </div>
-
-              <a href="#" class="view-btn">
-                View Event
-              </a>
-
-            </div>
-
-          </div>
-          <div class="event-card">
-
-            <div class="event-banner">
-              <img src="images/event_3.jpeg">
-              <span class="event-status">LIVE</span>
-            </div>
-
-            <div class="event-body">
-
-              <h3>Industrial Expo 2026</h3>
-
-              <div class="event-meta">
-                Chennai Trade Centre
-              </div>
-
-              <div class="event-date">
-                12 - 14 Aug 2026
-              </div>
-
-              <div class="stats">
-
-                <div class="stat">
-                  <span class="value">128</span>
-                  <span class="label">Booths</span>
-                </div>
-
-                <div class="stat">
-                  <span class="value">5.6K</span>
-                  <span class="label">Visitors</span>
-                </div>
-
-                <div class="stat">
-                  <span class="value">2.8K</span>
-                  <span class="label">Matches</span>
-                </div>
-
-              </div>
-
-              <a href="#" class="view-btn">
-                View Event
-              </a>
-
-            </div>
-
-          </div>
-        </div>
-      </div>
       <style>
         .events-grid {
           display: grid;
@@ -1304,7 +1162,11 @@
   <!-- MODALS -->
   <div class="modal-overlay" id="m-event" onclick="if(event.target===this)closeModal('m-event')">
     <div class="modal">
-      <div class="modal-title">Create Event <button class="mc" onclick="closeModal('m-event')">✕</button></div>
+      <div class="modal-title">📋 Request Event Creation <button class="mc" onclick="closeModal('m-event')">✕</button>
+      </div>
+      <div
+        style="font-size:12px;color:var(--text2);margin-bottom:12px;padding:10px 14px;background:rgba(108,99,255,0.08);border:1px solid rgba(108,99,255,0.2);border-radius:8px">
+        ℹ️ Your request will be reviewed and approved by the admin before the event goes live.</div>
       <div id="ev-err" class="err"></div>
       <div class="form-grid">
         <div class="mf"><label>Event Name *</label><input type="text" id="ev-name" placeholder="e.g. Tech Expo 2025">
@@ -1317,13 +1179,9 @@
       </div>
       <div class="mf"><label>Description</label><textarea id="ev-desc" rows="2"
           placeholder="Event description..."></textarea></div>
-      <div class="mf"><label>Status</label><select id="ev-status">
-          <option value="draft">Draft</option>
-          <option value="active">Active</option>
-        </select></div>
       <div class="modal-foot">
         <button class="btn btn-o" onclick="closeModal('m-event')">Cancel</button>
-        <button class="btn btn-g" onclick="handleCreateEvent()">Create Event</button>
+        <button class="btn btn-g" onclick="handleCreateEvent()">Submit Request</button>
       </div>
     </div>
   </div>
@@ -1790,10 +1648,11 @@
 
       <div style="display:flex;gap:10px;margin-top:16px;flex-wrap:wrap;">
 
-        ${e.status === 'draft' ? '' : `
+        ${e.status === 'draft' || e.status === 'archived' || e.status === 'pending' ? '' : `
         <button
           class="btn btn-o btn-sm"
           style="flex:1"
+          disabled
           onclick='showQr("${e.id}","${e.name}","${e.qr_image_url || ""}","${e.registration_qr_token}")'>
           QR
         </button>
@@ -1806,7 +1665,7 @@
           : ''
         }
 
-        ${e.status === 'archived'
+        ${e.status === 'archived' || e.status === 'pending'
           ? `<button class="view-btn" style="flex:2;opacity:0.5;cursor:not-allowed;" disabled>View Event</button>`
           : `<button class="view-btn" style="flex:2" onclick="showEventDetails('${e.id}','dashboard')">View Event</button>`
         }
@@ -1846,14 +1705,16 @@
           <div style="font-size:12px;color:var(--text2);margin-top:2px">📍 ${e.venue}${e.city ? ', ' + e.city : ''} · ${fd(e.start_date)} – ${fd(e.end_date)}</div>
         </div>
         <div class="tbl-actions">
-          <span class="badge ${sb(e.status)}">${e.status}</span>
-          ${e.status === 'draft' ? '' : `<button class="btn btn-o btn-sm" onclick='showQr("${e.id}","${e.name}","${e.qr_image_url || ""}","${e.registration_qr_token}")'>📱 QR Code</button>`}
+          <span class="badge ${sb(e.status)}">${e.status === 'pending' ? '⏳ Pending Approval' : e.status}</span>
+          ${e.status === 'pending' ? `<span style="font-size:12px;color:var(--text2)">Awaiting admin review</span>` : ''}
+          ${e.status !== 'pending' && e.status !== 'draft' ? `<button class="btn btn-o btn-sm" onclick='showQr("${e.id}","${e.name}","${e.qr_image_url || ""}","${e.registration_qr_token}")'>📱 QR Code</button>` : ''}
           
           ${e.status === 'draft' ? (e.settings?.activation_requested ? `<button class="btn btn-o btn-sm" disabled style="opacity:0.5;cursor:not-allowed;">Requested</button>` : `<button class="btn btn-g btn-sm" onclick="requestEventActivation('${e.id}')">Request to Active</button>`) : ''}
           
           ${e.status === 'archived'
           ? `<button class="btn btn-o btn-sm" disabled style="opacity:0.5;cursor:not-allowed;">View Event</button>`
-          : `<button class="btn btn-o btn-sm" onclick="showEventDetails('${e.id}', 'events')">View Event</button>`
+          : e.status === 'pending' ? ''
+            : `<button class="btn btn-o btn-sm" onclick="showEventDetails('${e.id}', 'events')">View Event</button>`
         }
         </div>
       </div>
@@ -1871,21 +1732,37 @@
     async function handleCreateEvent() {
       const err = document.getElementById("ev-err");
       err.style.display = "none";
+      const name = document.getElementById("ev-name").value.trim();
+      const venue = document.getElementById("ev-venue").value.trim();
+      const start = document.getElementById("ev-start").value;
+      const end = document.getElementById("ev-end").value;
+      if (!name) { err.style.display = "block"; err.textContent = "Event Name is required."; return; }
+      if (!venue) { err.style.display = "block"; err.textContent = "Venue is required."; return; }
+      if (!start) { err.style.display = "block"; err.textContent = "Start Date is required."; return; }
+      if (!end) { err.style.display = "block"; err.textContent = "End Date is required."; return; }
       const body = {
         event: {
-          name: document.getElementById("ev-name").value.trim(),
-          venue: document.getElementById("ev-venue").value.trim(),
+          name,
+          venue,
           city: document.getElementById("ev-city").value.trim(),
-          start_date: document.getElementById("ev-start").value,
-          end_date: document.getElementById("ev-end").value,
+          start_date: start,
+          end_date: end,
           max_visitors: document.getElementById("ev-max").value || null,
-          status: document.getElementById("ev-status").value,
+          status: "pending",
           description: document.getElementById("ev-desc").value.trim(),
         }
       };
+      const btn = document.querySelector("#m-event .btn-g");
+      if (btn) { btn.disabled = true; btn.textContent = "Submitting…"; }
       const res = await post("/organizer/events", body);
+      if (btn) { btn.disabled = false; btn.textContent = "Submit Request"; }
       if (res.success) {
-        closeModal("m-event"); toast("Event created! ✅", "ok");
+        // Clear form fields
+        ["ev-name", "ev-venue", "ev-city", "ev-max", "ev-start", "ev-end", "ev-desc"].forEach(id => {
+          const el = document.getElementById(id); if (el) el.value = "";
+        });
+        closeModal("m-event");
+        toast("Event request submitted! 📩 Admin will review and approve it.", "ok");
         loadEvents(); loadDashboard(); loadEventSelectors();
       } else {
         err.style.display = "block";
@@ -2003,9 +1880,9 @@
       } else {
         res = await get(`/organizer/events/${eid}/visitors?search=${encodeURIComponent(visitorsListState.search)}&page=${page}&per_page=${perPage}`);
       }
-    const rows = (res.data||[]).map(v => {
-    const vev = (v.event && v.event.id) ? v.event.id : eid;
-    return `
+      const rows = (res.data || []).map(v => {
+        const vev = (v.event && v.event.id) ? v.event.id : eid;
+        return `
     <tr>
       <td><span class="badge bp"><a href="javascript:void(0)"
           onclick="showVisitorDetails('${v.id}','${vev}', 'visitors')"
@@ -2111,15 +1988,15 @@
       }
     }
     function closeModal(id) {
+      document.getElementById(id).style.display = "none";
       if (id == "m-stall") { resetStallForm(); }
       else if (id == "m-event") { resetEventForm(); }
-      document.getElementById(id).style.display = "none";
     }
 
     function sc(icon, label, val, cls) {
       return `<div class="stat-card ${cls}"><div class="stat-icon"></div><div class="stat-num">${val}</div><div class="stat-label">${label}</div></div>`;
     }
-    function sb(s) { return { active: "bg", draft: "ba", completed: "bb", archived: "bgr" }[s] || "bgr"; }
+    function sb(s) { return { active: "bg", draft: "ba", completed: "bb", archived: "bgr", pending: "bp" }[s] || "bgr"; }
     function fd(d) {
       if (!d) return "—";
       return new Date(d).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" });
@@ -2937,13 +2814,13 @@
       let eid;
       let pageName = "visitors";
       const knownPages = ["visitors", "events", "details", "dashboard", "organizers"];
-      
+
       if (arg3) {
         eid = arg2;
         pageName = arg3;
       } else if (knownPages.includes(arg2)) {
         pageName = arg2;
-        eid  = document.getElementById("visitor-event-sel").value;
+        eid = document.getElementById("visitor-event-sel").value;
       } else {
         // arg2 is probably an event id
         eid = arg2;
