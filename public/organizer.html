@@ -1088,7 +1088,7 @@ async function loadDashboard() {
 
       </div>
 
-      <div style="display:flex;gap:10px;margin-top:16px">
+      <div style="display:flex;gap:10px;margin-top:16px;flex-wrap:wrap;">
 
         <button
           class="btn btn-o btn-sm"
@@ -1097,12 +1097,17 @@ async function loadDashboard() {
           QR
         </button>
 
-        <button
-          class="view-btn"
-          style="flex:2"
-          onclick="showEventDetails('${e.id}','dashboard')">
-          View Event
-        </button>
+        ${e.status === 'archived'
+          ? `<button class="view-btn" style="flex:2;opacity:0.5;cursor:not-allowed;" disabled>View Event</button>`
+          : `<button class="view-btn" style="flex:2" onclick="showEventDetails('${e.id}','dashboard')">View Event</button>`
+        }
+        
+        ${e.status === 'draft'
+          ? (e.settings?.activation_requested
+              ? `<button class="btn btn-o btn-sm" style="flex:2;opacity:0.5;cursor:not-allowed;" disabled>Requested</button>`
+              : `<button class="btn btn-o btn-sm" style="flex:2" onclick="requestEventActivation('${e.id}')">Request to Active</button>`)
+          : ''
+        }
 
       </div>
 
@@ -1141,7 +1146,13 @@ async function loadEvents() {
         <div class="tbl-actions">
           <span class="badge ${sb(e.status)}">${e.status}</span>
           <button class="btn btn-o btn-sm" onclick='showQr("${e.id}","${e.name}","${e.qr_image_url||""}","${e.registration_qr_token}")'>📱 QR Code</button>
-          ${e.status==="draft"?`<button class="btn btn-g btn-sm" onclick='activateEvent("${e.id}")'>Activate</button>`:""}
+          
+          ${e.status === 'draft' ? (e.settings?.activation_requested ? `<button class="btn btn-o btn-sm" disabled style="opacity:0.5;cursor:not-allowed;">Requested</button>` : `<button class="btn btn-g btn-sm" onclick="requestEventActivation('${e.id}')">Request to Active</button>`) : ''}
+          
+          ${e.status === 'archived'
+            ? `<button class="btn btn-o btn-sm" disabled style="opacity:0.5;cursor:not-allowed;">View Event</button>`
+            : `<button class="btn btn-o btn-sm" onclick="showEventDetails('${e.id}', 'events')">View Event</button>`
+          }
         </div>
       </div>
       <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:1px;background:var(--border)">
@@ -1178,9 +1189,9 @@ async function handleCreateEvent() {
   }
 }
 
-async function activateEvent(id) {
-  const res = await post(`/organizer/events/${id}/activate`, {});
-  if (res.success) { toast("Event activated! 🎉", "ok"); loadEvents(); loadDashboard(); }
+async function requestEventActivation(id) {
+  const res = await post(`/organizer/events/${id}/request_activation`, {});
+  if (res.success) { toast("Activation requested! 📩", "ok"); loadEvents(); loadDashboard(); }
   else toast(res.error||"Failed","err");
 }
 
@@ -1821,10 +1832,11 @@ function buildEventDetailsHTML(e) {
           <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
             <button
               class="btn btn-p btn-sm qr-blink"
-              onclick='showQr("${e.id}","${e.name}","${e.qr_image_url||""}","${e.registration_qr_token||""}")'>
+              onclick='showQr("${e.id}","${e.name}","${e.qr_image_url||""}","${e.registration_qr_token||""}")'
+              ${e.status === 'draft' ? 'disabled style="opacity:0.5;cursor:not-allowed"' : ''}>
               📱 View QR Code
             </button>
-            <a href="/register/${e.registration_qr_token||""}" target="_blank" style="display:inline-flex;align-items:center;gap:6px;padding:10px 14px;border-radius:12px;border:1px solid var(--border);color:var(--accent);text-decoration:none;font-size:13px;background:rgba(34,197,94,0.06)">🔗 Open registration</a>
+            <a href="/register/${e.registration_qr_token||""}" target="_blank" style="display:inline-flex;align-items:center;gap:6px;padding:10px 14px;border-radius:12px;border:1px solid var(--border);color:var(--accent);text-decoration:none;font-size:13px;background:rgba(34,197,94,0.06); ${e.status === 'draft' ? 'opacity:0.5;pointer-events:none;' : ''}">🔗 Open registration</a>
           </div>
         </div>
 
@@ -1845,8 +1857,8 @@ function buildEventDetailsHTML(e) {
             onblur="this.style.borderColor='var(--border)'"
           >
           <button class="btn btn-p btn-sm" onclick="refreshEventStalls()">↻ Refresh</button>
-          <button class="btn btn-g" onclick="openBulkStallModal()">+ Add Stalls</button>
-          <button class="btn btn-g" onclick="openModal('m-import-stalls')">+ Bulk Upload</button>
+          <button class="btn btn-g" onclick="openBulkStallModal()" ${e.status === 'draft' ? 'disabled style="opacity:0.5;cursor:not-allowed"' : ''}>+ Add Stalls</button>
+          <button class="btn btn-g" onclick="openModal('m-import-stalls')" ${e.status === 'draft' ? 'disabled style="opacity:0.5;cursor:not-allowed"' : ''}>+ Bulk Upload</button>
         </div>
       </div>
       <div id="event-stalls-table">

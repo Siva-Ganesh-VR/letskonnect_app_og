@@ -63,6 +63,14 @@ module Api
           json_success({ message: "Event activated", status: "active" })
         end
 
+        def request_activation
+          settings = @event.settings || {}
+          settings["activation_requested"] = true
+          settings["activation_requested_at"] = Time.current
+          @event.update!(settings: settings)
+          json_success({ message: "Activation requested", settings: settings })
+        end
+
         def archive
           @event.update!(status: "archived")
           json_success({ message: "Event archived", status: "archived" })
@@ -101,6 +109,7 @@ module Api
             max_visitors: e.max_visitors,
             created_at: e.created_at,
             description: e.description,
+            settings: e.settings,
 
             organizer: {
               id: e.event_organizer.id,

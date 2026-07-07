@@ -3,11 +3,15 @@ module Api
     module SuperAdmin
       class EventsController < ApplicationController
         before_action :authenticate_super_admin!
-        before_action :set_event, only: [:show, :update, :destroy, :analytics, :full_report, :generate_qr, :activate, :archive]
+        before_action :set_event, only: [:show, :update, :destroy, :analytics, :full_report, :generate_qr, :activate, :archive, :approve, :reject]
 
         def index
           events = Event.includes(:event_organizer, :event_analytics).order(created_at: :desc)
-          events = events.where(status: params[:status]) if params[:status].present?
+          if params[:status].present?
+            events = events.where(status: params[:status])
+          else
+            events = events.where.not(status: "pending")
+          end
 
           if params[:search].present?
             q = "%#{params[:search]}%"
@@ -76,6 +80,20 @@ module Api
         def archive
           @event.update!(status: "archived")
           json_success({ message: "Event archived", status: "archived" })
+        end
+
+        def approve
+          target_status = params[:status].presence || "active"
+          unless %w[draft active].include?(target_status)
+            return json_error("Invalid approval status. Must be draft or active.")
+          end
+          @event.update!(status: target_status)
+          json_success({ message: "Event approved successfully as #{target_status}", status: target_status })
+        end
+
+        def reject
+          @event.update!(status: "archived")
+          json_success({ message: "Event rejected" })
         end
 
         private
