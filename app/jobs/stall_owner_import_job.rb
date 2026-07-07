@@ -32,6 +32,8 @@ class StallOwnerImportJob < ApplicationJob
         company_name: row["company_name"]&.strip,
         stall_number: row["stall_number"]&.strip,
         stall_category: row["stall_category"]&.strip,
+        stall_type: row["stall_type"]&.strip,
+        stall_size: row["stall_size"]&.strip,
         email: row["email"]&.strip,
         password: generated_password,
         password_confirmation: generated_password,

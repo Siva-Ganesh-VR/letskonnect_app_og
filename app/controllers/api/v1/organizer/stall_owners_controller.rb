@@ -136,6 +136,8 @@ module Api
                 :company_name,
                 :stall_number,
                 :stall_category,
+                :stall_type,
+                :stall_size,
                 :email,
                 :website
               )
@@ -186,14 +188,14 @@ module Api
         def stall_params
           params.require(:stall_owner).permit(
             :name, :email, :mobile_number, :company_name,
-            :stall_number, :stall_category, :description, :website
+            :stall_number, :stall_category, :stall_type, :stall_size, :description, :website
           )
         end
 
         def stall_update_params
           params.require(:stall_owner).permit(
             :name, :email, :company_name, :stall_number,
-            :stall_category, :description, :website, :active
+            :stall_category, :stall_type, :stall_size, :description, :website, :active
           )
         end
 
@@ -213,6 +215,8 @@ module Api
             company_name: s.company_name,
             stall_number: s.stall_number,
             stall_category: s.stall_category,
+            stall_type: s.stall_type,
+            stall_size: s.stall_size,
 
             # Event & Organizer info
             event: {

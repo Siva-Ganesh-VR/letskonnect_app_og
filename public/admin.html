@@ -227,6 +227,7 @@ tr:hover td{background:rgba(255,255,255,0.02)}
       <div class="nav-item" onclick="showPage('events')"><span class="nav-icon">🎪</span> Events</div>
       <div class="nav-item" onclick="showPage('organizers')" id="nav-organizers"><span class="nav-icon">🏢</span> Organizers</div>
       <div class="nav-item" onclick="showPage('stalls')"><span class="nav-icon">🏪</span> Stall Owners</div>
+      <div class="nav-item" onclick="showPage('stall-metadata')"><span class="nav-icon">🧩</span> Stall Metadata</div>
       <div class="nav-item" onclick="showPage('visitors')"><span class="nav-icon">👥</span> Visitors</div>
       <!--<div class="nav-item" onclick="showPage('leads')"><span class="nav-icon">🎯</span> Leads</div>
       <div class="nav-section">Tools</div>
@@ -295,6 +296,41 @@ tr:hover td{background:rgba(255,255,255,0.02)}
           </div>
         </div>
         <div id="stalls-table"><div class="empty"><div class="empty-icon">🏪</div>Loading...</div></div>
+      </div>
+    </div>
+
+    <!-- STALL METADATA -->
+    <div class="page" id="page-stall-metadata">
+      <div class="page-title">Stall Metadata</div>
+      <div class="page-sub">Manage stall types, dimensions, and categories</div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;margin-top:12px">
+        <div class="table-wrap" style="padding:16px">
+          <div class="table-title" style="margin-bottom:12px">Type Of Stall</div>
+          <div style="display:flex;gap:8px;margin-bottom:12px">
+            <input class="search-bar" id="meta-type-input" placeholder="e.g. Premium Booth">
+            <button class="btn btn-primary btn-sm" onclick="createMetadata('types')">Submit</button>
+          </div>
+          <div id="meta-type-list" style="font-size:13px;color:var(--text2)">No stall types yet.</div>
+        </div>
+
+        <div class="table-wrap" style="padding:16px">
+          <div class="table-title" style="margin-bottom:12px">Stall Size / Dimensions</div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px">
+            <input class="search-bar" id="meta-size-width" placeholder="Width (e.g. 8)" style="flex:1;min-width:120px">
+            <input class="search-bar" id="meta-size-height" placeholder="Height (e.g. 10)" style="flex:1;min-width:120px">
+            <button class="btn btn-primary btn-sm" type="button" onclick="createMetadata('sizes')">Submit</button>
+          </div>
+          <div id="meta-size-list" style="font-size:13px;color:var(--text2)">No stall sizes yet.</div>
+        </div>
+
+        <div class="table-wrap" style="padding:16px">
+          <div class="table-title" style="margin-bottom:12px">Category</div>
+          <div style="display:flex;gap:8px;margin-bottom:12px">
+            <input class="search-bar" id="meta-category-input" placeholder="e.g. Healthcare">
+            <button class="btn btn-primary btn-sm" onclick="createMetadata('categories')">Submit</button>
+          </div>
+          <div id="meta-category-list" style="font-size:13px;color:var(--text2)">No categories yet.</div>
+        </div>
       </div>
     </div>
 
@@ -460,9 +496,16 @@ tr:hover td{background:rgba(255,255,255,0.02)}
       <div class="mf"><label>Category</label>
         <select id="st-cat">
           <option value="">Select</option>
-          <option>IT Services</option><option>Finance</option><option>Marketing</option>
-          <option>Education</option><option>Healthcare</option><option>Retail</option>
-          <option>Manufacturing</option><option>Energy</option><option>Startup</option><option>Other</option>
+        </select>
+      </div>
+      <div class="mf"><label>Stall Type</label>
+        <select id="st-type">
+          <option value="">Select</option>
+        </select>
+      </div>
+      <div class="mf"><label>Stall Size</label>
+        <select id="st-size">
+          <option value="">Select</option>
         </select>
       </div>
       <div class="mf"><label>Email</label><input type="email" id="st-email" placeholder="Optional"></div>
@@ -494,17 +537,19 @@ tr:hover td{background:rgba(255,255,255,0.02)}
     </div>
 
     <div style="overflow:auto">
-      <table class="table" id="stall-table">
+      <table class="table" id="stall-table" style="min-width: 1200px">
         <thead>
           <tr>
-            <th>Full Name *</th>
-            <th>Mobile *</th>
-            <th>Company *</th>
-            <th>Stall No</th>
-            <th>Category</th>
-            <th>Email</th>
-            <th>Website</th>
-            <th></th>
+            <th style="width: 140px">Full Name *</th>
+            <th style="width: 120px">Mobile *</th>
+            <th style="width: 150px">Company *</th>
+            <th style="width: 80px">Stall No</th>
+            <th style="width: 150px">Category</th>
+            <th style="width: 130px">Type</th>
+            <th style="width: 110px">Size</th>
+            <th style="width: 160px">Email</th>
+            <th style="width: 130px">Website</th>
+            <th style="width: 50px"></th>
           </tr>
         </thead>
 
@@ -556,11 +601,13 @@ tr:hover td{background:rgba(255,255,255,0.02)}
     <div style="margin-top:16px;padding:12px;background:var(--bg3);border-radius:8px;font-size:12px">
       <strong>Required Columns:</strong>
       <div style="margin-top:6px">
-        full_name,
+        name,
         mobile_number,
         company_name,
         stall_number,
-        category,
+        stall_category,
+        stall_type,
+        stall_size,
         email,
         website
       </div>
@@ -604,6 +651,7 @@ let token = localStorage.getItem("lk_admin_token");
 let currentUser = JSON.parse(localStorage.getItem("lk_admin_user") || "null");
 let allEvents = [];
 let previousPage = null;
+let stallMetadata = { types: [], sizes: [], categories: [] };
 
 // ── Boot ──────────────────────────────────────────────────────────────────
 if (token && currentUser) {
@@ -662,6 +710,7 @@ function showApp() {
   loadDashboard();
   loadEventsForFilter();
   loadEventSelectors();
+  loadStallMetadata();
 }
 
 function doLogout() {
@@ -679,10 +728,94 @@ function showPage(name) {
   document.getElementById("page-" + name).classList.add("active");
   event?.currentTarget?.classList.add("active");
   document.getElementById("sidebar").classList.remove("open");
-  const loaders = { events: loadEvents, organizers: loadOrganizers, stalls: loadStalls, visitors: loadVisitors, leads: loadLeads, analytics: loadAnalytics };
+  const loaders = { events: loadEvents, organizers: loadOrganizers, stalls: loadStalls, "stall-metadata": loadStallMetadata, visitors: loadVisitors, leads: loadLeads, analytics: loadAnalytics };
   if (loaders[name]) loaders[name]();
 }
 function toggleSidebar() { document.getElementById("sidebar").classList.toggle("open"); }
+
+async function loadStallMetadata() {
+  const [typesRes, sizesRes, categoriesRes] = await Promise.all([
+    apiGet('/super_admin/stall_types'),
+    apiGet('/super_admin/stall_sizes'),
+    apiGet('/super_admin/stall_categories')
+  ]);
+
+  stallMetadata.types = typesRes.data || [];
+  stallMetadata.sizes = sizesRes.data || [];
+  stallMetadata.categories = categoriesRes.data || [];
+
+  renderMetadataList('type', stallMetadata.types.map(x => x.name));
+  renderMetadataList('size', stallMetadata.sizes.map(x => x.name));
+  renderMetadataList('category', stallMetadata.categories.map(x => x.name));
+  refreshStallMetadataOptions();
+}
+
+function renderMetadataList(kind, entries) {
+  const el = document.getElementById(`meta-${kind}-list`);
+  if (!el) return;
+  if (!entries.length) {
+    el.textContent = `No stall ${kind === 'category' ? 'categories' : kind + 's'} yet.`;
+    return;
+  }
+  el.innerHTML = entries.map(name => `<span class="badge badge-gray" style="margin:0 6px 6px 0;display:inline-block">${name}</span>`).join('');
+}
+
+async function createMetadata(kind) {
+  let endpoint;
+  let payload;
+
+  if (kind === 'types') {
+    const name = document.getElementById('meta-type-input').value.trim();
+    if (!name) return;
+    endpoint = '/super_admin/stall_types';
+    payload = { name };
+    document.getElementById('meta-type-input').value = '';
+  } else if (kind === 'sizes') {
+    const width = document.getElementById('meta-size-width').value.trim();
+    const height = document.getElementById('meta-size-height').value.trim();
+    if (!width || !height) return;
+    endpoint = '/super_admin/stall_sizes';
+    payload = { width, height };
+    document.getElementById('meta-size-width').value = '';
+    document.getElementById('meta-size-height').value = '';
+  } else {
+    const name = document.getElementById('meta-category-input').value.trim();
+    if (!name) return;
+    endpoint = '/super_admin/stall_categories';
+    payload = { name };
+    document.getElementById('meta-category-input').value = '';
+  }
+
+  const res = await apiPost(endpoint, payload);
+  if (!res.success) {
+    toast(res.error || 'Failed to save metadata', 'error');
+    return;
+  }
+  toast('Metadata saved', 'success');
+  loadStallMetadata();
+}
+
+function buildSelectOptions(names = []) {
+  return '<option value="">Select</option>' + names.map(name => `<option>${name}</option>`).join('');
+}
+
+function setSelectOptions(selector, names = []) {
+  document.querySelectorAll(selector).forEach(select => {
+    const currentValue = select.value;
+    select.innerHTML = buildSelectOptions(names);
+    if (currentValue) select.value = currentValue;
+  });
+}
+
+function refreshStallMetadataOptions() {
+  const categories = (stallMetadata.categories || []).map(x => x.name);
+  const types = (stallMetadata.types || []).map(x => x.name);
+  const sizes = (stallMetadata.sizes || []).map(x => x.name);
+
+  setSelectOptions('#st-cat, .st-category', categories);
+  setSelectOptions('#st-type, .st-type', types);
+  setSelectOptions('#st-size, .st-size', sizes);
+}
 
 // ── API helpers ───────────────────────────────────────────────────────────
 async function apiFetch(path, options={}) {
@@ -1168,6 +1301,8 @@ async function loadStalls(page = 1) {
           style="color:inherit;font-weight:600;text-decoration:none">${s.company_name}</a></div><div style="font-size:12px;color:var(--text2)">${s.name}</div></td>
       <td>${s.stall_number||"—"}</td>
       <td>${s.stall_category||"—"}</td>
+      <td>${s.stall_type||"—"}</td>
+      <td>${s.stall_size||"—"}</td>
       <td>${s.mobile_number}</td>
       <td>${s.event.name}</td>
       <td>${s.pass_code}</td>
@@ -1180,8 +1315,8 @@ async function loadStalls(page = 1) {
     </tr>
   `).join("");
   document.getElementById("stalls-table").innerHTML = `
-    <table><thead><tr><th>Company</th><th>Stall</th><th>Category</th><th>Mobile</th><th>Event</th><th>Pass Code</th><th>Leads</th><th>Status</th></tr></thead>
-    <tbody>${rows||`<tr><td colspan="8">${emptyHtml("🏪","No stalls yet")}</td></tr>`}</tbody></table>
+    <table><thead><tr><th>Company</th><th>Stall</th><th>Category</th><th>Type</th><th>Size</th><th>Mobile</th><th>Event</th><th>Pass Code</th><th>Leads</th><th>Status</th></tr></thead>
+    <tbody>${rows||`<tr><td colspan="10">${emptyHtml("🏪","No stalls yet")}</td></tr>`}</tbody></table>
     ${renderSimplePagination(res.meta || {}, "stalls", page, "loadStalls")}
   `;
 }
@@ -1508,12 +1643,15 @@ async function importStallOwners() {
   }
 }
 function editStall(stall) {
+  refreshStallMetadataOptions();
   document.getElementById("st-id").value = stall.id;
   document.getElementById("st-name").value = stall.name || "";
   document.getElementById("st-mobile").value = stall.mobile_number || "";
   document.getElementById("st-company").value = stall.company_name || "";
   document.getElementById("st-num").value = stall.stall_number || "";
   document.getElementById("st-cat").value = stall.stall_category || "";
+  document.getElementById("st-type").value = stall.stall_type || "";
+  document.getElementById("st-size").value = stall.stall_size || "";
   document.getElementById("st-email").value = stall.email || "";
   document.getElementById("st-web").value = stall.website || "";
 
@@ -1544,6 +1682,8 @@ async function updateStall() {
           company_name: document.getElementById("st-company").value.trim(),
           stall_number: document.getElementById("st-num").value.trim(),
           stall_category: document.getElementById("st-cat").value,
+          stall_type: document.getElementById("st-type").value.trim(),
+          stall_size: document.getElementById("st-size").value.trim(),
           email: document.getElementById("st-email").value.trim(),
           website: document.getElementById("st-web").value.trim()
         }
@@ -1578,51 +1718,54 @@ function addStallRow() {
   const row = document.createElement("tr");
 
   row.innerHTML = `
-    <td class="mf">
-      <input type="text" class="st-name" placeholder="Full Name">
+    <td class="mf" style="padding: 6px 4px;">
+      <input type="text" class="st-name" placeholder="Full Name" style="width: 100%; min-width: 130px;">
     </td>
 
-    <td class="mf">
-      <input type="tel" class="st-mobile" placeholder="9876543210">
+    <td class="mf" style="padding: 6px 4px;">
+      <input type="tel" class="st-mobile" placeholder="9876543210" style="width: 100%; min-width: 110px;">
     </td>
 
-    <td  class="mf">
-      <input type="text" class="st-company" placeholder="Company Name">
+    <td  class="mf" style="padding: 6px 4px;">
+      <input type="text" class="st-company" placeholder="Company Name" style="width: 100%; min-width: 140px;">
     </td>
 
-    <td class="mf">
-      <input type="text" class="st-number" placeholder="A1">
+    <td class="mf" style="padding: 6px 4px;">
+      <input type="text" class="st-number" placeholder="A1" style="width: 100%; min-width: 70px;">
     </td>
 
-    <td class="mf">
-      <select class="st-category">
-        <option value="">Select</option>
-        <option>IT Services</option>
-        <option>Finance</option>
-        <option>Marketing</option>
-        <option>Education</option>
-        <option>Healthcare</option>
-        <option>Retail</option>
-        <option>Manufacturing</option>
-        <option>Energy</option>
-        <option>Startup</option>
-        <option>Other</option>
+    <td class="mf" style="padding: 6px 4px;">
+      <select class="st-category" style="width: 100%; min-width: 140px;">
+        ${buildSelectOptions((stallMetadata.categories || []).map(x => x.name))}
       </select>
     </td>
 
-    <td class="mf">
-      <input type="email" class="st-email" placeholder="Email">
+    <td class="mf" style="padding: 6px 4px;">
+      <select class="st-type" style="width: 100%; min-width: 120px;">
+        ${buildSelectOptions((stallMetadata.types || []).map(x => x.name))}
+      </select>
     </td>
 
-    <td class="mf">
-      <input type="text" class="st-website" placeholder="Website">
+    <td class="mf" style="padding: 6px 4px;">
+      <select class="st-size" style="width: 100%; min-width: 100px;">
+        ${buildSelectOptions((stallMetadata.sizes || []).map(x => x.name))}
+      </select>
     </td>
 
-    <td class="mf">
+    <td class="mf" style="padding: 6px 4px;">
+      <input type="email" class="st-email" placeholder="Email" style="width: 100%; min-width: 150px;">
+    </td>
+
+    <td class="mf" style="padding: 6px 4px;">
+      <input type="text" class="st-website" placeholder="Website" style="width: 100%; min-width: 120px;">
+    </td>
+
+    <td class="mf" style="padding: 6px 4px; text-align: center;">
       <button
         class="btn btn-primary btn-sm"
         type="button"
         onclick="this.closest('tr').remove()"
+        style="padding: 5px 10px;"
       >
         ✕
       </button>
@@ -1665,6 +1808,8 @@ async function createMultipleStalls() {
       company_name: row.querySelector(".st-company").value.trim(),
       stall_number: row.querySelector(".st-number").value.trim(),
       stall_category: row.querySelector(".st-category").value,
+      stall_type: row.querySelector(".st-type").value.trim(),
+      stall_size: row.querySelector(".st-size").value.trim(),
       email: row.querySelector(".st-email").value.trim(),
       website: row.querySelector(".st-website").value.trim(),
       event_id: eid
@@ -2204,6 +2349,8 @@ async function showStallOwnerDetails(stallOwnerId, pageName = "stalls") {
     { label: "Company", value: s.company_name },
     { label: "Stall No.", value: s.stall_number },
     { label: "Stall Category", value: s.stall_category },
+    { label: "Stall Type", value: s.stall_type },
+    { label: "Stall Size", value: s.stall_size },
     { label: "Event", value: s.event?.name || "N/A" },
     { label: "Website", value: s.website },
     { label: "Description", value: s.description },

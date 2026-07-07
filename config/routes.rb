@@ -65,6 +65,9 @@ Rails.application.routes.draw do
         get "stall_owners", to: "stall_owners#index"
           # allow listing visitors across all organizer events
           get "visitors", to: "visitors#index"
+        resources :stall_types, only: [:index, :create]
+        resources :stall_sizes, only: [:index, :create]
+        resources :stall_categories, only: [:index, :create]
         get "dashboard",                to: "dashboard#show"
         resources :events, only: [:index, :show, :create, :update] do
           member { get :analytics; get :qr_code; post :activate; post :archive }
@@ -101,6 +104,9 @@ Rails.application.routes.draw do
             post :bulk_upload
           end
         end
+        resources :stall_types, only: [:index, :create, :update, :destroy]
+        resources :stall_sizes, only: [:index, :create, :update, :destroy]
+        resources :stall_categories, only: [:index, :create, :update, :destroy]
         resources :visitors,      only: [:index, :show, :destroy]
         get "analytics/platform", to: "analytics#platform"
       end

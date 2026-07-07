@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_07_04_080526) do
+ActiveRecord::Schema[7.2].define(version: 2026_07_07_000001) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pgcrypto"
   enable_extension "plpgsql"
@@ -216,6 +216,14 @@ ActiveRecord::Schema[7.2].define(version: 2026_07_04_080526) do
     t.index ["stall_owner_id"], name: "index_stall_analytics_on_stall_owner_id"
   end
 
+  create_table "stall_categories", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.string "name", null: false
+    t.boolean "active", default: true, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["name"], name: "index_stall_categories_on_name", unique: true
+  end
+
   create_table "stall_owners", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.string "name", null: false
     t.string "email"
@@ -236,6 +244,8 @@ ActiveRecord::Schema[7.2].define(version: 2026_07_04_080526) do
     t.datetime "updated_at", null: false
     t.string "pass_code"
     t.string "stall_code", limit: 30, null: false
+    t.string "stall_type"
+    t.string "stall_size"
     t.index ["event_id", "active"], name: "index_stall_owners_on_event_id_and_active"
     t.index ["event_id", "stall_number"], name: "index_stall_owners_on_event_id_and_stall_number", unique: true, where: "(stall_number IS NOT NULL)"
     t.index ["event_id"], name: "index_stall_owners_on_event_id"
@@ -243,6 +253,22 @@ ActiveRecord::Schema[7.2].define(version: 2026_07_04_080526) do
     t.index ["jti"], name: "index_stall_owners_on_jti", unique: true
     t.index ["mobile_number"], name: "index_stall_owners_on_mobile_number"
     t.index ["stall_code"], name: "index_stall_owners_on_stall_code", unique: true
+  end
+
+  create_table "stall_sizes", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.string "name", null: false
+    t.boolean "active", default: true, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["name"], name: "index_stall_sizes_on_name", unique: true
+  end
+
+  create_table "stall_types", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.string "name", null: false
+    t.boolean "active", default: true, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["name"], name: "index_stall_types_on_name", unique: true
   end
 
   create_table "super_admins", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
