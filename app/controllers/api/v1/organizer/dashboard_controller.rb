@@ -5,7 +5,7 @@ module Api
         before_action :authenticate_organizer!
 
         def show
-          events = @current_organizer.events.includes(:event_analytics)
+          events = @current_organizer.events.where.not(status: "pending").includes(:event_analytics)
           sample_images = Dir.children(Rails.root.join("public", "images")).select { |f| f.start_with?("event_") }.map { |f| "/images/#{f}" }.shuffle
           image_count = sample_images.size
 
@@ -32,6 +32,7 @@ module Api
             total_leads: analytics&.total_leads || 0,
             banner_url: banner_url,
             registration_qr_token: e.registration_qr_token,
+            settings: e.settings
           }
         end
       end

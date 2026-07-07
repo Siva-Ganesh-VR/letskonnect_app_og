@@ -70,7 +70,7 @@ Rails.application.routes.draw do
         resources :stall_categories, only: [:index, :create]
         get "dashboard",                to: "dashboard#show"
         resources :events, only: [:index, :show, :create, :update] do
-          member { get :analytics; get :qr_code; post :activate; post :archive }
+          member { get :analytics; get :qr_code; post :activate; post :archive; post :request_activation }
           resources :stall_owners, only: [:index, :show, :create, :update, :destroy] do
             member { post :send_credentials; patch :toggle_active }
             collection do

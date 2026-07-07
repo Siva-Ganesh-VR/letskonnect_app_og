@@ -228,6 +228,7 @@ tr:hover td{background:rgba(255,255,255,0.02)}
       <div class="nav-item" onclick="showPage('organizers')" id="nav-organizers"><span class="nav-icon">🏢</span> Organizers</div>
       <div class="nav-item" onclick="showPage('stalls')"><span class="nav-icon">🏪</span> Stall Owners</div>
       <div class="nav-item" onclick="showPage('stall-metadata')"><span class="nav-icon">🧩</span> Stall Metadata</div>
+      <div class="nav-item" onclick="showPage('requested-events')"><span class="nav-icon">⏳</span> Requested Events</div>
       <div class="nav-item" onclick="showPage('visitors')"><span class="nav-icon">👥</span> Visitors</div>
       <!--<div class="nav-item" onclick="showPage('leads')"><span class="nav-icon">🎯</span> Leads</div>
       <div class="nav-section">Tools</div>
@@ -331,6 +332,21 @@ tr:hover td{background:rgba(255,255,255,0.02)}
           </div>
           <div id="meta-category-list" style="font-size:13px;color:var(--text2)">No categories yet.</div>
         </div>
+      </div>
+    </div>
+
+    <!-- REQUESTED EVENTS -->
+    <div class="page" id="page-requested-events">
+      <div class="page-title">Requested Events</div>
+      <div class="page-sub">Approve or reject organizer event requests</div>
+      <div class="table-wrap">
+        <div class="table-header">
+          <div class="table-title">Pending Requests</div>
+          <div class="table-actions">
+            <input class="search-bar" id="requested-events-search" placeholder="Search requested events..." oninput="loadRequestedEvents(1)">
+          </div>
+        </div>
+        <div id="requested-events-table"><div class="empty"><div class="empty-icon">⏳</div>Loading requested events...</div></div>
       </div>
     </div>
 
@@ -728,7 +744,7 @@ function showPage(name) {
   document.getElementById("page-" + name).classList.add("active");
   event?.currentTarget?.classList.add("active");
   document.getElementById("sidebar").classList.remove("open");
-  const loaders = { events: loadEvents, organizers: loadOrganizers, stalls: loadStalls, "stall-metadata": loadStallMetadata, visitors: loadVisitors, leads: loadLeads, analytics: loadAnalytics };
+  const loaders = { events: loadEvents, organizers: loadOrganizers, stalls: loadStalls, "stall-metadata": loadStallMetadata, "requested-events": () => loadRequestedEvents(1), visitors: loadVisitors, leads: loadLeads, analytics: loadAnalytics };
   if (loaders[name]) loaders[name]();
 }
 function toggleSidebar() { document.getElementById("sidebar").classList.toggle("open"); }
@@ -1115,6 +1131,89 @@ async function loadEvents(page = 1) {
   const orgRes = currentUser?.role === "super_admin" ? await apiGet("/super_admin/event_organizers") : null;
   if (orgRes?.data) {
     document.getElementById("ef-organizer").innerHTML = orgRes.data.map(o => `<option value="${o.id}">${o.name} — ${o.company_name||""}</option>`).join("");
+  }
+}
+
+// ── Requested Events ──────────────────────────────────────────────────────
+async function loadRequestedEvents(page = 1) {
+  const search = document.getElementById("requested-events-search")?.value || "";
+  const endpoint = `/super_admin/events?status=pending&page=${page}&per_page=10${search ? `&search=${encodeURIComponent(search)}` : ""}`;
+  const res      = await apiGet(endpoint);
+  const pendingEvents = res.data || [];
+  const meta     = res.meta || {};
+  const tbody    = pendingEvents.map(e => `
+    <tr>
+      <td>
+        <div style="font-weight:600">${e.name}</div>
+        <div style="font-size:12px;color:var(--text2);margin-top:1px">${e.city || "—"}</div>
+      </td>
+      <td>${e.venue || "—"}</td>
+      <td>
+        <div style="font-weight:500">${e.organizer?.name || "—"}</div>
+      </td>
+      <td>${fmtDate(e.start_date)} – ${fmtDate(e.end_date)}</td>
+      <td>${e.max_visitors ? e.max_visitors.toLocaleString() : "Unlimited"}</td>
+      <td style="font-size:12px;color:var(--text2);max-width:200px;text-overflow:ellipsis;overflow:hidden;white-space:nowrap" title="${e.description || ""}">
+        ${e.description || "—"}
+      </td>
+      <td>
+        <div style="display:flex;gap:6px;flex-wrap:wrap">
+          <button class="btn btn-sm btn-primary" onclick='approveEvent("${e.id}", "active")'>Approve Active</button>
+          <button class="btn btn-sm btn-outline" style="border-col: #f59e0b; color: #f59e0b;" onclick='approveEvent("${e.id}", "draft")'>Approve Draft</button>
+          <button class="btn btn-sm btn-outline" style="border-col: #ef4444; color: #ef4444;" onclick='rejectEvent("${e.id}")'>Reject</button>
+        </div>
+      </td>
+    </tr>
+  `).join("");
+
+  document.getElementById("requested-events-table").innerHTML = `
+    <table>
+      <thead>
+        <tr>
+          <th>Requested Event</th>
+          <th>Venue</th>
+          <th>Organizer</th>
+          <th>Dates</th>
+          <th>Max Visitors</th>
+          <th>Description</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${tbody || `<tr><td colspan="7">${emptyHtml("⏳","No requested events pending approval")}</td></tr>`}
+      </tbody>
+    </table>
+    ${renderSimplePagination(meta, "requested-events", page, "loadRequestedEvents")}
+  `;
+}
+
+async function approveEvent(id, targetStatus) {
+  if (!confirm(`Are you sure you want to approve this event as ${targetStatus}?`)) return;
+  try {
+    const res = await apiPost(`/super_admin/events/${id}/approve`, { status: targetStatus });
+    if (res.success) {
+      toast(`Event approved as ${targetStatus}!`, "success");
+      loadRequestedEvents(1);
+    } else {
+      toast(res.error || "Failed to approve event", "error");
+    }
+  } catch(e) {
+    toast("Connection error", "error");
+  }
+}
+
+async function rejectEvent(id) {
+  if (!confirm("Are you sure you want to reject this event request?")) return;
+  try {
+    const res = await apiPost(`/super_admin/events/${id}/reject`, {});
+    if (res.success) {
+      toast("Event request rejected", "success");
+      loadRequestedEvents(1);
+    } else {
+      toast(res.error || "Failed to reject event", "error");
+    }
+  } catch(e) {
+    toast("Connection error", "error");
   }
 }
 
@@ -1509,7 +1608,7 @@ function fmtDate(d) {
 }
 
 function statusBadge(s) {
-  return {active:"badge-green",draft:"badge-amber",completed:"badge-blue",archived:"badge-gray"}[s] || "badge-gray";
+  return {active:"badge-green",draft:"badge-amber",pending:"badge-purple",completed:"badge-blue",archived:"badge-gray"}[s] || "badge-gray";
 }
 
 function emptyHtml(icon, text) {
