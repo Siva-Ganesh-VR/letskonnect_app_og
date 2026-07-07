@@ -115,7 +115,8 @@ module Api
             registered_count: e.registered_count, qr_image_url: e.qr_image_url,
             organizer: { id: e.event_organizer.id, name: e.event_organizer.name },
             total_leads: e.event_analytics&.total_leads || 0, created_at: e.created_at,
-            registration_qr_token: e.registration_qr_token, event_organizer_id: e.event_organizer_id, max_visitors: e.max_visitors, description: e.description }
+            registration_qr_token: e.registration_qr_token, event_organizer_id: e.event_organizer_id, max_visitors: e.max_visitors, description: e.description,
+            settings: e.settings }
         end
 
         def event_full(e)

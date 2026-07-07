@@ -3,7 +3,7 @@ module Api
     module Organizer
       class EventsController < ApplicationController
         before_action :authenticate_organizer!
-        before_action :set_event, only: [:show, :update, :analytics, :qr_code, :activate, :archive]
+        before_action :set_event, only: [:show, :update, :analytics, :qr_code, :activate, :archive, :request_activation]
 
         def index
           events = @current_organizer.events.order(created_at: :desc)
@@ -65,6 +65,10 @@ module Api
 
         def request_activation
           settings = @event.settings || {}
+          if settings["activation_requested"]
+            return json_error("Activation already requested", status: :unprocessable_entity)
+          end
+          
           settings["activation_requested"] = true
           settings["activation_requested_at"] = Time.current
           @event.update!(settings: settings)
