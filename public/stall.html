@@ -237,6 +237,9 @@ textarea.note-area:focus{border-color:var(--accent)}
 .fav-star.active {
   color: #fbbf24; /* yellow/gold */
 }
+.phone-prefix{background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.1);border-right:none;border-radius:10px 0 0 10px;padding:12px 12px;color:rgba(255,255,255,0.6);font-size:15px;white-space:nowrap}
+.phone-wrap{display:flex}
+.phone-wrap input{border-radius:0 10px 10px 0}
 </style>
 </head>
 <body>
@@ -344,6 +347,7 @@ textarea.note-area:focus{border-color:var(--accent)}
       <!-- SCAN -->
       <div class="page" id="page-scan">
         <div class="scan-page">
+          <button class="btn-primary" onclick="showTab('create-lead',this)" id="btn-create-lead"> + Create Lead</button>
           <h2 style="font-size:20px;font-weight:700">Scan Visitor QR</h2>
           <p class="scan-hint">Enter the visitor QR token manually below, or tap the scanner area</p>
 
@@ -394,6 +398,58 @@ textarea.note-area:focus{border-color:var(--accent)}
             <button class="r-btn r-btn-note" onclick="viewLeadDetail()">📝 Add Notes</button>
           </div>
         </div>
+      </div>
+      
+      <!-- CREATE LEAD -->
+      <div class="page" id="page-create-lead">
+        <div class="card">
+          <div class="section-title">Personal Details</div>
+          <div class="field">
+            <label>Full Name <span class="required">*</span></label>
+            <input type="text" id="full_name" placeholder="Your full name" autocomplete="name">
+          </div>
+          <div class="field">
+            <label>Mobile Number <span class="required">*</span></label>
+            <div class="phone-wrap">
+              <span class="phone-prefix">+91</span>
+              <input type="tel" id="mobile_number" placeholder="10-digit mobile" maxlength="10" pattern="[6-9][0-9]{9}">
+            </div>
+          </div>
+          <div class="row2">
+            <div class="field">
+              <label>Location / City <span class="required">*</span></label>
+              <input type="text" id="location" placeholder="City">
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="section-title">Business Details</div>
+          <div class="field">
+            <label>Business Category <span class="required">*</span></label>
+            <select id="business_category"></select>
+          </div>
+          <div class="field">
+            <label>Looking For <span class="required">*</span></label>
+            <select id="looking_for"></select>
+          </div>
+          <div class="field">
+            <label>Decision Maker? <span class="required">*</span></label>
+            <select id="decision_maker">
+              <option>Yes</option>
+              <option>No</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Notes (Optional)</label>
+            <textarea class="note-area" rows="2" id="v_notes" placeholder="Notes ..."></textarea>
+          </div>
+        </div>
+
+        <div id="error-reg" class="error-msg"></div>
+        <button class="btn-primary" onclick="submitRegistration()" id="btn-register">
+          Create Lead
+        </button>
       </div>
 
       <!-- LEADS LIST -->
@@ -503,6 +559,37 @@ let currentTemp = "warm";
 let activeFilter = "";
 let allLeads = [];
 let selectedTpl = 0;
+
+const BUSINESS_CATEGORIES = [
+  "Clothing",
+  "Gold Jewellery",
+  "Manufacturing",
+  "Services",
+  "BNI Member",
+  "Other"
+];
+
+const LOOKING_FOR_OPTIONS = [
+  "Business Networking",
+  "Suppliers",
+  "Distributors",
+  "Customers",
+  "Partnerships",
+  "Investment"
+];
+
+function loadSelect(id, values, placeholder) {
+  const select = document.getElementById(id);
+
+  select.innerHTML = `<option value="">${placeholder}</option>`;
+
+  values.forEach(value => {
+    const option = document.createElement("option");
+    option.value = value;
+    option.textContent = value;
+    select.appendChild(option);
+  });
+}
 
 // Load events for login dropdown
 // (async ()=>{
@@ -640,6 +727,18 @@ function showTab(name, el) {
   el.classList.add("active");
   if (name==="leads") loadLeads();
   if (name==="home") loadDashboard();
+  if (name==="create-lead") {
+    loadSelect(
+      "business_category",
+      BUSINESS_CATEGORIES,
+      "Select category"
+    );
+    loadSelect(
+      "looking_for",
+      LOOKING_FOR_OPTIONS,
+      "Select option"
+    );
+  }
 }
 
 // ── API ───────────────────────────────────────────────────────────────────
@@ -1106,6 +1205,81 @@ async function toggleFavorite(leadId, btn) {
   star.classList.toggle("active", isFavorite);
 
   toast(res.data.message, "ok");
+}
+function validateRegistration() {
+  let errorBox = document.getElementById("error-reg");
+  clearError(errorBox);
+
+  const mobile = document.getElementById("mobile_number").value.trim();
+  if (!/^[6-9]\d{9}$/.test(mobile)) {
+    showError(errorBox, "Please enter a valid 10-digit Indian mobile number");
+    return;
+  }
+  const required = ["full_name","mobile_number","location","business_category","looking_for", "decision_maker"];
+  for (const f of required) {
+    if (!document.getElementById(f).value.trim()) {
+      showError(errorBox, "Please fill in all required fields");
+      return;
+    }
+  }
+}
+function showError(el, msg) {
+  el.style.display = "block";
+  el.textContent   = msg;
+}
+function clearError(el) {
+  el.style.display = "none";
+}
+async function submitRegistration() {
+  let errorBox = document.getElementById("error-reg");
+  validateRegistration();
+
+  const payload = {
+    full_name: document.getElementById("full_name").value.trim(),
+    mobile_number: document.getElementById("mobile_number").value.trim(),
+    location: document.getElementById("location").value.trim(),
+    business_category: document.getElementById("business_category").value,
+    looking_for: document.getElementById("looking_for").value,
+    decision_maker: document.getElementById("decision_maker").value
+  };
+  const eventId = document.getElementById("stall-owner-event-sel").value;
+  const notes = document.getElementById("v_notes").value.trim();
+
+  const btn = document.getElementById("btn-register");
+  btn.disabled = true;
+  btn.textContent = "Creating...";
+
+  try {
+    const res = await apiFetch(
+      "/stall_owner/manual_create_lead",
+      "POST",
+      { visitor: payload, event_id: eventId, notes: notes }
+    );
+
+    if (res.success) {
+      toast("Lead created successfully.", "ok");
+      showTab('scan', document.getElementById("page-scan"));
+      clearRegistrationForm();
+
+    } else {
+      toast(res.message || "Unable to create lead.", "err");
+    }
+  } catch (e) {
+    toast("Something went wrong.", "err");
+  } finally {
+    btn.disabled = false;
+    btn.textContent = "Create Lead";
+  }
+}
+function clearRegistrationForm() {
+  document.getElementById("full_name").value = "";
+  document.getElementById("mobile_number").value = "";
+  document.getElementById("location").value = "";
+  document.getElementById("business_category").value = "";
+  document.getElementById("looking_for").value = "";
+  document.getElementById("decision_maker").value = "Yes";
+  document.getElementById("v_notes").value = "";
+  document.getElementById("error-reg").innerHTML = "";
 }
 </script>
 </body>

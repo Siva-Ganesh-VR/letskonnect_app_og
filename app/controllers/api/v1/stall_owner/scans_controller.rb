@@ -65,6 +65,78 @@ module Api
           json_success(visitor_scan_data(visitor).merge(event_name: visitor.event.name))
         end
 
+        def manual_create_lead
+          event = Event.find_by(id: params[:event_id])
+          return json_error("Invalid event", status: :not_found) unless event
+          return json_error("Event registration is not open", status: :forbidden) unless event.active?
+
+          if event.max_visitors.present? && event.registered_count >= event.max_visitors
+            return json_error("Event has reached maximum visitor capacity", status: :forbidden)
+          end
+
+          stall_owner = selected_stall_owner
+
+          visitor = Visitor.find_or_initialize_by(
+            mobile_number: visitor_params[:mobile_number],
+            event_id: event.id
+          )
+
+          if visitor.persisted? && visitor.mobile_verified?
+            return json_error(
+              "This mobile number is already registered for this event. Please use your existing QR code."
+            )
+          end
+
+          visitor.assign_attributes(visitor_params)
+          visitor.event = event
+          visitor.reg_type = "Manual"
+          visitor.mobile_verified = true
+
+          ActiveRecord::Base.transaction do
+            visitor.save!
+
+            WhatsappNotificationJob.perform_later(visitor.id, "visitor_registration")
+
+            lead = Lead.find_by(visitor_id: visitor.id, stall_owner_id: stall_owner.id)
+
+            if lead
+              return json_success(
+                {
+                  already_scanned: true,
+                  lead: lead_response(lead),
+                  visitor: visitor_scan_data(visitor),
+                  message: "This visitor was already scanned at #{lead.scanned_at.strftime('%I:%M %p')}"
+                }
+              )
+            end
+
+            lead = Lead.create!(
+              visitor: visitor,
+              stall_owner: stall_owner,
+              event: event,
+              scanned_at: Time.current,
+              temperature: "warm",
+              interest_rating: 3,
+              status: "new",
+              reg_type: "Manual",
+              notes: params[:notes]
+            )
+
+            json_success(
+              {
+                already_scanned: false,
+                lead: lead_response(lead),
+                visitor: visitor_scan_data(visitor),
+                message: "Lead captured successfully!"
+              },
+              status: :created
+            )
+          end
+
+        rescue ActiveRecord::RecordInvalid => e
+          json_error(e.record.errors.full_messages.join(", "), status: :unprocessable_entity)
+        end
+
         private
 
         def visitor_scan_data(v)
@@ -94,6 +166,14 @@ module Api
             mobile_number: @current_stall_owner.mobile_number,
             event_id: params[:event_id]
           ) || @current_stall_owner
+        end
+
+        def visitor_params
+          params.require(:visitor).permit(
+            :full_name, :mobile_number, :location, :profession,
+            :business_category, :business_name, :designation, :email, :website, :reg_type,
+            :looking_for, :decision_maker, :mobile_verified
+          )
         end
       end
     end

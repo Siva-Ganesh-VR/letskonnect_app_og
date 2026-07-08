@@ -45,6 +45,7 @@ Rails.application.routes.draw do
         get    "dashboard",             to: "dashboard#show"
         post   "scan",                  to: "scans#create"
         get    "scan/history",          to: "scans#history"
+        post    "manual_create_lead",          to: "scans#manual_create_lead"
         resources :leads, only: [:index, :show, :update] do
           member   { post :whatsapp; post :call_log; patch :toggle_favorite }
           collection do

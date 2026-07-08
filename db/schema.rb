@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_07_07_125902) do
+ActiveRecord::Schema[7.2].define(version: 2026_07_08_102132) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pgcrypto"
   enable_extension "plpgsql"
@@ -149,6 +149,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_07_07_125902) do
     t.datetime "updated_at", null: false
     t.boolean "is_favorite", default: false, null: false
     t.datetime "favorited_at"
+    t.string "reg_type", default: "QR Scan", null: false
     t.index ["event_id", "created_at"], name: "index_leads_on_event_id_and_created_at"
     t.index ["event_id"], name: "index_leads_on_event_id"
     t.index ["follow_up_date"], name: "index_leads_on_follow_up_date"
@@ -320,6 +321,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_07_07_125902) do
     t.boolean "decision_maker"
     t.string "whatsapp_state", default: "start"
     t.datetime "whatsapp_completed_at"
+    t.string "reg_type", default: "QR Scan", null: false
     t.index ["business_category"], name: "index_visitors_on_business_category"
     t.index ["created_at"], name: "index_visitors_on_created_at"
     t.index ["event_id", "mobile_verified"], name: "index_visitors_on_event_id_and_mobile_verified", where: "(mobile_verified = true)"

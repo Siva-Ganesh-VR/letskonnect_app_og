@@ -1895,12 +1895,13 @@
       <td>${v.location || "—"}</td>
       <td style="font-weight:600">${v.stalls_visited || 0}</td>
       <td style="font-size:12px;color:var(--text2)">${fd(v.registered_at)}</td>
+      <td>${v.reg_type}</td>
     </tr>
   `}).join("");
       const total = res.meta?.total || (res.data || []).length || 0;
       document.getElementById("visitors-tbl").innerHTML = `
     <div style="padding:10px 20px;font-size:13px;color:var(--text2)">${total} visitor${total !== 1 ? 's' : ''} registered</div>
-    ${rows ? `<table><thead><tr><th>ID</th><th>Name</th><th>Mobile</th><th>Business</th><th>Category</th><th>Location</th><th>Stalls</th><th>Registered</th></tr></thead><tbody>${rows}</tbody></table>`
+    ${rows ? `<table><thead><tr><th>ID</th><th>Name</th><th>Mobile</th><th>Business</th><th>Category</th><th>Location</th><th>Stalls</th><th>Registered</th><th>Reg Type</th></tr></thead><tbody>${rows}</tbody></table>`
           : `<div class="empty"><div class="empty-icon">👥</div>No visitors registered yet</div>`}
   `;
       visitorsListState.total = total;
@@ -2680,11 +2681,12 @@
         <td style="font-family:monospace;font-size:13px">${v.mobile_number}</td>
         <td>${v.business_name || "—"}</td>
         <td>${v.business_category || "—"}</td>
-        <td>${v.profession || "—"}</td>
-        <td>${v.designation || "—"}</td>
+        <td>${v.looking_for || "—"}</td>
+        <td>${v.decision_maker || "—"}</td>
         <td>${v.location || "—"}</td>
         <td style="font-weight:600;text-align:center">${v.stalls_visited || 0}</td>
         <td style="font-size:12px;color:var(--text2);white-space:nowrap">${fd(v.registered_at || v.created_at)}</td>
+        <td>${v.reg_type}</td>
       </tr>`).join("");
 
         el.innerHTML = `
@@ -2692,7 +2694,7 @@
         <table style="width:100%;border-collapse:collapse">
           <thead>
             <tr>
-              ${["ID", "Name", "Mobile", "Business", "Category", "Looking For", "Decision Maker", "Location", "Stalls", "Registered"].map(h =>
+              ${["ID", "Name", "Mobile", "Business", "Category", "Looking For", "Decision Maker", "Location", "Stalls", "Registered", "Reg Type"].map(h =>
           `<th style="text-align:left;padding:10px 16px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text3);border-bottom:1px solid var(--border);white-space:nowrap">${h}</th>`
         ).join("")}
             </tr>
@@ -2869,6 +2871,7 @@
         { label: "Looking For", value: v.looking_for },
         { label: "Decision Maker", value: v.decision_maker ? 'Yes' : 'No' },
         { label: "Status", value: v.active ? 'Active' : 'Inactive' },
+        { label: "Registered Type", value: v.reg_type },
         { label: "Registered At", value: fd(v.created_at) }
       ]);
     }
