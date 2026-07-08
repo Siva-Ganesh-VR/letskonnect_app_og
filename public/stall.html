@@ -1101,13 +1101,11 @@ async function toggleFavorite(leadId, btn) {
 
   const isFavorite = res.data.is_favorite;
 
-  btn.classList.toggle("active", isFavorite);
-  btn.innerHTML = isFavorite ? "⭐" : "☆";
+   // Update star color
+  const star = btn.querySelector(".fav-star");
+  star.classList.toggle("active", isFavorite);
 
-  toast(
-    res.data.message,
-    "ok"
-  );
+  toast(res.data.message, "ok");
 }
 </script>
 </body>
