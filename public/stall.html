@@ -240,6 +240,7 @@ textarea.note-area:focus{border-color:var(--accent)}
 .phone-prefix{background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.1);border-right:none;border-radius:10px 0 0 10px;padding:12px 12px;color:rgba(255,255,255,0.6);font-size:15px;white-space:nowrap}
 .phone-wrap{display:flex}
 .phone-wrap input{border-radius:0 10px 10px 0}
+.error-msg{background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);border-radius:8px;padding:10px 14px;font-size:13px;color:#fca5a5;margin-top:10px;display:none}
 </style>
 </head>
 <body>
@@ -347,7 +348,7 @@ textarea.note-area:focus{border-color:var(--accent)}
       <!-- SCAN -->
       <div class="page" id="page-scan">
         <div class="scan-page">
-          <button class="btn-primary" onclick="showTab('create-lead',this)" id="btn-create-lead"> + Create Lead</button>
+          <button class="btn-primary" onclick="showTab('create-lead',this)" id="btn-create-lead" style="margin-bottom: 20px;"> + Create Lead</button>
           <h2 style="font-size:20px;font-weight:700">Scan Visitor QR</h2>
           <p class="scan-hint">Enter the visitor QR token manually below, or tap the scanner area</p>
 
@@ -1210,17 +1211,18 @@ function validateRegistration() {
   let errorBox = document.getElementById("error-reg");
   clearError(errorBox);
 
-  const mobile = document.getElementById("mobile_number").value.trim();
-  if (!/^[6-9]\d{9}$/.test(mobile)) {
-    showError(errorBox, "Please enter a valid 10-digit Indian mobile number");
-    return;
-  }
   const required = ["full_name","mobile_number","location","business_category","looking_for", "decision_maker"];
   for (const f of required) {
     if (!document.getElementById(f).value.trim()) {
       showError(errorBox, "Please fill in all required fields");
       return;
     }
+  }
+
+  const mobile = document.getElementById("mobile_number").value.trim();
+  if (!/^[6-9]\d{9}$/.test(mobile)) {
+    showError(errorBox, "Please enter a valid 10-digit Indian mobile number");
+    return;
   }
 }
 function showError(el, msg) {
