@@ -1,11 +1,11 @@
 class StallOwnerImportJob < ApplicationJob
   queue_as :default
 
-  def perform(file_path, event_id)
+  def perform(file_path, event_id, progress_id)
     require "csv"
 
-    event = Event.find(event_id)
-    organizer = event.event_organizer
+    redis = REDIS
+    key = "import_progress:#{progress_id}"
 
     rows = CSV.read(
       file_path,
@@ -13,17 +13,30 @@ class StallOwnerImportJob < ApplicationJob
       encoding: "bom|utf-8"
     )
 
-    mobile_numbers = rows.map { |row| row["mobile_number"]&.strip }.compact
+    redis.hset(
+      key,
+      "status", "processing",
+      "total", rows.size,
+      "processed", 0,
+      "success", 0,
+      "failed", 0
+    )
+    redis.expire(key, 1.hour.to_i)
+
+    event = Event.find(event_id)
+    organizer = event.event_organizer
+
+    mobile_numbers = rows.map { |r| r["mobile_number"]&.strip }.compact
 
     existing_stall_owners = StallOwner
       .where(mobile_number: mobile_numbers)
       .index_by(&:mobile_number)
 
-    created = []
+    success = 0
+    failed = 0
     errors = []
 
     rows.each_with_index do |row, index|
-      line_no = index + 2
       generated_password = SecureRandom.alphanumeric(8)
 
       stall = StallOwner.new(
@@ -42,31 +55,62 @@ class StallOwnerImportJob < ApplicationJob
       )
 
       stall.event_organizer = organizer
-      stall.pass_code = rand(100000..999999).to_s
 
       if (existing = existing_stall_owners[stall.mobile_number])
         stall.pass_code = existing.pass_code
+      else
+        stall.pass_code = rand(100000..999999).to_s
       end
 
       if stall.save
-        created << stall.id
+        success += 1
 
-        # WhatsappNotificationJob.perform_later(
-        #   stall.id,
-        #   "stall_credentials",
-        #   generated_password
-        # )
+        # WhatsappNotificationJob.perform_later(...)
       else
+        failed += 1
+
         errors << {
-          line: line_no,
+          line: index + 2,
           errors: stall.errors.full_messages
         }
       end
+
+      processed = index + 1
+
+      if processed % 5 == 0 || processed == rows.size
+        redis.hset(
+          key,
+          "processed", processed,
+          "success", success,
+          "failed", failed
+        )
+
+        redis.expire(key, 1.hour.to_i)
+      end
     end
 
-    Rails.logger.info(
-      "Stall import completed. Created: #{created.size}, Failed: #{errors.size}"
+    redis.hset(
+      key,
+      "status", "completed",
+      "processed", rows.size,
+      "success", success,
+      "failed", failed
     )
+
+    Rails.logger.info(
+      "Stall import completed. Success: #{success}, Failed: #{failed}"
+    )
+
+  rescue => e
+    redis&.hset(
+      key,
+      "status", "failed",
+      "message", e.message
+    )
+
+    Rails.logger.error(e.full_message)
+    raise
+
   ensure
     File.delete(file_path) if File.exist?(file_path)
   end

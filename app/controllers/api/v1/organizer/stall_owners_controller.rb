@@ -122,12 +122,17 @@ module Api
           FileUtils.mkdir_p(File.dirname(temp_file_path))
           File.binwrite(temp_file_path, file.read)
 
+          progress_id = SecureRandom.uuid
+
           StallOwnerImportJob.perform_later(
             temp_file_path.to_s,
-            params[:event_id]
+            params[:event_id],
+            progress_id
           )
 
           json_success({
+            success: true,
+            progress_id: progress_id,
             message: "Stall owner import has been initiated."
           })
         end
@@ -193,6 +198,30 @@ module Api
             },
             status: :ok
           )
+        end
+
+        def import_progress
+          key = "import_progress:#{params[:id]}"
+
+          data = Redis.new.hgetall(key)
+
+          if data.blank?
+            render json: { success: false, message: "Import not found" }
+            return
+          end
+
+          render json: {
+            success: true,
+            data: {
+              status: data["status"],
+              total: data["total"].to_i,
+              processed: data["processed"].to_i,
+              success: data["success"].to_i,
+              failed: data["failed"].to_i,
+              percentage: data["total"].to_i.zero? ? 0 :
+                ((data["processed"].to_f / data["total"].to_i) * 100).round
+            }
+          }
         end
 
         private

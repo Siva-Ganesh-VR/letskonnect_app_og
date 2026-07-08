@@ -82,6 +82,7 @@ Rails.application.routes.draw do
             collection { post :export; get "export/:job_id/status", to: "visitors#export_status" }
           end
         end
+        get "stall_owners/import_progress/:id", to: "stall_owners#import_progress"
       end
 
       # Super Admin Auth
@@ -102,6 +103,7 @@ Rails.application.routes.draw do
           collection do
             post :bulk_create
             post :bulk_upload
+            get "import_progress/:id", action: :import_progress
           end
         end
         resources :stall_types, only: [:index, :create, :update, :destroy]

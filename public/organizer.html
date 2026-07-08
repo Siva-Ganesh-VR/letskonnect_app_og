@@ -2082,11 +2082,9 @@
           "ok"
         );
 
-        if (previousPage === "dashboard" || previousPage === "events") {
-          refreshEventStalls();
-        } else {
-          loadStalls();
-        }
+        let progressId = result.data.progress_id;
+        document.getElementById("oimport-progress").style.display = "block";
+        startPolling(progressId);
 
       } catch (error) {
         err.style.display = "block";
@@ -2462,6 +2460,16 @@
           <button class="btn btn-g" onclick="openBulkStallModal()" ${e.status === 'draft' ? 'disabled style="opacity:0.5;cursor:not-allowed"' : ''}>+ Add Stalls</button>
           <button class="btn btn-g" onclick="openModal('m-import-stalls')" ${e.status === 'draft' ? 'disabled style="opacity:0.5;cursor:not-allowed"' : ''}>+ Bulk Upload</button>
         </div>
+      </div>
+      <div id="oimport-progress" style="display:none; padding: 10px;">
+        <div id="oprogress-text">
+            0 of 0 imported, success: 0, failed: 0
+        </div>
+        <progress
+            id="oprogress-bar"
+            value="0"
+            max="100" style="width: 100%;">
+        </progress>
       </div>
       <div id="event-stalls-table">
         <div style="padding:40px;text-align:center;color:var(--text2)">⏳ Loading stalls…</div>
@@ -2866,6 +2874,38 @@
     }
     function closeDetails() {
       openPage(previousPage || "events");
+    }
+    function startPolling(id) {
+      const timer = setInterval(async () => {
+        const res = await get("/organizer/stall_owners/import_progress/" + id);
+        if (!res.success) return;
+        const data = res.data;
+
+        document.getElementById("oprogress-text").innerText =
+            `${data.processed} of ${data.total} imported, success: ${data.success}, failed: ${data.failed}`;
+
+        document.getElementById("oprogress-bar").value =
+            data.percentage;
+        if (
+          data.status === "completed" ||
+          data.status === "failed"
+        ) {
+          clearInterval(timer);
+          if (data.status === "completed") {
+              toast("Import completed.", "success");
+              if (previousPage === "dashboard" || previousPage === "events") {
+                refreshEventStalls();
+              } else {
+                loadStalls();
+              }
+          } else {
+              toast("Import failed.", "error");
+          }
+          setTimeout(() => {
+            document.getElementById("oimport-progress").style.display = "none";
+          }, 2000);
+        }
+      }, 1000);
     }
   </script>
 </body>
