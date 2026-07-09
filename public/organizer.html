@@ -2815,27 +2815,52 @@
       }
       previousPage = pageName;
 
+      document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
+      document.getElementById("opage-details").classList.add("active");
+
+      document.getElementById("odetails-title").textContent = "Stall Owner Details";
+
       const result = await get(`/organizer/events/${eid}/stall_owners/${stallOwnerId}`);
 
       const s = result.data;
+      const statusColor = {
+        true: "#22c55e",
+        false: "#f59e0b",
+      }[s.active] || "rgba(255,255,255,0.6)";
+      document.getElementById("odetails-title").textContent =
+          s.name;
 
-      showDetails("Stall Owner Details", [
-        { label: "Stall Owner Code", value: s.stall_code },
-        { label: "Name", value: s.name },
-        { label: "Email", value: s.email },
-        { label: "Mobile No.", value: s.mobile_number },
-        { label: "Company", value: s.company_name },
-        { label: "Stall No.", value: s.stall_number },
-        { label: "Stall Category", value: s.stall_category },
-        { label: "Stall Type", value: s.stall_type },
-        { label: "Stall Size", value: s.stall_size },
-        { label: "Price", value: s.price },
-        { label: "Event", value: s.event?.name || "N/A" },
-        { label: "Website", value: s.website },
-        { label: "Description", value: s.description },
-        { label: "Status", value: s.active ? 'Active' : 'Inactive' },
-        { label: "Pass Code", value: s.pass_code }
-      ]);
+      document.getElementById("details-content").innerHTML = `
+        <div style="background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:20px;margin-bottom:20px;box-shadow:var(--shadow)">
+          <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:16px">
+            <div>
+              <div style="font-size:18px;font-weight:800;color:var(--text)">${s.name}</div>
+              <div style="font-size:13px;color:var(--text2);margin-top:4px">${s.stall_code || "—"}</div>
+            </div>
+
+            <span class="badge" style="
+              background:${statusColor}1a;
+              color:${statusColor};
+              border:1px solid ${statusColor}40;">
+              ${s.active ? "Active" : "Inactive"}
+            </span>
+          </div>
+
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px">
+            ${detailChip("🏢 Company", s.company_name || "—")}
+            ${detailChip("🗂️ Stall Category", s.stall_category || "—")}
+            ${detailChip("🏪 Stall Type", s.stall_type || "—")}
+            ${detailChip("📐 Stall Size", s.stall_size || "—")}
+            ${detailChip("💰 Stall Price", s.price || "—")}
+            ${detailChip("🎪 Event", s.event?.name || "—")}
+            ${detailChip("📧 Email", s.email || "—")}
+            ${detailChip("📱 Mobile", s.mobile_number || "—")}
+            ${detailChip("🆔 Stall Owner Code", s.stall_code || "—")}
+            ${detailChip("🔢 Stall No.", s.stall_number || "—")}
+            ${detailChip("🌐 Website", s.website || "—")}
+            ${detailChip("🎟️ Pass Code", s.pass_code || "—")}
+          </div>
+        </div>`
     }
 
     function closeDetails() {
