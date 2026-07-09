@@ -1234,6 +1234,7 @@ function clearError(el) {
 }
 async function submitRegistration() {
   let errorBox = document.getElementById("error-reg");
+  clearError(errorBox);
   validateRegistration();
 
   const payload = {
@@ -1264,10 +1265,10 @@ async function submitRegistration() {
       clearRegistrationForm();
 
     } else {
-      toast(res.message || "Unable to create lead.", "err");
+      showError(errorBox, res.error || "Unable to create lead.");
     }
   } catch (e) {
-    toast("Something went wrong.", "err");
+    showError(errorBox, e.error || e.message || "Something went wrong.");
   } finally {
     btn.disabled = false;
     btn.textContent = "Create Lead";

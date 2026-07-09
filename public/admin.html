@@ -3144,6 +3144,20 @@
 
         document.getElementById("organizer-events-table")
           ?.scrollIntoView({ behavior: "smooth", block: "start" });
+
+      } else if (type === "visitorHistory") {
+
+        const max = Math.ceil(
+          visitorDetailsState.historyTotal / visitorDetailsState.historyPerPage
+        );
+
+        if (page < 1 || page > max) return;
+
+        visitorDetailsState.historyPage = page;
+        loadVisitorVisitHistory();
+
+        document.getElementById("visitor-history-table")
+          ?.scrollIntoView({ behavior: "smooth", block: "start" });
       }
     }
     async function showStallOwnerDetails(stallOwnerId, pageName = "stalls") {
@@ -3173,34 +3187,7 @@
         { label: "Pass Code", value: s.pass_code }
       ]);
     }
-    async function showVisitorDetails(visitorId, pageName = "visitors") {
-      previousPage = pageName;
 
-      const result = await apiGet(
-        `/super_admin/visitors/${visitorId}`
-      );
-
-      const v = result.data;
-
-      showDetails("Visitor Details", [
-        { label: "Visitor ID", value: v.visitor_id_code },
-        { label: "Name", value: v.full_name },
-        { label: "Mobile No.", value: v.mobile_number },
-        { label: "Location", value: v.location },
-        { label: "Profession", value: v.profession },
-        { label: "Business Category", value: v.business_category },
-        { label: "Business Name", value: v.business_name },
-        { label: "Designation", value: v.designation },
-        { label: "Email", value: v.email },
-        { label: "Website", value: v.website },
-        { label: "Event", value: v.event?.name || "N/A" },
-        { label: "Looking For", value: v.looking_for },
-        { label: "Decision Maker", value: v.decision_maker ? 'Yes' : 'No' },
-        { label: "Status", value: v.active ? 'Active' : 'Inactive' },
-        { label: "Registered Type", value: v.reg_type },
-        { label: "Registered At", value: fmtDate(v.created_at) }
-      ]);
-    }
     function closeDetails() {
       showPage(previousPage || "events");
     }
@@ -3447,6 +3434,196 @@
           }, 2000);
         }
       }, 1000);
+    }
+
+    const visitorDetailsState = {
+      visitorId: null,
+      historyPage: 1,
+      historyPerPage: 10,
+      historyTotal: 0,
+      historySearch: ""
+    };
+
+    async function showVisitorDetails(visitorId, pageName = "visitors") {
+      previousPage = pageName;
+
+      visitorDetailsState.visitorId = visitorId;
+      visitorDetailsState.historyPage = 1;
+      visitorDetailsState.historySearch = "";
+
+      document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
+      document.getElementById("page-details").classList.add("active");
+
+      document.getElementById("details-title").textContent = "Visitor Details";
+
+      document.getElementById("details-content").innerHTML = `
+        <div style="color:var(--text2);padding:20px;text-align:center">
+          ⏳ Loading visitor...
+        </div>`;
+
+      try {
+        const res = await apiGet(`/super_admin/visitors/${visitorId}`);
+
+        document.getElementById("details-title").textContent =
+          res.data.full_name;
+
+        document.getElementById("details-content").innerHTML =
+          buildVisitorDetailsHTML(res.data);
+
+        await loadVisitorVisitHistory();
+
+      } catch (e) {
+        console.log(e);
+        document.getElementById("details-content").innerHTML =
+          `<div class="empty">Unable to load visitor.</div>`;
+      }
+    }
+
+    function buildVisitorDetailsHTML(v) {
+      const statusColor = {
+        true: "#22c55e",
+        false: "#f59e0b",
+      }[v.mobile_verified] || "rgba(255,255,255,0.6)";
+
+      return `
+        <!-- Existing Visitor Details Card -->
+        <div style="background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:20px;margin-bottom:20px;box-shadow:var(--shadow)">
+          <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:16px">
+            <div>
+              <div style="font-size:18px;font-weight:800;color:var(--text)">${v.full_name}</div>
+              <div style="font-size:13px;color:var(--text2);margin-top:4px">${v.visitor_id_code || "—"}</div>
+            </div>
+
+            <span class="badge" style="
+              background:${statusColor}1a;
+              color:${statusColor};
+              border:1px solid ${statusColor}40;">
+              ${v.mobile_verified ? "Active" : "Inactive"}
+            </span>
+          </div>
+
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px">
+            ${detailChip("🏢 Location", v.location)}
+            ${detailChip("🏢 Business Category", v.business_category || "—")}
+            ${detailChip("📧 Looking For", v.looking_for || "—")}
+            ${detailChip("📧 Decision Maker?", v.decision_maker ? "Yes" : "No")}
+            ${detailChip("📱 Mobile", v.mobile_number || "—")}
+            ${detailChip("🆔 Code", v.visitor_id_code || "—")}
+            ${detailChip("🏢 Event", v.event_name || "—")}
+          </div>
+        </div>
+
+        <!-- Visit History -->
+        <div class="table-wrap">
+
+          <div class="table-header">
+            <div>
+              <div class="table-title">Visit History</div>
+              <div class="page-sub">
+                Stalls visited across events
+              </div>
+            </div>
+
+            <div class="table-actions">
+              <input
+                id="visitor-history-search"
+                class="search-bar"
+                placeholder="Search stall/event..."
+                oninput="searchVisitorHistory()">
+            </div>
+          </div>
+
+          <div id="visitor-history-table">
+            <div class="empty">
+              Loading history...
+            </div>
+          </div>
+
+          <div
+            id="visitor-history-pagination"
+            style="padding:10px 18px;border-top:1px solid var(--border);display:none">
+          </div>
+
+        </div>
+      `;
+    }
+
+    async function loadVisitorVisitHistory(
+      page = visitorDetailsState.historyPage
+    ) {
+      visitorDetailsState.historyPage = page;
+
+      visitorDetailsState.historySearch =
+        document.getElementById("visitor-history-search")?.value.trim() || "";
+
+      const s = visitorDetailsState;
+
+      const res = await apiGet(
+        `/super_admin/visitors/${s.visitorId}/visit_history?page=${s.historyPage}` +
+        `&per_page=${s.historyPerPage}` +
+        `&search=${encodeURIComponent(s.historySearch)}`
+      );
+
+      if (!res.success) return;
+
+      visitorDetailsState.historyTotal = res.meta.total;
+
+      renderVisitorHistoryTable(res.data);
+
+      renderPagination(
+        "visitor-history-pagination",
+        s.historyPage,
+        s.historyTotal,
+        s.historyPerPage,
+        "visitorHistory"
+      );
+    }
+    function renderVisitorHistoryTable(history) {
+      document.getElementById("visitor-history-table").innerHTML =
+        buildVisitorHistoryTable(history);
+    }
+    function buildVisitorHistoryTable(history) {
+
+      const tbody = history.map(h => `
+        <tr>
+          <td>${h.stall_owner_name} (${h.stall_number})</td>
+          <td>${h.event_name}</td>
+          <td>${h.visit_count}</td>
+          <td>${fmtDate(h.last_visited_at)}</td>
+        </tr>
+      `).join("");
+
+      return `
+        <table>
+          <thead>
+            <tr>
+              <th>Stall</th>
+              <th>Event</th>
+              <th>Visits</th>
+              <th>Last Visit</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            ${
+              tbody ||
+              `<tr>
+                <td colspan="4">
+                  ${emptyHtml("📍","No visit history found")}
+                </td>
+              </tr>`
+            }
+          </tbody>
+        </table>
+      `;
+    }
+    function searchVisitorHistory() {
+      visitorDetailsState.historyPage = 1;
+      loadVisitorVisitHistory();
+    }
+    function changeVisitorHistoryPage(page) {
+      visitorDetailsState.historyPage = page;
+      loadVisitorVisitHistory();
     }
   </script>
 </body>

@@ -13,13 +13,16 @@ module Api
           return json_error("Invalid QR code. This visitor does not exist.", status: :not_found) unless visitor
           return json_error("Visitor has not completed registration.") unless visitor.mobile_verified?
 
-          unless visitor.event_id == selected_stall_owner.event_id
+          event_id = selected_stall_owner.event_id
+          unless visitor.event_id == event_id
             return json_error("This QR code belongs to a different event.", status: :forbidden)
           end
 
           # Check for duplicate scan
           existing_lead = Lead.find_by(visitor_id: visitor.id, stall_owner_id: selected_stall_owner.id)
           if existing_lead
+            create_visitor_scan_log(event_id, visitor.id, selected_stall_owner.id, visitor.visitor_id_code, 'qr', 'duplicate')
+
             return json_success({
               already_scanned: true,
               lead:    lead_response(existing_lead),
@@ -37,6 +40,8 @@ module Api
             interest_rating: 3,
             status:      "new"
           )
+
+          create_visitor_scan_log(event_id, visitor.id, selected_stall_owner.id, visitor.visitor_id_code, 'qr', 'success')
 
           json_success({
             already_scanned: false,
@@ -100,6 +105,8 @@ module Api
             lead = Lead.find_by(visitor_id: visitor.id, stall_owner_id: stall_owner.id)
 
             if lead
+              create_visitor_scan_log(event.id, visitor.id, stall_owner.id, visitor.visitor_id_code, 'manual', 'duplicate')
+
               return json_success(
                 {
                   already_scanned: true,
@@ -122,6 +129,8 @@ module Api
               notes: params[:notes]
             )
 
+            create_visitor_scan_log(event.id, visitor.id, stall_owner.id, visitor.visitor_id_code, 'manual', 'success')
+
             json_success(
               {
                 already_scanned: false,
@@ -135,6 +144,18 @@ module Api
 
         rescue ActiveRecord::RecordInvalid => e
           json_error(e.record.errors.full_messages.join(", "), status: :unprocessable_entity)
+        end
+
+        def create_visitor_scan_log(event_id, visitor_id, stall_owner_id, pass_code, scan_type, status)
+          VisitorScanLog.create!(
+            event_id: event_id,
+            visitor_id: visitor_id,
+            stall_owner_id: stall_owner_id,
+            pass_code: pass_code,
+            scan_type: scan_type,
+            status: status,
+            scanned_at: Time.current
+          )
         end
 
         private

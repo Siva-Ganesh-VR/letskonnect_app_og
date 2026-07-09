@@ -5,6 +5,7 @@ class Event < ApplicationRecord
   has_many :visitors,     dependent: :destroy
   has_many :leads,        dependent: :destroy
   has_one  :event_analytics, dependent: :destroy
+  has_many :visitor_scan_logs, dependent: :destroy
 
   before_create :generate_slug
   before_create :generate_registration_qr_token

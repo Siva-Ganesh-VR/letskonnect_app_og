@@ -84,6 +84,7 @@ Rails.application.routes.draw do
           end
         end
         get "stall_owners/import_progress/:id", to: "stall_owners#import_progress"
+        get "visitors/:id/visit_history", to: "visitors#visit_history"
       end
 
       # Super Admin Auth
@@ -110,7 +111,11 @@ Rails.application.routes.draw do
         resources :stall_types, only: [:index, :create, :update, :destroy]
         resources :stall_sizes, only: [:index, :create, :update, :destroy]
         resources :stall_categories, only: [:index, :create, :update, :destroy]
-        resources :visitors,      only: [:index, :show, :destroy]
+        resources :visitors, only: [:index, :show, :destroy] do
+          member do
+            get :visit_history
+          end
+        end
         get "analytics/platform", to: "analytics#platform"
       end
 
