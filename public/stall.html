@@ -728,6 +728,11 @@ function showTab(name, el) {
   el.classList.add("active");
   if (name==="leads") loadLeads();
   if (name==="home") loadDashboard();
+  if (name==="scan") {
+    document.getElementById("qr-input").value = "";
+    document.getElementById("scan-err").style.display = "none";
+    document.getElementById("scan-err").innerHTML = "";
+  }
   if (name==="create-lead") {
     loadSelect(
       "business_category",
@@ -824,12 +829,26 @@ async function startCameraScan() {
                 qrbox: 220
             },
             async (decodedText) => {
+              let qrToken = decodedText;
 
-                document.getElementById("qr-input").value = decodedText;
+              try {
+                const url = new URL(decodedText);
+                const parts = url.pathname.split("/").filter(Boolean);
 
-                await stopCamera();
+                if (parts.length !== 2 || parts[0] !== "v") {
+                  throw new Error("Invalid QR format");
+                }
 
-                doScan(); // Your existing function
+                qrToken = parts[1];
+              } catch (e) {
+                // decodedText is not a URL, use it as-is
+                toast("Invalid Visitor Pass. Please verify and scan valid pass only.", "err");
+                return;
+              }
+
+              document.getElementById("qr-input").value = qrToken;
+              await stopCamera();
+              doScan();
             },
             () => {
                 // Ignore scan failures
