@@ -74,7 +74,14 @@ module Api
             .first
           end
 
-          return head :ok unless visitor
+          unless visitor
+            WhatsappService.send_message(
+              mobile_number,
+              "❌ Invalid or expired registration session. Please scan the event QR code again to start your registration."
+            )
+
+            return head :ok
+          end
 
           WhatsappFlowService.new(visitor, body).process
 
