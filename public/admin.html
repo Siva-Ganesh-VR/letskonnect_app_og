@@ -3651,6 +3651,28 @@
       visitorDetailsState.historyPage = page;
       loadVisitorVisitHistory();
     }
+    function getLoggedInUser() {
+      if (localStorage.getItem("lk_admin_token")) {
+        return { type: "admin", token: localStorage.getItem("lk_admin_token") };
+      }
+
+      return null;
+    }
+    function redirectIfLoggedIn() {
+      const user = getLoggedInUser();
+
+      if (!user) return;
+
+      switch (user.type) {
+        case "admin":
+          showApp();
+          break;
+      }
+    }
+    document.addEventListener("DOMContentLoaded", redirectIfLoggedIn);
+    window.addEventListener("pageshow", () => {
+      redirectIfLoggedIn();
+    });
   </script>
 </body>
 

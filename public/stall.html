@@ -1303,6 +1303,26 @@ function clearRegistrationForm() {
   document.getElementById("v_notes").value = "";
   document.getElementById("error-reg").innerHTML = "";
 }
+function checkAuth() {
+  const token = sessionStorage.getItem("stall_token");
+  const me = JSON.parse(sessionStorage.getItem("stall_user") || "null");
+
+  if (!token || !me) {
+    window.location.replace("/login.html");
+    return;
+  }
+
+  if (!window.appBooted) {
+    window.appBooted = true;
+    bootApp();
+  }
+}
+
+document.addEventListener("DOMContentLoaded", checkAuth);
+
+window.addEventListener("pageshow", function () {
+  checkAuth();
+});
 </script>
 </body>
 </html>

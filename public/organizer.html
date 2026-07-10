@@ -3103,6 +3103,27 @@
       visitorDetailsState.historyPage = page;
       loadVisitorVisitHistory();
     }
+    function checkAuth() {
+      const token = sessionStorage.getItem("org_token");
+      const me = JSON.parse(sessionStorage.getItem("org_user") || "null");
+      console.log(me);
+
+      if (!token || !me) {
+        window.location.replace("/login.html");
+        return;
+      }
+
+      if (!window.appBooted) {
+        window.appBooted = true;
+        bootApp();
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", checkAuth);
+
+    window.addEventListener("pageshow", function () {
+      checkAuth();
+    });
   </script>
 </body>
 
