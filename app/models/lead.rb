@@ -1,4 +1,5 @@
 class Lead < ApplicationRecord
+  include MobileFormattable
   belongs_to :visitor
   belongs_to :stall_owner
   belongs_to :event

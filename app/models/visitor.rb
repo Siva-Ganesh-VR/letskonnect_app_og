@@ -1,4 +1,5 @@
 class Visitor < ApplicationRecord
+  include MobileFormattable
   belongs_to :event
   has_many :leads, dependent: :destroy
   has_many :stall_owners, through: :leads

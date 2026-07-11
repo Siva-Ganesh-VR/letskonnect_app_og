@@ -20,10 +20,15 @@ class Event < ApplicationRecord
   validates :registration_qr_token, uniqueness: true
   validates :event_code, uniqueness: true, allow_nil: true  # nil only during migration backfill
   validate  :end_date_after_start_date
-
+  before_validation :format_name
+  
   scope :active_events, -> { where(status: "active") }
   scope :upcoming,      -> { where("start_date >= ?", Date.today) }
   scope :by_organizer,  ->(organizer_id) { where(event_organizer_id: organizer_id) }
+
+  def name
+    self[:name]&.titleize
+  end
 
   def registration_url
     base_url = ENV.fetch("APP_HOST", "http://localhost:3000")
@@ -39,6 +44,10 @@ class Event < ApplicationRecord
   end
 
   private
+
+  def format_name
+    self.name = name.to_s.titleize if name.present?
+  end
 
   # ── Generates EXP-YYYY-XXXX ──────────────────────────────────────────────
   def generate_event_code

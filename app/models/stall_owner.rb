@@ -1,4 +1,5 @@
 class StallOwner < ApplicationRecord
+  include MobileFormattable
   has_secure_password
 
   belongs_to :event

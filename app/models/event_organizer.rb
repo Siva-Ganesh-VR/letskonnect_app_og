@@ -1,4 +1,5 @@
 class EventOrganizer < ApplicationRecord
+  include MobileFormattable
   has_secure_password
 
   belongs_to :super_admin
