@@ -8,6 +8,7 @@ class StallOwner < ApplicationRecord
   has_many :leads, dependent: :destroy
   has_many :visitors, through: :leads
   has_one :stall_analytics, dependent: :destroy
+  has_many :visitor_scan_logs, dependent: :destroy
 
   before_create :set_jti
   before_create :generate_stall_code

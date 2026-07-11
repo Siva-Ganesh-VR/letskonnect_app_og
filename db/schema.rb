@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_07_08_102132) do
+ActiveRecord::Schema[7.2].define(version: 2026_07_09_045258) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pgcrypto"
   enable_extension "plpgsql"
@@ -296,6 +296,23 @@ ActiveRecord::Schema[7.2].define(version: 2026_07_08_102132) do
     t.index ["visitor_id"], name: "index_visitor_answers_on_visitor_id"
   end
 
+  create_table "visitor_scan_logs", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "event_id", null: false
+    t.uuid "visitor_id", null: false
+    t.uuid "stall_owner_id", null: false
+    t.string "pass_code", null: false
+    t.string "scan_type", default: "qr"
+    t.string "status", default: "success"
+    t.string "device_info"
+    t.string "ip_address"
+    t.datetime "scanned_at", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["event_id"], name: "index_visitor_scan_logs_on_event_id"
+    t.index ["stall_owner_id"], name: "index_visitor_scan_logs_on_stall_owner_id"
+    t.index ["visitor_id"], name: "index_visitor_scan_logs_on_visitor_id"
+  end
+
   create_table "visitors", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.string "full_name"
     t.string "mobile_number", null: false
@@ -345,5 +362,8 @@ ActiveRecord::Schema[7.2].define(version: 2026_07_08_102132) do
   add_foreign_key "stall_owners", "event_organizers"
   add_foreign_key "stall_owners", "events"
   add_foreign_key "visitor_answers", "visitors"
+  add_foreign_key "visitor_scan_logs", "events"
+  add_foreign_key "visitor_scan_logs", "stall_owners"
+  add_foreign_key "visitor_scan_logs", "visitors"
   add_foreign_key "visitors", "events"
 end

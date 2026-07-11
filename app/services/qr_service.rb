@@ -1,14 +1,12 @@
 class QrService
-  QR_SIZE = 200
+  QR_SIZE = 400
 
   def self.generate_for_visitor(visitor)
-    url = visitor.display_qr_url
-    generate_and_store(url, "visitors/#{visitor.id}/qr_code.png")
+    generate_and_store(visitor.display_qr_url, "visitors/#{visitor.id}/qr_code.png")
   end
 
   def self.generate_for_event(event)
-    url = event.registration_url
-    generate_and_store(url, "events/#{event.id}/registration_qr.png")
+    generate_and_store(event.registration_url, "events/#{event.id}/registration_qr.png")
   end
 
   def self.generate_base64(url)
@@ -19,37 +17,46 @@ class QrService
   private
 
   def self.build_png(url)
-    qr = RQRCode::QRCode.new(url, level: :m)
-    qr.as_png(
-      bit_depth: 1,
+    RQRCode::QRCode.new(url, level: :m).as_png(
+      size: QR_SIZE,
       border_modules: 4,
-      color_mode: ChunkyPNG::COLOR_GRAYSCALE,
       color: "black",
-      fill: "white",
-      module_px_size: 6,
-      size: QR_SIZE
+      fill: "white"
     )
   end
 
   def self.generate_and_store(url, path)
     png = build_png(url)
 
-    Tempfile.create(["qr_code", ".png"]) do |file|
-      file.binmode
-      file.write(png.to_s)
-      file.rewind
+    Tempfile.create(["qr_code", ".png"]) do |source|
+      source.binmode
+      source.write(png.to_s)
+      source.rewind
 
-      blob = ActiveStorage::Blob.create_and_upload!(
-        io:           file,
-        filename:     File.basename(path),
-        content_type: "image/png",
-        key:          path
-      )
+      Tempfile.create(["qr_code_24", ".png"]) do |converted|
+        converted.close
 
-      Rails.application.routes.url_helpers.rails_storage_proxy_url(
-        blob,
-        host: ENV.fetch("APP_HOST", "http://localhost:3000")
-      )
+        system(
+          "convert",
+          source.path,
+          "-define", "png:color-type=2",
+          "PNG24:#{converted.path}"
+        ) or raise "Failed to convert QR image to PNG24"
+
+        File.open(converted.path, "rb") do |file|
+          blob = ActiveStorage::Blob.create_and_upload!(
+            io: file,
+            filename: File.basename(path),
+            content_type: "image/png",
+            key: path
+          )
+
+          return Rails.application.routes.url_helpers.rails_storage_proxy_url(
+            blob,
+            host: ENV.fetch("APP_HOST", "http://localhost:3000")
+          )
+        end
+      end
     end
   end
 end

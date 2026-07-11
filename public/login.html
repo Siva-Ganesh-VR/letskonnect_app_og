@@ -257,7 +257,8 @@ async function loginOrganizer() {
       "organizer"
     );
 
-    window.location.href = "/organizer.html";
+    // window.location.href = "/organizer.html";
+    window.location.replace("organizer.html");
 
   } catch(error) {
     errorEl.style.display = "block";
@@ -313,7 +314,8 @@ async function loginStallOwner() {
       "stall_owner"
     );
 
-    window.location.href = "/stall.html";
+    // window.location.href = "/stall.html";
+    window.location.replace("/stall.html");
 
   } catch(error) {
     errorEl.style.display = "block";
@@ -447,7 +449,8 @@ async function verifyOtp() {
       "stall_owner"
     );
 
-    window.location.href = "/stall.html";
+    // window.location.href = "/stall.html";
+    window.location.replace('/stall.html')
 
   } catch(error) {
 
@@ -473,6 +476,36 @@ function oi(el, idx) {
   if (otp.length === 6) verifyOtp();
 }
 function ok(e, idx) { if (e.key==="Backspace" && !e.target.value && idx>0) document.querySelectorAll(".otp-inp")[idx-1].focus(); }
+function getLoggedInUser() {
+  if (sessionStorage.getItem("org_token")) {
+    return { type: "organizer", token: sessionStorage.getItem("org_token") };
+  }
+
+  if (sessionStorage.getItem("stall_token")) {
+    return { type: "stall", token: sessionStorage.getItem("stall_token") };
+  }
+
+  return null;
+}
+
+function redirectIfLoggedIn() {
+  const user = getLoggedInUser();
+
+  if (!user) return;
+
+  switch (user.type) {
+    case "organizer":
+      window.location.replace("organizer.html");
+      break;
+    case "stall":
+      window.location.replace("stall.html");
+      break;
+  }
+}
+document.addEventListener("DOMContentLoaded", redirectIfLoggedIn);
+window.addEventListener("pageshow", () => {
+  redirectIfLoggedIn();
+});
 </script>
 
 </body>

@@ -27,12 +27,23 @@ module Api
 
           mobile_number = from.delete_prefix("whatsapp:").delete_prefix("+91")
 
-          event_id = body[/EVENT_ID:([a-f0-9\-]+)/i, 1]
+          event_code = body[/EVENT_CODE:([A-Za-z0-9-]+)/i, 1]
 
-          if event_id.present?
+          if event_code.present?
+            event = Event.find_by(event_code: event_code)
+
+            unless event
+              WhatsappService.send_message(
+                mobile_number,
+                "❌ Invalid event code. Please scan the event QR code again to start your registration."
+              )
+
+              return head :ok
+            end
+
             visitor = Visitor.find_or_initialize_by(
               mobile_number: mobile_number,
-              event_id: event_id
+              event_id: event.id
             )
 
             if visitor.new_record?
@@ -63,7 +74,14 @@ module Api
             .first
           end
 
-          return head :ok unless visitor
+          unless visitor
+            WhatsappService.send_message(
+              mobile_number,
+              "❌ Invalid or expired registration session. Please scan the event QR code again to start your registration."
+            )
+
+            return head :ok
+          end
 
           WhatsappFlowService.new(visitor, body).process
 

@@ -728,6 +728,11 @@ function showTab(name, el) {
   el.classList.add("active");
   if (name==="leads") loadLeads();
   if (name==="home") loadDashboard();
+  if (name==="scan") {
+    document.getElementById("qr-input").value = "";
+    document.getElementById("scan-err").style.display = "none";
+    document.getElementById("scan-err").innerHTML = "";
+  }
   if (name==="create-lead") {
     loadSelect(
       "business_category",
@@ -824,12 +829,26 @@ async function startCameraScan() {
                 qrbox: 220
             },
             async (decodedText) => {
+              let qrToken = decodedText;
 
-                document.getElementById("qr-input").value = decodedText;
+              try {
+                const url = new URL(decodedText);
+                const parts = url.pathname.split("/").filter(Boolean);
 
-                await stopCamera();
+                if (parts.length !== 2 || parts[0] !== "v") {
+                  throw new Error("Invalid QR format");
+                }
 
-                doScan(); // Your existing function
+                qrToken = parts[1];
+              } catch (e) {
+                // decodedText is not a URL, use it as-is
+                toast("Invalid Visitor Pass. Please verify and scan valid pass only.", "err");
+                return;
+              }
+
+              document.getElementById("qr-input").value = qrToken;
+              await stopCamera();
+              doScan();
             },
             () => {
                 // Ignore scan failures
@@ -1234,6 +1253,7 @@ function clearError(el) {
 }
 async function submitRegistration() {
   let errorBox = document.getElementById("error-reg");
+  clearError(errorBox);
   validateRegistration();
 
   const payload = {
@@ -1264,10 +1284,10 @@ async function submitRegistration() {
       clearRegistrationForm();
 
     } else {
-      toast(res.message || "Unable to create lead.", "err");
+      showError(errorBox, res.error || "Unable to create lead.");
     }
   } catch (e) {
-    toast("Something went wrong.", "err");
+    showError(errorBox, e.error || e.message || "Something went wrong.");
   } finally {
     btn.disabled = false;
     btn.textContent = "Create Lead";
@@ -1283,6 +1303,26 @@ function clearRegistrationForm() {
   document.getElementById("v_notes").value = "";
   document.getElementById("error-reg").innerHTML = "";
 }
+function checkAuth() {
+  const token = sessionStorage.getItem("stall_token");
+  const me = JSON.parse(sessionStorage.getItem("stall_user") || "null");
+
+  if (!token || !me) {
+    window.location.replace("/login.html");
+    return;
+  }
+
+  if (!window.appBooted) {
+    window.appBooted = true;
+    bootApp();
+  }
+}
+
+document.addEventListener("DOMContentLoaded", checkAuth);
+
+window.addEventListener("pageshow", function () {
+  checkAuth();
+});
 </script>
 </body>
 </html>

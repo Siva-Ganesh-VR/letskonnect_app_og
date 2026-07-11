@@ -4,6 +4,7 @@ class Visitor < ApplicationRecord
   has_many :leads, dependent: :destroy
   has_many :stall_owners, through: :leads
   has_many :visitor_answers, dependent: :destroy
+  has_many :visitor_scan_logs, dependent: :destroy
 
   before_create :generate_visitor_id_code
   before_create :generate_qr_token

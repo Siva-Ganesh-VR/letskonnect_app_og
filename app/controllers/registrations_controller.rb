@@ -27,7 +27,7 @@ class RegistrationsController < ActionController::Base
     whatsapp_number = ENV["TWILIO_WHATSAPP_FROM"]
                     .gsub("whatsapp:", "")
                     .delete("+")
-    message = "Hi, I would like to register for #{event.name}. EVENT_ID:#{event.id}"
+    message = "Hi, I would like to register for #{event.name}. EVENT_CODE:#{event.event_code}"
 
     whatsapp_url = "https://wa.me/#{whatsapp_number}?text=#{CGI.escape(message)}"
 
