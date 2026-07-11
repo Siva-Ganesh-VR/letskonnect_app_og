@@ -1631,8 +1631,8 @@
       <div class="stats">
 
         <div class="stat">
-          <span class="value">${e.booth_count || 0}</span>
-          <span class="label">Booths</span>
+          <span class="value">${e.total_stalls || 0}</span>
+          <span class="label">Stalls</span>
         </div>
 
         <div class="stat">
@@ -1641,7 +1641,7 @@
         </div>
 
         <div class="stat">
-          <span class="value">${e.match_count || 0}</span>
+          <span class="value">${e.total_leads || 0}</span>
           <span class="label">Matches</span>
         </div>
 
@@ -2766,7 +2766,7 @@
         if (page < 1 || page > max) return;
         detailsState.visitorPage = page;
         loadEventVisitors();
-      } else if (type == "visitorHistory"){
+      } else if (type == "visitorHistory") {
         const max = Math.ceil(detailsState.visitorTotal / detailsState.visitorPerPage);
         if (page < 1 || page > max) return;
         detailsState.visitorPage = page;
@@ -2828,7 +2828,7 @@
         false: "#f59e0b",
       }[s.active] || "rgba(255,255,255,0.6)";
       document.getElementById("odetails-title").textContent =
-          s.name;
+        s.name;
 
       document.getElementById("details-content").innerHTML = `
         <div style="background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:20px;margin-bottom:20px;box-shadow:var(--shadow)">
@@ -2873,24 +2873,24 @@
         const data = res.data;
 
         document.getElementById("oprogress-text").innerText =
-            `${data.processed} of ${data.total} imported, success: ${data.success}, failed: ${data.failed}`;
+          `${data.processed} of ${data.total} imported, success: ${data.success}, failed: ${data.failed}`;
 
         document.getElementById("oprogress-bar").value =
-            data.percentage;
+          data.percentage;
         if (
           data.status === "completed" ||
           data.status === "failed"
         ) {
           clearInterval(timer);
           if (data.status === "completed") {
-              toast("Import completed.", "success");
-              if (previousPage === "dashboard" || previousPage === "events") {
-                refreshEventStalls();
-              } else {
-                loadStalls();
-              }
+            toast("Import completed.", "success");
+            if (previousPage === "dashboard" || previousPage === "events") {
+              refreshEventStalls();
+            } else {
+              loadStalls();
+            }
           } else {
-              toast("Import failed.", "error");
+            toast("Import failed.", "error");
           }
           setTimeout(() => {
             document.getElementById("oimport-progress").style.display = "none";
@@ -3083,14 +3083,13 @@
           </thead>
 
           <tbody>
-            ${
-              tbody ||
-              `<tr>
+            ${tbody ||
+        `<tr>
                 <td colspan="4">
                   <div class="empty"><div class="empty-icon">📍</div>No visit history found</div>
                 </td>
               </tr>`
-            }
+        }
           </tbody>
         </table>
       `;
