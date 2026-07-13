@@ -1,4 +1,7 @@
 class Rack::Attack
+  safelist("load-test-ip") do |req|
+    req.ip == "123.176.34.73"   # ← replace with your actual IP
+  end
   Rack::Attack.cache.store = ActiveSupport::Cache::RedisCacheStore.new(
     url: ENV.fetch("REDIS_URL", "redis://localhost:6379/1")
   )
