@@ -93,7 +93,7 @@ module Api
         def visitor_resp(v)
           lead = v.leads.find_by(visitor_id: v.id)
           { id: v.id, visitor_id_code: v.visitor_id_code, full_name: v.full_name.titleize,
-            mobile_number: v.mobile_number, business_name: v&.business_name&.titleize,
+            mobile_number: v.formatted_mobile_number, business_name: v&.business_name&.titleize,
             business_category: v.business_category, location: v.location, profession: v.profession, designation: v.designation, email: v.email, active: v.active, looking_for: v.looking_for, decision_maker: v.decision_maker, created_at: v.created_at, reg_type: v.reg_type, stalls_visited: v.leads.count, mobile_verified: v.mobile_verified,
             event_name: (v&.event&.name)&.titleize || "", registered_at: v.created_at,
             is_favorite: lead&.is_favorite || false

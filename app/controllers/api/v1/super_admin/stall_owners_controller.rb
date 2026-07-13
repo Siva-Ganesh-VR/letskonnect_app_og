@@ -191,7 +191,7 @@ module Api
         end
 
         def stall_resp(s)
-          { id: s.id, stall_code: s.stall_code, name: s.name.titleize, email: s.email, mobile_number: s.mobile_number,
+          { id: s.id, stall_code: s.stall_code, name: s.name.titleize, email: s.email, mobile_number: s.formatted_mobile_number,
             company_name: s.company_name.titleize, stall_number: s.stall_number&.upcase,
             stall_category: s.stall_category, stall_type: s.stall_type, stall_size: s.stall_size, active: s.active, website: s.website, pass_code: s.pass_code, description: s.description,
             total_leads_count: s.total_leads_count, price: s.price, currency: s.currency,

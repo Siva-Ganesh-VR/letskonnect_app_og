@@ -146,7 +146,7 @@ module Api
             id:                v.id,
             visitor_id_code:   v.visitor_id_code,
             full_name:         v.full_name,
-            mobile_number:     v.mobile_number,
+            mobile_number:     v.formatted_mobile_number,
             email:             v.email,
             location:          v.location,
             profession:        v.profession,
