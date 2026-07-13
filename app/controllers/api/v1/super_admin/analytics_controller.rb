@@ -13,7 +13,7 @@ module Api
               active_organizers: EventOrganizer.active.count,
               total_visitors:    Visitor.where(mobile_verified: true).count,
               total_leads:       Lead.count,
-              total_stalls:      StallOwner&.count,
+              total_stalls:      ::StallOwner.count,
               hot_leads:         Lead.where(temperature: "hot").count,
               converted_leads:   Lead.where(status: "converted").count
             }
