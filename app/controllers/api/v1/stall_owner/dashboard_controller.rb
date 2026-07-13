@@ -11,10 +11,16 @@ module Api
           ) || @current_stall_owner
 
           events = Event
-            .joins(:stall_owners)
-            .where(stall_owners: { mobile_number: @current_stall_owner.mobile_number })
-            .distinct
-            .order(:name)
+                     .joins(:stall_owners)
+                     .where(stall_owners: { mobile_number: @current_stall_owner.mobile_number })
+                     .includes(:stall_owners)
+                     .distinct
+                     .order(:name)
+
+          stall_owner_map = events
+                              .flat_map(&:stall_owners)
+                              .select { |so| so.mobile_number == @current_stall_owner.mobile_number }
+                              .index_by(&:event_id)
 
           json_success(
             {
@@ -22,7 +28,7 @@ module Api
               summary: dashboard_summary,
               recent_leads: recent_leads_data,
               follow_ups_today: follow_ups_today_data,
-              events: events.map { |e| event_mini(e) }
+              events: events.map { |event| event_mini(event, stall_owner_map[event.id]) }
             }
           )
         end
@@ -48,45 +54,53 @@ module Api
         end
 
         def recent_leads_data
-          @stall_owner.leads
-                      .includes(:visitor)
-                      .order(scanned_at: :desc)
-                      .limit(5)
-                      .map do |lead|
-            {
-              id: lead.id,
-              visitor_name: lead.visitor.full_name,
-              business_name: lead.visitor.business_name,
-              temperature: lead.temperature,
-              status: lead.status,
-              scanned_at: lead.scanned_at.iso8601
-            }
-          end
+          @stall_owner
+            .leads
+            .includes(:visitor)
+            .order(scanned_at: :desc)
+            .limit(5)
+            .map do |lead|
+              visitor = lead.visitor
+
+              {
+                id: lead.id,
+                visitor_name: visitor&.full_name,
+                business_name: visitor&.business_name,
+                temperature: lead.temperature,
+                status: lead.status,
+                scanned_at: lead.scanned_at&.iso8601
+              }
+            end
         end
 
         def follow_ups_today_data
-          @stall_owner.leads
-                      .includes(:visitor)
-                      .where(follow_up_date: Date.current)
-                      .map do |lead|
-            {
-              id: lead.id,
-              visitor_name: lead.visitor.full_name,
-              mobile_number: lead.visitor.mobile_number,
-              temperature: lead.temperature,
-              notes: lead.notes
-            }
-          end
+          @stall_owner
+            .leads
+            .includes(:visitor)
+            .where(follow_up_date: Date.current)
+            .map do |lead|
+              visitor = lead.visitor
+
+              {
+                id: lead.id,
+                visitor_name: visitor&.full_name,
+                mobile_number: visitor&.mobile_number,
+                temperature: lead.temperature,
+                notes: lead.notes
+              }
+            end
         end
 
-        def event_mini(event)
+        def event_mini(event, stall_owner)
           {
             id: event.id,
             name: event.name,
             venue: event.venue,
             start_date: event.start_date,
             end_date: event.end_date,
-            status: event.status
+            status: event.status,
+            stall_number: stall_owner&.stall_number,
+            total_leads: stall_owner&.total_leads_count || 0
           }
         end
       end
