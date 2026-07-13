@@ -9,7 +9,6 @@ module MobileFormattable
     return if self[:mobile_number].blank?
 
     "+91 #{self[:mobile_number]}"
-    self[:mobile_number]
   end
 
   private
