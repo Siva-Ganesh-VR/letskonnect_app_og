@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_07_09_045258) do
+ActiveRecord::Schema[7.2].define(version: 2026_07_13_101124) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pgcrypto"
   enable_extension "plpgsql"
@@ -154,8 +154,10 @@ ActiveRecord::Schema[7.2].define(version: 2026_07_09_045258) do
     t.index ["event_id"], name: "index_leads_on_event_id"
     t.index ["follow_up_date"], name: "index_leads_on_follow_up_date"
     t.index ["scanned_at"], name: "index_leads_on_scanned_at"
+    t.index ["stall_owner_id", "scanned_at"], name: "index_leads_on_stall_owner_id_and_scanned_at"
     t.index ["stall_owner_id", "status"], name: "index_leads_on_stall_owner_id_and_status"
     t.index ["stall_owner_id", "temperature"], name: "index_leads_on_stall_owner_id_and_temperature"
+    t.index ["stall_owner_id", "updated_at"], name: "index_leads_on_stall_owner_id_and_updated_at"
     t.index ["stall_owner_id", "visitor_id"], name: "index_leads_on_stall_owner_id_and_visitor_id", unique: true
     t.index ["stall_owner_id"], name: "index_leads_on_stall_owner_id"
     t.index ["status"], name: "index_leads_on_status"
@@ -342,6 +344,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_07_09_045258) do
     t.index ["business_category"], name: "index_visitors_on_business_category"
     t.index ["created_at"], name: "index_visitors_on_created_at"
     t.index ["event_id", "mobile_verified"], name: "index_visitors_on_event_id_and_mobile_verified", where: "(mobile_verified = true)"
+    t.index ["event_id", "whatsapp_state"], name: "index_visitors_on_event_id_and_whatsapp_state"
     t.index ["event_id"], name: "index_visitors_on_event_id"
     t.index ["mobile_number", "event_id"], name: "index_visitors_on_mobile_number_and_event_id", unique: true
     t.index ["qr_token"], name: "index_visitors_on_qr_token", unique: true
