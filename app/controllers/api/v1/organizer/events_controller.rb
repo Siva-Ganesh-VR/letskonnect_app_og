@@ -80,6 +80,17 @@ module Api
           json_success({ message: "Event archived", status: "archived" })
         end
 
+        def visitor_analytics
+          event = @current_organizer.events.find(params[:id])
+          leads = event.leads
+          total_unique_visitors = leads.count
+
+          json_success({
+            total_unique_visitors: total_unique_visitors,
+            visitors_by_day: day_wise_visitors(event)
+          })
+        end
+
         private
 
         def set_event
@@ -151,6 +162,33 @@ module Api
               company_name: s.company_name,
               stall_number: s.stall_number,
               leads: s.total_leads_count
+            }
+          end
+        end
+
+        def day_wise_visitors(event)
+          day_counts = event.leads
+                            .group("DATE(scanned_at)")
+                            .count
+
+          hour_counts = event.leads
+                            .group(
+                              "DATE(scanned_at)",
+                              "EXTRACT(HOUR FROM scanned_at)"
+                            )
+                            .count
+
+          (event.start_date.to_date..event.end_date.to_date).each_with_index.map do |date, index|
+            {
+              day: "Day #{index + 1}",
+              date: date,
+              visitors: day_counts[date] || 0,
+              hours: (0..23).map do |hour|
+                {
+                  time: format("%02d:00 - %02d:00", hour, (hour + 1) % 24),
+                  visitors: hour_counts[[date, hour.to_f]] || 0
+                }
+              end
             }
           end
         end

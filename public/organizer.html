@@ -1186,6 +1186,14 @@
     </div>
   </div>
 
+  <div class="modal-overlay" id="m-hourly-visitors" onclick="if(event.target===this)closeModal('m-hourly-visitors')">
+    <div class="modal">
+      <div class="modal-title"><span id="hourly-visitors-title"></span> <button class="mc" onclick="closeModal('m-hourly-visitors')">✕</button></div>
+      <div id="hourly-visitors-content"></div>
+    </div>
+  </div>
+
+
   <div class="modal-overlay" id="m-stall" onclick="if(event.target===this)closeModal('m-stall')">
     <div class="modal">
       <div class="modal-title">Edit Stall Owner <button class="mc" onclick="closeModal('m-stall')">✕</button></div>
@@ -2396,6 +2404,7 @@
         await Promise.all([
           loadEventStalls(),
           loadEventVisitors(),
+          loadVisitorAnalytics(),
         ]);
         document.getElementById("stall-event-sel").value = eventId;
         document.getElementById("visitor-event-sel").value = eventId;
@@ -2508,6 +2517,7 @@
     </div>
 
     <div id="event-analytics-section"></div>
+    <div id="visitor-analytics-section"></div>
   `;
     }
 
@@ -3128,6 +3138,75 @@
     window.addEventListener("pageshow", function () {
       checkAuth();
     });
+
+    async function loadVisitorAnalytics() {
+      const { eventId } = detailsState;
+      const container = document.getElementById("visitor-analytics-section");
+      if (!container) return;
+      container.innerHTML = `<div style="padding:30px;text-align:center;color:var(--text2)">⏳ Loading…</div>`;
+
+      try {
+        const res = await get(`/organizer/events/${eventId}/visitor_analytics`);
+        const data = res.data || [];
+        const day_wise_visitors = res.data.visitors_by_day;
+
+        container.innerHTML = `
+          <div style="background:var(--bg2);border:1px solid var(--border);border-radius:14px;overflow:hidden;margin-bottom:20px;box-shadow:var(--shadow)">
+            <div style="padding:18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
+              <div>
+                <div style="font-size:15px;font-weight:700;color:var(--text)">📈 Day Wise Captured Visitors</div>
+                <div style="font-size:13px;color:var(--text2);margin-top:4px">Day Wise Captured Visitors of an event.</div>
+              </div>
+            </div>
+            <div style="padding:0 18px 18px">
+              ${day_wise_visitors.length ? `<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse"><thead><tr><th style="text-align:left;padding:10px 12px;font-size:11px;font-weight:700;text-transform:uppercase;color:var(--text3);border-bottom:1px solid var(--border)">Day</th><th style="text-align:left;padding:10px 12px;font-size:11px;font-weight:700;text-transform:uppercase;color:var(--text3);border-bottom:1px solid var(--border)">Date</th><th style="text-align:left;padding:10px 12px;font-size:11px;font-weight:700;text-transform:uppercase;color:var(--text3);border-bottom:1px solid var(--border)">Count</th><th style="text-align:right;padding:10px 12px;font-size:11px;font-weight:700;text-transform:uppercase;color:var(--text3);border-bottom:1px solid var(--border)">Actions</th></tr></thead><tbody>${day_wise_visitors.map((v, index) => `
+                  <tr>
+                    <td style="padding:10px 12px;font-size:13px;color:var(--text)">${v.day}</td>
+                    <td style="padding:10px 12px;font-size:13px;color:var(--text2)">${fd(v.date) || '—'}</td>
+                    <td style="padding:10px 12px;font-size:13px;color:var(--accent);font-weight:700">${v.visitors || 0}</td>
+                    <td style="padding:10px 12px;font-size:13px;color:var(--text2);text-align: right;"><div style="display:flex;gap:5px;justify-content:end;"><button class="btn btn-sm btn-o" onclick='event.stopPropagation();showHourlyVisitors("${v.day}", ${JSON.stringify(v.hours).replace(/"/g, "&quot;")})'>👁️</button></div></td>
+                  </tr>`).join("")}</tbody></table></div>` : `<div class="empty"><div class="empty-icon">🏪</div>No day-wise visitors for this event.</div>`}
+            </div>
+          </div>
+        `;
+      } catch (err) {
+        console.log(err);
+      }
+    }
+
+    function showHourlyVisitors(day, hours) {
+      document.getElementById("hourly-visitors-title").textContent =
+        `${day} - Hour Wise Visitors`;
+
+      document.getElementById("hourly-visitors-content").innerHTML = `
+        <table style="width:100%;border-collapse:collapse">
+          <thead>
+            <tr>
+              <th style="text-align:left;padding:10px">Time</th>
+              <th style="text-align:right;padding:10px">Visitors</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${
+              hours.length
+                ? hours.map(h => `
+                  <tr>
+                    <td style="padding:10px">${h.time}</td>
+                    <td style="padding:10px;text-align:right;font-weight:600">
+                      ${h.visitors}
+                    </td>
+                  </tr>
+                `).join("")
+                : `<tr><td colspan="2" style="padding:20px;text-align:center">
+                    No visitor data found.
+                  </td></tr>`
+            }
+          </tbody>
+        </table>
+      `;
+
+      openModal("m-hourly-visitors");
+    }
   </script>
 </body>
 
