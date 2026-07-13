@@ -2437,7 +2437,8 @@
       refreshStallMetadataOptions();
       document.getElementById("st-id").value = stall.id;
       document.getElementById("st-name").value = stall.name || "";
-      document.getElementById("st-mobile").value = stall.mobile_number || "";
+      const mobile = (stall.mobile_number || "").replace(/^\+91\s*/, "");
+      document.getElementById("st-mobile").value = mobile;
       document.getElementById("st-company").value = stall.company_name || "";
       document.getElementById("st-num").value = stall.stall_number || "";
       document.getElementById("st-cat").value = stall.stall_category || "";
@@ -2489,7 +2490,12 @@
 
         closeModal("m-stall");
         toast("Stall owner updated successfully", "success");
-        loadStalls();
+
+        if (document.getElementById("page-details").classList.contains("active")) {
+          refreshEventStalls();
+        } else {
+          loadStalls();
+        }
       } catch (error) {
         err.style.display = "block";
         err.textContent = error.message;
@@ -2644,7 +2650,7 @@
           "success"
         );
 
-        if (previousPage === "dashboard" || previousPage === "events") {
+        if (document.getElementById("page-details").classList.contains("active")) {
           refreshEventStalls();
         } else {
           loadStalls();
@@ -3447,7 +3453,7 @@
           clearInterval(timer);
           if (data.status === "completed") {
               toast("Import completed.", "success");
-              if (previousPage === "dashboard" || previousPage === "events") {
+              if (document.getElementById("page-details").classList.contains("active")) {
                 refreshEventStalls();
               } else {
                 loadStalls();

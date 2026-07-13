@@ -125,7 +125,7 @@ module Api
             org_code: o.org_code,   # ← add here
             name: o.name.titleize,
             email: o.email,
-            mobile_number: o.mobile_number,
+            mobile_number: o.formatted_mobile_number,
             company_name: o.company_name.titleize,
             active: o.active,
             created_at: o.created_at

@@ -130,7 +130,7 @@ module Api
 
         def visitor_data(v)
           { id: v.id, visitor_id_code: v.visitor_id_code, full_name: v.full_name,
-            mobile_number: v.mobile_number, email: v.email, profession: v.profession,
+            mobile_number: v.formatted_mobile_number, email: v.email, profession: v.profession,
             business_name: v.business_name, business_category: v.business_category,
             location: v.location, designation: v.designation,
             stalls_visited: v.leads.count, registered_at: v.created_at.iso8601,

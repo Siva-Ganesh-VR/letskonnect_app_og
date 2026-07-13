@@ -256,7 +256,7 @@ module Api
             # Details
             name: s.name,
             email: s.email,
-            mobile_number: s.mobile_number,
+            mobile_number: s.formatted_mobile_number,
             company_name: s.company_name,
             stall_number: s.stall_number,
             stall_category: s.stall_category,

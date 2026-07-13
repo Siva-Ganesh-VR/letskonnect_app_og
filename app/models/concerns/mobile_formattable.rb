@@ -5,7 +5,7 @@ module MobileFormattable
     before_validation :normalize_mobile_number
   end
 
-  def mobile_number
+  def formatted_mobile_number
     return if self[:mobile_number].blank?
 
     "+91 #{self[:mobile_number]}"
@@ -17,6 +17,7 @@ module MobileFormattable
   def normalize_mobile_number
     # return if self[:mobile_number].blank?
 
+    self[:mobile_number] = self[:mobile_number].to_s.gsub(/\D/, "")
     # number = self[:mobile_number].to_s
 
     # # Keep only digits
