@@ -1613,12 +1613,6 @@
         </div>
       `).join("");
 
-          // Populate organizer dropdown
-          const orgRes = currentUser?.role === "super_admin" ? await apiGet("/super_admin/event_organizers") : null;
-          if (orgRes?.data) {
-            document.getElementById("ef-organizer").innerHTML = orgRes.data.map(o => `<option value="${o.id}">${o.name} — ${o.company_name || ""}</option>`).join("");
-          }
-
           // =====================================================
           // Recent Organizers
           // =====================================================
@@ -1810,11 +1804,6 @@
     <tbody id="events-table-rows">${tbody || `<tr><td colspan="6">${emptyHtml("🎪", "No events yet")}</td></tr>`}</tbody></table>
     ${renderSimplePagination(meta, "events", page, "loadEvents")}
   `;
-      // Populate organizer dropdown
-      const orgRes = currentUser?.role === "super_admin" ? await apiGet("/super_admin/event_organizers") : null;
-      if (orgRes?.data) {
-        document.getElementById("ef-organizer").innerHTML = orgRes.data.map(o => `<option value="${o.id}">${o.name} — ${o.company_name || ""}</option>`).join("");
-      }
     }
 
     // ── Requested Events ──────────────────────────────────────────────────────
@@ -1904,8 +1893,6 @@
       const modal = document.getElementById("modal-create-event");
       const eventId = modal.dataset.eventId; // check if edit mode
 
-      console.log("Creating/updating event with ID:", eventId);
-
       const body = {
         event_organizer_id: document.getElementById("ef-organizer").value,
         event: {
@@ -1936,15 +1923,15 @@
 
       if (res.success) {
         closeModal("modal-create-event");
-        resetEventForm();
         toast(eventId ? "Event updated!" : "Event created!", "success");
         if (document.getElementById("page-organizer-details").classList.contains("active")) {
-          loadOrganizerEvents();
+          loadOrganizerEvents(1);
         } else if (document.getElementById("page-dashboard").classList.contains("active")) {
           loadDashboard();
         } else if (document.getElementById("page-events").classList.contains("active")) {
           loadEvents();
         }
+        resetEventForm();
       } else {
         err.style.display = "block";
         err.textContent = res.errors || (res.errors || []).join(", ");
@@ -2243,10 +2230,10 @@
 
         const orgSel = document.getElementById("ef-organizer");
         if (eid) {
-          orgSel.value = eid;
+          loadOrganizerOptions(eid);
           orgSel.disabled = true;
         } else {
-          orgSel.value = "";
+          loadOrganizerOptions("");
           orgSel.disabled = false;
         }
         document.getElementById("import-err").style.display = "none";
@@ -2339,16 +2326,18 @@
       document.getElementById("ef-start").value = "";
       document.getElementById("ef-end").value = "";
       document.getElementById("ef-max").value = "";
-      document.getElementById("ef-status").value = "";
+      document.getElementById("ef-status").value = "draft";
       document.getElementById("ef-desc").value = "";
 
       const err = document.getElementById("event-form-err");
       err.style.display = "none";
       err.textContent = "";
     }
-    function openEditEventModalById(id) {
-      let event = allEvents.find(e => e.id === id);
-      openEditEventModal(event);
+    async function openEditEventModalById(id) {
+      const endpoint = "/super_admin/events/" + id;
+      const res = await apiGet(endpoint);
+      let event = res.data || [];
+      await openEditEventModal(event);
     }
     async function openEditEventModal(event) {
       const modal = document.getElementById("modal-create-event");
@@ -2357,7 +2346,6 @@
       modal.dataset.eventId = event.id;
 
       // fill form fields
-      document.getElementById("ef-organizer").value = event.event_organizer_id || "";
       document.getElementById("ef-name").value = event.name || "";
       document.getElementById("ef-venue").value = event.venue || "";
       document.getElementById("ef-city").value = event.city || "";
@@ -2366,13 +2354,7 @@
       document.getElementById("ef-max").value = event.max_visitors || "";
       document.getElementById("ef-status").value = event.status || "";
       document.getElementById("ef-desc").value = event.description || "";
-
-
-      if (document.getElementById("page-organizer-details").classList.contains("active")) {
-        openModal("modal-create-event", event.event_organizer_id);
-      } else {
-        openModal("modal-create-event");
-      }
+      openModal("modal-create-event", event.event_organizer_id);
     }
     async function importStallOwners() {
       const fileInput = document.getElementById("stall-import-file");
@@ -3146,7 +3128,7 @@
         if (page < 1 || page > max) return;
 
         organizerDetailsState.eventPage = page;
-        loadOrganizerEvents();
+        loadOrganizerEvents(page);
 
         document.getElementById("organizer-events-table")
           ?.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -3255,7 +3237,7 @@
         document.getElementById("organizer-details-content").innerHTML =
           buildOrganizerDetailsHTML(res.data);
 
-        await loadOrganizerEvents();
+        await loadOrganizerEvents(1);
       } catch (err) {
         console.error("Organizer details error:", err);
         document.getElementById("organizer-details-content").innerHTML = `
@@ -3357,7 +3339,7 @@
     }
     function changeOrganizerEventPage(page) {
       organizerDetailsState.eventPage = page;
-      loadOrganizerEvents();
+      loadOrganizerEvents(page);
     }
     function buildOrganizerEventsTable(events) {
       const tbody = events.map(e => `
@@ -3433,7 +3415,7 @@
     }
     function searchOrganizerEvents() {
       organizerDetailsState.eventPage = 1;
-      loadOrganizerEvents();
+      loadOrganizerEvents(1);
     }
     function startPolling(id) {
       const timer = setInterval(async () => {
@@ -3505,7 +3487,6 @@
         await loadVisitorVisitHistory();
 
       } catch (e) {
-        console.log(e);
         document.getElementById("details-content").innerHTML =
           `<div class="empty">Unable to load visitor.</div>`;
       }
@@ -3679,6 +3660,27 @@
     window.addEventListener("pageshow", () => {
       redirectIfLoggedIn();
     });
+    let organizers = [];
+
+    async function loadOrganizerOptions(selectedId = "") {
+      if (!currentUser || currentUser.role !== "super_admin") return;
+
+      if (organizers.length === 0) {
+        const res = await apiGet("/super_admin/event_organizers");
+        organizers = res.data || [];
+      }
+
+      const select = document.getElementById("ef-organizer");
+
+      select.innerHTML = `
+        <option value="">Select Organizer</option>
+        ${organizers.map(o => `
+          <option value="${o.id}">${o.name} — ${o.company_name || ""}</option>
+        `).join("")}
+      `;
+
+      select.value = selectedId;
+    }
   </script>
 </body>
 
