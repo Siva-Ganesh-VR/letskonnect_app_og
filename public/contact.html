@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Contact — StallConnect</title>
+  <link rel="stylesheet" href="/legal.css">
+  <style>
+    .contact-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin: 24px 0;
+    }
+
+    @media (max-width: 600px) {
+      .contact-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .topic-card {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 22px;
+      transition: border-color 0.15s;
+      text-decoration: none;
+      display: block;
+    }
+
+    .topic-card:hover {
+      border-color: rgba(34, 197, 94, 0.35);
+    }
+
+    .topic-icon {
+      font-size: 26px;
+      margin-bottom: 10px;
+    }
+
+    .topic-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 5px;
+    }
+
+    .topic-desc {
+      font-size: 13px;
+      color: var(--text2);
+      line-height: 1.5;
+      margin-bottom: 12px;
+    }
+
+    .topic-action {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--accent);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .delete-section {
+      background: rgba(239, 68, 68, 0.04);
+      border: 1px solid rgba(239, 68, 68, 0.15);
+      border-radius: var(--radius);
+      padding: 28px;
+      margin-top: 8px;
+    }
+
+    .delete-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .delete-desc {
+      font-size: 14px;
+      color: var(--text2);
+      margin-bottom: 20px;
+      line-height: 1.6;
+    }
+  </style>
+</head>
+
+<body>
+
+  <nav class="topbar">
+    <div class=""><span><a href="/"><img style="width:168px; margin-top: 10px;" src="logo_dark.png"></a></span> </div>
+    <div class="topbar-nav">
+      <a href="/privacy.html">Privacy Policy</a>
+      <a href="/terms.html">Terms of Service</a>
+      <a href="/support.html">Support</a>
+      <a href="/contact.html" class="active">Contact</a>
+    </div>
+  </nav>
+
+  <div class="page-wrap">
+
+    <div class="page-header">
+      <div class="page-eyebrow">Get in Touch</div>
+      <h1 class="page-title">Contact Us</h1>
+      <div class="page-meta">
+        <span>🏢 Bhive Technologies, Tamil Nadu, India</span>
+        <span>✉️ support@stallconnect.in</span>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2 class="section-title"><span class="section-num">→</span> What do you need help with?</h2>
+      <div class="contact-grid">
+
+        <a href="mailto:support@stallconnect.in?subject=Login Issue" class="topic-card">
+          <div class="topic-icon">🔑</div>
+          <div class="topic-title">Login & Account Access</div>
+          <div class="topic-desc">Can't sign in, wrong pass code, or account not set up.</div>
+          <div class="topic-action">Email us →</div>
+        </a>
+
+        <a href="mailto:support@stallconnect.in?subject=QR Scanner Issue" class="topic-card">
+          <div class="topic-icon">📷</div>
+          <div class="topic-title">QR Scanner Problem</div>
+          <div class="topic-desc">Camera permission issues, QR not scanning, or app errors.</div>
+          <div class="topic-action">Email us →</div>
+        </a>
+
+        <a href="mailto:support@stallconnect.in?subject=Lead or Export Issue" class="topic-card">
+          <div class="topic-icon">📊</div>
+          <div class="topic-title">Leads & Exports</div>
+          <div class="topic-desc">Missing leads, export not generating, or data not syncing.</div>
+          <div class="topic-action">Email us →</div>
+        </a>
+
+        <a href="mailto:support@stallconnect.in?subject=Data Rights Request" class="topic-card">
+          <div class="topic-icon">🔒</div>
+          <div class="topic-title">Privacy & Data Rights</div>
+          <div class="topic-desc">Access, correction, or erasure of your personal data under DPDP Act.</div>
+          <div class="topic-action">Email us →</div>
+        </a>
+
+        <a href="mailto:support@stallconnect.in?subject=General Question" class="topic-card">
+          <div class="topic-icon">💬</div>
+          <div class="topic-title">General Question</div>
+          <div class="topic-desc">Any other question about StallConnect or your event.</div>
+          <div class="topic-action">Email us →</div>
+        </a>
+
+        <a href="mailto:support@stallconnect.in?subject=Security Issue" class="topic-card">
+          <div class="topic-icon">🛡️</div>
+          <div class="topic-title">Security Issue</div>
+          <div class="topic-desc">Found a security vulnerability? Please report it responsibly.</div>
+          <div class="topic-action">Report →</div>
+        </a>
+
+      </div>
+    </div>
+
+    <div class="section">
+      <h2 class="section-title"><span class="section-num">→</span> Direct Contact</h2>
+      <div class="contact-card">
+        <div class="contact-row">
+          <div class="contact-icon">✉️</div>
+          <div>
+            <div class="contact-label">Email — all enquiries</div>
+            <div class="contact-value"><a href="mailto:support@stallconnect.in">support@stallconnect.in</a></div>
+          </div>
+        </div>
+        <div class="contact-row">
+          <div class="contact-icon">🕘</div>
+          <div>
+            <div class="contact-label">Support Hours</div>
+            <div class="contact-value">Monday – Friday, 9:00 AM – 6:00 PM IST</div>
+          </div>
+        </div>
+        <div class="contact-row">
+          <div class="contact-icon">📍</div>
+          <div>
+            <div class="contact-label">Company</div>
+            <div class="contact-value">Bhive Technologies<br><span style="color:var(--text2);font-size:14px">Madurai &
+                Chennai, Tamil Nadu, India</span></div>
+          </div>
+        </div>
+        <div class="contact-row">
+          <div class="contact-icon">🌐</div>
+          <div>
+            <div class="contact-label">Website</div>
+            <div class="contact-value"><a href="https://stallconnect.in">stallconnect.in</a></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section" id="delete">
+      <h2 class="section-title"><span class="section-num">→</span> Delete My Account</h2>
+      <div class="delete-section">
+        <div class="delete-title">🗑️ Account & Data Deletion Request</div>
+        <div class="delete-desc">
+          You have the right to request deletion of your StallConnect account and all associated personal data under
+          India's Digital Personal Data Protection Act 2023.
+        </div>
+        <ol class="steps-list">
+          <li><span class="step-num">1</span>Email <strong>support@stallconnect.in</strong> with subject line:
+            <em>"Account Deletion Request"</em>
+          </li>
+          <li><span class="step-num">2</span>Include your <strong>registered mobile number</strong> in the email</li>
+          <li><span class="step-num">3</span>We will confirm receipt within <strong>2 business days</strong></li>
+          <li><span class="step-num">4</span>Deletion will be completed within <strong>7 business days</strong></li>
+          <li><span class="step-num">5</span>You will receive an <strong>email confirmation</strong> when deletion is
+            complete</li>
+        </ol>
+        <div class="info-box" style="margin-top:16px">
+          <p>Anonymised aggregated event statistics may be retained for organiser reporting. No personal identifiers are
+            kept after deletion.</p>
+        </div>
+        <a href="mailto:support@stallconnect.in?subject=Account Deletion Request&body=Please delete my account.%0A%0AMy registered mobile number: "
+          style="display:inline-block;margin-top:20px;padding:12px 24px;background:rgba(239,68,68,0.12);border:1px solid rgba(239,68,68,0.3);border-radius:10px;color:#fca5a5;font-size:14px;font-weight:600;text-decoration:none;transition:all 0.15s">
+          Request Account Deletion →
+        </a>
+      </div>
+    </div>
+
+  </div>
+
+  <footer class="footer">
+    <div class="footer-copy">© 2026 Bhive Technologies. All rights reserved.</div>
+    <div class="footer-links">
+      <a href="/privacy.html">Privacy Policy</a>
+      <a href="/terms.html">Terms of Service</a>
+      <a href="/support.html">Support</a>
+      <a href="/contact.html">Contact</a>
+    </div>
+  </footer>
+
+</body>
+
+</html>

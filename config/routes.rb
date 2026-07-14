@@ -6,6 +6,10 @@ Rails.application.routes.draw do
 
   # ── Admin SPA (served as static file) ────────────────────────────────────
   get "/admin", to: redirect("/admin.html")
+  get "/terms", to: redirect("/privacy.html")
+  get "/privacy-policy", to: redirect("/terms.html")
+  get "/support", to: redirect("/support.html")
+  get "/contact", to: redirect("/contact.html")
 
   # ── Visitor-facing pages ─────────────────────────────────────────────────
   get "/register/:event_token", to: "registrations#show",   as: :event_registration
