@@ -185,7 +185,11 @@ module Api
               visitors: day_counts[date] || 0,
               hours: (0..23).map do |hour|
                 {
-                  time: format("%02d:00 - %02d:00", hour, (hour + 1) % 24),
+                  time: format(
+                    "%s - %s",
+                    Time.new(2000, 1, 1, hour).strftime("%-l %p"),
+                    Time.new(2000, 1, 1, (hour + 1) % 24).strftime("%-l %p")
+                  ),
                   visitors: hour_counts[[date, hour.to_f]] || 0
                 }
               end
