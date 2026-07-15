@@ -24,3 +24,8 @@
       cron: "*/5 * * * *"
       class: RefreshEventAnalyticsJob
       description: "Recalculate event analytics every 5 minutes"
+
+    event_status_update:
+      cron: "0 0 * * *"
+      class: EventStatusUpdateJob
+      description: "Updates event status to done or not_published after the event has ended"

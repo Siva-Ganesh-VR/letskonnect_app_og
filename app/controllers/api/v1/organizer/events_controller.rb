@@ -108,9 +108,7 @@ module Api
         def event_summary(e)
           {
             id: e.id,
-
             event_code: e.event_code,      # ADD
-
             name: e.name,
             venue: e.venue,
             city: e.city,
@@ -125,6 +123,7 @@ module Api
             created_at: e.created_at,
             description: e.description,
             settings: e.settings,
+            completed: e.completed?,
 
             organizer: {
               id: e.event_organizer.id,

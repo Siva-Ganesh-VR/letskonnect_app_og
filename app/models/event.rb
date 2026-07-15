@@ -13,7 +13,7 @@ class Event < ApplicationRecord
   after_create  :generate_qr_image_async
   after_create  :initialize_analytics
 
-  STATUSES = %w[pending draft active completed archived].freeze
+  STATUSES = %w[pending draft active completed archived done not_published].freeze
 
   validates :name,    :venue, :start_date, :end_date, presence: true
   validates :status,  inclusion: { in: STATUSES }
@@ -42,6 +42,14 @@ class Event < ApplicationRecord
 
   def active?
     status == "active"
+  end
+
+  def draft?
+    status == "draft"
+  end
+
+  def completed?
+    status == "done" || status == "not_published" || (end_date.present? && end_date < Time.current)
   end
 
   private

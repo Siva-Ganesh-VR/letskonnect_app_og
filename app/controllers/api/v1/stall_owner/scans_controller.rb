@@ -3,6 +3,7 @@ module Api
     module StallOwner
       class ScansController < ApplicationController
         before_action :authenticate_stall_owner!
+        before_action :ensure_event_active!, only: [:create, :history, :show_visitor, :manual_create_lead]
 
         # POST /api/v1/stall_owner/scan
         def create
@@ -195,6 +196,12 @@ module Api
             :business_category, :business_name, :designation, :email, :website, :reg_type,
             :looking_for, :decision_maker, :mobile_verified
           )
+        end
+
+        def ensure_event_active!
+          event = selected_stall_owner.event
+          return unless event.completed?
+          json_error("This event has already ended. This action is no longer allowed.", status: :forbidden)
         end
       end
     end

@@ -195,7 +195,7 @@ module Api
             company_name: s.company_name.titleize, stall_number: s.stall_number&.upcase,
             stall_category: s.stall_category, stall_type: s.stall_type, stall_size: s.stall_size, active: s.active, website: s.website, pass_code: s.pass_code, description: s.description,
             total_leads_count: s.total_leads_count, price: s.price, currency: s.currency,
-            event: { id: s.event.id, name: s.event.name.titleize, event_code: s.event.event_code } }
+            event: { id: s.event.id, name: s.event.name.titleize, event_code: s.event.event_code, completed: s.event.completed? } }
         end
       end
     end

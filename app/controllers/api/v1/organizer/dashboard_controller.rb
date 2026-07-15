@@ -32,7 +32,8 @@ module Api
             total_leads: analytics&.total_leads || 0,
             banner_url: banner_url,
             registration_qr_token: e.registration_qr_token,
-            settings: e.settings
+            settings: e.settings,
+            completed: e.completed?
           }
         end
       end

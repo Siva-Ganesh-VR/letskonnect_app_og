@@ -144,7 +144,8 @@ module Api
             registered_count: event.visitors.count,
             qr_image_url: event.qr_image_url,
             registration_qr_token: event.registration_qr_token,
-            max_visitors: event.max_visitors
+            max_visitors: event.max_visitors,
+            completed: event.completed?
           }
         end
       end

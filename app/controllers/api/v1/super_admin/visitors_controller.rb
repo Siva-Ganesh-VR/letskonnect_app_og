@@ -96,7 +96,7 @@ module Api
             mobile_number: v.formatted_mobile_number, business_name: v&.business_name&.titleize,
             business_category: v.business_category, location: v.location, profession: v.profession, designation: v.designation, email: v.email, active: v.active, looking_for: v.looking_for, decision_maker: v.decision_maker, created_at: v.created_at, reg_type: v.reg_type, stalls_visited: v.leads.count, mobile_verified: v.mobile_verified,
             event_name: (v&.event&.name)&.titleize || "", registered_at: v.created_at,
-            is_favorite: lead&.is_favorite || false
+            is_favorite: lead&.is_favorite || false, completed: v&.event&.completed?,
           }
         end
       end

@@ -15,13 +15,17 @@ class RegistrationsController < ActionController::Base
   def show
     event = Event.find_by!(registration_qr_token: params[:event_token])
     case handle_event_access(event)
-    when "invalid"
+    when :invalid
       redirect_to whatsapp_fallback_message("Invalid event QR code"),
-            allow_other_host: true and return
+                  allow_other_host: true and return
 
-    when "closed"
-      redirect_to whatsapp_fallback_message("Event registration is closed"),
-            allow_other_host: true and return
+    when :draft
+      redirect_to whatsapp_fallback_message("Event registration has not started yet."),
+                  allow_other_host: true and return
+
+    when :closed
+      redirect_to whatsapp_fallback_message("Event registration is closed."),
+                  allow_other_host: true and return
     end
 
     whatsapp_number = ENV["TWILIO_WHATSAPP_FROM"]
@@ -35,9 +39,11 @@ class RegistrationsController < ActionController::Base
   end
 
   def handle_event_access(event)
-    return "invalid" if event.nil?
-    return "closed" unless event.active?
-    "valid"
+    return :invalid if event.nil?
+    return :draft if event.draft?
+    return :closed if event.completed?
+
+    :valid
   end
 
   private

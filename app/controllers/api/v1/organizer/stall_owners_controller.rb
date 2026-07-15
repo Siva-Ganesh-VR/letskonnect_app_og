@@ -268,7 +268,8 @@ module Api
             event: {
               id: s.event&.id,
               name: s.event&.name,
-              code: s.event&.event_code
+              code: s.event&.event_code,
+              completed: s.event&.completed?
             },
 
             organizer: {
