@@ -45,6 +45,7 @@ module Api
             stall_number: s.stall_number,
             stall_category: s.stall_category,
             total_leads_count: s.total_leads_count,
+            event_name: s.event&.name,
             event_id: s.event_id
           }
         end

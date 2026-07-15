@@ -3,7 +3,7 @@ module Api
     module StallOwner
       class ScansController < ApplicationController
         before_action :authenticate_stall_owner!
-        before_action :ensure_event_active!, only: [:create, :history, :show_visitor, :manual_create_lead]
+        before_action :ensure_event_active!, only: [:create, :manual_create_lead]
 
         # POST /api/v1/stall_owner/scan
         def create

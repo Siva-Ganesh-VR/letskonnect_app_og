@@ -33,27 +33,260 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .otp-inp{background:rgba(255,255,255,0.05);border:2px solid var(--border);border-radius:10px;padding:12px 0;text-align:center;font-size:20px;font-weight:700;color:var(--text);width:100%;outline:none;transition:all 0.2s}
 .otp-inp:focus{border-color:var(--accent);background:rgba(245,158,11,0.08)}
 
-/* APP Layout */
-.app{max-width:480px;margin:0 auto;min-height:100vh;display:flex;flex-direction:column;background:var(--bg)}
-/* Topbar */
-.topbar{background:var(--bg2);border-bottom:1px solid var(--border);padding:12px 16px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
-.topbar-left{display:flex;align-items:center;gap:10px}
-.topbar-avatar{width:36px;height:36px;background:rgba(245,158,11,0.2);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px}
-.topbar-name{font-size:14px;font-weight:600}
-.topbar-stall{font-size:11px;color:var(--text2)}
-.topbar-right{display:flex;align-items:center;gap:8px}
-.notif-badge{background:var(--red);color:#fff;font-size:10px;font-weight:700;padding:2px 6px;border-radius:10px;min-width:18px;text-align:center;display:none}
-/* Bottom Nav */
-.bottom-nav{background:var(--bg2);border-top:1px solid var(--border);display:flex;position:sticky;bottom:0;z-index:100}
-.bn-item{flex:1;display:flex;flex-direction:column;align-items:center;padding:10px 0 8px;cursor:pointer;transition:all 0.15s;color:var(--text3);border:none;background:none;font-family:inherit}
-.bn-item.active{color:var(--accent)}
-.bn-item:hover{color:var(--text2)}
-.bn-icon{font-size:22px;line-height:1;margin-bottom:3px;position:relative}
-.bn-label{font-size:10px;font-weight:500}
-/* Content */
-.content{flex:1;overflow-y:auto;padding-bottom:10px}
-.page{display:none;padding:16px}
-.page.active{display:block}
+/* APP */
+.app {
+  display: flex;
+  height: 100vh;
+  overflow: hidden
+}
+
+.sidebar {
+  width: 240px;
+  background: var(--bg2);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  overflow-y: auto
+}
+
+.main {
+  flex: 1;
+  overflow-y: auto
+}
+
+.sidebar-brand {
+  /* padding: 20px 16px 16px; */
+  border-bottom: 1px solid var(--border)
+}
+
+.brand-logo {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--accent);
+  display: flex;
+  align-items: center;
+  gap: 8px
+}
+
+.brand-role {
+  font-size: 11px;
+  color: var(--text3);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-top: 2px
+}
+
+.sidebar-user {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border)
+}
+
+.user-name {
+  font-size: 14px;
+  font-weight: 600
+}
+
+.user-event {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--accent);
+}
+
+.user-sub {
+  font-size: 12px;
+  color: var(--text2);
+  margin-top: 1px
+}
+
+.nav {
+  padding: 8px;
+  flex: 1
+}
+
+.nav-section {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text3);
+  padding: 12px 12px 4px
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  font-size: 14px;
+  cursor: pointer;
+  color: var(--text2);
+  transition: all 0.15s;
+  user-select: none
+}
+
+.nav-item:hover {
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text)
+}
+
+.nav-item.active {
+  background: rgba(34, 197, 94, 0.12);
+  color: var(--accent)
+}
+
+.nav-icon {
+  font-size: 17px;
+  width: 22px;
+  text-align: center
+}
+
+.sidebar-foot {
+  padding: 12px 16px;
+  border-top: 1px solid var(--border)
+}
+
+.logout-btn {
+  width: 100%;
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text2);
+  border-radius: 8px;
+  padding: 8px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.15s
+}
+
+.logout-btn:hover {
+  border-color: #ef4444;
+  color: #fca5a5
+}
+
+/* Pages */
+.page {
+  padding: 28px 32px;
+  display: none
+}
+
+.page.active {
+  display: block
+}
+
+.page-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+  gap: 12px
+}
+
+.page-title {
+  font-size: 22px;
+  font-weight: 700
+}
+
+.page-sub {
+  font-size: 14px;
+  color: var(--text2);
+  margin-top: 2px
+}
+
+.topbar {
+      display: none;
+      align-items: center;
+      padding: 12px 16px;
+      background: var(--bg2);
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      gap: 12px
+    }
+
+    .menu-btn {
+      background: none;
+      border: none;
+      color: var(--text);
+      font-size: 22px;
+      cursor: pointer;
+      padding: 0
+    }
+
+    @media(max-width:680px) {
+      .app {
+        flex-direction: column
+      }
+
+      .sidebar {
+        position: fixed;
+        top: 0;
+        bottom: 0;
+        left: -240px;
+        z-index: 200;
+        transition: left 0.25s;
+        height: 100vh
+      }
+
+      .sidebar.open {
+        left: 0
+      }
+
+      .topbar {
+        display: flex
+      }
+
+      .main {
+        padding-top: 0
+      }
+
+      .page {
+        padding: 16px
+      }
+
+      .form-grid {
+        grid-template-columns: 1fr
+      }
+    }
+
+    .sidebar-top {
+      padding: 0px 10px 10px 10px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      /* border-bottom:1px solid rgba(255,255,255,.08); */
+    }
+
+    .sidebar-logo-image {
+      width: 180px;
+      height: auto;
+      display: block;
+      margin-bottom: -20px;
+      object-fit: contain;
+      filter: drop-shadow(0 0 12px rgba(100, 108, 255, 0.25));
+    }
+
+    .qr-blink {
+      background: linear-gradient(135deg, #1e293b, #0f172a);
+      border: 1px solid rgba(16, 185, 129, .3);
+      color: #fff;
+      animation: expoGlow 1s infinite alternate;
+    }
+
+    @keyframes expoGlow {
+      from {
+        box-shadow:
+          0 0 0 rgba(16, 185, 129, 0);
+      }
+
+      to {
+        box-shadow:
+          0 0 10px rgba(16, 185, 129, .6),
+          0 0 20px rgba(16, 185, 129, .4),
+          inset 0 0 10px rgba(16, 185, 129, .15);
+      }
+    }
 
 /* Dashboard */
 .dash-welcome{background:linear-gradient(135deg,rgba(245,158,11,0.15),rgba(217,119,6,0.08));border:1px solid rgba(245,158,11,0.25);border-radius:16px;padding:20px;margin-bottom:16px}
@@ -294,232 +527,242 @@ textarea.note-area:focus{border-color:var(--accent)}
 </div>-->
 
 <!-- APP -->
-<div id="app" style="display:none">
-  <div class="app">
-    <!-- Topbar -->
-    <div class="topbar">
-      <div class="topbar-left">
-        <div class="topbar-avatar">🏪</div>
-        <div>
-          <div class="topbar-name" id="sb-name">—</div>
-          <div class="topbar-stall" id="sb-stall">—</div>
-        </div>
-      </div>
-      <div class="topbar-right">
-        <span class="notif-badge" id="notif-badge">0</span>
-        <button onclick="doLogout()" style="background:none;border:none;color:var(--text2);font-size:20px;cursor:pointer;padding:4px">⏻</button>
+<div id="app" class="app" style="display:none">
+  <!-- Topbar -->
+  <div class="topbar">
+    <button class="menu-btn" onclick="document.getElementById('sidebar').classList.toggle('open')">☰</button>
+    <span style="font-size:15px;font-weight:700;color:var(--accent)">Organizer Portal</span>
+  </div>
+
+  <div class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <div class="sidebar-top">
+        <img src="/logo_dark.png" alt="Expoza Logo" class="sidebar-logo-image">
       </div>
     </div>
+    <div class="sidebar-user">
+      <div class="user-name" id="sb-name">—</div>
+      <div class="user-event" id="sb-event">—</div>
+      <div class="user-sub" id="sb-company">—</div>
+    </div>
+    <nav class="nav">
+      <div class="nav-item active" onclick="showTab('home',this)"><span class="nav-icon">🏠</span> Dashboard</div>
+      <div class="nav-item" onclick="showTab('scan',this)"><span class="nav-icon">📷</span> Scan</div>
+      <div class="nav-item" onclick="showTab('leads',this)"><span class="nav-icon">🎯</span> Leads</div>
+      <div class="nav-item" onclick="showTab('more',this)"><span class="nav-icon">👥</span> Profile</div>
+    </nav>
+    <div class="sidebar-foot">
+      <button class="logout-btn" onclick="doLogout()">Sign Out</button>
+    </div>
+  </div>
 
-    <!-- Content -->
-    <div class="content">
-      <!-- DASHBOARD -->
-      <div class="page active" id="page-home">
-        <div class="dash-welcome">
-          <h3>Welcome back! 👋</h3>
-          <p id="event-name-display">Loading event info…</p>
+  <div class="main">
+    <!-- DASHBOARD -->
+    <div class="page active" id="page-home">
+      <div class="dash-welcome">
+        <h3>Welcome back! 👋</h3>
+        <p id="event-name-display">Loading event info…</p>
+      </div>
+      <div style="margin-bottom: 16px;">
+        <select class="status-sel" id="stall-owner-event-sel" style="margin-top: 0px;" onchange="onEventChange()">
+          <option value="">Select Event</option>
+        </select>
+      </div>
+      <div class="stats-row" id="stats-row-1">
+        <div class="stat-box"><div class="sbn" id="stat-total">—</div><div class="sbl">Total Leads</div></div>
+        <div class="stat-box"><div class="sbn" id="stat-today">—</div><div class="sbl">Today</div></div>
+      </div>
+      <div class="stats-row">
+        <div class="stat-box hot-card"><div class="sbn" id="stat-hot">—</div><div class="sbl">🔥 Hot</div></div>
+        <div class="stat-box warm-card"><div class="sbn" id="stat-warm">—</div><div class="sbl">♨️ Warm</div></div>
+        <div class="stat-box cold-card"><div class="sbn" id="stat-cold">—</div><div class="sbl">❄️ Cold</div></div>
+        <div class="stat-box conv-card"><div class="sbn" id="stat-conv">—</div><div class="sbl">✅ Converted</div></div>
+      </div>
+      <div class="stats-row" style="margin-top:0">
+        <div class="stat-box" style="grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;padding:14px 16px">
+          <div><div class="sbn" id="stat-fu" style="font-size:22px">—</div><div class="sbl">Follow-ups Today</div></div>
+          <span style="font-size:30px">📅</span>
         </div>
-        <div style="margin-bottom: 16px;">
-          <select class="status-sel" id="stall-owner-event-sel" style="margin-top: 0px;" onchange="onEventChange()">
-            <option value="">Select Event</option>
+      </div>
+      <!-- Recent leads -->
+      <div style="font-size:13px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:0.06em;margin:16px 0 10px">Recent Leads</div>
+      <div id="recent-leads"></div>
+    </div>
+
+    <!-- SCAN -->
+    <div class="page" id="page-scan">
+      <div class="scan-page">
+        <button class="btn-primary" onclick="showTab('create-lead',this)" id="btn-create-lead" style="margin-bottom: 20px;"> + Create Lead</button>
+        <h2 style="font-size:20px;font-weight:700">Scan Visitor QR</h2>
+        <p class="scan-hint">Enter the visitor QR token manually below, or tap the scanner area</p>
+
+        <div class="scan-icon-wrap" id="scan-area" onclick="startCameraScan()">
+          <div class="scan-line"></div>
+
+          <!-- Default placeholder -->
+          <div id="scan-placeholder" style="text-align:center">
+            <div style="font-size:56px">📷</div>
+            <div style="font-size:12px;color:var(--text3);margin-top:8px">
+              Tap to scan QR code
+            </div>
+          </div>
+
+          <!-- Camera preview -->
+          <div id="reader" style="display:none;width:100%;height:100%;"></div>
+        </div>
+
+        <input class="scan-manual" id="qr-input" placeholder="Paste or type visitor QR token here"
+          oninput="if(this.value.length>20)autoScan()" autofocus>
+
+        <div id="scan-err" class="err" style="width:100%;margin-bottom:10px"></div>
+        <button class="btn-scan" onclick="doScan()" id="btn-do-scan">⚡ Capture Lead</button>
+      </div>
+
+      <div class="result-card" id="result-card">
+        <div id="result-dupe-notice" style="display:none;background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.3);border-radius:8px;padding:8px 12px;font-size:12px;color:#fcd34d;margin-bottom:12px">⚠️ Already scanned — showing existing lead</div>
+        <div class="result-header">
+          <div class="result-avatar">👤</div>
+          <div>
+            <div class="result-name" id="res-name">—</div>
+            <div class="result-sub" id="res-company">—</div>
+          </div>
+        </div>
+        <div class="result-details" id="res-details"></div>
+        <div style="margin-bottom:12px">
+          <div style="font-size:12px;color:var(--text2);margin-bottom:8px">Lead Temperature:</div>
+          <div class="status-row">
+            <button class="temp-btn temp-hot" onclick="setTemp('hot',this)" id="tb-hot">🔥 Hot</button>
+            <button class="temp-btn temp-warm sel" onclick="setTemp('warm',this)" id="tb-warm">♨️ Warm</button>
+            <button class="temp-btn temp-cold" onclick="setTemp('cold',this)" id="tb-cold">❄️ Cold</button>
+          </div>
+        </div>
+        <div class="result-actions">
+          <button class="r-btn r-btn-call" onclick="callVisitor()">📞 Call</button>
+          <button class="r-btn r-btn-wa" onclick="openWa()">💬 WhatsApp</button>
+          <button class="r-btn r-btn-hot" onclick="saveAndScanNext()">✅ Save & Next</button>
+          <button class="r-btn r-btn-note" onclick="viewLeadDetail()">📝 Add Notes</button>
+        </div>
+      </div>
+    </div>
+    
+    <!-- CREATE LEAD -->
+    <div class="page" id="page-create-lead">
+      <div class="card">
+        <div class="section-title">Personal Details</div>
+        <div class="field">
+          <label>Full Name <span class="required">*</span></label>
+          <input type="text" id="full_name" placeholder="Your full name" autocomplete="name">
+        </div>
+        <div class="field">
+          <label>Mobile Number <span class="required">*</span></label>
+          <div class="phone-wrap">
+            <span class="phone-prefix">+91</span>
+            <input type="tel" id="mobile_number" placeholder="10-digit mobile" maxlength="10" pattern="[6-9][0-9]{9}">
+          </div>
+        </div>
+        <div class="row2">
+          <div class="field">
+            <label>Location / City <span class="required">*</span></label>
+            <input type="text" id="location" placeholder="City">
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="section-title">Business Details</div>
+        <div class="field">
+          <label>Business Category <span class="required">*</span></label>
+          <select id="business_category"></select>
+        </div>
+        <div class="field">
+          <label>Looking For <span class="required">*</span></label>
+          <select id="looking_for"></select>
+        </div>
+        <div class="field">
+          <label>Decision Maker? <span class="required">*</span></label>
+          <select id="decision_maker">
+            <option>Yes</option>
+            <option>No</option>
           </select>
         </div>
-        <div class="stats-row" id="stats-row-1">
-          <div class="stat-box"><div class="sbn" id="stat-total">—</div><div class="sbl">Total Leads</div></div>
-          <div class="stat-box"><div class="sbn" id="stat-today">—</div><div class="sbl">Today</div></div>
-        </div>
-        <div class="stats-row">
-          <div class="stat-box hot-card"><div class="sbn" id="stat-hot">—</div><div class="sbl">🔥 Hot</div></div>
-          <div class="stat-box warm-card"><div class="sbn" id="stat-warm">—</div><div class="sbl">♨️ Warm</div></div>
-          <div class="stat-box cold-card"><div class="sbn" id="stat-cold">—</div><div class="sbl">❄️ Cold</div></div>
-          <div class="stat-box conv-card"><div class="sbn" id="stat-conv">—</div><div class="sbl">✅ Converted</div></div>
-        </div>
-        <div class="stats-row" style="margin-top:0">
-          <div class="stat-box" style="grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;padding:14px 16px">
-            <div><div class="sbn" id="stat-fu" style="font-size:22px">—</div><div class="sbl">Follow-ups Today</div></div>
-            <span style="font-size:30px">📅</span>
-          </div>
-        </div>
-        <!-- Recent leads -->
-        <div style="font-size:13px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:0.06em;margin:16px 0 10px">Recent Leads</div>
-        <div id="recent-leads"></div>
-      </div>
-
-      <!-- SCAN -->
-      <div class="page" id="page-scan">
-        <div class="scan-page">
-          <button class="btn-primary" onclick="showTab('create-lead',this)" id="btn-create-lead" style="margin-bottom: 20px;"> + Create Lead</button>
-          <h2 style="font-size:20px;font-weight:700">Scan Visitor QR</h2>
-          <p class="scan-hint">Enter the visitor QR token manually below, or tap the scanner area</p>
-
-          <div class="scan-icon-wrap" id="scan-area" onclick="startCameraScan()">
-            <div class="scan-line"></div>
-
-            <!-- Default placeholder -->
-            <div id="scan-placeholder" style="text-align:center">
-              <div style="font-size:56px">📷</div>
-              <div style="font-size:12px;color:var(--text3);margin-top:8px">
-                Tap to scan QR code
-              </div>
-            </div>
-
-            <!-- Camera preview -->
-            <div id="reader" style="display:none;width:100%;height:100%;"></div>
-          </div>
-
-          <input class="scan-manual" id="qr-input" placeholder="Paste or type visitor QR token here"
-            oninput="if(this.value.length>20)autoScan()" autofocus>
-
-          <div id="scan-err" class="err" style="width:100%;margin-bottom:10px"></div>
-          <button class="btn-scan" onclick="doScan()" id="btn-do-scan">⚡ Capture Lead</button>
-        </div>
-
-        <div class="result-card" id="result-card">
-          <div id="result-dupe-notice" style="display:none;background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.3);border-radius:8px;padding:8px 12px;font-size:12px;color:#fcd34d;margin-bottom:12px">⚠️ Already scanned — showing existing lead</div>
-          <div class="result-header">
-            <div class="result-avatar">👤</div>
-            <div>
-              <div class="result-name" id="res-name">—</div>
-              <div class="result-sub" id="res-company">—</div>
-            </div>
-          </div>
-          <div class="result-details" id="res-details"></div>
-          <div style="margin-bottom:12px">
-            <div style="font-size:12px;color:var(--text2);margin-bottom:8px">Lead Temperature:</div>
-            <div class="status-row">
-              <button class="temp-btn temp-hot" onclick="setTemp('hot',this)" id="tb-hot">🔥 Hot</button>
-              <button class="temp-btn temp-warm sel" onclick="setTemp('warm',this)" id="tb-warm">♨️ Warm</button>
-              <button class="temp-btn temp-cold" onclick="setTemp('cold',this)" id="tb-cold">❄️ Cold</button>
-            </div>
-          </div>
-          <div class="result-actions">
-            <button class="r-btn r-btn-call" onclick="callVisitor()">📞 Call</button>
-            <button class="r-btn r-btn-wa" onclick="openWa()">💬 WhatsApp</button>
-            <button class="r-btn r-btn-hot" onclick="saveAndScanNext()">✅ Save & Next</button>
-            <button class="r-btn r-btn-note" onclick="viewLeadDetail()">📝 Add Notes</button>
-          </div>
-        </div>
-      </div>
-      
-      <!-- CREATE LEAD -->
-      <div class="page" id="page-create-lead">
-        <div class="card">
-          <div class="section-title">Personal Details</div>
-          <div class="field">
-            <label>Full Name <span class="required">*</span></label>
-            <input type="text" id="full_name" placeholder="Your full name" autocomplete="name">
-          </div>
-          <div class="field">
-            <label>Mobile Number <span class="required">*</span></label>
-            <div class="phone-wrap">
-              <span class="phone-prefix">+91</span>
-              <input type="tel" id="mobile_number" placeholder="10-digit mobile" maxlength="10" pattern="[6-9][0-9]{9}">
-            </div>
-          </div>
-          <div class="row2">
-            <div class="field">
-              <label>Location / City <span class="required">*</span></label>
-              <input type="text" id="location" placeholder="City">
-            </div>
-          </div>
-        </div>
-
-        <div class="card">
-          <div class="section-title">Business Details</div>
-          <div class="field">
-            <label>Business Category <span class="required">*</span></label>
-            <select id="business_category"></select>
-          </div>
-          <div class="field">
-            <label>Looking For <span class="required">*</span></label>
-            <select id="looking_for"></select>
-          </div>
-          <div class="field">
-            <label>Decision Maker? <span class="required">*</span></label>
-            <select id="decision_maker">
-              <option>Yes</option>
-              <option>No</option>
-            </select>
-          </div>
-          <div class="field">
-            <label>Notes (Optional)</label>
-            <textarea class="note-area" rows="2" id="v_notes" placeholder="Notes ..."></textarea>
-          </div>
-        </div>
-
-        <div id="error-reg" class="error-msg"></div>
-        <button class="btn-primary" onclick="submitRegistration()" id="btn-register">
-          Create Lead
-        </button>
-      </div>
-
-      <!-- LEADS LIST -->
-      <div class="page" id="page-leads">
-        <div class="lead-detail" id="lead-detail">
-          <button class="back-btn" onclick="backToList()">← Back to Leads</button>
-          <div id="lead-detail-content"></div>
-        </div>
-        <div id="leads-list-view">
-          <div class="filter-row">
-            <button class="f-chip active" onclick="setFilter('',this)">All</button>
-            <button class="f-chip" onclick="setFilter('hot',this)">🔥 Hot</button>
-            <button class="f-chip" onclick="setFilter('warm',this)">♨️ Warm</button>
-            <button class="f-chip" onclick="setFilter('cold',this)">❄️ Cold</button>
-            <button class="f-chip" onclick="setFilter('follow_up',this)">📅 Follow-up</button>
-            <button class="f-chip" onclick="setFilter('converted',this)">✅ Converted</button>
-          </div>
-          <input class="search-inp" id="leads-search" placeholder="Search by name, mobile, company…" oninput="loadLeads()">
-          <div id="leads-list"></div>
+        <div class="field">
+          <label>Notes (Optional)</label>
+          <textarea class="note-area" rows="2" id="v_notes" placeholder="Notes ..."></textarea>
         </div>
       </div>
 
-      <!-- EXPORT / MORE -->
-      <div class="page" id="page-more">
-        <div style="padding:4px 0">
-          <div style="font-size:18px;font-weight:700;margin-bottom:20px">More</div>
+      <div id="error-reg" class="error-msg"></div>
+      <button class="btn-primary" onclick="submitRegistration()" id="btn-register">
+        Create Lead
+      </button>
+    </div>
 
-          <div class="detail-card">
-            <div class="detail-section">Export Leads</div>
-            <p style="font-size:13px;color:var(--text2);margin-bottom:14px">Export all your leads to Excel. A download link will be sent to your WhatsApp.</p>
-            <div style="display:flex;gap:8px;flex-wrap:wrap">
-              <button class="a-btn a-btn-export" style="flex:1" onclick="exportLeads()">📥 Export All Leads</button>
-              <button class="a-btn a-btn-export" style="flex:1" onclick="exportLeads('hot')">🔥 Export Hot Only</button>
-            </div>
-            <div id="export-status" style="font-size:13px;color:var(--text2);margin-top:10px;display:none"></div>
-          </div>
-
-          <div class="detail-card">
-            <div class="detail-section">My Profile</div>
-            <div class="info-row"><span class="info-key">Name</span><span class="info-val" id="profile-name">—</span></div>
-            <div class="info-row"><span class="info-key">Company</span><span class="info-val" id="profile-company">—</span></div>
-            <div class="info-row"><span class="info-key">Stall</span><span class="info-val" id="profile-stall">—</span></div>
-            <div class="info-row"><span class="info-key">Mobile</span><span class="info-val" id="profile-mobile">—</span></div>
-          </div>
-
-          <div class="detail-card">
-            <div class="detail-section">Scan History</div>
-            <p style="font-size:13px;color:var(--text2);margin-bottom:10px">Last 10 scans at your stall</p>
-            <div id="scan-history"></div>
-          </div>
+    <!-- LEADS LIST -->
+    <div class="page" id="page-leads">
+      <div class="lead-detail" id="lead-detail">
+        <button class="back-btn" onclick="backToList()">← Back to Leads</button>
+        <div id="lead-detail-content"></div>
+      </div>
+      <div id="leads-list-view">
+        <div class="filter-row">
+          <button class="f-chip active" onclick="setFilter('',this)">All</button>
+          <button class="f-chip" onclick="setFilter('hot',this)">🔥 Hot</button>
+          <button class="f-chip" onclick="setFilter('warm',this)">♨️ Warm</button>
+          <button class="f-chip" onclick="setFilter('cold',this)">❄️ Cold</button>
+          <button class="f-chip" onclick="setFilter('follow_up',this)">📅 Follow-up</button>
+          <button class="f-chip" onclick="setFilter('converted',this)">✅ Converted</button>
         </div>
+        <input class="search-inp" id="leads-search" placeholder="Search by name, mobile, company…" oninput="loadLeads()">
+        <div id="leads-list"></div>
       </div>
     </div>
 
-    <!-- Bottom Nav -->
-    <div class="bottom-nav">
-      <button class="bn-item active" onclick="showTab('home',this)">
-        <div class="bn-icon">🏠</div><div class="bn-label">Home</div>
-      </button>
-      <button class="bn-item" onclick="showTab('scan',this)">
-        <div class="bn-icon">📷</div><div class="bn-label">Scan</div>
-      </button>
-      <button class="bn-item" onclick="showTab('leads',this)">
-        <div class="bn-icon">🎯</div><div class="bn-label">Leads</div>
-      </button>
-      <button class="bn-item" onclick="showTab('more',this)">
-        <div class="bn-icon">⋯</div><div class="bn-label">More</div>
-      </button>
+    <!-- EXPORT / MORE -->
+    <div class="page" id="page-more">
+      <div style="padding:4px 0">
+        <div style="font-size:18px;font-weight:700;margin-bottom:20px">More</div>
+
+        <div class="detail-card">
+          <div class="detail-section">Export Leads</div>
+          <p style="font-size:13px;color:var(--text2);margin-bottom:14px">Export all your leads to Excel. A download link will be sent to your WhatsApp.</p>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <button class="a-btn a-btn-export" style="flex:1" onclick="exportLeads()">📥 Export All Leads</button>
+            <button class="a-btn a-btn-export" style="flex:1" onclick="exportLeads('hot')">🔥 Export Hot Only</button>
+          </div>
+          <div id="export-status" style="font-size:13px;color:var(--text2);margin-top:10px;display:none"></div>
+        </div>
+
+        <div class="detail-card">
+          <div class="detail-section">My Profile</div>
+          <div class="info-row"><span class="info-key">Name</span><span class="info-val" id="profile-name">—</span></div>
+          <div class="info-row"><span class="info-key">Company</span><span class="info-val" id="profile-company">—</span></div>
+          <div class="info-row"><span class="info-key">Stall</span><span class="info-val" id="profile-stall">—</span></div>
+          <div class="info-row"><span class="info-key">Mobile</span><span class="info-val" id="profile-mobile">—</span></div>
+        </div>
+
+        <div class="detail-card">
+          <div class="detail-section">Scan History</div>
+          <p style="font-size:13px;color:var(--text2);margin-bottom:10px">Last 10 scans at your stall</p>
+          <div id="scan-history"></div>
+        </div>
+      </div>
     </div>
+  </div>
+
+  <!-- Bottom Nav -->
+  <div class="bottom-nav" style="display: none;">
+    <button class="bn-item active" onclick="showTab('home',this)">
+      <div class="bn-icon">🏠</div><div class="bn-label">Home</div>
+    </button>
+    <button class="bn-item" onclick="showTab('scan',this)">
+      <div class="bn-icon">📷</div><div class="bn-label">Scan</div>
+    </button>
+    <button class="bn-item" onclick="showTab('leads',this)">
+      <div class="bn-icon">🎯</div><div class="bn-label">Leads</div>
+    </button>
+    <button class="bn-item" onclick="showTab('more',this)">
+      <div class="bn-icon">⋯</div><div class="bn-label">More</div>
+    </button>
   </div>
 </div>
 
@@ -709,13 +952,14 @@ function doLogout() {
 
 function bootApp() {
   // document.getElementById("login-screen").style.display = "none";
-  document.getElementById("app").style.display = "block";
+  document.getElementById("app").style.display = "flex";
   document.getElementById("sb-name").textContent    = me.name || "Stall Owner";
-  document.getElementById("sb-stall").textContent   = me.company_name + (me.stall_number ? ` · Stall ${me.stall_number}` : "");
+  document.getElementById("sb-company").textContent   = me.company_name + (me.stall_number ? ` · Stall ${me.stall_number}` : "");
   document.getElementById("profile-name").textContent    = me.name;
   document.getElementById("profile-company").textContent = me.company_name;
   document.getElementById("profile-stall").textContent   = me.stall_number || "—";
   document.getElementById("profile-mobile").textContent  = me.mobile_number;
+
   loadDashboard();
   loadScanHistory();
 }
@@ -723,7 +967,7 @@ function bootApp() {
 // ── Navigation ────────────────────────────────────────────────────────────
 function showTab(name, el) {
   document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
-  document.querySelectorAll(".bn-item").forEach(b=>b.classList.remove("active"));
+  document.querySelectorAll(".nav-item").forEach(b=>b.classList.remove("active"));
   document.getElementById("page-"+name).classList.add("active");
   el.classList.add("active");
   if (name==="leads") loadLeads();
@@ -771,9 +1015,10 @@ async function loadDashboard(eventId = null) {
   const res = await apiFetch(url);
   if (!res.success) return;
   const s   = res.data.summary;
-  document.getElementById("event-name-display").textContent = res.data.stall_owner?.company_name || "";
+  const sOwner = res.data.stall_owner;
+  document.getElementById("event-name-display").textContent = (sOwner.name || "") + " - " + (sOwner.company_name || "") + " - Stall " + sOwner.stall_number +  " - " + sOwner.event_name;
 
-  updateStallOwner(res.data.stall_owner);
+  updateStallOwner(sOwner);
   document.getElementById("stat-total").textContent = s.total;
   document.getElementById("stat-today").textContent = s.today;
   document.getElementById("stat-hot").textContent   = s.hot;
@@ -1186,7 +1431,10 @@ function updateStallOwner(stallOwner) {
   document.getElementById("sb-name").textContent =
     stallOwner.name || "Stall Owner";
 
-  document.getElementById("sb-stall").textContent =
+  document.getElementById("sb-event").textContent =
+    stallOwner.event_name || "Event";
+
+  document.getElementById("sb-company").textContent =
     `${stallOwner.company_name || ""}${
       stallOwner.stall_number ? ` · Stall ${stallOwner.stall_number}` : ""
     }`;
