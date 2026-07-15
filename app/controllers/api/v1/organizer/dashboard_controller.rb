@@ -27,7 +27,7 @@ module Api
           {
             id: e.id, name: e.name, venue: e.venue, city: e.city,
             start_date: e.start_date, end_date: e.end_date, status: e.status,
-            registered_count: e.registered_count,
+            registered_count: e.visitors.count,
             total_stalls: e.stall_owners.count,
             total_leads: analytics&.total_leads || 0,
             banner_url: banner_url,
