@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Support — StallConnect</title>
+  <link rel="stylesheet" href="/legal.css">
+  <style>
+    .support-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 16px;
+      margin: 24px 0;
+    }
+
+    .support-card {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 22px;
+      transition: border-color 0.15s;
+    }
+
+    .support-card:hover {
+      border-color: rgba(34, 197, 94, 0.3);
+    }
+
+    .support-card-icon {
+      font-size: 28px;
+      margin-bottom: 12px;
+    }
+
+    .support-card-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 6px;
+    }
+
+    .support-card-desc {
+      font-size: 13px;
+      color: var(--text2);
+      line-height: 1.5;
+      margin-bottom: 14px;
+    }
+
+    .support-card-link {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--accent);
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .support-card-link:hover {
+      text-decoration: underline;
+    }
+
+    .sla-table tr td:first-child {
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .faq-item {
+      border-bottom: 1px solid var(--border2);
+      padding: 18px 0;
+    }
+
+    .faq-item:last-child {
+      border-bottom: none;
+    }
+
+    .faq-q {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 8px;
+      cursor: pointer;
+    }
+
+    .faq-a {
+      font-size: 14px;
+      color: var(--text2);
+      line-height: 1.6;
+    }
+  </style>
+</head>
+
+<body>
+
+  <nav class="topbar">
+    <div class=""><span><a href="/"><img style="width:168px; margin-top: 10px;" src="logo_dark.png"></a></span> </div>
+    <div class="topbar-nav">
+      <a href="/privacy.html">Privacy Policy</a>
+      <a href="/terms.html">Terms of Service</a>
+      <a href="/support.html" class="active">Support</a>
+      <a href="/contact.html">Contact</a>
+    </div>
+  </nav>
+
+  <div class="page-wrap">
+
+    <div class="page-header">
+      <div class="page-eyebrow">Help Center</div>
+      <h1 class="page-title">Support</h1>
+      <div class="page-meta">
+        <span>🕘 Mon–Fri, 9 AM – 6 PM IST</span>
+        <span>✉️ support@stallconnect.in</span>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2 class="section-title"><span class="section-num">→</span> How Can We Help?</h2>
+      <div class="support-grid">
+        <div class="support-card">
+          <div class="support-card-icon">🔑</div>
+          <div class="support-card-title">Login Issues</div>
+          <div class="support-card-desc">Can't sign in? Forgot your pass code? Contact your event organiser or reach us
+            directly.</div>
+          <a href="mailto:support@stallconnect.in?subject=Login Issue" class="support-card-link">Get help →</a>
+        </div>
+        <div class="support-card">
+          <div class="support-card-icon">📷</div>
+          <div class="support-card-title">QR Scanner Not Working</div>
+          <div class="support-card-desc">Camera permission denied or QR code won't scan? We'll help you resolve it
+            quickly.</div>
+          <a href="mailto:support@stallconnect.in?subject=QR Scanner Issue" class="support-card-link">Report issue →</a>
+        </div>
+        <div class="support-card">
+          <div class="support-card-icon">📊</div>
+          <div class="support-card-title">Lead & Export Issues</div>
+          <div class="support-card-desc">Missing leads, export not downloading, or data not syncing? We're here.</div>
+          <a href="mailto:support@stallconnect.in?subject=Lead Issue" class="support-card-link">Report issue →</a>
+        </div>
+        <div class="support-card">
+          <div class="support-card-icon">🗑️</div>
+          <div class="support-card-title">Delete My Account</div>
+          <div class="support-card-desc">Request deletion of your account and all personal data.</div>
+          <a href="/contact.html#delete" class="support-card-link">Request deletion →</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="section" id="response-times">
+      <h2 class="section-title"><span class="section-num">→</span> Response Times</h2>
+      <table class="data-table sla-table">
+        <thead>
+          <tr>
+            <th>Priority</th>
+            <th>Type</th>
+            <th>Response Time</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="badge badge-red">Critical</span></td>
+            <td>App not working during live event</td>
+            <td>2 hours</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-amber">High</span></td>
+            <td>Cannot scan QR codes</td>
+            <td>4 hours</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-green">Normal</span></td>
+            <td>General questions</td>
+            <td>1 business day</td>
+          </tr>
+          <tr>
+            <td><span class="badge" style="background:rgba(255,255,255,0.08);color:var(--text2)">Low</span></td>
+            <td>Feature requests</td>
+            <td>3 business days</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="info-box">
+        <p>For urgent issues during a live event, contact your <strong>event organiser first</strong>. They have direct
+          escalation access to our platform operations team.</p>
+      </div>
+    </div>
+
+    <div class="section" id="faq">
+      <h2 class="section-title"><span class="section-num">→</span> Frequently Asked Questions</h2>
+
+      <div class="faq-item">
+        <div class="faq-q">How do I get my login credentials?</div>
+        <div class="faq-a">Your account is created by your event organiser. They will share your mobile number and pass
+          code via WhatsApp before the event. Contact your organiser if you haven't received them.</div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-q">The QR scanner isn't working. What should I do?</div>
+        <div class="faq-a">First, check that StallConnect has camera permission: go to your phone Settings → Apps →
+          StallConnect → Permissions → Camera → Allow. If it still doesn't work, restart the app and try again. If the
+          issue persists, email support@stallconnect.in.</div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-q">A visitor's QR code was already scanned. Can I scan it again?</div>
+        <div class="faq-a">Each visitor QR pass can be scanned once per stall. If you've already scanned a visitor,
+          their lead will already be in your lead list. You can update the lead notes, temperature, and follow-up date
+          from there.</div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-q">How do I export my leads?</div>
+        <div class="faq-a">In the app, go to Leads → tap the Export button. Your leads will be compiled into an Excel
+          file and sent to you via WhatsApp. Export files are available for 24 hours.</div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-q">Can I use the app after the event ends?</div>
+        <div class="faq-a">Yes. Your leads and notes remain accessible after the event. You can continue to update lead
+          status, add follow-up dates, and send WhatsApp messages to your contacts.</div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-q">How do I delete my account and data?</div>
+        <div class="faq-a">Email support@stallconnect.in with subject "Account Deletion Request" and your registered
+          mobile number. We will complete deletion within 7 business days and confirm by email.</div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-q">Is my data secure?</div>
+        <div class="faq-a">Yes. All data is transmitted over HTTPS, passwords are BCrypt-hashed, and your login token is
+          stored in your phone's secure enclave (iOS Keychain / Android Keystore). See our <a href="/privacy.html"
+            style="color:var(--accent)">Privacy Policy</a> for full details.</div>
+      </div>
+
+    </div>
+
+    <div class="section">
+      <h2 class="section-title"><span class="section-num">→</span> Contact Support</h2>
+      <div class="contact-card">
+        <div class="contact-row">
+          <div class="contact-icon">✉️</div>
+          <div>
+            <div class="contact-label">Email</div>
+            <div class="contact-value"><a href="mailto:support@stallconnect.in">support@stallconnect.in</a></div>
+          </div>
+        </div>
+        <div class="contact-row">
+          <div class="contact-icon">🕘</div>
+          <div>
+            <div class="contact-label">Hours</div>
+            <div class="contact-value">Monday – Friday, 9:00 AM – 6:00 PM IST</div>
+          </div>
+        </div>
+        <div class="contact-row">
+          <div class="contact-icon">🌐</div>
+          <div>
+            <div class="contact-label">Website</div>
+            <div class="contact-value"><a href="https://stallconnect.in">stallconnect.in</a></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <footer class="footer">
+    <div class="footer-copy">© 2026 Bhive Technologies. All rights reserved.</div>
+    <div class="footer-links">
+      <a href="/privacy.html">Privacy Policy</a>
+      <a href="/terms.html">Terms of Service</a>
+      <a href="/support.html">Support</a>
+      <a href="/contact.html">Contact</a>
+    </div>
+  </footer>
+
+</body>
+
+</html>
