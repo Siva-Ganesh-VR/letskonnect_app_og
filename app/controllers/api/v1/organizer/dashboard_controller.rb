@@ -33,7 +33,8 @@ module Api
             banner_url: banner_url,
             registration_qr_token: e.registration_qr_token,
             settings: e.settings,
-            completed: e.completed?
+            completed: e.completed?,
+            qr_image_url: e.qr_image_url,
           }
         end
       end
