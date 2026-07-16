@@ -6,7 +6,7 @@ module Api
         before_action :set_event, only: [:show, :update, :destroy, :analytics, :full_report, :generate_qr, :activate, :archive, :approve, :reject]
 
         def index
-          events = Event.includes(:event_organizer, :event_analytics).order(created_at: :desc)
+          events = Event.includes(:event_organizer, :event_analytics).with_attached_registration_qr.order(created_at: :desc)
           if params[:status].present?
             events = events.where(status: params[:status])
           else

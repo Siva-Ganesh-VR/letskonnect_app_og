@@ -5,6 +5,7 @@ class Visitor < ApplicationRecord
   has_many :stall_owners, through: :leads
   has_many :visitor_answers, dependent: :destroy
   has_many :visitor_scan_logs, dependent: :destroy
+  has_one_attached :registration_qr
 
   before_create :generate_visitor_id_code
   before_create :generate_qr_token
@@ -59,6 +60,15 @@ class Visitor < ApplicationRecord
 
   def stalls_visited_count
     leads.count
+  end
+
+  def qr_image_url
+    QrService.generate_for_visitor(self) unless registration_qr.attached?
+
+    Rails.application.routes.url_helpers.rails_storage_proxy_url(
+      registration_qr,
+      host: ENV.fetch("APP_HOST", "http://localhost:3000")
+    )
   end
 
   private
