@@ -545,6 +545,12 @@ textarea.note-area:focus{border-color:var(--accent)}
       <div class="user-event" id="sb-event">—</div>
       <div class="user-sub" id="sb-company">—</div>
     </div>
+    <div style="margin-bottom: 16px; padding: 5px 15px;">
+      <p style="font-size:14px;color:var(--accent);margin-bottom:5px;font-weight:600;">Select Event</p>
+      <select class="status-sel" id="stall-owner-event-sel" style="margin-top: 0px;" onchange="onEventChange()">
+        <option value="">Select Event</option>
+      </select>
+    </div>
     <nav class="nav">
       <div class="nav-item active" onclick="showTab('home',this)"><span class="nav-icon">🏠</span> Dashboard</div>
       <div class="nav-item" onclick="showTab('scan',this)"><span class="nav-icon">📷</span> Scan</div>
@@ -562,11 +568,6 @@ textarea.note-area:focus{border-color:var(--accent)}
       <div class="dash-welcome">
         <h3>Welcome back! 👋</h3>
         <p id="event-name-display">Loading event info…</p>
-      </div>
-      <div style="margin-bottom: 16px;">
-        <select class="status-sel" id="stall-owner-event-sel" style="margin-top: 0px;" onchange="onEventChange()">
-          <option value="">Select Event</option>
-        </select>
       </div>
       <div class="stats-row" id="stats-row-1">
         <div class="stat-box"><div class="sbn" id="stat-total">—</div><div class="sbl">Total Leads</div></div>
