@@ -124,6 +124,7 @@ module Api
             description: e.description,
             settings: e.settings,
             completed: e.completed?,
+            food_coupon: e.food_coupon,
 
             organizer: {
               id: e.event_organizer.id,

@@ -831,6 +831,52 @@
           inset 0 0 10px rgba(16, 185, 129, .15);
       }
     }
+
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 48px;
+      height: 26px;
+    }
+
+    .switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .slider {
+      position: absolute;
+      inset: 0;
+      cursor: pointer;
+      background: #ccc;
+      border-radius: 26px;
+      transition: 0.25s ease;
+    }
+
+    .slider::before {
+      content: "";
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      left: 3px;
+      top: 3px;
+      background: #fff;
+      border-radius: 50%;
+      transition: 0.25s ease;
+    }
+
+    .switch input:checked + .slider {
+      background: #22c55e;
+    }
+
+    .switch input:checked + .slider::before {
+      transform: translateX(22px);
+    }
+
+    .switch input:focus + .slider {
+      box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.2);
+    }
   </style>
 </head>
 
@@ -1156,6 +1202,14 @@
             <option value="draft">Draft</option>
             <option value="active">Active</option>
           </select>
+        </div>
+        <div class="field">
+          <label for="ef-food-coupon">Food Coupon</label>
+
+          <label class="switch">
+            <input type="checkbox" id="ef-food-coupon">
+            <span class="slider"></span>
+          </label>
         </div>
       </div>
       <div class="field"><label>Description</label><textarea id="ef-desc" rows="3"
@@ -1804,6 +1858,7 @@
         <span class="badge ${statusBadge(e.status)}">${e.status.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase())}</span>
         ${e.status === 'draft' && e.settings?.activation_requested ? `<br><span class="badge" style="background:var(--red);color:#fff;margin-top:4px;font-size:10px;">Requested to Active</span>` : ''}
       </td>
+      <td>${e.food_coupon ? 'Yes' : 'No'}</td>
       <td style="font-weight:600">${(e.registered_count || 0).toLocaleString()}</td>
       <td>
         <div style="display:flex;gap:6px;flex-wrap:wrap">
@@ -1816,7 +1871,7 @@
     </tr>
   `).join("");
       document.getElementById("events-table").innerHTML = `
-    <table><thead><tr><th>Event</th><th>Venue</th><th>Dates</th><th>Status</th><th>Visitors</th><th>Actions</th></tr></thead>
+    <table><thead><tr><th>Event</th><th>Venue</th><th>Dates</th><th>Status</th><th>Food Coupon</th><th>Visitors</th><th>Actions</th></tr></thead>
     <tbody id="events-table-rows">${tbody || `<tr><td colspan="6">${emptyHtml("🎪", "No events yet")}</td></tr>`}</tbody></table>
     ${renderSimplePagination(meta, "events", page, "loadEvents")}
   `;
@@ -1921,6 +1976,7 @@
           status: document.getElementById("ef-status").value,
           description: document.getElementById("ef-desc").value.trim(),
           event_organizer_id: document.getElementById("ef-organizer").value,
+          food_coupon: document.getElementById("ef-food-coupon").checked
         }
       };
 
@@ -2344,6 +2400,7 @@
       document.getElementById("ef-max").value = "";
       document.getElementById("ef-status").value = "draft";
       document.getElementById("ef-desc").value = "";
+      document.getElementById("ef-food-coupon").checked = false;
 
       const err = document.getElementById("event-form-err");
       err.style.display = "none";
@@ -2370,6 +2427,7 @@
       document.getElementById("ef-max").value = event.max_visitors || "";
       document.getElementById("ef-status").value = event.status || "";
       document.getElementById("ef-desc").value = event.description || "";
+      document.getElementById("ef-food-coupon").checked = event.food_coupon;
       openModal("modal-create-event", event.event_organizer_id);
     }
     async function importStallOwners() {
@@ -2789,6 +2847,7 @@
         ${detailChip("🏪 Max Capacity", e.max_visitors ? e.max_visitors.toLocaleString() : "Unlimited")}
         ${detailChip("🏢 Organizer", e.organizer?.name || "—")}
         ${detailChip("🆔 Event Code", `<span style="font-family:monospace;font-size:11px">${e.event_code}</span>`)}
+        ${detailChip("🍽️ Food Coupon", e.food_coupon ? "Yes" : "No")}
       </div>
       ${e.description ? `<div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border);font-size:14px;color:var(--text2);line-height:1.6">${e.description}</div>` : ""}
       <div style="display:flex;gap:8px;margin-top:16px;padding-top:14px;border-top:1px solid var(--border);flex-wrap:wrap">
@@ -3215,6 +3274,7 @@
             ${detailChip("🔢 Stall No.", s.stall_number || "—")}
             ${detailChip("🌐 Website", s.website || "—")}
             ${detailChip("🎟️ Pass Code", s.pass_code || "—")}
+            ${detailChip("📱 Organizer Mobile", s.organizer.mobile_number || "—")}
           </div>
         </div>`
     }
@@ -3384,6 +3444,8 @@
         ${e.status === 'draft' && e.settings?.activation_requested ? `<br><span class="badge" style="background:var(--red);color:#fff;margin-top:4px;font-size:10px;">Requested to Active</span>` : ''}
       </td>
 
+      <td>${e.food_coupon ? "Yes" : "No"}</td>
+
       <td style="font-weight:600">
         ${(e.registered_count || 0).toLocaleString()}
       </td>
@@ -3417,6 +3479,7 @@
           <th>Venue</th>
           <th>Dates</th>
           <th>Status</th>
+          <th>Food Coupon</th>
           <th>Visitors</th>
           <th>Actions</th>
         </tr>

@@ -275,7 +275,8 @@ module Api
             organizer: {
               id: s.event_organizer&.id,
               name: s.event_organizer&.company_name,
-              code: s.event_organizer&.org_code
+              code: s.event_organizer&.org_code,
+              mobile_number: s.event_organizer&.formatted_mobile_number
             },
 
             # Status

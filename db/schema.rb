@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_07_16_084033) do
+ActiveRecord::Schema[7.2].define(version: 2026_07_17_082206) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pgcrypto"
   enable_extension "plpgsql"
@@ -104,6 +104,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_07_16_084033) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "event_code", limit: 20, null: false
+    t.boolean "food_coupon", default: false, null: false
     t.index ["event_code"], name: "index_events_on_event_code", unique: true
     t.index ["event_organizer_id"], name: "index_events_on_event_organizer_id"
     t.index ["registration_qr_token"], name: "index_events_on_registration_qr_token", unique: true

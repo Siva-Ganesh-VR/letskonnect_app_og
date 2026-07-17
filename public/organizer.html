@@ -2454,6 +2454,7 @@
         ${detailChip("🏪 Max Capacity", e.max_visitors ? e.max_visitors.toLocaleString() : "Unlimited")}
         ${detailChip("🏢 Organizer", e.organizer?.name || "—")}
         ${detailChip("🆔 Event Code", `<span style="font-family:monospace;font-size:11px">${e.event_code}</span>`)}
+        ${detailChip("🍽️ Food Coupon", e.food_coupon ? "Yes" : "No")}
       </div>
       ${e.description ? `<div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border);font-size:14px;color:var(--text2);line-height:1.6">${e.description}</div>` : ""}
       <div style="display:grid;grid-template-columns:1fr auto;gap:12px;margin-top:16px;padding-top:14px;border-top:1px solid var(--border);align-items:center">
@@ -2889,6 +2890,7 @@
             ${detailChip("🔢 Stall No.", s.stall_number || "—")}
             ${detailChip("🌐 Website", s.website || "—")}
             ${detailChip("🎟️ Pass Code", s.pass_code || "—")}
+            ${detailChip("📱 Organizer Mobile", s.organizer?.mobile_number || "—")}
           </div>
         </div>`
     }
