@@ -1494,7 +1494,7 @@
       document.getElementById("page-" + name).classList.add("active");
       event?.currentTarget?.classList.add("active");
       document.getElementById("sidebar").classList.remove("open");
-      const loaders = { events: loadEvents, organizers: loadOrganizers, stalls: loadStalls, "stall-metadata": loadStallMetadata, "requested-events": () => loadRequestedEvents(1), visitors: loadVisitors, leads: loadLeads, analytics: loadAnalytics };
+      const loaders = { dashboard: loadDashboard, events: loadEvents, organizers: loadOrganizers, stalls: loadStalls, "stall-metadata": loadStallMetadata, "requested-events": () => loadRequestedEvents(1), visitors: loadVisitors, leads: loadLeads, analytics: loadAnalytics };
       if (loaders[name]) loaders[name]();
     }
     function toggleSidebar() { document.getElementById("sidebar").classList.toggle("open"); }
@@ -1998,6 +1998,8 @@
         toast(eventId ? "Event updated!" : "Event created!", "success");
         if (document.getElementById("page-organizer-details").classList.contains("active")) {
           loadOrganizerEvents(1);
+        } else if (document.getElementById("page-details").classList.contains("active")) {
+          showEventDetails(eventId, "dashboard");
         } else if (document.getElementById("page-dashboard").classList.contains("active")) {
           loadDashboard();
         } else if (document.getElementById("page-events").classList.contains("active")) {
@@ -2286,7 +2288,7 @@
     }
 
     // ── Modals ────────────────────────────────────────────────────────────────
-    function openModal(id, eid = null) {
+    async function openModal(id, eid = null) {
       document.getElementById(id).style.display = "flex";
       if (id === "modal-create-event") {
         const modal = document.getElementById("modal-create-event");
@@ -2302,14 +2304,15 @@
 
         const orgSel = document.getElementById("ef-organizer");
         if (eid) {
-          loadOrganizerOptions(eid);
+          await loadOrganizerOptions(eid);
           orgSel.disabled = true;
         } else {
-          loadOrganizerOptions("");
+          await loadOrganizerOptions("");
           orgSel.disabled = false;
         }
         document.getElementById("import-err").style.display = "none";
       } else if (id === "m-import-stalls") {
+        await loadEventSelectors();
         document.getElementById("stall-import-file").value = "";
         const eventSel = document.getElementById("stall-import-event-sel");
         if (eid) {
@@ -2633,7 +2636,8 @@
 
       tbody.appendChild(row);
     }
-    function openBulkStallModal(eventId = null) {
+    async function openBulkStallModal(eventId = null) {
+      await loadEventSelectors();
       document.getElementById("stall-table-body").innerHTML = "";
       document.getElementById("st-bulk-err").style.display = "none";
       const select = document.getElementById("admin-stall-event-sel");

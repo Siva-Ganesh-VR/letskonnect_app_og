@@ -54,7 +54,7 @@ class Event < ApplicationRecord
   end
 
   def qr_image_url
-    QrService.generate_for_event(self) unless registration_qr.attached?
+    return nil unless registration_qr.attached?
 
     Rails.application.routes.url_helpers.rails_storage_proxy_url(
       registration_qr,

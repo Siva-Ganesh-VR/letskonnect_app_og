@@ -1488,6 +1488,10 @@
         loadVisitors();
       }
 
+      if (page === "dashboard") {
+        loadDashboard();
+      }
+
       if (page === "events") {
         loadEvents();
       }
@@ -2028,7 +2032,7 @@
     function toast(msg, type = "ok") {
       const t = document.getElementById("toast");
       t.textContent = msg; t.className = "toast " + type + " show";
-      console.log(t.className);
+      // console.log(t.className);
       setTimeout(() => { t.className = "toast"; }, 3500);
     }
     function resetStallForm() {
@@ -2054,7 +2058,7 @@
       document.getElementById("ev-start").value = "";
       document.getElementById("ev-end").value = "";
       document.getElementById("ev-max").value = "";
-      document.getElementById("ev-status").value = "";
+      // document.getElementById("ev-status").value = "";
       document.getElementById("ev-desc").value = "";
 
       const err = document.getElementById("ev-err");
@@ -3137,7 +3141,7 @@
     function checkAuth() {
       const token = sessionStorage.getItem("org_token");
       const me = JSON.parse(sessionStorage.getItem("org_user") || "null");
-      console.log(me);
+      // console.log(me);
 
       if (!token || !me) {
         window.location.replace("/login.html");
