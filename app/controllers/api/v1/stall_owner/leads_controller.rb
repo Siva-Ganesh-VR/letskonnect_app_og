@@ -33,7 +33,9 @@ module Api
               page:     pagy.page,
               per_page: pagy.items,
               pages:    pagy.pages,
-              summary:  Lead.summary_for_stall(selected_stall_owner.id)
+              summary:  Lead.summary_for_stall(selected_stall_owner.id),
+              latest_event_based_lead_counts: latest_stall_owner.total_leads_count,
+              latest_event_based_leads: latest_stall_owner.leads.includes(:visitor).order(scanned_at: :desc).limit(5).map { |lead| lead_with_visitor(lead) }
             }
           )
         end
@@ -165,6 +167,18 @@ module Api
             mobile_number: @current_stall_owner.mobile_number,
             event_id: params[:event_id]
           ) || @current_stall_owner
+        end
+
+        def latest_stall_owner
+          @latest_stall_owner ||= ::StallOwner
+            .joins(:event)
+            .where(
+              mobile_number: @current_stall_owner.mobile_number,
+              active: true
+            )
+            .where("events.start_date >= ?", Date.current)
+            .order("events.start_date DESC")
+            .first || @current_stall_owner
         end
       end
     end
