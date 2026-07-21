@@ -7,10 +7,10 @@ module Api
           mobile   = params[:mobile]&.strip
           password = params[:password]&.strip
 
-          stall = ::StallOwner
+          stall_owner = ::StallOwner
             .where(mobile_number: mobile, pass_code: password)
             .order(:created_at)
-            .first
+          stall = stall_owner.first
 
           unless stall&.active?
             Rails.logger.warn(
@@ -28,7 +28,17 @@ module Api
           json_success({
             token: token,
             stall_owner: stall_response(stall),
-            event: event_mini(stall.event)
+            event: event_mini(stall_owner.joins(:event)
+                  .select(
+                    "stall_owners.id,
+                    stall_owners.company_name,
+                    stall_owners.created_at AS stall_created_at,
+                    events.id AS event_id,
+                    events.name,
+                    events.start_date,
+                    events.end_date,
+                    events.created_at AS event_created_at"
+                  ).order("events.start_date DESC").last.event)
           })
         end
 
