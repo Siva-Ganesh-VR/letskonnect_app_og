@@ -83,10 +83,12 @@ module Api
         private
 
         def stall_response(s)
-          { id: s.id, name: s.name, email: s.email, mobile_number: s.mobile_number,
+          { id: s.id, name: s.name, email: s.email, mobile_number: s.formatted_mobile_number,
             company_name: s.company_name, stall_number: s.stall_number,
             stall_category: s.stall_category, logo_url: s.logo_url,
-            total_leads_count: s.total_leads_count, event_id: s.event_id }
+            total_leads_count: s.total_leads_count, event_id: s.event_id,
+            organizer_name: s.event&.event_organizer&.name,
+            organizer_mobile: s.event&.event_organizer&.formatted_mobile_number }
         end
 
         def event_mini(e)

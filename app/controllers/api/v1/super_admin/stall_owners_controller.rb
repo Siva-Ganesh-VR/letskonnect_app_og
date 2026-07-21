@@ -43,7 +43,7 @@ module Api
         end
 
         def update
-          @stall.update!(params.require(:stall_owner).permit(:name, :company_name, :stall_number, :stall_category, :stall_type, :stall_size, :price, :email, :website, :active))
+          @stall.update!(params.require(:stall_owner).permit(:name, :company_name, :stall_number, :stall_category, :stall_type, :stall_size, :price, :food_coupon_count, :email, :website, :active))
           json_success(stall_resp(@stall))
         end
 
@@ -114,6 +114,7 @@ module Api
                 :stall_type,
                 :stall_size,
                 :price,
+                :food_coupon_count,
                 :email,
                 :website,
                 :event_id
@@ -193,7 +194,7 @@ module Api
         def stall_resp(s)
           { id: s.id, stall_code: s.stall_code, name: s.name.titleize, email: s.email, mobile_number: s.formatted_mobile_number,
             company_name: s.company_name.titleize, stall_number: s.stall_number&.upcase,
-            stall_category: s.stall_category, stall_type: s.stall_type, stall_size: s.stall_size, active: s.active, website: s.website, pass_code: s.pass_code, description: s.description,
+            stall_category: s.stall_category, stall_type: s.stall_type, stall_size: s.stall_size, active: s.active, website: s.website, pass_code: s.pass_code, description: s.description, food_coupon_count: s.food_coupon_count,
             total_leads_count: s.total_leads_count, price: s.price, currency: s.currency,
             event: { id: s.event.id, name: s.event.name.titleize, event_code: s.event.event_code, completed: s.event.completed? },
             organizer: { id: s.event_organizer.id, name: s.event_organizer.name, mobile_number: s.event_organizer.formatted_mobile_number} }

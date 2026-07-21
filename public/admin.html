@@ -1207,9 +1207,13 @@
           <label for="ef-food-coupon">Food Coupon</label>
 
           <label class="switch">
-            <input type="checkbox" id="ef-food-coupon">
+            <input type="checkbox" id="ef-food-coupon" onchange="toggleFoodCouponCount()">
             <span class="slider"></span>
           </label>
+        </div>
+        <div class="field" id="food-coupon-count-div" style="display: none;">
+          <label for="ef-food-coupon-count">Food Coupon Count</label>
+          <input type="text" id="ef-food-coupon-count">
         </div>
       </div>
       <div class="field"><label>Description</label><textarea id="ef-desc" rows="3"
@@ -1289,6 +1293,7 @@
           </select>
         </div>
         <div class="mf"><label>Price</label><input type="price" id="st-price" placeholder="Optional"></div>
+        <div class="mf"><label>Food Coupons</label><input type="price" id="st-food-coupon-count" placeholder="Optional"></div>
         <div class="mf"><label>Email</label><input type="email" id="st-email" placeholder="Optional"></div>
         <div class="mf"><label>Website</label><input type="text" id="st-web" placeholder="Optional"></div>
       </div>
@@ -1329,6 +1334,7 @@
               <th style="width: 130px">Type</th>
               <th style="width: 110px">Size</th>
               <th style="width: 110px">Price</th>
+              <th style="width: 110px">Food Coupons</th>
               <th style="width: 160px">Email</th>
               <th style="width: 130px">Website</th>
               <th style="width: 50px"></th>
@@ -1862,10 +1868,26 @@
       <td style="font-weight:600">${(e.registered_count || 0).toLocaleString()}</td>
       <td>
         <div style="display:flex;gap:6px;flex-wrap:wrap">
-          <button class="btn btn-sm btn-outline" style="padding-right: 6px; padding-left: 6px;" onclick='showEventQr("${e.id}","${e.name}","${e.qr_image_url || ""}","${e.registration_qr_token}")' title="QR" ${e.completed ? "disabled" : ""}>🔳</button>
+          <button class="btn btn-sm btn-outline" style="padding-right: 6px; padding-left: 6px;" onclick='showEventQr("${e.id}","${e.name}","${e.qr_image_url || ""}","${e.registration_qr_token}")' title="QR" ${e.completed ? "disabled" : ""}>📱</button>
           <button class="btn btn-sm btn-outline" style="padding-right: 6px; padding-left: 6px;" onclick='showEventAnalytics("${e.id}","${e.name}")' title="Analytics">📊</button>
           <button class="btn btn-sm btn-outline" style="padding-right: 6px; padding-left: 6px;" onclick='openEditEventModalById("${e.id}")' title="Edit" ${e.completed ? "disabled" : ""}>✏️</button>
-          ${(e.status === "draft") ? `<button class="btn btn-sm btn-outline" style="padding-right: 6px; padding-left: 6px;" onclick='activateEvent("${e.id}")' title="Activate">🚀</button>` : ""}
+          ${
+            e.status === "active"
+              ? `<button class="btn btn-sm btn-outline"
+                    style="padding-right:6px;padding-left:6px;"
+                    onclick='deactivateEvent("${e.id}")'
+                    title="Deactivate">
+                    🚫
+                </button>`
+              : (e.status === "draft" || e.status === "archived")
+                ? `<button class="btn btn-sm btn-outline"
+                      style="padding-right:6px;padding-left:6px;"
+                      onclick='activateEvent("${e.id}")'
+                      title="Activate">
+                      🚀
+                  </button>`
+                : ""
+          }
         </div>
       </td>
     </tr>
@@ -1976,7 +1998,8 @@
           status: document.getElementById("ef-status").value,
           description: document.getElementById("ef-desc").value.trim(),
           event_organizer_id: document.getElementById("ef-organizer").value,
-          food_coupon: document.getElementById("ef-food-coupon").checked
+          food_coupon: document.getElementById("ef-food-coupon").checked,
+          food_coupon_count: document.getElementById("ef-food-coupon-count").value
         }
       };
 
@@ -2019,6 +2042,24 @@
         loadEvents();
         if (previousPage === "dashboard" || previousPage === "events") {
           showEventDetails(id, "dashboard");
+        } if (previousPage === "organizers") {
+          loadOrganizerEvents(1);
+        } else {
+          loadEvents();
+        }
+      }
+      else toast(res.error || "Failed", "error");
+    }
+
+    async function deactivateEvent(id) {
+      const res = await apiPost(`/super_admin/events/${id}/archive`, {});
+      if (res.success) { 
+        toast("Event deactivated!", "success");
+        loadEvents();
+        if (previousPage === "dashboard" || previousPage === "events") {
+          showEventDetails(id, "dashboard");
+        } if (previousPage === "organizers") {
+          loadOrganizerEvents(1);
         } else {
           loadEvents();
         }
@@ -2404,6 +2445,8 @@
       document.getElementById("ef-status").value = "draft";
       document.getElementById("ef-desc").value = "";
       document.getElementById("ef-food-coupon").checked = false;
+      document.getElementById("food-coupon-count-div").style.display = "none";
+      document.getElementById("ef-food-coupon-count").value = "";
 
       const err = document.getElementById("event-form-err");
       err.style.display = "none";
@@ -2431,6 +2474,10 @@
       document.getElementById("ef-status").value = event.status || "";
       document.getElementById("ef-desc").value = event.description || "";
       document.getElementById("ef-food-coupon").checked = event.food_coupon;
+      const fcCount = document.getElementById("ef-food-coupon-count");
+      const fcCountDiv = document.getElementById("food-coupon-count-div");
+      fcCountDiv.style.display = event.food_coupon ? "block" : "none";
+      fcCount.value = event.food_coupon_count || "";
       openModal("modal-create-event", event.event_organizer_id);
     }
     async function importStallOwners() {
@@ -2504,6 +2551,7 @@
       document.getElementById("st-type").value = stall.stall_type || "";
       document.getElementById("st-size").value = stall.stall_size || "";
       document.getElementById("st-price").value = stall.price || "";
+      document.getElementById("st-food-coupon-count").value = stall.food_coupon_count || "";
       document.getElementById("st-email").value = stall.email || "";
       document.getElementById("st-web").value = stall.website || "";
 
@@ -2537,6 +2585,7 @@
               stall_type: document.getElementById("st-type").value.trim(),
               stall_size: document.getElementById("st-size").value.trim(),
               price: document.getElementById("st-price").value.trim(),
+              food_coupon_count: document.getElementById("st-food-coupon-count").value.trim(),
               email: document.getElementById("st-email").value.trim(),
               website: document.getElementById("st-web").value.trim()
             }
@@ -2615,6 +2664,10 @@
     </td>
 
     <td class="mf" style="padding: 6px 4px;">
+      <input type="text" class="st-food-coupon-count" placeholder="20" style="width: 100%; min-width: 70px;">
+    </td>
+
+    <td class="mf" style="padding: 6px 4px;">
       <input type="email" class="st-email" placeholder="Email" style="width: 100%; min-width: 150px;">
     </td>
 
@@ -2674,6 +2727,7 @@
           stall_type: row.querySelector(".st-type").value.trim(),
           stall_size: row.querySelector(".st-size").value.trim(),
           price: row.querySelector(".st-price").value.trim(),
+          food_coupon_count: row.querySelector(".st-food-coupon-count").value.trim(),
           email: row.querySelector(".st-email").value.trim(),
           website: row.querySelector(".st-website").value.trim(),
           event_id: eid
@@ -2852,13 +2906,30 @@
         ${detailChip("🏢 Organizer", e.organizer?.name || "—")}
         ${detailChip("🆔 Event Code", `<span style="font-family:monospace;font-size:11px">${e.event_code}</span>`)}
         ${detailChip("🍽️ Food Coupon", e.food_coupon ? "Yes" : "No")}
+        ${detailChip("🍽️ Food Coupon Count", e.food_coupon_count || "—")}
       </div>
       ${e.description ? `<div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border);font-size:14px;color:var(--text2);line-height:1.6">${e.description}</div>` : ""}
       <div style="display:flex;gap:8px;margin-top:16px;padding-top:14px;border-top:1px solid var(--border);flex-wrap:wrap">
         <button class="btn btn-primary btn-sm qr-blink" onclick='showEventQr("${e.id}","${e.name}","${e.qr_image_url || ""}","${e.registration_qr_token || ""}")' ${e.completed ? "disabled" : ""}>📱 View QR Code</button>
         <button class="btn btn-outline btn-sm" onclick='showEventAnalytics("${e.id}","${e.name}")'>📊 Analytics</button>
         <button class="btn btn-outline btn-sm" onclick='openEditEventModalById("${e.id}")' ${e.completed ? "disabled" : ""}>✏️ Edit Event</button>
-        ${e.status === "draft" ? `<button class="btn btn-outline btn-sm" onclick='activateEvent("${e.id}")'>🚀 Activate</button>` : ""}
+        ${
+          e.status === "active"
+            ? `<button class="btn btn-sm btn-outline"
+                  style="padding-right:6px;padding-left:6px;"
+                  onclick='deactivateEvent("${e.id}")'
+                  title="Deactivate">
+                  🚫 Deactivate
+              </button>`
+            : (e.status === "draft" || e.status === "archived")
+              ? `<button class="btn btn-sm btn-outline"
+                    style="padding-right:6px;padding-left:6px;"
+                    onclick='activateEvent("${e.id}")'
+                    title="Activate">
+                    🚀 Activate
+                </button>`
+              : ""
+        }
       </div>
     </div>
 
@@ -3271,6 +3342,7 @@
             ${detailChip("🏪 Stall Type", s.stall_type || "—")}
             ${detailChip("📐 Stall Size", s.stall_size || "—")}
             ${detailChip("💰 Stall Price", s.price || "—")}
+            ${detailChip("🎟️ Food Coupons", s.food_coupon_count || "—")}
             ${detailChip("🎪 Event", s.event?.name || "—")}
             ${detailChip("📧 Email", s.email || "—")}
             ${detailChip("📱 Mobile", s.mobile_number || "—")}
@@ -3458,7 +3530,7 @@
         <div style="display:flex;gap:6px;flex-wrap:wrap">
           <button class="btn btn-sm btn-outline"
             onclick='showEventQr("${e.id}","${e.name}","${e.qr_image_url || ""}","${e.registration_qr_token}")' ${e.completed ? "disabled" : ""}>
-            🔳
+            📱
           </button>
 
           <button class="btn btn-sm btn-outline"
@@ -3470,6 +3542,24 @@
             onclick='openEditEventModalById("${e.id}")' ${e.completed ? "disabled" : ""}>
             ✏️
           </button>
+
+          ${
+            e.status === "active"
+              ? `<button class="btn btn-sm btn-outline"
+                    style="padding-right:6px;padding-left:6px;"
+                    onclick='deactivateEvent("${e.id}")'
+                    title="Deactivate">
+                    🚫
+                </button>`
+              : (e.status === "draft" || e.status === "archived")
+                ? `<button class="btn btn-sm btn-outline"
+                      style="padding-right:6px;padding-left:6px;"
+                      onclick='activateEvent("${e.id}")'
+                      title="Activate">
+                      🚀
+                  </button>`
+                : ""
+          }
         </div>
       </td>
     </tr>
@@ -3764,6 +3854,18 @@
       `;
 
       select.value = selectedId;
+    }
+
+    function toggleFoodCouponCount() {
+      const foodCoupon = document.getElementById("ef-food-coupon");
+      const countDiv = document.getElementById("food-coupon-count-div");
+      const countInput = document.getElementById("ef-food-coupon-count");
+
+      countDiv.style.display = foodCoupon.checked ? "block" : "none";
+
+      if (!foodCoupon.checked) {
+        countInput.value = "";
+      }
     }
   </script>
 </body>

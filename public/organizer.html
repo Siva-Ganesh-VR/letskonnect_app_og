@@ -1230,6 +1230,7 @@
           </select>
         </div>
         <div class="mf"><label>Price</label><input type="text" id="st-price" placeholder="2000"></div>
+        <div class="mf"><label>Food Coupons</label><input type="text" id="st-food-coupon-count" placeholder="20"></div>
         <div class="mf"><label>Email</label><input type="email" id="st-email" placeholder="Optional"></div>
         <div class="mf"><label>Website</label><input type="text" id="st-web" placeholder="Optional"></div>
       </div>
@@ -1266,6 +1267,8 @@
               <th style="width: 150px">Category</th>
               <th style="width: 130px">Type</th>
               <th style="width: 110px">Size</th>
+              <th style="width: 110px">Price</th>
+              <th style="width: 110px">Food Coupons</th>
               <th style="width: 160px">Email</th>
               <th style="width: 130px">Website</th>
               <th style="width: 50px"></th>
@@ -2044,6 +2047,7 @@
       document.getElementById("st-type").value = "";
       document.getElementById("st-size").value = "";
       document.getElementById("st-price").value = "";
+      document.getElementById("st-food-coupon-count").value = "";
       document.getElementById("st-email").value = "";
       document.getElementById("st-web").value = "";
 
@@ -2134,6 +2138,7 @@
       document.getElementById("st-type").value = stall.stall_type || "";
       document.getElementById("st-size").value = stall.stall_size || "";
       document.getElementById("st-price").value = stall.price || "";
+      document.getElementById("st-food-coupon-count").value = stall.food_coupon_count || "";
       document.getElementById("st-email").value = stall.email || "";
       document.getElementById("st-web").value = stall.website || "";
 
@@ -2168,6 +2173,7 @@
               stall_type: document.getElementById("st-type").value.trim(),
               stall_size: document.getElementById("st-size").value.trim(),
               price: document.getElementById("st-price").value.trim(),
+              food_coupon_count: document.getElementById("st-food-coupon-count").value.trim(),
               email: document.getElementById("st-email").value.trim(),
               website: document.getElementById("st-web").value.trim()
             }
@@ -2241,7 +2247,11 @@
     </td>
 
     <td class="mf" style="padding: 6px 4px;">
-      <input type="text" class="st-price" placeholder="Price" style="width: 100%; min-width: 150px;">
+      <input type="text" class="st-price" placeholder="Price" style="width: 100%; min-width: 70px;">
+    </td>
+
+    <td class="mf" style="padding: 6px 4px;">
+      <input type="text" class="st-food-coupon-count" placeholder="Food Coupons" style="width: 100%; min-width: 70px;">
     </td>
 
     <td class="mf" style="padding: 6px 4px;">
@@ -2296,6 +2306,7 @@
           stall_type: row.querySelector(".st-type").value.trim(),
           stall_size: row.querySelector(".st-size").value.trim(),
           price: row.querySelector(".st-price").value.trim(),
+          food_coupon_count: row.querySelector(".st-food-coupon-count").value.trim(),
           email: row.querySelector(".st-email").value.trim(),
           website: row.querySelector(".st-website").value.trim()
         }))
@@ -2887,6 +2898,7 @@
             ${detailChip("🏪 Stall Type", s.stall_type || "—")}
             ${detailChip("📐 Stall Size", s.stall_size || "—")}
             ${detailChip("💰 Stall Price", s.price || "—")}
+            ${detailChip("🎟️ Food Coupons", s.food_coupon_count || "—")}
             ${detailChip("🎪 Event", s.event?.name || "—")}
             ${detailChip("📧 Email", s.email || "—")}
             ${detailChip("📱 Mobile", s.mobile_number || "—")}

@@ -46,7 +46,10 @@ module Api
             stall_category: s.stall_category,
             total_leads_count: s.total_leads_count,
             event_name: s.event&.name,
-            event_id: s.event_id
+            event_id: s.event_id,
+            mobile_number: s.formatted_mobile_number,
+            organizer_name: s.event&.event_organizer&.name,
+            organizer_mobile: s.event&.event_organizer&.formatted_mobile_number,
           }
         end
 
