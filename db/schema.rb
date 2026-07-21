@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_07_13_101124) do
+ActiveRecord::Schema[7.2].define(version: 2026_07_21_102943) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pgcrypto"
   enable_extension "plpgsql"
@@ -18,9 +18,9 @@ ActiveRecord::Schema[7.2].define(version: 2026_07_13_101124) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
-    t.bigint "record_id", null: false
     t.bigint "blob_id", null: false
     t.datetime "created_at", null: false
+    t.uuid "record_id", null: false
     t.index ["blob_id"], name: "index_active_storage_attachments_on_blob_id"
     t.index ["record_type", "record_id", "name", "blob_id"], name: "index_active_storage_attachments_uniqueness", unique: true
   end
@@ -104,6 +104,8 @@ ActiveRecord::Schema[7.2].define(version: 2026_07_13_101124) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "event_code", limit: 20, null: false
+    t.boolean "food_coupon", default: false, null: false
+    t.string "food_coupon_count"
     t.index ["event_code"], name: "index_events_on_event_code", unique: true
     t.index ["event_organizer_id"], name: "index_events_on_event_organizer_id"
     t.index ["registration_qr_token"], name: "index_events_on_registration_qr_token", unique: true
@@ -253,6 +255,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_07_13_101124) do
     t.string "stall_size"
     t.decimal "price", precision: 10, scale: 2
     t.string "currency", default: "INR", null: false
+    t.string "food_coupon_count"
     t.index ["event_id", "active"], name: "index_stall_owners_on_event_id_and_active"
     t.index ["event_id", "stall_number"], name: "index_stall_owners_on_event_id_and_stall_number", unique: true, where: "(stall_number IS NOT NULL)"
     t.index ["event_id"], name: "index_stall_owners_on_event_id"

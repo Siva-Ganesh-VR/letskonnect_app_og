@@ -3,7 +3,7 @@ module Api
     module StallOwner
       class ScansController < ApplicationController
         before_action :authenticate_stall_owner!
-        before_action :ensure_event_active!, only: [:create, :manual_create_lead]
+        # before_action :ensure_event_active!, only: [:create, :manual_create_lead]
 
         # POST /api/v1/stall_owner/scan
         def create
@@ -74,7 +74,7 @@ module Api
         def manual_create_lead
           event = Event.find_by(id: params[:event_id])
           return json_error("Invalid event", status: :not_found) unless event
-          return json_error("Event registration is not open", status: :forbidden) unless event.active?
+          # return json_error("Event registration is not open", status: :forbidden) unless event.active?
 
           if event.max_visitors.present? && event.registered_count >= event.max_visitors
             return json_error("Event has reached maximum visitor capacity", status: :forbidden)

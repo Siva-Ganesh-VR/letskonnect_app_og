@@ -6,15 +6,18 @@ class QrGenerationJob < ApplicationJob
     case record_type
     when "visitor"
       visitor = Visitor.find(record_id)
-      return if visitor.qr_image_url.present? # already generated
-      url = QrService.generate_for_visitor(visitor)
-      visitor.update_column(:qr_image_url, url)
+
+      return if visitor.registration_qr.attached?
+
+      QrService.generate_for_visitor(visitor)
       Rails.logger.info("[QR] Generated for visitor #{visitor.visitor_id_code}")
 
     when "event"
       event = Event.find(record_id)
-      url   = QrService.generate_for_event(event)
-      event.update_column(:qr_image_url, url)
+
+      return if event.registration_qr.attached?
+
+      QrService.generate_for_event(event)
       Rails.logger.info("[QR] Generated for event #{event.name}")
     end
   rescue ActiveRecord::RecordNotFound => e

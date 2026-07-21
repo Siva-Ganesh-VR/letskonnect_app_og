@@ -547,7 +547,7 @@ textarea.note-area:focus{border-color:var(--accent)}
     </div>
     <div style="margin-bottom: 16px; padding: 5px 15px;">
       <p style="font-size:14px;color:var(--accent);margin-bottom:5px;font-weight:600;">Select Event</p>
-      <select class="status-sel" id="stall-owner-event-sel" style="margin-top: 0px;" onchange="onEventChange()">
+      <select class="status-sel" id="stall-owner-event-sel" style="margin-top: 0px;" onchange="onEventChange('sidebar')">
         <option value="">Select Event</option>
       </select>
     </div>
@@ -649,6 +649,12 @@ textarea.note-area:focus{border-color:var(--accent)}
     <!-- CREATE LEAD -->
     <div class="page" id="page-create-lead">
       <div class="card">
+        <div class="field">
+          <label>Event <span class="required">*</span></label>
+          <select class="status-sel" id="lead-create-event-sel" style="margin-top: 0px;" onchange="onEventChange('lead')">
+            <option value="">Select Event</option>
+          </select>
+        </div>
         <div class="section-title">Personal Details</div>
         <div class="field">
           <label>Full Name <span class="required">*</span></label>
@@ -672,18 +678,19 @@ textarea.note-area:focus{border-color:var(--accent)}
       <div class="card">
         <div class="section-title">Business Details</div>
         <div class="field">
-          <label>Business Category <span class="required">*</span></label>
+          <label>Business Category</label>
           <select id="business_category"></select>
         </div>
         <div class="field">
-          <label>Looking For <span class="required">*</span></label>
+          <label>Looking For</label>
           <select id="looking_for"></select>
         </div>
         <div class="field">
-          <label>Decision Maker? <span class="required">*</span></label>
+          <label>Decision Maker?</label>
           <select id="decision_maker">
-            <option>Yes</option>
-            <option>No</option>
+            <option value="">Please Select</option>
+            <option value="Yes">Yes</option>
+            <option value="No">No</option>
           </select>
         </div>
         <div class="field">
@@ -739,6 +746,8 @@ textarea.note-area:focus{border-color:var(--accent)}
           <div class="info-row"><span class="info-key">Company</span><span class="info-val" id="profile-company">—</span></div>
           <div class="info-row"><span class="info-key">Stall</span><span class="info-val" id="profile-stall">—</span></div>
           <div class="info-row"><span class="info-key">Mobile</span><span class="info-val" id="profile-mobile">—</span></div>
+          <div class="info-row"><span class="info-key">Organizer</span><span class="info-val" id="profile-org-name">—</span></div>
+          <div class="info-row"><span class="info-key">Organizer Mobile</span><span class="info-val"><a id="profile-org-mobile" style="color: var(--green);" href="#">—</a></span></div>
         </div>
 
         <div class="detail-card">
@@ -960,6 +969,8 @@ function bootApp() {
   document.getElementById("profile-company").textContent = me.company_name;
   document.getElementById("profile-stall").textContent   = me.stall_number || "—";
   document.getElementById("profile-mobile").textContent  = me.mobile_number;
+  document.getElementById("profile-org-name").textContent  = me.organizer_name;
+  document.getElementById("profile-org-mobile").textContent  = me.organizer_mobile;
 
   loadDashboard();
   loadScanHistory();
@@ -1036,6 +1047,13 @@ async function loadDashboard(eventId = null) {
     events.map(e => `<option value="${e.id}">${e.name}</option>`).join("");
 
   soel.value = res.data.stall_owner?.event_id || "";
+
+  const lcel = document.getElementById("lead-create-event-sel");
+  lcel.innerHTML =
+    `<option value="">Select Event</option>` +
+    events.map(e => `<option value="${e.id}">${e.name}</option>`).join("");
+
+  lcel.value = res.data.stall_owner?.event_id || "";
 
   const rl = document.getElementById("recent-leads");
   const recent = res.data.recent_leads || [];
@@ -1451,15 +1469,30 @@ function updateStallOwner(stallOwner) {
 
   document.getElementById("profile-mobile").textContent =
     stallOwner.mobile_number || "—";
+
+  document.getElementById("profile-org-name").textContent  = stallOwner.organizer_name || "—";
+  const orgMobile = document.getElementById("profile-org-mobile");
+  const mobile = stallOwner.organizer_mobile;
+
+  orgMobile.textContent = mobile || "—";
+  orgMobile.href = mobile ? `tel:${mobile}` : "#";
 }
-async function onEventChange() {
-  const eventId = document.getElementById("stall-owner-event-sel").value;
+async function onEventChange(source) {
+  const sidebar = document.getElementById("stall-owner-event-sel");
+  const lead = document.getElementById("lead-create-event-sel");
+
+  const eventId = source === "lead"
+    ? lead.value
+    : sidebar.value;
+
+  // Keep both dropdowns in sync
+  sidebar.value = eventId;
+  lead.value = eventId;
 
   await loadDashboard(eventId);
 
-  // If user is on the Leads page, refresh it
   if (document.getElementById("page-leads").classList.contains("active")) {
-    loadLeads();
+    await loadLeads();
   }
 }
 async function toggleFavorite(leadId, btn) {
@@ -1476,22 +1509,28 @@ async function toggleFavorite(leadId, btn) {
   toast(res.data.message, "ok");
 }
 function validateRegistration() {
+  console.log("validate called");
   let errorBox = document.getElementById("error-reg");
   clearError(errorBox);
 
-  const required = ["full_name","mobile_number","location","business_category","looking_for", "decision_maker"];
-  for (const f of required) {
-    if (!document.getElementById(f).value.trim()) {
-      showError(errorBox, "Please fill in all required fields");
-      return;
-    }
+  const fullName = document.getElementById("full_name").value.trim();
+  const mobile = document.getElementById("mobile_number").value.trim();
+  const location = document.getElementById("location").value.trim();
+  if (!fullName) {
+    showError(errorBox, "Please enter full name");
+    return false;
+  } else if (!mobile) {
+    showError(errorBox, "Please enter mobile number");
+    return  false;
+  } else if (!/^[6-9]\d{9}$/.test(mobile)) {
+    showError(errorBox, "Please enter a valid 10-digit Indian mobile number");
+    return  false;
+  } else if (!location) {
+    showError(errorBox, "Please enter location");
+    return  false;
   }
 
-  const mobile = document.getElementById("mobile_number").value.trim();
-  if (!/^[6-9]\d{9}$/.test(mobile)) {
-    showError(errorBox, "Please enter a valid 10-digit Indian mobile number");
-    return;
-  }
+  return true;
 }
 function showError(el, msg) {
   el.style.display = "block";
@@ -1503,7 +1542,9 @@ function clearError(el) {
 async function submitRegistration() {
   let errorBox = document.getElementById("error-reg");
   clearError(errorBox);
-  validateRegistration();
+  if (!validateRegistration()) {
+    return;
+  }
 
   const payload = {
     full_name: document.getElementById("full_name").value.trim(),

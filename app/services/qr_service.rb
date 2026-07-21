@@ -2,11 +2,23 @@ class QrService
   QR_SIZE = 400
 
   def self.generate_for_visitor(visitor)
-    generate_and_store(visitor.display_qr_url, "visitors/#{visitor.id}/qr_code.png")
+    attach_qr(
+      record: visitor,
+      attachment_name: :registration_qr,
+      url: visitor.display_qr_url,
+      filename: "qr_code.png",
+      key: "visitors/#{visitor.id}/qr_code.png"
+    )
   end
 
   def self.generate_for_event(event)
-    generate_and_store(event.registration_url, "events/#{event.id}/registration_qr.png")
+    attach_qr(
+      record: event,
+      attachment_name: :registration_qr,
+      url: event.registration_url,
+      filename: "registration_qr.png",
+      key: "events/#{event.id}/registration_qr.png"
+    )
   end
 
   def self.generate_base64(url)
@@ -25,7 +37,19 @@ class QrService
     )
   end
 
-  def self.generate_and_store(url, path)
+  def self.attach_qr(record:, attachment_name:, url:, filename:, key:)
+    attachment = record.public_send(attachment_name)
+
+    # Already attached
+    return record if attachment.attached?
+
+    # Blob already exists (from previous implementation)
+    if (blob = ActiveStorage::Blob.find_by(key: key))
+      attachment.attach(blob)
+      return record
+    end
+
+    # Generate and upload only if blob doesn't exist
     png = build_png(url)
 
     Tempfile.create(["qr_code", ".png"]) do |source|
@@ -33,7 +57,7 @@ class QrService
       source.write(png.to_s)
       source.rewind
 
-      Tempfile.create(["qr_code_24", ".png"]) do |converted|
+      Tempfile.create(["qr_code_png24", ".png"]) do |converted|
         converted.close
 
         system(
@@ -44,19 +68,16 @@ class QrService
         ) or raise "Failed to convert QR image to PNG24"
 
         File.open(converted.path, "rb") do |file|
-          blob = ActiveStorage::Blob.create_and_upload!(
+          attachment.attach(
             io: file,
-            filename: File.basename(path),
+            filename: filename,
             content_type: "image/png",
-            key: path
-          )
-
-          return Rails.application.routes.url_helpers.rails_storage_proxy_url(
-            blob,
-            host: ENV.fetch("APP_HOST", "http://localhost:3000")
+            key: key
           )
         end
       end
     end
+
+    record
   end
 end

@@ -6,7 +6,7 @@ module Api
         before_action :set_event, only: [:show, :update, :destroy, :analytics, :full_report, :generate_qr, :activate, :archive, :approve, :reject]
 
         def index
-          events = Event.includes(:event_organizer, :event_analytics).order(created_at: :desc)
+          events = Event.includes(:event_organizer, :event_analytics).with_attached_registration_qr.order(created_at: :desc)
           if params[:status].present?
             events = events.where(status: params[:status])
           else
@@ -105,7 +105,7 @@ module Api
         def event_params
           params.require(:event).permit(
             :name, :description, :venue, :city, :start_date, :end_date,
-            :start_time, :end_time, :max_visitors, :status, :event_organizer_id, settings: {}
+            :start_time, :end_time, :max_visitors, :status, :food_coupon, :food_coupon_count, :event_organizer_id, settings: {}
           )
         end
 
@@ -116,7 +116,7 @@ module Api
             organizer: { id: e.event_organizer.id, name: e.event_organizer.name },
             total_leads: e.event_analytics&.total_leads || 0, created_at: e.created_at,
             registration_qr_token: e.registration_qr_token, event_organizer_id: e.event_organizer_id, max_visitors: e.max_visitors, description: e.description,
-            settings: e.settings, completed: e.completed? }
+            settings: e.settings, completed: e.completed?, food_coupon: e.food_coupon, food_coupon_count: e.food_coupon_count }
         end
 
         def event_full(e)

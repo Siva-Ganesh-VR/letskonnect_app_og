@@ -6,6 +6,7 @@ class Event < ApplicationRecord
   has_many :leads,        dependent: :destroy
   has_one  :event_analytics, dependent: :destroy
   has_many :visitor_scan_logs, dependent: :destroy
+  has_one_attached :registration_qr
 
   before_create :generate_slug
   before_create :generate_registration_qr_token
@@ -50,6 +51,15 @@ class Event < ApplicationRecord
 
   def completed?
     status == "done" || status == "not_published" || (end_date.present? && end_date < Time.current)
+  end
+
+  def qr_image_url
+    return nil unless registration_qr.attached?
+
+    Rails.application.routes.url_helpers.rails_storage_proxy_url(
+      registration_qr,
+      host: ENV.fetch("APP_HOST", "http://localhost:3000")
+    )
   end
 
   private

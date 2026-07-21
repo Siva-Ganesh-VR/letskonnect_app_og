@@ -159,6 +159,8 @@ module Api
                 :stall_category,
                 :stall_type,
                 :stall_size,
+                :price,
+                :food_coupon_count,
                 :email,
                 :website
               )
@@ -233,14 +235,14 @@ module Api
         def stall_params
           params.require(:stall_owner).permit(
             :name, :email, :mobile_number, :company_name,
-            :stall_number, :stall_category, :stall_type, :stall_size, :description, :website, :price
+            :stall_number, :stall_category, :stall_type, :stall_size, :description, :website, :price, :food_coupon_count
           )
         end
 
         def stall_update_params
           params.require(:stall_owner).permit(
             :name, :email, :company_name, :stall_number,
-            :stall_category, :stall_type, :stall_size, :description, :website, :active, :price
+            :stall_category, :stall_type, :stall_size, :description, :website, :active, :price, :food_coupon_count
           )
         end
 
@@ -263,6 +265,7 @@ module Api
             stall_type: s.stall_type,
             stall_size: s.stall_size,
             price: s.price,
+            food_coupon_count: s.food_coupon_count,
 
             # Event & Organizer info
             event: {
@@ -275,7 +278,8 @@ module Api
             organizer: {
               id: s.event_organizer&.id,
               name: s.event_organizer&.company_name,
-              code: s.event_organizer&.org_code
+              code: s.event_organizer&.org_code,
+              mobile_number: s.event_organizer&.formatted_mobile_number
             },
 
             # Status

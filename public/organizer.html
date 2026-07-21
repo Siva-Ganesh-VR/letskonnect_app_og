@@ -737,7 +737,7 @@
       color: #86efac
     }
 
-    .toast.err {
+    .toast.error {
       border-color: rgba(239, 68, 68, 0.4);
       color: #fca5a5
     }
@@ -1230,6 +1230,7 @@
           </select>
         </div>
         <div class="mf"><label>Price</label><input type="text" id="st-price" placeholder="2000"></div>
+        <div class="mf"><label>Food Coupons</label><input type="text" id="st-food-coupon-count" placeholder="20"></div>
         <div class="mf"><label>Email</label><input type="email" id="st-email" placeholder="Optional"></div>
         <div class="mf"><label>Website</label><input type="text" id="st-web" placeholder="Optional"></div>
       </div>
@@ -1266,6 +1267,8 @@
               <th style="width: 150px">Category</th>
               <th style="width: 130px">Type</th>
               <th style="width: 110px">Size</th>
+              <th style="width: 110px">Price</th>
+              <th style="width: 110px">Food Coupons</th>
               <th style="width: 160px">Email</th>
               <th style="width: 130px">Website</th>
               <th style="width: 50px"></th>
@@ -1488,6 +1491,10 @@
         loadVisitors();
       }
 
+      if (page === "dashboard") {
+        loadDashboard();
+      }
+
       if (page === "events") {
         loadEvents();
       }
@@ -1555,7 +1562,7 @@
 
       const res = await post(endpoint, payload);
       if (!res.success) {
-        toast(res.error || 'Failed to save metadata', 'err');
+        toast(res.error || 'Failed to save metadata', 'error');
         return;
       }
       toast('Metadata saved', 'ok');
@@ -1789,7 +1796,7 @@
     async function requestEventActivation(id) {
       const res = await post(`/organizer/events/${id}/request_activation`, {});
       if (res.success) { toast("Activation requested! 📩", "ok"); loadEvents(); loadDashboard(); }
-      else toast(res.error || "Failed", "err");
+      else toast(res.error || "Failed", "error");
     }
 
     function showQr(id, name, qrUrl, token) {
@@ -1874,12 +1881,12 @@
 
     async function sendCreds(sid, eid) {
       const res = await post(`/organizer/events/${eid}/stall_owners/${sid}/send_credentials`, {});
-      toast(res.success ? "Credentials sent! 📱" : res.error || "Failed", res.success ? "ok" : "err");
+      toast(res.success ? "Credentials sent! 📱" : res.error || "Failed", res.success ? "ok" : "error");
     }
 
     async function toggleStall(sid, eid, currently) {
       const res = await patch(`/organizer/events/${eid}/stall_owners/${sid}/toggle_active`, {});
-      toast(res.success ? "Updated!" : "Failed", res.success ? "ok" : "err");
+      toast(res.success ? "Updated!" : "Failed", res.success ? "ok" : "error");
       loadStalls();
     }
 
@@ -1926,33 +1933,39 @@
 
     async function exportVisitors() {
       const eid = document.getElementById("visitor-event-sel").value;
-      if (!eid) { toast("Select an event first", "err"); return; }
+      if (eid == "all") { toast("Select an event first", "error"); return; }
       const res = await post(`/organizer/events/${eid}/visitors/export`, { format: "excel" });
-      toast(res.success ? "Export started! Download link will be sent via WhatsApp 📊" : res.error || "Failed", res.success ? "ok" : "err");
+      toast(res.success ? "Export started! Download link will be sent via WhatsApp 📊" : res.error || "Failed", res.success ? "ok" : "error");
     }
 
     // ── Analytics ─────────────────────────────────────────────────────────────
     async function loadAnalytics() {
       const eid = document.getElementById("analytics-event-sel").value;
-      if (!eid) return;
-      const res = await get(`/organizer/events/${eid}/analytics`);
-      if (!res.success) return;
-      const d = res.data; const o = d.overview;
-      document.getElementById("analytics-content").innerHTML = `
-    <div class="stats-grid" style="grid-template-columns:repeat(auto-fit,minmax(140px,1fr))">
-      ${sc("👥", "Visitors", o.total_visitors, "")}
-      ${sc("🎯", "Total Leads", o.total_leads, "hi")}
-      ${sc("🔥", "Hot Leads", o.hot_leads, "")}
-      ${sc("♨️", "Warm Leads", o.warm_leads, "")}
-      ${sc("❄️", "Cold Leads", o.cold_leads, "")}
-      ${sc("🏪", "Stalls", o.total_stalls || "—", "")}
-    </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:4px">
-      ${barChart("Visitors by Category", d.visitors_by_category)}
-      ${barChart("Visitors by Location", d.visitors_by_location)}
-    </div>
-    ${topStalls(d.top_stalls)}
-  `;
+      if (!eid) {
+        document.getElementById("analytics-content").innerHTML = `
+          <div class="empty">
+            <div class="empty-icon">📊</div>Select an event above
+          </div>`;
+      } else {
+        const res = await get(`/organizer/events/${eid}/analytics`);
+        if (!res.success) return;
+        const d = res.data; const o = d.overview;
+        document.getElementById("analytics-content").innerHTML = `
+        <div class="stats-grid" style="grid-template-columns:repeat(auto-fit,minmax(140px,1fr))">
+          ${sc("👥", "Visitors", o.total_visitors, "")}
+          ${sc("🎯", "Total Leads", o.total_leads, "hi")}
+          ${sc("🔥", "Hot Leads", o.hot_leads, "")}
+          ${sc("♨️", "Warm Leads", o.warm_leads, "")}
+          ${sc("❄️", "Cold Leads", o.cold_leads, "")}
+          ${sc("🏪", "Stalls", o.total_stalls || "—", "")}
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:4px">
+          ${barChart("Visitors by Category", d.visitors_by_category)}
+          ${barChart("Visitors by Location", d.visitors_by_location)}
+        </div>
+        ${topStalls(d.top_stalls)}
+      `;
+      }
     }
 
     function barChart(title, data) {
@@ -1988,7 +2001,7 @@
         if (id === "visitor-event-sel" || id === "stall-event-sel") {
           sel.innerHTML = `<option value="all">All Events</option>` + myEvents.map(e => `<option value="${e.id}">${e.name}</option>`).join("");
         } else {
-          sel.innerHTML = myEvents.map(e => `<option value="${e.id}">${e.name}</option>`).join("");
+          sel.innerHTML = `<option value="">Select Event</option>` + myEvents.map(e => `<option value="${e.id}">${e.name}</option>`).join("");
         }
         if (cur) sel.value = cur;
       });
@@ -2022,6 +2035,7 @@
     function toast(msg, type = "ok") {
       const t = document.getElementById("toast");
       t.textContent = msg; t.className = "toast " + type + " show";
+      // console.log(t.className);
       setTimeout(() => { t.className = "toast"; }, 3500);
     }
     function resetStallForm() {
@@ -2033,6 +2047,7 @@
       document.getElementById("st-type").value = "";
       document.getElementById("st-size").value = "";
       document.getElementById("st-price").value = "";
+      document.getElementById("st-food-coupon-count").value = "";
       document.getElementById("st-email").value = "";
       document.getElementById("st-web").value = "";
 
@@ -2047,7 +2062,7 @@
       document.getElementById("ev-start").value = "";
       document.getElementById("ev-end").value = "";
       document.getElementById("ev-max").value = "";
-      document.getElementById("ev-status").value = "";
+      // document.getElementById("ev-status").value = "";
       document.getElementById("ev-desc").value = "";
 
       const err = document.getElementById("ev-err");
@@ -2123,6 +2138,7 @@
       document.getElementById("st-type").value = stall.stall_type || "";
       document.getElementById("st-size").value = stall.stall_size || "";
       document.getElementById("st-price").value = stall.price || "";
+      document.getElementById("st-food-coupon-count").value = stall.food_coupon_count || "";
       document.getElementById("st-email").value = stall.email || "";
       document.getElementById("st-web").value = stall.website || "";
 
@@ -2157,6 +2173,7 @@
               stall_type: document.getElementById("st-type").value.trim(),
               stall_size: document.getElementById("st-size").value.trim(),
               price: document.getElementById("st-price").value.trim(),
+              food_coupon_count: document.getElementById("st-food-coupon-count").value.trim(),
               email: document.getElementById("st-email").value.trim(),
               website: document.getElementById("st-web").value.trim()
             }
@@ -2230,7 +2247,11 @@
     </td>
 
     <td class="mf" style="padding: 6px 4px;">
-      <input type="text" class="st-price" placeholder="Price" style="width: 100%; min-width: 150px;">
+      <input type="text" class="st-price" placeholder="Price" style="width: 100%; min-width: 70px;">
+    </td>
+
+    <td class="mf" style="padding: 6px 4px;">
+      <input type="text" class="st-food-coupon-count" placeholder="Food Coupons" style="width: 100%; min-width: 70px;">
     </td>
 
     <td class="mf" style="padding: 6px 4px;">
@@ -2285,6 +2306,7 @@
           stall_type: row.querySelector(".st-type").value.trim(),
           stall_size: row.querySelector(".st-size").value.trim(),
           price: row.querySelector(".st-price").value.trim(),
+          food_coupon_count: row.querySelector(".st-food-coupon-count").value.trim(),
           email: row.querySelector(".st-email").value.trim(),
           website: row.querySelector(".st-website").value.trim()
         }))
@@ -2447,6 +2469,7 @@
         ${detailChip("🏪 Max Capacity", e.max_visitors ? e.max_visitors.toLocaleString() : "Unlimited")}
         ${detailChip("🏢 Organizer", e.organizer?.name || "—")}
         ${detailChip("🆔 Event Code", `<span style="font-family:monospace;font-size:11px">${e.event_code}</span>`)}
+        ${detailChip("🍽️ Food Coupon", e.food_coupon ? "Yes" : "No")}
       </div>
       ${e.description ? `<div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border);font-size:14px;color:var(--text2);line-height:1.6">${e.description}</div>` : ""}
       <div style="display:grid;grid-template-columns:1fr auto;gap:12px;margin-top:16px;padding-top:14px;border-top:1px solid var(--border);align-items:center">
@@ -2875,6 +2898,7 @@
             ${detailChip("🏪 Stall Type", s.stall_type || "—")}
             ${detailChip("📐 Stall Size", s.stall_size || "—")}
             ${detailChip("💰 Stall Price", s.price || "—")}
+            ${detailChip("🎟️ Food Coupons", s.food_coupon_count || "—")}
             ${detailChip("🎪 Event", s.event?.name || "—")}
             ${detailChip("📧 Email", s.email || "—")}
             ${detailChip("📱 Mobile", s.mobile_number || "—")}
@@ -2882,6 +2906,7 @@
             ${detailChip("🔢 Stall No.", s.stall_number || "—")}
             ${detailChip("🌐 Website", s.website || "—")}
             ${detailChip("🎟️ Pass Code", s.pass_code || "—")}
+            ${detailChip("📱 Organizer Mobile", s.organizer?.mobile_number || "—")}
           </div>
         </div>`
     }
@@ -2906,7 +2931,7 @@
         ) {
           clearInterval(timer);
           if (data.status === "completed") {
-            toast("Import completed.", "success");
+            toast("Import completed.", "ok");
             if (document.getElementById("opage-details").classList.contains("active")) {
               refreshEventStalls();
             } else {
@@ -3128,7 +3153,7 @@
     function checkAuth() {
       const token = sessionStorage.getItem("org_token");
       const me = JSON.parse(sessionStorage.getItem("org_user") || "null");
-      console.log(me);
+      // console.log(me);
 
       if (!token || !me) {
         window.location.replace("/login.html");
