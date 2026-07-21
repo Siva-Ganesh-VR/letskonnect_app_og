@@ -22,13 +22,43 @@ module Api
                               .select { |so| so.mobile_number == @current_stall_owner.mobile_number }
                               .index_by(&:event_id)
 
+          latest_event = (events || []).max_by(&:start_date)
+          latest_stall_owner = latest_event.present? ? stall_owner_map&.[](latest_event.id) : nil
+
+          latest_event_based_lead_counts =
+            latest_stall_owner&.total_leads_count || 0
+
+          latest_event_based_leads =
+            latest_stall_owner&.leads
+              &.includes(:visitor)
+              &.order(scanned_at: :desc)
+              &.limit(5)
+              &.map do |lead|
+                visitor = lead.visitor
+
+                {
+                  id: lead.id,
+                  visitor_name: visitor&.full_name,
+                  business_name: visitor&.business_name,
+                  temperature: lead.temperature,
+                  status: lead.status,
+                  scanned_at: lead.scanned_at&.iso8601
+                }
+              end || []
+
           json_success(
             {
               stall_owner: stall_owner_data,
               summary: dashboard_summary,
               recent_leads: recent_leads_data,
               follow_ups_today: follow_ups_today_data,
-              events: events.map { |event| event_mini(event, stall_owner_map[event.id]) }
+
+              events: (events || []).map do |event|
+                event_mini(event, stall_owner_map&.[](event.id))
+              end,
+
+              latest_event_based_lead_counts: latest_event_based_lead_counts,
+              latest_event_based_leads: latest_event_based_leads
             }
           )
         end
