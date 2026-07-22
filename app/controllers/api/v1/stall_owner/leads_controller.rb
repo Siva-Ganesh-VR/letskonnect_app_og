@@ -34,7 +34,7 @@ module Api
               per_page: pagy.items,
               pages: pagy.pages,
               summary: Lead.summary_for_stall(selected_stall_owner.id),
-
+              latest_event: latest_stall_owner&.event&.slice(:id, :name, :start_date, :end_date),
               latest_event_based_lead_counts:
                 latest_stall_owner&.total_leads_count || 0,
 

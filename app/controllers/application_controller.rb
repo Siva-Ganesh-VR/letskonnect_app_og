@@ -12,6 +12,19 @@ class ApplicationController < ActionController::API
   def json_success(data = {}, status: :ok, meta: {})
     resp = { success: true, data: data }
     resp[:meta] = meta if meta.present?
+
+    # Log payload size for production debugging. To log full JSON body set
+    # request header `X-Debug-Json: true` or run in development environment.
+    begin
+      payload = resp.to_json
+      Rails.logger.info("json_success payload_size=#{payload.bytesize}")
+      if Rails.env.development? || request&.headers&.[]('X-Debug-Json') == 'true'
+        Rails.logger.debug("json_success payload=#{payload}")
+      end
+    rescue StandardError => e
+      Rails.logger.error("json_success logging failed: #{e.message}")
+    end
+
     render json: resp, status: status
   end
 

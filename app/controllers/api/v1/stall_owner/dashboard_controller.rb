@@ -56,7 +56,7 @@ module Api
               events: (events || []).map do |event|
                 event_mini(event, stall_owner_map&.[](event.id))
               end,
-
+              latest_event: latest_event.present? ? event_mini(latest_event, latest_stall_owner) : nil,
               latest_event_based_lead_counts: latest_event_based_lead_counts,
               latest_event_based_leads: latest_event_based_leads
             }
