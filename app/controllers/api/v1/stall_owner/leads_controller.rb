@@ -117,10 +117,27 @@ module Api
 
         private
 
+        # ── FIXED: search lead across ALL stall owner records for this
+        # mobile number, not just the one resolved by event_id.
+        # This handles the case where a stall owner participates in
+        # multiple events — each event creates a separate StallOwner
+        # record, but the same person should be able to view any lead
+        # regardless of which event they are currently logged into.
         def set_lead
           Rails.logger.info "Lead ID: #{params[:id]}"
-          Rails.logger.info "Selected Stall Owner: #{selected_stall_owner.id}"
-          @lead = selected_stall_owner.leads.includes(:visitor).find(params[:id])
+          Rails.logger.info "Current Stall Owner: #{@current_stall_owner.id}"
+
+          # Collect all stall owner IDs for this mobile number
+          all_stall_owner_ids = ::StallOwner
+            .where(mobile_number: @current_stall_owner.mobile_number)
+            .pluck(:id)
+
+          Rails.logger.info "All stall owner IDs for mobile: #{all_stall_owner_ids}"
+
+          @lead = Lead
+            .includes(:visitor)
+            .where(stall_owner_id: all_stall_owner_ids)
+            .find(params[:id])
         end
 
         def lead_update_params
@@ -136,17 +153,17 @@ module Api
 
         def lead_response(l)
           {
-            id:             l.id,
-            temperature:    l.temperature,
-            status:         l.status,
+            id:              l.id,
+            temperature:     l.temperature,
+            status:          l.status,
             interest_rating: l.interest_rating,
-            notes:          l.notes,
-            requirements:   l.requirements,
-            budget:         l.budget,
-            follow_up_date: l.follow_up_date,
-            remarks:        l.remarks,
-            scanned_at:     l.scanned_at.iso8601,
-            created_at:     l.created_at.iso8601,
+            notes:           l.notes,
+            requirements:    l.requirements,
+            budget:          l.budget,
+            follow_up_date:  l.follow_up_date,
+            remarks:         l.remarks,
+            scanned_at:      l.scanned_at.iso8601,
+            created_at:      l.created_at.iso8601,
             is_favorite:     l.is_favorite,
             favorited_at:    l.favorited_at&.iso8601
           }
