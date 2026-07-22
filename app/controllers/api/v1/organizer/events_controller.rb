@@ -51,10 +51,15 @@ module Api
         end
 
         def qr_code
+          # Use stored image URL if available, otherwise generate base64 on the fly
+          qr_url = @event.qr_image_url
+          qr_base64 = qr_url.nil? ? QrService.generate_base64(@event.registration_url) : nil
+
           json_success({
-            qr_image_url:       @event.qr_image_url,
-            registration_url:   @event.registration_url,
-            qr_token:           @event.registration_qr_token
+            qr_image_url:   qr_url,
+            qr_base64:      qr_base64,
+            registration_url: @event.registration_url,
+            qr_token:       @event.registration_qr_token
           })
         end
 
@@ -68,7 +73,7 @@ module Api
           if settings["activation_requested"]
             return json_error("Activation already requested", status: :unprocessable_entity)
           end
-          
+
           settings["activation_requested"] = true
           settings["activation_requested_at"] = Time.current
           @event.update!(settings: settings)
@@ -118,6 +123,7 @@ module Api
             slug: e.slug,
             registration_qr_token: e.registration_qr_token,
             qr_image_url: e.qr_image_url,
+            qr_base64: e.qr_image_url.nil? ? QrService.generate_base64(e.registration_url) : nil,
             registered_count: e.registered_count,
             max_visitors: e.max_visitors,
             created_at: e.created_at,
