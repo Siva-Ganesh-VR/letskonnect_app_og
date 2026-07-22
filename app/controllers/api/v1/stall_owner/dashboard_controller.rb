@@ -134,6 +134,7 @@ module Api
             end_date: event.end_date,
             status: event.status,
             stall_number: stall_owner&.stall_number,
+            company_name: stall_owner&.company_name,
             total_leads: stall_owner&.total_leads_count || 0
           }
         end
