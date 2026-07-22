@@ -29,11 +29,12 @@ class QrService
   private
 
   def self.build_png(url)
+    # Use explicit hex color values to avoid any ambiguity in color names
     RQRCode::QRCode.new(url, level: :m).as_png(
       size: QR_SIZE,
       border_modules: 4,
-      color: "black",
-      fill: "white"
+      color: "#000000",
+      fill: "#ffffff"
     )
   end
 

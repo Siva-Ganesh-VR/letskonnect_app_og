@@ -42,7 +42,9 @@ module Api
                   business_name: visitor&.business_name,
                   temperature: lead.temperature,
                   status: lead.status,
-                  scanned_at: lead.scanned_at&.iso8601
+                  scanned_at: lead.scanned_at&.iso8601,
+                  mobile_number: visitor&.mobile_number,
+                  location: visitor&.location,
                 }
               end || []
 
