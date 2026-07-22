@@ -137,7 +137,9 @@ module Api
             status: event.status,
             stall_number: stall_owner&.stall_number,
             company_name: stall_owner&.company_name,
-            total_leads: stall_owner&.total_leads_count || 0
+            total_leads: stall_owner&.total_leads_count || 0,
+            food_coupon: event.food_coupon,
+            food_coupon_count: event.food_coupon ? event.food_coupon_count : nil
           }
         end
       end
