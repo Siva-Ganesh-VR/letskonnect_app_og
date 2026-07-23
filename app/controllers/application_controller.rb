@@ -36,7 +36,7 @@ class ApplicationController < ActionController::API
 
   # ─── JWT helpers ──────────────────────────────────────────────────────────
 
-  JWT_SECRET = -> { ENV.fetch("JWT_SECRET_KEY", "letskonnect_dev_secret_change_in_prod_#{Rails.application.secret_key_base[0..15]}") }
+  JWT_SECRET = -> { ENV.fetch("JWT_SECRET_KEY", "stallconnect_dev_secret_change_in_prod_#{Rails.application.secret_key_base[0..15]}") }
   JWT_ALGO   = "HS256"
 
   def self.issue_token(payload)

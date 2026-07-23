@@ -16,7 +16,7 @@ class WhatsappService
 
       _Show this QR at any exhibitor stall to instantly share your details._
 
-      Powered by *Expoza* 🤝
+      Powered by *StallConnect* 🤝
     MSG
     send_message(visitor.mobile_number, message, visitor.qr_image_url)
   end
@@ -29,7 +29,7 @@ class WhatsappService
 
       Our team will reach out to you soon. 🙏
 
-      Powered by *Expoza* 🤝
+      Powered by *StallConnect* 🤝
     MSG
     send_message(visitor.mobile_number, message)
   end
@@ -43,14 +43,14 @@ class WhatsappService
 
       #{body}
 
-      Powered by *Expoza* 🤝
+      Powered by *StallConnect* 🤝
     MSG
     send_message(visitor.mobile_number, message)
   end
 
   def self.send_stall_credentials(stall_owner, password)
     message = <<~MSG
-      🏪 *Expoza — Exhibitor Login*
+      🏪 *StallConnect — Exhibitor Login*
 
       Hi #{stall_owner.name},
 
@@ -60,9 +60,9 @@ class WhatsappService
       🔐 *Password:* #{password}
       🏪 *Stall:* #{stall_owner.stall_number || "N/A"} — #{stall_owner.company_name}
 
-      Login to the Expoza app and scan visitor QR codes to capture leads instantly.
+      Login to the StallConnect app and scan visitor QR codes to capture leads instantly.
 
-      Powered by *Expoza* 🤝
+      Powered by *StallConnect* 🤝
     MSG
     send_message(stall_owner.mobile_number, message)
   end
@@ -78,7 +78,7 @@ class WhatsappService
 
       _(Link valid for 24 hours)_
 
-      Powered by *Expoza* 🤝
+      Powered by *StallConnect* 🤝
     MSG
     send_message(stall_owner.mobile_number, message)
   end
@@ -101,7 +101,7 @@ class WhatsappService
 
       Login to the app to follow up on your hot leads!
 
-      Powered by *Expoza* 🤝
+      Powered by *StallConnect* 🤝
     MSG
     send_message(stall_owner.mobile_number, message)
   end

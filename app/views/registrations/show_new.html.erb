@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Register — <%= @event.name %> | Expoza</title>
+<title>Register — <%= @event.name %> | StallConnect</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
@@ -80,7 +80,7 @@ select option{background:var(--w);color:var(--text)}
 <body>
 
 <div class="hero">
-  <div class="logo"><div class="logo-dot"></div> Expoza</div>
+  <div class="logo"><div class="logo-dot"></div> StallConnect</div>
   <div class="event-name"><%= @event.name %></div>
   <div class="event-meta">
     <span>📍 <%= @event.venue %><%= @event.city.present? ? ", #{@event.city}" : "" %></span>
