@@ -28,46 +28,54 @@ class QrService
 
   private
 
-  # Pure Ruby PNG generation — no ImageMagick required.
-  # Uses rqrcode + chunky_png (both already in Gemfile).
   def self.build_png(url)
-    qr = RQRCode::QRCode.new(url, level: :m)
-
-    qr.as_png(
-      size:           QR_SIZE,
+    RQRCode::QRCode.new(url, level: :m).as_png(
+      size: QR_SIZE,
       border_modules: 4,
-      color:          "black",
-      fill:           "white"
+      color: "black",
+      fill: "white"
     )
   end
 
   def self.attach_qr(record:, attachment_name:, url:, filename:, key:)
     attachment = record.public_send(attachment_name)
 
-    # Already attached — nothing to do
+    # Already attached
     return record if attachment.attached?
 
-    # Blob already exists in storage (from a previous run)
+    # Blob already exists (from previous implementation)
     if (blob = ActiveStorage::Blob.find_by(key: key))
       attachment.attach(blob)
       return record
     end
 
-    # Generate PNG purely in Ruby — no ImageMagick
+    # Generate and upload only if blob doesn't exist
     png = build_png(url)
-    png_bytes = png.to_s  # chunky_png .to_s returns binary PNG data
 
-    # Write to a single temp file and attach directly
-    Tempfile.create(["qr_code", ".png"], binmode: true) do |f|
-      f.write(png_bytes)
-      f.rewind
+    Tempfile.create(["qr_code", ".png"]) do |source|
+      source.binmode
+      source.write(png.to_s)
+      source.rewind
 
-      attachment.attach(
-        io:           f,
-        filename:     filename,
-        content_type: "image/png",
-        key:          key
-      )
+      Tempfile.create(["qr_code_png24", ".png"]) do |converted|
+        converted.close
+
+        system(
+          "convert",
+          source.path,
+          "-define", "png:color-type=2",
+          "PNG24:#{converted.path}"
+        ) or raise "Failed to convert QR image to PNG24"
+
+        File.open(converted.path, "rb") do |file|
+          attachment.attach(
+            io: file,
+            filename: filename,
+            content_type: "image/png",
+            key: key
+          )
+        end
+      end
     end
 
     record
