@@ -2040,10 +2040,9 @@
       const res = await apiPost(`/super_admin/events/${id}/activate`, {});
       if (res.success) { 
         toast("Event activated!", "success");
-        loadEvents();
-        if (previousPage === "dashboard" || previousPage === "events") {
+        if (document.getElementById("page-details").classList.contains("active")) {
           showEventDetails(id, "dashboard");
-        } if (previousPage === "organizers") {
+        } if (document.getElementById("page-organizer-details").classList.contains("active")) {
           loadOrganizerEvents(1);
         } else {
           loadEvents();
@@ -2056,10 +2055,9 @@
       const res = await apiPost(`/super_admin/events/${id}/archive`, {});
       if (res.success) { 
         toast("Event deactivated!", "success");
-        loadEvents();
-        if (previousPage === "dashboard" || previousPage === "events") {
+        if (document.getElementById("page-details").classList.contains("active")) {
           showEventDetails(id, "dashboard");
-        } if (previousPage === "organizers") {
+        } if (document.getElementById("page-organizer-details").classList.contains("active")) {
           loadOrganizerEvents(1);
         } else {
           loadEvents();
