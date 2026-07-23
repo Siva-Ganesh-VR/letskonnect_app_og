@@ -20,7 +20,7 @@ Rails.application.configure do
     }
   }
 
-  config.active_storage.service = :amazon
+  config.active_storage.service = :local
   config.active_record.dump_schema_after_migration = false
 
   config.log_formatter = ::Logger::Formatter.new
