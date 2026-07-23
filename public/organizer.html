@@ -1888,7 +1888,11 @@
     async function toggleStall(sid, eid, currently) {
       const res = await patch(`/organizer/events/${eid}/stall_owners/${sid}/toggle_active`, {});
       toast(res.success ? "Updated!" : "Failed", res.success ? "ok" : "error");
-      loadStalls();
+      if (document.getElementById("opage-details").classList.contains("active")) {
+        refreshEventStalls();
+      } else {
+        loadStalls();
+      }
     }
 
     // ── Visitors ──────────────────────────────────────────────────────────────
