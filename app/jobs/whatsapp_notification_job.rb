@@ -25,6 +25,12 @@ class WhatsappNotificationJob < ApplicationJob
       stall_owner = export_job.exportable
       WhatsappService.send_export_ready(stall_owner, export_job.file_url)
 
+    when "visitor_export_ready"
+      export_job  = ExportJob.find(record_id)
+      organizer = export_job.exportable.event_organizer
+      event = export_job.exportable
+      WhatsappService.send_visitor_export_ready(organizer, event, export_job.file_url)
+
     else
       Rails.logger.warn("[WhatsApp Job] Unknown notification type: #{notification_type}")
       return

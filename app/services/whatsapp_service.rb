@@ -83,6 +83,22 @@ class WhatsappService
     send_message(stall_owner.mobile_number, message)
   end
 
+  def self.send_visitor_export_ready(organizer, event, file_url)
+    message = <<~MSG
+      📊 *Your Visitors Export for #{event.name} is Ready!*
+
+      Hi #{organizer.name},
+
+      Download your visitors file here:
+      👉 #{file_url}
+
+      _(Link valid for 24 hours)_
+
+      Powered by *StallConnect* 🤝
+    MSG
+    send_message(organizer.mobile_number, message)
+  end
+
   def self.send_daily_summary(stall_owner, summary)
     message = <<~MSG
       📊 *Daily Lead Summary*
@@ -108,7 +124,6 @@ class WhatsappService
 
   def self.send_message(mobile_number, body, media_url = nil)
     # return mock_send(mobile_number, body) if Rails.env.development? || Rails.env.test?
-
     client = Twilio::REST::Client.new(
       ENV.fetch("TWILIO_ACCOUNT_SID"),
       ENV.fetch("TWILIO_AUTH_TOKEN")

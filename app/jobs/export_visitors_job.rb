@@ -55,6 +55,8 @@ class ExportVisitorsJob < ApplicationJob
       )
       job.update!(status: "completed", file_url: url, completed_at: Time.current)
     end
+
+    WhatsappNotificationJob.perform_later(job.id, "visitor_export_ready")
   end
 
   def export_pdf(job, event, visitors)
@@ -98,5 +100,7 @@ class ExportVisitorsJob < ApplicationJob
       )
       job.update!(status: "completed", file_url: url, completed_at: Time.current)
     end
+
+    WhatsappNotificationJob.perform_later(job.id, "visitor_export_ready")
   end
 end
