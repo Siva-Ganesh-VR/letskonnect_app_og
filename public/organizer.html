@@ -2425,6 +2425,7 @@
         const e = result.data;
         detailsState.stallCategoryFilter = "all";
         detailsState.eventStallOwners = e.stall_owners || [];
+        detailsState.eventEndDate = e.end_date || null;
         document.getElementById("odetails-title").textContent = e.name;
         try {
           const html = buildEventDetailsHTML(e);
