@@ -13,6 +13,7 @@ Rails.application.routes.draw do
 
   # ── Visitor-facing pages ─────────────────────────────────────────────────
   get "/register/:event_token", to: "registrations#show",   as: :event_registration
+  get "/bni_register/:event_token", to: "registrations#bni_show",   as: :event_bni_registration
   get "/v/:qr_token",           to: "visitor_passes#show",  as: :visitor_pass
 
   # ── Sidekiq Web UI ────────────────────────────────────────────────────────

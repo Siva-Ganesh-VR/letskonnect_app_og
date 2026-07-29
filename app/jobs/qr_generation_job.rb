@@ -15,9 +15,8 @@ class QrGenerationJob < ApplicationJob
     when "event"
       event = Event.find(record_id)
 
-      return if event.registration_qr.attached?
-
       QrService.generate_for_event(event)
+      QrService.generate_bni_for_event(event)
       Rails.logger.info("[QR] Generated for event #{event.name}")
     end
   rescue ActiveRecord::RecordNotFound => e

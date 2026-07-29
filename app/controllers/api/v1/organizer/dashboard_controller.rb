@@ -32,9 +32,11 @@ module Api
             total_leads: analytics&.total_leads || 0,
             banner_url: banner_url,
             registration_qr_token: e.registration_qr_token,
+            bni_registration_qr_token: e.bni_registration_qr_token,
             settings: e.settings,
             completed: e.completed?,
             qr_image_url: e.qr_image_url,
+            bni_qr_image_url: e.bni_qr_image_url,
           }
         end
       end

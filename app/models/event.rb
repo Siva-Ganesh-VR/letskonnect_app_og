@@ -7,9 +7,11 @@ class Event < ApplicationRecord
   has_one  :event_analytics, dependent: :destroy
   has_many :visitor_scan_logs, dependent: :destroy
   has_one_attached :registration_qr
+  has_one_attached :bni_registration_qr
 
   before_create :generate_slug
   before_create :generate_registration_qr_token
+  before_create :generate_bni_registration_qr_token
   before_create :generate_event_code          # ← NEW
   after_create  :generate_qr_image_async
   after_create  :initialize_analytics
@@ -37,6 +39,11 @@ class Event < ApplicationRecord
     "#{base_url}/register/#{registration_qr_token}"
   end
 
+  def bni_registration_url
+    base_url = ENV.fetch("APP_HOST", "http://localhost:3000")
+    "#{base_url}/bni_register/#{bni_registration_qr_token}"
+  end
+
   def verified_visitor_count
     visitors.where(mobile_verified: true).count
   end
@@ -54,15 +61,23 @@ class Event < ApplicationRecord
   end
 
   def qr_image_url
-    return nil unless registration_qr.attached?
+    storage_qr_url(registration_qr)
+  end
 
-    Rails.application.routes.url_helpers.rails_storage_proxy_url(
-      registration_qr,
-      host: ENV.fetch("APP_HOST", "http://localhost:3000")
-    )
+  def bni_qr_image_url
+    storage_qr_url(bni_registration_qr)
   end
 
   private
+
+  def storage_qr_url(attachment)
+    return nil unless attachment.attached?
+
+    Rails.application.routes.url_helpers.rails_storage_proxy_url(
+      attachment,
+      host: ENV.fetch("APP_HOST", "http://localhost:3000")
+    )
+  end
 
   def format_name
     self.name = name.to_s.titleize if name.present?
@@ -94,6 +109,10 @@ class Event < ApplicationRecord
 
   def generate_registration_qr_token
     self.registration_qr_token = SecureRandom.urlsafe_base64(32)
+  end
+
+  def generate_bni_registration_qr_token
+    self.bni_registration_qr_token = SecureRandom.urlsafe_base64(32)
   end
 
   def generate_qr_image_async

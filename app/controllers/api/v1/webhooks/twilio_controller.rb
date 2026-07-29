@@ -28,9 +28,13 @@ module Api
           mobile_number = from.delete_prefix("whatsapp:").delete_prefix("+91")
 
           event_code = body[/EVENT_CODE:([A-Za-z0-9-]+)/i, 1]
+          bni_event_code = body[/BNI_EVENT_CODE:([A-Za-z0-9-]+)/i, 1]
+          is_bni = bni_event_code.present?
 
-          if event_code.present?
-            event = Event.find_by(event_code: event_code)
+          if event_code.present? || bni_event_code.present?
+            code = bni_event_code.presence || event_code
+
+            event = Event.find_by(event_code: code)
 
             unless event
               WhatsappService.send_message(
@@ -63,8 +67,8 @@ module Api
               return head :ok
             end
 
-            # Remove EVENT_ID from the message before passing it to the flow
-            body = body.sub(/EVENT_ID:[a-f0-9\-]+/i, "").strip
+            # Remove EVENT_CODE from the message before passing it to the flow
+            body = body.sub(/EVENT_CODE:([A-Za-z0-9-]+)/i, "").sub(/BNI_EVENT_CODE:[A-Za-z0-9-]+/i, "").strip
           else
             visitor = Visitor.where(
               mobile_number: mobile_number
@@ -83,10 +87,17 @@ module Api
             return head :ok
           end
 
-          WhatsappFlowService.new(visitor, body).process
+          if is_bni
+            BniWhatsappFlowService.new(visitor, body).process
+          elsif visitor.whatsapp_state.start_with?("bni_")
+            BniWhatsappFlowService.new(visitor, body).process
+          else
+            WhatsappFlowService.new(visitor, body).process
+          end
 
           head :ok
         end
+
       end
     end
   end

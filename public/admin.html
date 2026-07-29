@@ -1258,6 +1258,16 @@
     </div>
   </div>
 
+  <div class="modal-overlay" id="modal-bni-qr" onclick="if(event.target===this)closeModal('modal-bni-qr')">
+    <div class="modal" style="text-align:center">
+      <div class="modal-title">Event BNI QR Code <button class="modal-close" onclick="closeModal('modal-bni-qr')">✕</button>
+      </div>
+      <p style="font-size:14px;color:var(--text2);margin-bottom:16px" id="bni-qr-modal-event-name"></p>
+      <div id="bni-qr-modal-content"></div>
+      <p style="font-size:12px;color:var(--text3);margin-top:12px">Scan to open visitor registration page</p>
+    </div>
+  </div>
+
   <div class="modal-overlay" id="modal-analytics" onclick="if(event.target===this)closeModal('modal-analytics')">
     <div class="modal" style="max-width:640px">
       <div class="modal-title" id="event-analytics-title">Event Analytics <button class="modal-close"
@@ -1870,6 +1880,7 @@
       <td>
         <div style="display:flex;gap:6px;flex-wrap:wrap">
           <button class="btn btn-sm btn-outline" style="padding-right: 6px; padding-left: 6px;" onclick='showEventQr("${e.id}","${e.name}","${e.qr_image_url || ""}","${e.registration_qr_token}")' title="QR" ${e.completed ? "disabled" : ""}>📱</button>
+          <button class="btn btn-sm btn-outline" style="padding-right: 6px; padding-left: 6px;" onclick='showEventBniQr("${e.id}","${e.name}","${e.bni_qr_image_url || ""}","${e.bni_registration_qr_token}")' title="BNI QR" ${e.completed ? "disabled" : ""}>📱</button>
           <button class="btn btn-sm btn-outline" style="padding-right: 6px; padding-left: 6px;" onclick='showEventAnalytics("${e.id}","${e.name}")' title="Analytics">📊</button>
           <button class="btn btn-sm btn-outline" style="padding-right: 6px; padding-left: 6px;" onclick='openEditEventModalById("${e.id}")' title="Edit" ${e.completed ? "disabled" : ""}>✏️</button>
           ${
@@ -2073,6 +2084,16 @@
         ? `<div class="qr-display"><img src="${qrUrl}" alt="QR"></div><p style="font-size:12px;color:var(--text2);margin-top:8px;word-break:break-all">${regUrl}</p>`
         : `<p style="color:var(--text2);font-size:14px">QR is being generated...</p><p style="font-size:12px;color:var(--text3);margin-top:8px;word-break:break-all">Registration URL: ${regUrl}</p>`;
       openModal("modal-qr");
+    }
+
+    function showEventBniQr(id, name, qrUrl, token) {
+      document.getElementById("bni-qr-modal-event-name").textContent = name;
+      const regUrl = `${location.origin}/bni_register/${token}`;
+      document.getElementById("bni-qr-modal-content").innerHTML = qrUrl
+        ? `<div class="qr-display"><img src="${qrUrl}" alt="QR"></div><p style="font-size:12px;color:var(--text2);margin-top:8px;word-break:break-all">${regUrl}</p>`
+        : `<p style="color:var(--text2);font-size:14px">BNI 
+          QR is being generated...</p><p style="font-size:12px;color:var(--text3);margin-top:8px;word-break:break-all">BNI Registration URL: ${regUrl}</p>`;
+      openModal("modal-bni-qr");
     }
 
     async function showEventAnalytics(id, name) {
@@ -2917,6 +2938,7 @@
       ${e.description ? `<div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border);font-size:14px;color:var(--text2);line-height:1.6">${e.description}</div>` : ""}
       <div style="display:flex;gap:8px;margin-top:16px;padding-top:14px;border-top:1px solid var(--border);flex-wrap:wrap">
         <button class="btn btn-primary btn-sm qr-blink" onclick='showEventQr("${e.id}","${e.name}","${e.qr_image_url || ""}","${e.registration_qr_token || ""}")' ${e.completed ? "disabled" : ""}>📱 View QR Code</button>
+        <button class="btn btn-primary btn-sm qr-blink" onclick='showEventBniQr("${e.id}","${e.name}","${e.bni_qr_image_url || ""}","${e.bni_registration_qr_token || ""}")' ${e.completed ? "disabled" : ""}>📱 View BNI QR Code</button>
         <button class="btn btn-outline btn-sm" onclick='showEventAnalytics("${e.id}","${e.name}")'>📊 Analytics</button>
         <button class="btn btn-outline btn-sm" onclick='openEditEventModalById("${e.id}")' ${e.completed ? "disabled" : ""}>✏️ Edit Event</button>
         ${

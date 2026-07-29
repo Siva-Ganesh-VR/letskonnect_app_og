@@ -21,6 +21,16 @@ class QrService
     )
   end
 
+  def self.generate_bni_for_event(event)
+    attach_qr(
+      record: event,
+      attachment_name: :bni_registration_qr,
+      url: event.bni_registration_url,
+      filename: "bni_registration_qr.png",
+      key: "events/#{event.id}/bni_registration_qr.png"
+    )
+  end
+
   def self.generate_base64(url)
     png = build_png(url)
     "data:image/png;base64,#{Base64.strict_encode64(png.to_s)}"

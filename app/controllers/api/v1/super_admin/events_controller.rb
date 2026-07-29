@@ -113,9 +113,10 @@ module Api
           { id: e.id, event_code: e.event_code, name: e.name.titleize, venue: e.venue.titleize, city: e.city.titleize,
             start_date: e.start_date, end_date: e.end_date, status: e.status,
             registered_count: e.registered_count, qr_image_url: e.qr_image_url,
+            bni_qr_image_url: e.bni_qr_image_url,
             organizer: { id: e.event_organizer.id, name: e.event_organizer.name },
             total_leads: e.event_analytics&.total_leads || 0, created_at: e.created_at,
-            registration_qr_token: e.registration_qr_token, event_organizer_id: e.event_organizer_id, max_visitors: e.max_visitors, description: e.description,
+            registration_qr_token: e.registration_qr_token, bni_registration_qr_token: e.bni_registration_qr_token, event_organizer_id: e.event_organizer_id, max_visitors: e.max_visitors, description: e.description,
             settings: e.settings, completed: e.completed?, food_coupon: e.food_coupon, food_coupon_count: e.food_coupon_count }
         end
 
@@ -125,7 +126,9 @@ module Api
             description: e.description,
             settings: e.settings,
             registration_qr_token: e.registration_qr_token,
+            bni_registration_qr_token: e.bni_registration_qr_token,
             registration_url: e.registration_url,
+            bni_registration_url: e.bni_registration_url,
             stall_owners: e.stall_owners.active.map do |s|
               {
                 id: s.id,

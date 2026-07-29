@@ -38,6 +38,32 @@ class RegistrationsController < ActionController::Base
     redirect_to whatsapp_url, allow_other_host: true
   end
 
+  def bni_show
+    event = Event.find_by!(bni_registration_qr_token: params[:event_token])
+    case handle_event_access(event)
+    when :invalid
+      redirect_to whatsapp_fallback_message("Invalid event BNI QR code"),
+                  allow_other_host: true and return
+
+    when :draft
+      redirect_to whatsapp_fallback_message("Event registration has not started yet."),
+                  allow_other_host: true and return
+
+    when :closed
+      redirect_to whatsapp_fallback_message("Event registration is closed."),
+                  allow_other_host: true and return
+    end
+
+    whatsapp_number = ENV["TWILIO_WHATSAPP_FROM"]
+                    .gsub("whatsapp:", "")
+                    .delete("+")
+    message = "Hi, I would like to register for #{event.name}. BNI_EVENT_CODE:#{event.event_code}"
+
+    whatsapp_url = "https://wa.me/#{whatsapp_number}?text=#{CGI.escape(message)}"
+
+    redirect_to whatsapp_url, allow_other_host: true
+  end
+
   def handle_event_access(event)
     return :invalid if event.nil?
     return :draft if event.draft?

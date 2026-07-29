@@ -1357,6 +1357,18 @@
     </div>
   </div>
 
+  <div class="modal-overlay" id="m-bni-qr" onclick="if(event.target===this)closeModal('m-bni-qr')">
+    <div class="modal" style="text-align:center">
+      <div class="modal-title" id="bni-qr-title" style="justify-content:center">Event BNI QR Code <button class="mc"
+          style="position:absolute;right:28px" onclick="closeModal('m-bni-qr')">✕</button></div>
+      <p style="font-size:13px;color:var(--text2);margin-bottom:16px" id="bni-qr-event-name"></p>
+      <div id="bni-qr-content"></div>
+      <p style="font-size:12px;color:var(--text3);margin-top:12px">Visitors scan this BNI QR to register</p>
+      <div style="margin-top:16px"><a id="bni-qr-reg-link" href="#" target="_blank"
+          style="font-size:12px;color:var(--accent);word-break:break-all"></a></div>
+    </div>
+  </div>
+
   <div class="toast" id="toast"></div>
 
   <script>
@@ -1680,6 +1692,13 @@
           onclick='showQr("${e.id}","${e.name}","${e.qr_image_url || ""}","${e.registration_qr_token}")' ${e.completed ? "disabled" : ""}>
           QR
         </button>
+
+        <button
+          class="btn btn-o btn-sm"
+          style="flex:1"
+          onclick='showBniQr("${e.id}","${e.name}","${e.bni_qr_image_url || ""}","${e.bni_registration_qr_token}")' ${e.completed ? "disabled" : ""}>
+          BNI QR
+        </button>
         `}
         
         ${e.status === 'draft'
@@ -1809,6 +1828,17 @@
       document.getElementById("qr-reg-link").href = url;
       document.getElementById("qr-reg-link").textContent = url;
       openModal("m-qr");
+    }
+
+    function showBniQr(id, name, qrUrl, token) {
+      document.getElementById("bni-qr-event-name").textContent = name;
+      const url = `${location.origin}/bni_register/${token}`;
+      document.getElementById("bni-qr-content").innerHTML = qrUrl
+        ? `<div class="qr-box"><img src="${qrUrl}" alt="QR"></div>`
+        : `<div style="background:rgba(255,255,255,0.05);border-radius:12px;padding:24px;color:var(--text2);font-size:13px">QR is being generated…<br>Check back in a moment.</div>`;
+      document.getElementById("bni-qr-reg-link").href = url;
+      document.getElementById("bni-qr-reg-link").textContent = url;
+      openModal("m-bni-qr");
     }
 
     // ── Stalls ────────────────────────────────────────────────────────────────
@@ -2486,6 +2516,12 @@
               onclick='showQr("${e.id}","${e.name}","${e.qr_image_url || ""}","${e.registration_qr_token || ""}")'
               ${e.status === 'draft' || e.completed ? 'disabled style="opacity:0.5;cursor:not-allowed"' : ''}>
               📱 View QR Code
+            </button>
+            <button
+              class="btn btn-p btn-sm qr-blink"
+              onclick='showBniQr("${e.id}","${e.name}","${e.bni_qr_image_url || ""}","${e.bni_registration_qr_token || ""}")'
+              ${e.status === 'draft' || e.completed ? 'disabled style="opacity:0.5;cursor:not-allowed"' : ''}>
+              📱 View BNI QR Code
             </button>
             <a href="/register/${e.registration_qr_token || ""}" target="_blank" style="display:inline-flex;align-items:center;gap:6px;padding:10px 14px;border-radius:12px;border:1px solid var(--border);color:var(--accent);text-decoration:none;font-size:13px;background:rgba(34,197,94,0.06); ${e.status === 'draft' || e.completed ? 'opacity:0.5;pointer-events:none;' : ''}">🔗 Open registration</a>
           </div>
