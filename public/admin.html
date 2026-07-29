@@ -2865,6 +2865,7 @@
         const result = await apiGet(`/super_admin/events/${eventId}`);
         const e = result.data;
         detailsState.eventStallOwners = e.stall_owners || [];
+        detailsState.eventEndDate = e.end_date || null;
         detailsState.stallCategoryFilter = "all";
         document.getElementById("details-title").textContent = e.name;
         document.getElementById("details-content").innerHTML = buildEventDetailsHTML(e);
@@ -3874,6 +3875,11 @@
       }
     }
   </script>
+  <script>
+    const LD_API_BASE = "/api/v1/super_admin/events";
+    const LD_TOKEN_FN = () => localStorage.getItem("lk_admin_token") || "";
+  </script>
+  <script src="/js/lucky_draw.js"></script>
 </body>
 
 </html>

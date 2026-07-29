@@ -853,7 +853,6 @@
     }
   </style>
 </head>
-
 <body>
 
   <!-- LOGIN -->
@@ -2426,6 +2425,7 @@
         const e = result.data;
         detailsState.stallCategoryFilter = "all";
         detailsState.eventStallOwners = e.stall_owners || [];
+        detailsState.eventEndDate = e.end_date || null;
         document.getElementById("odetails-title").textContent = e.name;
         try {
           const html = buildEventDetailsHTML(e);
@@ -3246,6 +3246,11 @@
       openModal("m-hourly-visitors");
     }
   </script>
+  <script>
+    const LD_API_BASE = "/api/v1/organizer/events";
+    const LD_TOKEN_FN = () => sessionStorage.getItem("org_token") || "";
+  </script>
+  <script src="/js/lucky_draw.js"></script>
 </body>
 
 </html>

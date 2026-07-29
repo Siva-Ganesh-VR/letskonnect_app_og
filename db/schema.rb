@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_07_21_102943) do
+ActiveRecord::Schema[7.2].define(version: 2026_07_29_072916) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pgcrypto"
   enable_extension "plpgsql"
@@ -165,6 +165,19 @@ ActiveRecord::Schema[7.2].define(version: 2026_07_21_102943) do
     t.index ["status"], name: "index_leads_on_status"
     t.index ["temperature"], name: "index_leads_on_temperature"
     t.index ["visitor_id"], name: "index_leads_on_visitor_id"
+  end
+
+  create_table "lucky_draw_results", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "event_id", null: false
+    t.uuid "visitor_id", null: false
+    t.integer "round", default: 1, null: false
+    t.string "drawn_by_type"
+    t.uuid "drawn_by_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["event_id", "visitor_id"], name: "index_lucky_draw_results_on_event_id_and_visitor_id"
+    t.index ["event_id"], name: "index_lucky_draw_results_on_event_id"
+    t.index ["visitor_id"], name: "index_lucky_draw_results_on_visitor_id"
   end
 
   create_table "notifications", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -362,6 +375,8 @@ ActiveRecord::Schema[7.2].define(version: 2026_07_21_102943) do
   add_foreign_key "leads", "events"
   add_foreign_key "leads", "stall_owners"
   add_foreign_key "leads", "visitors"
+  add_foreign_key "lucky_draw_results", "events"
+  add_foreign_key "lucky_draw_results", "visitors"
   add_foreign_key "notifications", "events"
   add_foreign_key "stall_analytics", "events"
   add_foreign_key "stall_analytics", "stall_owners"
