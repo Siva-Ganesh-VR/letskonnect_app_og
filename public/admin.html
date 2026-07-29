@@ -3874,6 +3874,11 @@
       }
     }
   </script>
+  <script>
+    const LD_API_BASE = "/api/v1/super_admin/events";
+    const LD_TOKEN_FN = () => localStorage.getItem("lk_admin_token") || "";
+  </script>
+  <script src="/js/lucky_draw.js"></script>
 </body>
 
 </html>

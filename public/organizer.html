@@ -853,7 +853,6 @@
     }
   </style>
 </head>
-
 <body>
 
   <!-- LOGIN -->
@@ -3246,6 +3245,11 @@
       openModal("m-hourly-visitors");
     }
   </script>
+  <script>
+    const LD_API_BASE = "/api/v1/organizer/events";
+    const LD_TOKEN_FN = () => sessionStorage.getItem("org_token") || "";
+  </script>
+  <script src="/js/lucky_draw.js"></script>
 </body>
 
 </html>
