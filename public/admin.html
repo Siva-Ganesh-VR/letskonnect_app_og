@@ -939,6 +939,7 @@
         <div class="nav-item" onclick="showPage('requested-events')"><span class="nav-icon">⏳</span> Requested Events
         </div>
         <div class="nav-item" onclick="showPage('visitors')"><span class="nav-icon">👥</span> Visitors</div>
+        <div class="nav-item" onclick="showPage('templates')"><span class="nav-icon">📋</span> Templates</div>
         <!--<div class="nav-item" onclick="showPage('leads')"><span class="nav-icon">🎯</span> Leads</div>
       <div class="nav-section">Tools</div>
       <div class="nav-item" onclick="showPage('analytics')"><span class="nav-icon">📊</span> Analytics</div>-->
@@ -1179,6 +1180,31 @@
           <div id="organizer-details-content"></div>
         </div>
       </div>
+
+      <!-- TEMPLATES (QUESTIONS & MESSAGE) -->
+      <div class="page" id="page-templates">
+        <div class="page-title">Templates</div>
+        <div class="page-sub">All question and message templates</div>
+        <div class="table-wrap">
+          <div class="table-header">
+            <div class="table-title">All Templates</div>
+            <div class="table-actions">
+              <input class="search-bar" placeholder="Search templates..." id="template-search" oninput="loadAdminTemplates()">
+              <select class="filter-select" id="admin-template-type" onchange="loadAdminTemplates()">
+                <option value="">All Templates</option>
+                <option value="question">Question</option>
+                <option value="message">Message</option>
+              </select>
+              <button class="btn btn-primary" onclick="openTemplateModal()">+ New Template</button>
+            </div>
+          </div>
+          <div id="templates-table">
+            <div class="empty">
+              <div class="empty-icon">👥</div>Loading...
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -1415,6 +1441,73 @@
     </div>
   </div>
 
+  <div class="modal-overlay" id="modal-create-template" onclick="if(event.target===this)closeModal('modal-create-template')">
+    <div class="modal" style="max-width:1200px;width:95%">
+      <div class="modal-title">
+        Add Template
+        <button class="mc" onclick="closeModal('modal-create-template')">✕</button>
+      </div>
+
+      <div id="add-template-err" class="err"></div>
+
+      <div class="form-grid">
+        <div class="field">
+          <label>Template Name *</label>
+          <input type="text" id="admin-template-name" placeholder="Template Name"/>
+        </div>
+        <div class="field">
+          <label>Template Type</label>
+          <select class="filter-select" id="admin-template-type-sel" onchange="showTemplateFields()">
+            <option value="question">Question</option>
+            <option value="message">Message</option>
+          </select>
+        </div>
+      </div>
+
+      <div id="question-template-div">
+        <div style="margin-bottom:12px">
+          <button class="btn btn-primary btn-sm" onclick="addTemplateRow()">
+            + Add Row
+          </button>
+        </div>
+
+        <div style="overflow:auto">
+          <table class="table" id="question-template-table">
+            <thead>
+              <tr>
+                <th style="width: 200px">Question *</th>
+                <th style="width: 80px">Type *</th>
+                <th style="width: 80px">Required *</th>
+                <th style="width: 140px">Options</th>
+                <th style="width: 50px"></th>
+              </tr>
+            </thead>
+
+            <tbody id="question-template-table-body">
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div id="message-template-div" style="display: none;">
+        <div class="field">
+          <label>Whatsapp Marketing Message</label>
+          <textarea id="whatsapp-marketing-message"></textarea>
+        </div>
+      </div>
+
+      <div class="modal-foot">
+        <button class="btn btn-outline btn-sm" onclick="closeModal('modal-create-template')">
+          Cancel
+        </button>
+
+        <button class="btn btn-primary btn-sm" onclick="createTemplate()">
+          Add Template
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- TOAST -->
   <div class="toast" id="toast"></div>
 
@@ -1501,7 +1594,7 @@
       document.getElementById("page-" + name).classList.add("active");
       event?.currentTarget?.classList.add("active");
       document.getElementById("sidebar").classList.remove("open");
-      const loaders = { dashboard: loadDashboard, events: loadEvents, organizers: loadOrganizers, stalls: loadStalls, "stall-metadata": loadStallMetadata, "requested-events": () => loadRequestedEvents(1), visitors: loadVisitors, leads: loadLeads, analytics: loadAnalytics };
+      const loaders = { dashboard: loadDashboard, events: loadEvents, organizers: loadOrganizers, stalls: loadStalls, "stall-metadata": loadStallMetadata, "requested-events": () => loadRequestedEvents(1), visitors: loadVisitors, leads: loadLeads, analytics: loadAnalytics, templates: loadAdminTemplates };
       if (loaders[name]) loaders[name]();
     }
     function toggleSidebar() { document.getElementById("sidebar").classList.toggle("open"); }
@@ -1570,6 +1663,12 @@
 
     function buildSelectOptions(names = []) {
       return '<option value="">Select</option>' + names.map(name => `<option>${name}</option>`).join('');
+    }
+
+    function buildFieldTypeOptions(options) {
+      return '<option value="">Select</option>' + options
+        .map(option => `<option value="${option.value}">${option.label}</option>`)
+        .join("");
     }
 
     function setSelectOptions(selector, names = []) {
@@ -2695,6 +2794,57 @@
 
       tbody.appendChild(row);
     }
+
+    function addTemplateRow() {
+      const questionTypes = [
+        { value: "text", label: "Text" },
+        { value: "textarea", label: "Textarea" },
+        { value: "number", label: "Number" },
+        { value: "email", label: "Email" },
+        { value: "mobile", label: "Phone" },
+        { value: "date", label: "Date" },
+        { value: "select", label: "Select" },
+        { value: "radio", label: "Radio" },
+        { value: "checkbox", label: "Checkbox" },
+        { value: "file", label: "File" }
+      ];
+      const tbody = document.getElementById("question-template-table-body");
+
+      const row = document.createElement("tr");
+
+      row.innerHTML = `
+        <td class="mf" style="padding: 6px 4px;">
+          <input type="text" class="qt-question" placeholder="Question" style="width: 100%; min-width: 250px;">
+        </td>
+
+        <td class="mf" style="padding: 6px 4px;">
+          <select class="qt-type" style="width: 100%; min-width: 80px;">
+            ${buildFieldTypeOptions(questionTypes)}
+          </select>
+        </td>
+
+        <td  class="mf" style="padding: 6px 4px;">
+          <input type="checkbox" class="qt-required" style="width: 100%; min-width: 50px;">
+        </td>
+
+        <td class="mf" style="padding: 6px 4px;">
+          <textarea class="qt-options" style="width: 100%; min-width: 140px;"></textarea>
+        </td>
+
+        <td class="mf" style="padding: 6px 4px; text-align: center;">
+          <button
+            class="btn btn-primary btn-sm"
+            type="button"
+            onclick="this.closest('tr').remove()"
+            style="padding: 5px 10px;"
+          >
+            ✕
+          </button>
+        </td>
+      `;
+
+      tbody.appendChild(row);
+    }
     async function openBulkStallModal(eventId = null) {
       await loadEventSelectors();
       document.getElementById("stall-table-body").innerHTML = "";
@@ -2713,6 +2863,15 @@
       }
 
       openModal("m-m-stall");
+    }
+    async function openTemplateModal() {
+      document.getElementById("question-template-table-body").innerHTML = "";
+      document.getElementById("add-template-err").style.display = "none";
+      for (let i = 0; i < 2; i++) {
+        addTemplateRow();
+      }
+
+      openModal("modal-create-template");
     }
     async function createMultipleStalls() {
       const eid = document.getElementById("admin-stall-event-sel").value;
@@ -3872,6 +4031,308 @@
       if (!foodCoupon.checked) {
         countInput.value = "";
       }
+    }
+
+    function showTemplateFields() {
+      const option = document.getElementById("admin-template-type-sel").value;
+
+      document.getElementById("question-template-div").style.display =
+        option === "question" ? "block" : "none";
+
+      document.getElementById("message-template-div").style.display =
+        option === "message" ? "block" : "none";
+    }
+
+    async function createTemplate() {
+      const templateName = document
+        .getElementById("admin-template-name")
+        .value.trim();
+
+      const templateType = document
+        .getElementById("admin-template-type-sel")
+        .value;
+
+      const err = document.getElementById("add-template-err");
+
+      // Clear previous error
+      err.style.display = "none";
+      err.textContent = "";
+
+      // Common validations
+      if (!templateName) {
+        err.style.display = "block";
+        err.textContent = "Please enter template name";
+        return;
+      }
+
+      if (!templateType) {
+        err.style.display = "block";
+        err.textContent = "Please select a template type";
+        return;
+      }
+
+      const templateData = {
+        name: templateName,
+        template_type: templateType
+      };
+
+      let payload;
+
+      if (templateType === "question") {
+        const rows = [
+          ...document.querySelectorAll("#question-template-table-body tr")
+        ];
+
+        if (rows.length === 0) {
+          err.style.display = "block";
+          err.textContent = "Please add at least one question";
+          return;
+        }
+
+        const templateQuestions = rows.map(row => ({
+          question: row.querySelector(".qt-question")?.value.trim() || "",
+          field_type: row.querySelector(".qt-type")?.value || "",
+          required: row.querySelector(".qt-required")?.checked || false,
+          options: row.querySelector(".qt-options")?.value.trim() || ""
+        }));
+
+        // Validate questions
+        for (let i = 0; i < templateQuestions.length; i++) {
+          const question = templateQuestions[i];
+
+          if (!question.question) {
+            err.style.display = "block";
+            err.textContent = `Please enter question ${i + 1}`;
+            return;
+          }
+
+          if (!question.field_type) {
+            err.style.display = "block";
+            err.textContent = `Please select question type for question ${i + 1}`;
+            return;
+          }
+
+          // Options required for select/radio/checkbox
+          if (
+            ["select", "radio", "checkbox"].includes(question.field_type) &&
+            !question.options
+          ) {
+            err.style.display = "block";
+            err.textContent = `Please enter options for question ${i + 1}`;
+            return;
+          }
+        }
+
+        payload = {
+          template: templateData,
+          template_questions: templateQuestions
+        };
+      } else if (templateType === "message") {
+        const templateMessage = document
+          .getElementById("whatsapp-marketing-message")
+          .value.trim();
+
+        if (!templateMessage) {
+          err.style.display = "block";
+          err.textContent = "Please enter template message";
+          return;
+        }
+
+        payload = {
+          template: templateData,
+          template_message: templateMessage
+        };
+      }
+
+      try {
+        const result = await apiPost(
+          `/super_admin/templates`,
+          payload
+        );
+
+        if (!result.success) {
+          throw new Error(result.error || "Creation failed");
+        }
+
+        closeModal("modal-create-template");
+
+        toast(
+          "Template created successfully",
+          "success"
+        );
+
+        loadAdminTemplates();
+
+      } catch (error) {
+        err.style.display = "block";
+        err.textContent = error.message;
+      }
+    }
+
+    async function loadAdminTemplates(page = 1) {
+      const search = document.getElementById("template-search")?.value || "";
+      const templateType = document.getElementById("admin-template-type")?.value || "";
+      const endpoint = `/super_admin/templates?page=${page}&per_page=10${search ? `&search=${encodeURIComponent(search)}` : ""}${templateType ? `&template_type=${encodeURIComponent(templateType)}` : ""}`;
+      const res = await apiGet(endpoint);
+      allTemplates = res.data || [];
+      const meta = res.meta || {};
+      const tbody = allTemplates.map(t => `
+    <tr>
+      <td>
+        <a href="javascript:void(0)"
+          onclick="showTemplateDetails('${t.id}', 'templates')"
+          style="color:inherit;font-weight:600;text-decoration:none">
+          ${t.name}
+        </a>
+      </td>
+      <td>
+        ${t.template_type || ""}
+      </td>
+      <td>
+        <span class="badge ${t.active ? 'badge-green' : 'badge-grey'}">${t.active ? 'Active' : 'Inactive'}</span>
+      </td>
+      <td>
+        <div style="display:flex;gap:6px;flex-wrap:wrap">
+          <button class="btn btn-sm btn-outline" style="padding-right: 6px; padding-left: 6px;" onclick='' title="Edit">✏️</button>
+          ${
+            t.active
+              ? `<button class="btn btn-sm btn-outline"
+                    style="padding-right:6px;padding-left:6px;"
+                    onclick=''
+                    title="Deactivate">
+                    🚫
+                </button>`
+              : `<button class="btn btn-sm btn-outline"
+                      style="padding-right:6px;padding-left:6px;"
+                      onclick=''
+                      title="Activate">
+                      🚀
+                  </button>`
+          }
+        </div>
+      </td>
+    </tr>
+  `).join("");
+      document.getElementById("templates-table").innerHTML = `
+    <table><thead><tr><th>Name</th><th>Type</th><th>Status</th><th>Actions</th></tr></thead>
+    <tbody id="templates-table-rows">${tbody || `<tr><td colspan="6">${emptyHtml("🎪", "No Templates yet")}</td></tr>`}</tbody></table>
+    ${renderSimplePagination(meta, "templates", page, "loadAdminTemplates")}
+  `;
+    }
+
+    async function showTemplateDetails(templateId, pageName = "templates") {
+      previousPage = pageName;
+
+      visitorDetailsState.templateId = templateId;
+
+      document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
+      document.getElementById("page-details").classList.add("active");
+
+      document.getElementById("details-title").textContent = "Template Details";
+
+      document.getElementById("details-content").innerHTML = `
+        <div style="color:var(--text2);padding:20px;text-align:center">
+          ⏳ Loading template...
+        </div>`;
+
+      try {
+        const res = await apiGet(`/super_admin/templates/${templateId}`);
+
+        document.getElementById("details-title").textContent =
+          res.data.name;
+
+        document.getElementById("details-content").innerHTML =
+          buildTemplateDetailsHTML(res.data);
+        const templateType = res.data.template_type;
+        if (templateType == "question") {
+          await loadTemplateQuestions(res.data.questions);
+        } else {
+          await loadTemplateMessage(res.data.message);
+        }
+      } catch (e) {
+        document.getElementById("details-content").innerHTML =
+          `<div class="empty">Unable to load template.</div>`;
+      }
+    }
+
+    function buildTemplateDetailsHTML(t) {
+      const statusColor = {
+        true: "#22c55e",
+        false: "#f59e0b",
+      }[t.active] || "rgba(255,255,255,0.6)";
+
+      return `
+        <!-- Existing Template Details Card -->
+        <div style="background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:20px;margin-bottom:20px;box-shadow:var(--shadow)">
+          <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:16px">
+            <div>
+              <div style="font-size:18px;font-weight:800;color:var(--text)">${t.name}</div>
+              <div style="font-size:13px;color:var(--text2);margin-top:4px">${t.id || "—"}</div>
+            </div>
+
+            <span class="badge" style="
+              background:${statusColor}1a;
+              color:${statusColor};
+              border:1px solid ${statusColor}40;">
+              ${t.active ? "Active" : "Inactive"}
+            </span>
+          </div>
+
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px">
+            ${detailChip("🏢 Template Type", t.template_type)}
+          </div>
+        </div>`;
+    }
+
+    function loadTemplateQuestions(questions) {
+
+      const tbody = questions.map(t => `
+        <tr>
+          <td>${t.question}</td>
+          <td>${t.field_type}</td>
+          <td>${t.required}</td>
+          <td>${t.options}</td>
+        </tr>
+      `).join("");
+
+      return `
+        <div class="table-wrap">
+
+          <div class="table-header">
+            <div>
+              <div class="table-title">Template Questions</div>
+              <div class="page-sub">
+                template questions
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <table>
+              <thead>
+                <tr>
+                  <th>Question</th>
+                  <th>Field Type</th>
+                  <th>Required</th>
+                  <th>Options</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                ${
+                  tbody ||
+                  `<tr>
+                    <td colspan="4">
+                      ${emptyHtml("📍","No questions found")}
+                    </td>
+                  </tr>`
+                }
+              </tbody>
+            </table>
+          </div>
+
+        </div>
+      `;
     }
   </script>
 </body>

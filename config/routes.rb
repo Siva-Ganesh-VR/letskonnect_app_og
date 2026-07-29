@@ -121,6 +121,7 @@ Rails.application.routes.draw do
           end
         end
         get "analytics/platform", to: "analytics#platform"
+        resources :templates, only: [:index, :create, :show, :update, :destroy]
       end
 
       # Shared

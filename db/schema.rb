@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_07_21_102943) do
+ActiveRecord::Schema[7.2].define(version: 2026_07_28_121419) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pgcrypto"
   enable_extension "plpgsql"
@@ -292,6 +292,40 @@ ActiveRecord::Schema[7.2].define(version: 2026_07_21_102943) do
     t.index ["jti"], name: "index_super_admins_on_jti", unique: true
   end
 
+  create_table "template_messages", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "template_id", null: false
+    t.text "message", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["template_id"], name: "index_template_messages_on_template_id"
+  end
+
+  create_table "template_questions", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "template_id", null: false
+    t.string "question", null: false
+    t.string "field_type", null: false
+    t.boolean "required", default: false, null: false
+    t.string "placeholder"
+    t.string "help_text"
+    t.text "options"
+    t.integer "display_order", default: 1, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["template_id", "display_order"], name: "index_template_questions_on_template_id_and_display_order"
+    t.index ["template_id"], name: "index_template_questions_on_template_id"
+  end
+
+  create_table "templates", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.string "name", null: false
+    t.string "template_type", null: false
+    t.boolean "active", default: true, null: false
+    t.uuid "created_by"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["name"], name: "index_templates_on_name"
+    t.index ["template_type"], name: "index_templates_on_template_type"
+  end
+
   create_table "visitor_answers", force: :cascade do |t|
     t.uuid "visitor_id", null: false
     t.string "question_key", null: false
@@ -367,6 +401,8 @@ ActiveRecord::Schema[7.2].define(version: 2026_07_21_102943) do
   add_foreign_key "stall_analytics", "stall_owners"
   add_foreign_key "stall_owners", "event_organizers"
   add_foreign_key "stall_owners", "events"
+  add_foreign_key "template_messages", "templates"
+  add_foreign_key "template_questions", "templates"
   add_foreign_key "visitor_answers", "visitors"
   add_foreign_key "visitor_scan_logs", "events"
   add_foreign_key "visitor_scan_logs", "stall_owners"
