@@ -3,8 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<link rel="icon" type="image/png" href="favicon.png">
-<title>Stall Owner App — StallConnect</title>
+<title>Stall Owner App — Expoza</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 :root{--bg:#0f0f1a;--bg2:#1a1a2e;--bg3:#16213e;--accent:#f59e0b;--accent2:#d97706;--green:#22c55e;--red:#ef4444;--blue:#6c63ff;--text:#fff;--text2:rgba(255,255,255,0.6);--text3:rgba(255,255,255,0.3);--border:rgba(255,255,255,0.08)}
@@ -260,10 +259,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     }
 
     .sidebar-logo-image {
-      width: 200px;
+      width: 180px;
       height: auto;
       display: block;
-      margin-bottom: -10px;
+      margin-bottom: -20px;
       object-fit: contain;
       filter: drop-shadow(0 0 12px rgba(100, 108, 255, 0.25));
     }
@@ -475,6 +474,11 @@ textarea.note-area:focus{border-color:var(--accent)}
 .phone-wrap{display:flex}
 .phone-wrap input{border-radius:0 10px 10px 0}
 .error-msg{background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);border-radius:8px;padding:10px 14px;font-size:13px;color:#fca5a5;margin-top:10px;display:none}
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:18px;margin-bottom:14px}
+.section-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--accent);margin-bottom:12px;margin-top:4px}
+.required{color:#ef4444}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media(max-width:480px){.row2{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -486,7 +490,7 @@ textarea.note-area:focus{border-color:var(--accent)}
     <div class="login-logo">
       <div class="login-logo-icon">🏪</div>
       <h2>Stall Owner App</h2>
-      <p>StallConnect · Lead Capture</p>
+      <p>Expoza · Lead Capture</p>
     </div>-->
 
     <!-- Step 1: Mobile + Event -->
@@ -538,7 +542,7 @@ textarea.note-area:focus{border-color:var(--accent)}
   <div class="sidebar" id="sidebar">
     <div class="sidebar-brand">
       <div class="sidebar-top">
-        <img src="/logo_dark.png" alt="StallConnect Logo" class="sidebar-logo-image">
+        <img src="/logo_dark.png" alt="Expoza Logo" class="sidebar-logo-image">
       </div>
     </div>
     <div class="sidebar-user">
@@ -649,6 +653,49 @@ textarea.note-area:focus{border-color:var(--accent)}
     
     <!-- CREATE LEAD -->
     <div class="page" id="page-create-lead">
+
+      <!-- ── Card Scanner ── -->
+      <input type="file" id="cs-file-input" accept="image/*" capture="environment" style="display:none" onchange="csHandleFile(this.files[0])">
+
+      <button id="cs-scan-btn" onclick="csTriggerPicker()" type="button"
+        style="width:100%;display:flex;align-items:center;justify-content:center;gap:10px;
+               background:linear-gradient(135deg,rgba(34,197,94,.15),rgba(16,163,74,.1));
+               border:1.5px dashed rgba(34,197,94,.5);border-radius:12px;
+               padding:14px 20px;color:#22c55e;font-size:14px;font-weight:700;
+               cursor:pointer;font-family:inherit;margin-bottom:14px;
+               transition:all .2s">
+        <span style="font-size:20px">📇</span>
+        <span id="cs-btn-label">Scan Visiting Card</span>
+      </button>
+
+      <div id="cs-progress-label" style="display:none;font-size:11px;color:rgba(255,255,255,.4);text-align:center;margin-bottom:6px">Reading card…</div>
+      <div id="cs-progress-bar-wrap" style="display:none;background:rgba(0,0,0,.4);border-radius:10px;overflow:hidden;margin-bottom:14px;height:6px">
+        <div id="cs-progress-bar" style="height:100%;background:linear-gradient(90deg,#22c55e,#16a34a);width:0%;transition:width .3s;border-radius:10px"></div>
+      </div>
+
+      <div id="cs-preview-panel" style="display:none;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:14px;margin-bottom:14px">
+        <img id="cs-card-preview" alt="Card preview" style="width:100%;max-height:160px;object-fit:contain;border-radius:8px;margin-bottom:10px;background:#000">
+        <div id="cs-extracted-fields" style="font-size:12px;color:rgba(255,255,255,.6);line-height:1.7"></div>
+      </div>
+
+      <div id="cs-action-row" style="display:none;gap:8px;margin-bottom:14px;flex-wrap:wrap">
+        <button id="cs-apply-btn" onclick="csApplyFields()" type="button"
+          style="flex:1;min-width:120px;padding:10px 14px;border-radius:9px;font-size:13px;
+                 font-weight:700;cursor:pointer;font-family:inherit;border:none;
+                 background:linear-gradient(135deg,#22c55e,#16a34a);color:#fff;
+                 box-shadow:0 4px 12px rgba(34,197,94,.3)">
+          ✅ Fill Form
+        </button>
+        <button id="cs-rescan-btn" onclick="csTriggerPicker()" type="button"
+          style="flex:1;min-width:120px;padding:10px 14px;border-radius:9px;font-size:13px;
+                 font-weight:700;cursor:pointer;font-family:inherit;
+                 background:rgba(255,255,255,.06);color:rgba(255,255,255,.6);
+                 border:1px solid rgba(255,255,255,.1)">
+          🔄 Rescan
+        </button>
+      </div>
+      <!-- ── End Card Scanner ── -->
+
       <div class="card">
         <div class="field">
           <label>Event <span class="required">*</span></label>
@@ -1001,6 +1048,8 @@ function showTab(name, el) {
       LOOKING_FOR_OPTIONS,
       "Select option"
     );
+    // Inject card scanner button above the form
+    if (typeof injectCardScanButton === "function") injectCardScanButton();
   }
 }
 
@@ -1614,6 +1663,9 @@ document.addEventListener("DOMContentLoaded", checkAuth);
 window.addEventListener("pageshow", function () {
   checkAuth();
 });
+
 </script>
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+<script src="/js/card_scanner.js"></script>
 </body>
 </html>
