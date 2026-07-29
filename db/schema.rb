@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_07_29_084353) do
+ActiveRecord::Schema[7.2].define(version: 2026_07_29_131820) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pgcrypto"
   enable_extension "plpgsql"
@@ -132,6 +132,23 @@ ActiveRecord::Schema[7.2].define(version: 2026_07_29_084353) do
     t.index ["expires_at"], name: "index_export_jobs_on_expires_at"
     t.index ["exportable_type", "exportable_id"], name: "index_export_jobs_on_exportable_type_and_exportable_id"
     t.index ["status"], name: "index_export_jobs_on_status"
+  end
+
+  create_table "feedbacks", force: :cascade do |t|
+    t.uuid "event_id", null: false
+    t.uuid "visitor_id", null: false
+    t.integer "overall_rating", null: false
+    t.integer "organization_rating", null: false
+    t.integer "venue_rating", null: false
+    t.integer "exhibitor_rating", null: false
+    t.text "liked"
+    t.text "improvements"
+    t.boolean "recommend", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["event_id", "visitor_id"], name: "index_feedbacks_on_event_id_and_visitor_id", unique: true
+    t.index ["event_id"], name: "index_feedbacks_on_event_id"
+    t.index ["visitor_id"], name: "index_feedbacks_on_visitor_id"
   end
 
   create_table "leads", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -358,11 +375,13 @@ ActiveRecord::Schema[7.2].define(version: 2026_07_29_084353) do
     t.string "whatsapp_state", default: "start"
     t.datetime "whatsapp_completed_at"
     t.string "reg_type", default: "QR Scan", null: false
+    t.datetime "feedback_sent_at"
     t.index ["business_category"], name: "index_visitors_on_business_category"
     t.index ["created_at"], name: "index_visitors_on_created_at"
     t.index ["event_id", "mobile_verified"], name: "index_visitors_on_event_id_and_mobile_verified", where: "(mobile_verified = true)"
     t.index ["event_id", "whatsapp_state"], name: "index_visitors_on_event_id_and_whatsapp_state"
     t.index ["event_id"], name: "index_visitors_on_event_id"
+    t.index ["feedback_sent_at"], name: "index_visitors_on_feedback_sent_at"
     t.index ["mobile_number", "event_id"], name: "index_visitors_on_mobile_number_and_event_id", unique: true
     t.index ["qr_token"], name: "index_visitors_on_qr_token", unique: true
     t.index ["visitor_id_code"], name: "index_visitors_on_visitor_id_code", unique: true
@@ -373,6 +392,8 @@ ActiveRecord::Schema[7.2].define(version: 2026_07_29_084353) do
   add_foreign_key "event_analytics", "events"
   add_foreign_key "event_organizers", "super_admins"
   add_foreign_key "events", "event_organizers"
+  add_foreign_key "feedbacks", "events"
+  add_foreign_key "feedbacks", "visitors"
   add_foreign_key "leads", "events"
   add_foreign_key "leads", "stall_owners"
   add_foreign_key "leads", "visitors"

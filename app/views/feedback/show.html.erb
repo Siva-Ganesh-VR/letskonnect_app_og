@@ -1,0 +1,825 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="csrf-token" content="<%= form_authenticity_token %>">
+
+<title>Feedback — <%= @event.name %> | StallConnect</title>
+
+<style>
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: #0f0f1a;
+    min-height: 100vh;
+    color: #fff;
+  }
+
+  .hero {
+    background: linear-gradient(
+      135deg,
+      #1a1a2e 0%,
+      #16213e 50%,
+      #0f3460 100%
+    );
+    padding: 28px 20px 24px;
+    text-align: center;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+  }
+
+  .logo {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 20px;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 16px;
+  }
+
+  .logo-dot {
+    width: 8px;
+    height: 8px;
+    background: #6c63ff;
+    border-radius: 50%;
+  }
+
+  .event-name {
+    font-size: 22px;
+    font-weight: 700;
+    color: #fff;
+    line-height: 1.2;
+    margin-bottom: 6px;
+  }
+
+  .event-meta {
+    font-size: 13px;
+    color: rgba(255,255,255,0.6);
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+
+  .event-meta span {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  .container {
+    max-width: 480px;
+    margin: 0 auto;
+    padding: 24px 20px 60px;
+  }
+
+  .card {
+    background: #1a1a2e;
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 16px;
+    padding: 28px 24px;
+    margin-bottom: 16px;
+  }
+
+  .intro {
+    text-align: center;
+    margin-bottom: 26px;
+  }
+
+  .feedback-icon {
+    width: 64px;
+    height: 64px;
+    background: rgba(108,99,255,0.15);
+    border: 1px solid rgba(108,99,255,0.25);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 16px;
+    font-size: 30px;
+  }
+
+  .feedback-title {
+    font-size: 23px;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+
+  .feedback-subtitle {
+    color: rgba(255,255,255,0.55);
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  .section-title {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #6c63ff;
+    margin-bottom: 16px;
+  }
+
+  .field {
+    margin-bottom: 18px;
+  }
+
+  label {
+    display: block;
+    font-size: 13px;
+    font-weight: 500;
+    color: rgba(255,255,255,0.7);
+    margin-bottom: 8px;
+  }
+
+  .required {
+    color: #6c63ff;
+  }
+
+  input,
+  textarea,
+  select {
+    width: 100%;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 10px;
+    padding: 12px 14px;
+    color: #fff;
+    font-size: 15px;
+    outline: none;
+    transition: all 0.2s;
+  }
+
+  input:focus,
+  textarea:focus,
+  select:focus {
+    border-color: #6c63ff;
+    background: rgba(108,99,255,0.08);
+    box-shadow: 0 0 0 3px rgba(108,99,255,0.15);
+  }
+
+  input::placeholder,
+  textarea::placeholder {
+    color: rgba(255,255,255,0.25);
+  }
+
+  textarea {
+    min-height: 110px;
+    resize: vertical;
+    line-height: 1.5;
+  }
+
+  select option {
+    background: #1a1a2e;
+    color: #fff;
+  }
+
+  /* Rating */
+  .rating-group {
+    display: flex;
+    flex-direction: row-reverse;
+    justify-content: center;
+    gap: 6px;
+    margin: 8px 0 4px;
+  }
+
+  .rating-group input {
+    display: none;
+  }
+
+  .rating-group label {
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    color: rgba(255,255,255,0.25);
+    cursor: pointer;
+    margin: 0;
+    transition: all 0.2s;
+  }
+
+  .rating-group label:hover,
+  .rating-group label:hover ~ label,
+  .rating-group input:checked ~ label {
+    color: #fbbf24;
+    background: rgba(251,191,36,0.1);
+    border-color: rgba(251,191,36,0.4);
+  }
+
+  .rating-text {
+    text-align: center;
+    font-size: 12px;
+    color: rgba(255,255,255,0.4);
+    margin-top: 8px;
+  }
+
+  /* Radio options */
+  .option-group {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  .option {
+    position: relative;
+  }
+
+  .option input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .option label {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 46px;
+    padding: 10px;
+    margin: 0;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 10px;
+    text-align: center;
+    cursor: pointer;
+    color: rgba(255,255,255,0.65);
+    transition: all 0.2s;
+  }
+
+  .option input:checked + label {
+    background: rgba(108,99,255,0.15);
+    border-color: #6c63ff;
+    color: #fff;
+  }
+
+  .btn-primary {
+    width: 100%;
+    padding: 15px;
+    background: #6c63ff;
+    color: #fff;
+    border: none;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-top: 8px;
+  }
+
+  .btn-primary:hover {
+    background: #5a52e0;
+    transform: translateY(-1px);
+  }
+
+  .btn-primary:active {
+    transform: translateY(0);
+    opacity: 0.9;
+  }
+
+  .btn-primary:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  .error-msg {
+    background: rgba(239,68,68,0.1);
+    border: 1px solid rgba(239,68,68,0.3);
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 13px;
+    color: #fca5a5;
+    margin-top: 10px;
+    display: none;
+  }
+
+  .success-screen {
+    text-align: center;
+    padding: 20px 0;
+  }
+
+  .success-icon {
+    width: 80px;
+    height: 80px;
+    background: rgba(34,197,94,0.15);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 20px;
+    font-size: 36px;
+  }
+
+  .success-title {
+    font-size: 24px;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+
+  .success-sub {
+    color: rgba(255,255,255,0.6);
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  .optional-note {
+    font-size: 11px;
+    color: rgba(255,255,255,0.35);
+    margin-top: 5px;
+  }
+
+  #success-screen {
+    display: none;
+  }
+
+  @media (max-width: 400px) {
+    .card {
+      padding: 24px 18px;
+    }
+
+    .rating-group label {
+      width: 40px;
+      height: 40px;
+      font-size: 21px;
+    }
+  }
+</style>
+</head>
+
+<body>
+
+<div class="hero">
+  <div class="logo">
+    <div class="logo-dot"></div>
+    StallConnect
+  </div>
+
+  <div class="event-name">
+    <%= @event.name %>
+  </div>
+
+  <div class="event-meta">
+    <span>
+      📍 <%= @event.venue %><%= @event.city.present? ? ", #{@event.city}" : "" %>
+    </span>
+
+    <span>
+      📅 <%= @event.start_date.strftime("%b %d") %> –
+      <%= @event.end_date.strftime("%b %d, %Y") %>
+    </span>
+  </div>
+</div>
+
+<div class="container">
+  <!-- FEEDBACK FORM -->
+  <div id="feedback-form">
+
+    <div class="card">
+      <div class="intro">
+        <div class="feedback-icon">💬</div>
+
+        <div class="feedback-title">
+          We'd Love Your Feedback
+        </div>
+
+        <div class="feedback-subtitle">
+          Thank you for being part of the event.
+          Please take a moment to tell us about your experience.
+        </div>
+      </div>
+
+      <div class="section-title">
+        Your Experience
+      </div>
+
+      <!-- Overall Rating -->
+      <div class="field">
+        <label>
+          How would you rate your overall experience?
+          <span class="required">*</span>
+        </label>
+
+        <div class="rating-group">
+          <input type="radio" id="rating-5" name="rating" value="5">
+          <label for="rating-5">★</label>
+
+          <input type="radio" id="rating-4" name="rating" value="4">
+          <label for="rating-4">★</label>
+
+          <input type="radio" id="rating-3" name="rating" value="3">
+          <label for="rating-3">★</label>
+
+          <input type="radio" id="rating-2" name="rating" value="2">
+          <label for="rating-2">★</label>
+
+          <input type="radio" id="rating-1" name="rating" value="1">
+          <label for="rating-1">★</label>
+        </div>
+
+        <div class="rating-text">
+          <span id="rating-label">Select a rating</span>
+        </div>
+      </div>
+
+      <!-- Event Organization -->
+      <div class="field">
+        <label>
+          How would you rate the event organization?
+          <span class="required">*</span>
+        </label>
+
+        <div class="option-group">
+          <div class="option">
+            <input type="radio" id="organization-5"
+                   name="organization_rating" value="5">
+            <label for="organization-5">Excellent</label>
+          </div>
+
+          <div class="option">
+            <input type="radio" id="organization-4"
+                   name="organization_rating" value="4">
+            <label for="organization-4">Good</label>
+          </div>
+
+          <div class="option">
+            <input type="radio" id="organization-3"
+                   name="organization_rating" value="3">
+            <label for="organization-3">Average</label>
+          </div>
+
+          <div class="option">
+            <input type="radio" id="organization-2"
+                   name="organization_rating" value="2">
+            <label for="organization-2">Poor</label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Venue -->
+      <div class="field">
+        <label>
+          How would you rate the venue and facilities?
+          <span class="required">*</span>
+        </label>
+
+        <div class="option-group">
+          <div class="option">
+            <input type="radio" id="venue-5"
+                   name="venue_rating" value="5">
+            <label for="venue-5">Excellent</label>
+          </div>
+
+          <div class="option">
+            <input type="radio" id="venue-4"
+                   name="venue_rating" value="4">
+            <label for="venue-4">Good</label>
+          </div>
+
+          <div class="option">
+            <input type="radio" id="venue-3"
+                   name="venue_rating" value="3">
+            <label for="venue-3">Average</label>
+          </div>
+
+          <div class="option">
+            <input type="radio" id="venue-2"
+                   name="venue_rating" value="2">
+            <label for="venue-2">Poor</label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Exhibitor Experience -->
+      <div class="field">
+        <label>
+          How was your experience interacting with exhibitors?
+          <span class="required">*</span>
+        </label>
+
+        <div class="option-group">
+          <div class="option">
+            <input type="radio" id="exhibitor-5"
+                   name="exhibitor_rating" value="5">
+            <label for="exhibitor-5">Excellent</label>
+          </div>
+
+          <div class="option">
+            <input type="radio" id="exhibitor-4"
+                   name="exhibitor_rating" value="4">
+            <label for="exhibitor-4">Good</label>
+          </div>
+
+          <div class="option">
+            <input type="radio" id="exhibitor-3"
+                   name="exhibitor_rating" value="3">
+            <label for="exhibitor-3">Average</label>
+          </div>
+
+          <div class="option">
+            <input type="radio" id="exhibitor-2"
+                   name="exhibitor_rating" value="2">
+            <label for="exhibitor-2">Poor</label>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- COMMENTS -->
+    <div class="card">
+      <div class="section-title">
+        Your Feedback
+      </div>
+
+      <div class="field">
+        <label>
+          What did you like about the event?
+        </label>
+
+        <textarea
+          id="liked"
+          placeholder="Tell us what you enjoyed..."></textarea>
+      </div>
+
+      <div class="field">
+        <label>
+          What could we improve?
+        </label>
+
+        <textarea
+          id="improvements"
+          placeholder="Tell us how we can make the next event better..."></textarea>
+      </div>
+
+      <div class="field">
+        <label>
+          Would you recommend this event to others?
+          <span class="required">*</span>
+        </label>
+
+        <div class="option-group">
+          <div class="option">
+            <input type="radio"
+                   id="recommend-yes"
+                   name="recommend"
+                   value="yes">
+
+            <label for="recommend-yes">
+              👍 Yes
+            </label>
+          </div>
+
+          <div class="option">
+            <input type="radio"
+                   id="recommend-no"
+                   name="recommend"
+                   value="no">
+
+            <label for="recommend-no">
+              👎 No
+            </label>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- OPTIONAL DETAILS -->
+    <div class="card">
+      <div class="section-title">
+        About You
+      </div>
+
+      <div class="field">
+        <label>
+          Name
+        </label>
+
+        <input
+          type="text"
+          id="visitor_name"
+          placeholder="Your name"
+          value="<%= @visitor.full_name %>"
+          disabled>
+
+        <div class="optional-note">
+          Optional
+        </div>
+      </div>
+
+      <div class="field">
+        <label>
+          Mobile Number
+        </label>
+
+        <div class="phone-wrap">
+          <span class="phone-prefix">+91</span>
+
+          <input
+            type="tel"
+            id="mobile_number"
+            placeholder="10-digit mobile"
+            maxlength="10"
+            pattern="[6-9][0-9]{9}"
+            value="<%= @visitor.mobile_number %>"
+            disabled>
+        </div>
+
+        <div class="optional-note">
+          Optional
+        </div>
+      </div>
+    </div>
+
+    <div id="error-feedback" class="error-msg"></div>
+    <button
+      class="btn-primary"
+      onclick="submitFeedback()"
+      id="btn-submit">
+      Submit Feedback →
+    </button>
+  </div>
+
+  <!-- SUCCESS -->
+  <div id="success-screen">
+    <div class="card">
+      <div class="success-screen">
+        <div class="success-icon">
+          🎉
+        </div>
+
+        <div class="success-title">
+          Thank You!
+        </div>
+
+        <div class="success-sub">
+          Your feedback has been submitted successfully.
+          We appreciate you taking the time to share your experience
+          at <strong><%= @event.name %></strong>.
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const EVENT_ID = "<%= @event.id %>";
+const VISITOR_ID = "<%= @visitor.id %>";
+const API_BASE = "/api/v1";
+
+const ratingLabels = {
+  1: "Very Poor",
+  2: "Poor",
+  3: "Average",
+  4: "Good",
+  5: "Excellent"
+};
+
+document.querySelectorAll('input[name="rating"]').forEach(input => {
+  input.addEventListener("change", function() {
+    document.getElementById("rating-label").textContent =
+      ratingLabels[this.value];
+  });
+});
+
+function showError(message) {
+  const el = document.getElementById("error-feedback");
+
+  el.style.display = "block";
+  el.textContent = message;
+}
+
+function clearError() {
+  const el = document.getElementById("error-feedback");
+
+  el.style.display = "none";
+}
+
+function getRadioValue(name) {
+  const selected =
+    document.querySelector(`input[name="${name}"]:checked`);
+
+  return selected ? selected.value : null;
+}
+
+async function submitFeedback() {
+  clearError();
+
+  const rating = getRadioValue("rating");
+  const organizationRating = getRadioValue("organization_rating");
+  const venueRating = getRadioValue("venue_rating");
+  const exhibitorRating = getRadioValue("exhibitor_rating");
+  const recommend = getRadioValue("recommend");
+
+  if (!rating) {
+    showError("Please select your overall rating.");
+    return;
+  }
+
+  if (!organizationRating) {
+    showError("Please rate the event organization.");
+    return;
+  }
+
+  if (!venueRating) {
+    showError("Please rate the venue and facilities.");
+    return;
+  }
+
+  if (!exhibitorRating) {
+    showError("Please rate your exhibitor experience.");
+    return;
+  }
+
+  if (!recommend) {
+    showError("Please let us know if you would recommend this event.");
+    return;
+  }
+
+  const mobile =
+    document.getElementById("mobile_number").value.trim();
+
+  if (mobile && !/^[6-9]\d{9}$/.test(mobile)) {
+    showError(
+      "Please enter a valid 10-digit Indian mobile number."
+    );
+
+    return;
+  }
+
+  const btn = document.getElementById("btn-submit");
+
+  btn.disabled = true;
+
+  btn.innerHTML =
+    '<span class="loading-spinner"></span> Submitting…';
+
+  const body = {
+    event_id: EVENT_ID,
+    visitor_id: VISITOR_ID,
+    feedback: {
+      overall_rating: Number(rating),
+      organization_rating: Number(organizationRating),
+      venue_rating: Number(venueRating),
+      exhibitor_rating: Number(exhibitorRating),
+      liked: document.getElementById("liked").value.trim(),
+      improvements: document.getElementById("improvements").value.trim(),
+      recommend: recommend === "yes",
+      visitor_name: document.getElementById("visitor_name").value.trim(),
+      mobile_number: mobile
+    }
+  };
+
+  try {
+    const csrfToken = document
+      .querySelector('meta[name="csrf-token"]')
+      .getAttribute("content");
+
+    const res = await fetch(`/events/${EVENT_ID}/feedback`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-CSRF-Token": csrfToken
+      },
+      body: JSON.stringify(body)
+    });
+
+    const data = await res.json();
+
+    if (data.success) {
+      document.getElementById("feedback-form")
+        .style.display = "none";
+      document.getElementById("success-screen")
+        .style.display = "block";
+      window.scrollTo({
+        top: 0,
+        behavior: "smooth"
+      });
+    } else {
+      showError(
+        data.error ||
+        "Unable to submit feedback. Please try again."
+      );
+      btn.disabled = false;
+      btn.innerHTML = "Submit Feedback →";
+    }
+  } catch (error) {
+    showError(
+      "Network error. Please check your connection and try again."
+    );
+    btn.disabled = false;
+    btn.innerHTML = "Submit Feedback →";
+  }
+}
+</script>
+</body>
+</html>

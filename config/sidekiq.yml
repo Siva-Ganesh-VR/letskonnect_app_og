@@ -29,3 +29,8 @@
       cron: "0 0 * * *"
       class: EventStatusUpdateJob
       description: "Updates event status to done or not_published after the event has ended"
+
+    send_event_feedback:
+      cron: "0 9 * * *"
+      class: SendEventFeedbackJob
+      description: "Send event feedback link to the visitors once event has ended run on every morning 9am"

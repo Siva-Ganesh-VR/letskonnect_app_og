@@ -6,6 +6,7 @@ class Event < ApplicationRecord
   has_many :leads,        dependent: :destroy
   has_one  :event_analytics, dependent: :destroy
   has_many :visitor_scan_logs, dependent: :destroy
+  has_many :feedbacks, dependent: :destroy
   has_one_attached :registration_qr
   has_one_attached :bni_registration_qr
 

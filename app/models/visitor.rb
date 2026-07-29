@@ -5,6 +5,7 @@ class Visitor < ApplicationRecord
   has_many :stall_owners, through: :leads
   has_many :visitor_answers, dependent: :destroy
   has_many :visitor_scan_logs, dependent: :destroy
+  has_many :feedbacks, dependent: :destroy
   has_one_attached :registration_qr
 
   before_create :generate_visitor_id_code
@@ -67,6 +68,13 @@ class Visitor < ApplicationRecord
 
     Rails.application.routes.url_helpers.rails_storage_proxy_url(
       registration_qr,
+      host: ENV.fetch("APP_HOST", "http://localhost:3000")
+    )
+  end
+
+  def feedback_url
+    Rails.application.routes.url_helpers.feedback_url(
+      qr_token: qr_token,
       host: ENV.fetch("APP_HOST", "http://localhost:3000")
     )
   end

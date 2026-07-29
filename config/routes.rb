@@ -12,6 +12,8 @@ Rails.application.routes.draw do
   get "/register/:event_token", to: "registrations#show",   as: :event_registration
   get "/bni_register/:event_token", to: "registrations#bni_show",   as: :event_bni_registration
   get "/v/:qr_token",           to: "visitor_passes#show",  as: :visitor_pass
+  get "/feedback/:qr_token", to: "feedback#show", as: :feedback
+  post "/events/:event_id/feedback", to: "feedback#create"
 
   require "sidekiq/web"
   require "sidekiq-scheduler/web"

@@ -122,6 +122,27 @@ class WhatsappService
     send_message(stall_owner.mobile_number, message)
   end
 
+  def self.send_feedback_link(visitor)
+    message = <<~MSG
+      👋 Hi #{visitor.full_name},
+
+      Thank you for attending *#{visitor.event.name}*! 🎉
+
+      We would love to hear about your experience.
+
+      📝 *Share your feedback:*
+      #{visitor.feedback_url}
+
+      Your feedback will help us improve our future events. 🙏
+
+      Thank you for being part of the event!
+
+      Powered by *StallConnect* 🤝
+    MSG
+
+    send_message(visitor.mobile_number, message)
+  end
+
   def self.send_message(mobile_number, body, media_url = nil)
     # return mock_send(mobile_number, body) if Rails.env.development? || Rails.env.test?
     client = Twilio::REST::Client.new(
