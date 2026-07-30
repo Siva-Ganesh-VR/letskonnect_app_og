@@ -1373,6 +1373,22 @@ async function loadLeads() {
 
 async function openLeadById(id) {
   eventId = document.getElementById("stall-owner-event-sel").value;
+
+  // If not already on leads tab, switch to it first
+  const leadsPage = document.getElementById("page-leads");
+  if (!leadsPage || !leadsPage.classList.contains("active")) {
+    // Switch to leads tab without triggering loadLeads (we'll show detail directly)
+    document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
+    document.querySelectorAll(".nav-item").forEach(b=>b.classList.remove("active"));
+    document.querySelectorAll(".btab").forEach(b=>b.classList.remove("active"));
+    leadsPage.classList.add("active");
+    const leadsNav = document.querySelector(".nav-item[onclick*=\'leads\']");
+    if (leadsNav) leadsNav.classList.add("active");
+    const leadsTab = document.getElementById("btab-leads");
+    if (leadsTab) leadsTab.classList.add("active");
+    csCloseSidebar();
+  }
+
   document.getElementById("leads-list-view").style.display = "none";
   const ld = document.getElementById("lead-detail");
   ld.classList.add("active");
