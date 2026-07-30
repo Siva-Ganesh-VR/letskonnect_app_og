@@ -1,8 +1,6 @@
 class SendEventFeedbackJob < ApplicationJob
   queue_as :default
 
-  REMINDER_AFTER = 3.days
-
   def perform
     Event.where(status: "done").find_each do |event|
       event.visitors
@@ -19,7 +17,8 @@ class SendEventFeedbackJob < ApplicationJob
           WhatsappService.send_feedback_link(visitor)
 
           visitor.update!(
-            feedback_sent_at: Time.current
+            feedback_sent_at: Time.current,
+            feedback_reminder_count: visitor.feedback_reminder_count + 1
           )
 
           Rails.logger.info(
@@ -37,14 +36,13 @@ class SendEventFeedbackJob < ApplicationJob
   private
 
   def should_send_feedback?(visitor)
+    return false if visitor.feedback_reminder_count >= 3
+
     visitor.feedback_sent_at.nil? ||
-      visitor.feedback_sent_at <= REMINDER_AFTER.ago
+      visitor.feedback_sent_at <= 1.day.ago
   end
 
   def feedback_given?(event_id, visitor_id)
-    Feedback.exists?(
-      event_id: event_id,
-      visitor_id: visitor_id
-    )
+    Feedback.exists?(event_id:, visitor_id:)
   end
 end
