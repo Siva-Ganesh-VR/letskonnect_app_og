@@ -4,8 +4,8 @@ Rails.application.routes.draw do
   get "/health", to: "health#index"
 
   get "/admin", to: redirect("/admin.html")
-  get "/terms", to: redirect("/privacy.html")
-  get "/privacy-policy", to: redirect("/terms.html")
+  get "/terms", to: redirect("/terms.html")
+  get "/privacy-policy", to: redirect("/privacy-policy.html")
   get "/support", to: redirect("/support.html")
   get "/contact", to: redirect("/contact.html")
 
