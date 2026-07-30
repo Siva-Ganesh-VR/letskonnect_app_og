@@ -385,269 +385,233 @@
   <!-- FEEDBACK FORM -->
   <div id="feedback-form">
 
-    <div class="card">
-      <div class="intro">
-        <div class="feedback-icon">💬</div>
+  <div class="card">
+    <div class="intro">
+      <div class="feedback-icon">💬</div>
 
-        <div class="feedback-title">
-          We'd Love Your Feedback
-        </div>
-
-        <div class="feedback-subtitle">
-          Thank you for being part of the event.
-          Please take a moment to tell us about your experience.
-        </div>
+      <div class="feedback-title">
+        We'd Love Your Feedback
       </div>
 
-      <div class="section-title">
-        Your Experience
-      </div>
-
-      <!-- Overall Rating -->
-      <div class="field">
-        <label>
-          How would you rate your overall experience?
-          <span class="required">*</span>
-        </label>
-
-        <div class="rating-group">
-          <input type="radio" id="rating-5" name="rating" value="5">
-          <label for="rating-5">★</label>
-
-          <input type="radio" id="rating-4" name="rating" value="4">
-          <label for="rating-4">★</label>
-
-          <input type="radio" id="rating-3" name="rating" value="3">
-          <label for="rating-3">★</label>
-
-          <input type="radio" id="rating-2" name="rating" value="2">
-          <label for="rating-2">★</label>
-
-          <input type="radio" id="rating-1" name="rating" value="1">
-          <label for="rating-1">★</label>
-        </div>
-
-        <div class="rating-text">
-          <span id="rating-label">Select a rating</span>
-        </div>
-      </div>
-
-      <!-- Event Organization -->
-      <div class="field">
-        <label>
-          How would you rate the event organization?
-          <span class="required">*</span>
-        </label>
-
-        <div class="option-group">
-          <div class="option">
-            <input type="radio" id="organization-5"
-                   name="organization_rating" value="5">
-            <label for="organization-5">Excellent</label>
-          </div>
-
-          <div class="option">
-            <input type="radio" id="organization-4"
-                   name="organization_rating" value="4">
-            <label for="organization-4">Good</label>
-          </div>
-
-          <div class="option">
-            <input type="radio" id="organization-3"
-                   name="organization_rating" value="3">
-            <label for="organization-3">Average</label>
-          </div>
-
-          <div class="option">
-            <input type="radio" id="organization-2"
-                   name="organization_rating" value="2">
-            <label for="organization-2">Poor</label>
-          </div>
-        </div>
-      </div>
-
-      <!-- Venue -->
-      <div class="field">
-        <label>
-          How would you rate the venue and facilities?
-          <span class="required">*</span>
-        </label>
-
-        <div class="option-group">
-          <div class="option">
-            <input type="radio" id="venue-5"
-                   name="venue_rating" value="5">
-            <label for="venue-5">Excellent</label>
-          </div>
-
-          <div class="option">
-            <input type="radio" id="venue-4"
-                   name="venue_rating" value="4">
-            <label for="venue-4">Good</label>
-          </div>
-
-          <div class="option">
-            <input type="radio" id="venue-3"
-                   name="venue_rating" value="3">
-            <label for="venue-3">Average</label>
-          </div>
-
-          <div class="option">
-            <input type="radio" id="venue-2"
-                   name="venue_rating" value="2">
-            <label for="venue-2">Poor</label>
-          </div>
-        </div>
-      </div>
-
-      <!-- Exhibitor Experience -->
-      <div class="field">
-        <label>
-          How was your experience interacting with exhibitors?
-          <span class="required">*</span>
-        </label>
-
-        <div class="option-group">
-          <div class="option">
-            <input type="radio" id="exhibitor-5"
-                   name="exhibitor_rating" value="5">
-            <label for="exhibitor-5">Excellent</label>
-          </div>
-
-          <div class="option">
-            <input type="radio" id="exhibitor-4"
-                   name="exhibitor_rating" value="4">
-            <label for="exhibitor-4">Good</label>
-          </div>
-
-          <div class="option">
-            <input type="radio" id="exhibitor-3"
-                   name="exhibitor_rating" value="3">
-            <label for="exhibitor-3">Average</label>
-          </div>
-
-          <div class="option">
-            <input type="radio" id="exhibitor-2"
-                   name="exhibitor_rating" value="2">
-            <label for="exhibitor-2">Poor</label>
-          </div>
-        </div>
+      <div class="feedback-subtitle">
+        Thank you for being part of the event.
+        Please take a moment to tell us about your experience.
       </div>
     </div>
 
-    <!-- COMMENTS -->
-    <div class="card">
-      <div class="section-title">
-        Your Feedback
+    <div class="section-title">
+      Your Experience
+    </div>
+
+    <!-- Overall Rating -->
+    <div class="field">
+      <label>
+        Overall Rating of Event
+        <span class="required">*</span>
+      </label>
+
+      <div class="rating-group">
+        <input type="radio" id="overall-5" name="overall_rating" value="5">
+        <label for="overall-5">★</label>
+
+        <input type="radio" id="overall-4" name="overall_rating" value="4">
+        <label for="overall-4">★</label>
+
+        <input type="radio" id="overall-3" name="overall_rating" value="3">
+        <label for="overall-3">★</label>
+
+        <input type="radio" id="overall-2" name="overall_rating" value="2">
+        <label for="overall-2">★</label>
+
+        <input type="radio" id="overall-1" name="overall_rating" value="1">
+        <label for="overall-1">★</label>
       </div>
 
-      <div class="field">
-        <label>
-          What did you like about the event?
-        </label>
-
-        <textarea
-          id="liked"
-          placeholder="Tell us what you enjoyed..."></textarea>
-      </div>
-
-      <div class="field">
-        <label>
-          What could we improve?
-        </label>
-
-        <textarea
-          id="improvements"
-          placeholder="Tell us how we can make the next event better..."></textarea>
-      </div>
-
-      <div class="field">
-        <label>
-          Would you recommend this event to others?
-          <span class="required">*</span>
-        </label>
-
-        <div class="option-group">
-          <div class="option">
-            <input type="radio"
-                   id="recommend-yes"
-                   name="recommend"
-                   value="yes">
-
-            <label for="recommend-yes">
-              👍 Yes
-            </label>
-          </div>
-
-          <div class="option">
-            <input type="radio"
-                   id="recommend-no"
-                   name="recommend"
-                   value="no">
-
-            <label for="recommend-no">
-              👎 No
-            </label>
-          </div>
-        </div>
+      <div class="rating-text">
+        <span id="overall-rating-label">Select a rating</span>
       </div>
     </div>
 
-    <!-- OPTIONAL DETAILS -->
-    <div class="card">
-      <div class="section-title">
-        About You
-      </div>
+    <!-- Stall -->
+    <div class="field">
+      <label>
+        Stall
+        <span class="required">*</span>
+      </label>
 
-      <div class="field">
-        <label>
-          Name
-        </label>
+      <div class="rating-group">
+        <input type="radio" id="stall-5" name="stall_rating" value="5">
+        <label for="stall-5">★</label>
+
+        <input type="radio" id="stall-4" name="stall_rating" value="4">
+        <label for="stall-4">★</label>
+
+        <input type="radio" id="stall-3" name="stall_rating" value="3">
+        <label for="stall-3">★</label>
+
+        <input type="radio" id="stall-2" name="stall_rating" value="2">
+        <label for="stall-2">★</label>
+
+        <input type="radio" id="stall-1" name="stall_rating" value="1">
+        <label for="stall-1">★</label>
+      </div>
+      <div class="rating-text">
+        <span id="stall-rating-label">Select a rating</span>
+      </div>
+    </div>
+
+    <!-- Food Court -->
+    <div class="field">
+      <label>
+        Food Court
+        <span class="required">*</span>
+      </label>
+
+      <div class="rating-group">
+        <input type="radio" id="food-5" name="food_court_rating" value="5">
+        <label for="food-5">★</label>
+
+        <input type="radio" id="food-4" name="food_court_rating" value="4">
+        <label for="food-4">★</label>
+
+        <input type="radio" id="food-3" name="food_court_rating" value="3">
+        <label for="food-3">★</label>
+
+        <input type="radio" id="food-2" name="food_court_rating" value="2">
+        <label for="food-2">★</label>
+
+        <input type="radio" id="food-1" name="food_court_rating" value="1">
+        <label for="food-1">★</label>
+      </div>
+      <div class="rating-text">
+        <span id="stall-rating-label">Select a rating</span>
+      </div>
+    </div>
+
+    <!-- Expectations -->
+    <div class="field">
+      <label>
+        Did the expo meet your expectations?
+        <span class="required">*</span>
+      </label>
+
+      <div class="option-group">
+        <div class="option">
+          <input
+            type="radio"
+            id="expectation-yes"
+            name="expectations"
+            value="yes">
+
+          <label for="expectation-yes">
+            Yes
+          </label>
+        </div>
+
+        <div class="option">
+          <input
+            type="radio"
+            id="expectation-partially"
+            name="expectations"
+            value="partially">
+
+          <label for="expectation-partially">
+            Partially
+          </label>
+        </div>
+
+        <div class="option">
+          <input
+            type="radio"
+            id="expectation-no"
+            name="expectations"
+            value="no">
+
+          <label for="expectation-no">
+            No
+          </label>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Feedback -->
+  <div class="card">
+    <div class="section-title">
+      Your Feedback
+    </div>
+
+    <div class="field">
+      <label>
+        Comment your suggestions
+      </label>
+
+      <textarea
+        id="suggestions"
+        placeholder="Share your suggestions to improve future events..."></textarea>
+    </div>
+
+    <div class="field">
+      <label>
+        Any specific connect
+      </label>
+
+      <textarea
+        id="specific_connect"
+        placeholder="Mention any company, stall or person you connected with..."></textarea>
+    </div>
+  </div>
+
+  <!-- About You -->
+  <div class="card">
+    <div class="section-title">
+      About You
+    </div>
+
+    <div class="field">
+      <label>Name</label>
+
+      <input
+        type="text"
+        id="visitor_name"
+        value="<%= @visitor.full_name %>"
+        disabled>
+
+      <div class="optional-note">
+        Optional
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Mobile Number</label>
+
+      <div class="phone-wrap">
+        <span class="phone-prefix">+91</span>
 
         <input
-          type="text"
-          id="visitor_name"
-          placeholder="Your name"
-          value="<%= @visitor.full_name %>"
+          type="tel"
+          id="mobile_number"
+          maxlength="10"
+          value="<%= @visitor.mobile_number %>"
           disabled>
-
-        <div class="optional-note">
-          Optional
-        </div>
       </div>
 
-      <div class="field">
-        <label>
-          Mobile Number
-        </label>
-
-        <div class="phone-wrap">
-          <span class="phone-prefix">+91</span>
-
-          <input
-            type="tel"
-            id="mobile_number"
-            placeholder="10-digit mobile"
-            maxlength="10"
-            pattern="[6-9][0-9]{9}"
-            value="<%= @visitor.mobile_number %>"
-            disabled>
-        </div>
-
-        <div class="optional-note">
-          Optional
-        </div>
+      <div class="optional-note">
+        Optional
       </div>
     </div>
-
-    <div id="error-feedback" class="error-msg"></div>
-    <button
-      class="btn-primary"
-      onclick="submitFeedback()"
-      id="btn-submit">
-      Submit Feedback →
-    </button>
   </div>
+
+  <div id="error-feedback" class="error-msg"></div>
+
+  <button
+    class="btn-primary"
+    onclick="submitFeedback()"
+    id="btn-submit">
+    Submit Feedback →
+  </button>
+
+</div>
 
   <!-- SUCCESS -->
   <div id="success-screen">
@@ -674,7 +638,6 @@
 <script>
 const EVENT_ID = "<%= @event.id %>";
 const VISITOR_ID = "<%= @visitor.id %>";
-const API_BASE = "/api/v1";
 
 const ratingLabels = {
   1: "Very Poor",
@@ -684,29 +647,39 @@ const ratingLabels = {
   5: "Excellent"
 };
 
-document.querySelectorAll('input[name="rating"]').forEach(input => {
-  input.addEventListener("change", function() {
-    document.getElementById("rating-label").textContent =
-      ratingLabels[this.value];
+// Update rating labels for all rating groups
+["overall_rating", "stall_rating", "food_court_rating"].forEach(name => {
+  document.querySelectorAll(`input[name="${name}"]`).forEach(input => {
+    input.addEventListener("change", function () {
+      const labelId = {
+        overall_rating: "overall-rating-label",
+        stall_rating: "stall-rating-label",
+        food_court_rating: "food-rating-label"
+      }[name];
+
+      const label = document.getElementById(labelId);
+      if (label) {
+        label.textContent = ratingLabels[this.value];
+      }
+    });
   });
 });
 
 function showError(message) {
   const el = document.getElementById("error-feedback");
-
   el.style.display = "block";
   el.textContent = message;
 }
 
 function clearError() {
   const el = document.getElementById("error-feedback");
-
   el.style.display = "none";
 }
 
 function getRadioValue(name) {
-  const selected =
-    document.querySelector(`input[name="${name}"]:checked`);
+  const selected = document.querySelector(
+    `input[name="${name}"]:checked`
+  );
 
   return selected ? selected.value : null;
 }
@@ -714,67 +687,63 @@ function getRadioValue(name) {
 async function submitFeedback() {
   clearError();
 
-  const rating = getRadioValue("rating");
-  const organizationRating = getRadioValue("organization_rating");
-  const venueRating = getRadioValue("venue_rating");
-  const exhibitorRating = getRadioValue("exhibitor_rating");
-  const recommend = getRadioValue("recommend");
+  const overallRating = getRadioValue("overall_rating");
+  const stallRating = getRadioValue("stall_rating");
+  const foodCourtRating = getRadioValue("food_court_rating");
+  const expectations = getRadioValue("expectations");
 
-  if (!rating) {
-    showError("Please select your overall rating.");
+  if (!overallRating) {
+    showError("Please rate the overall event.");
     return;
   }
 
-  if (!organizationRating) {
-    showError("Please rate the event organization.");
+  if (!stallRating) {
+    showError("Please rate the stall.");
     return;
   }
 
-  if (!venueRating) {
-    showError("Please rate the venue and facilities.");
+  if (!foodCourtRating) {
+    showError("Please rate the food court.");
     return;
   }
 
-  if (!exhibitorRating) {
-    showError("Please rate your exhibitor experience.");
+  if (!expectations) {
+    showError("Please let us know if the expo met your expectations.");
     return;
   }
 
-  if (!recommend) {
-    showError("Please let us know if you would recommend this event.");
-    return;
-  }
-
-  const mobile =
-    document.getElementById("mobile_number").value.trim();
+  const mobile = document
+    .getElementById("mobile_number")
+    .value.trim();
 
   if (mobile && !/^[6-9]\d{9}$/.test(mobile)) {
-    showError(
-      "Please enter a valid 10-digit Indian mobile number."
-    );
-
+    showError("Please enter a valid 10-digit Indian mobile number.");
     return;
   }
 
   const btn = document.getElementById("btn-submit");
 
   btn.disabled = true;
-
   btn.innerHTML =
-    '<span class="loading-spinner"></span> Submitting…';
+    '<span class="loading-spinner"></span> Submitting...';
 
   const body = {
     event_id: EVENT_ID,
     visitor_id: VISITOR_ID,
     feedback: {
-      overall_rating: Number(rating),
-      organization_rating: Number(organizationRating),
-      venue_rating: Number(venueRating),
-      exhibitor_rating: Number(exhibitorRating),
-      liked: document.getElementById("liked").value.trim(),
-      improvements: document.getElementById("improvements").value.trim(),
-      recommend: recommend === "yes",
-      visitor_name: document.getElementById("visitor_name").value.trim(),
+      overall_rating: Number(overallRating),
+      stall_rating: Number(stallRating),
+      food_court_rating: Number(foodCourtRating),
+      expectations: expectations,
+      suggestions: document
+        .getElementById("suggestions")
+        .value.trim(),
+      specific_connect: document
+        .getElementById("specific_connect")
+        .value.trim(),
+      visitor_name: document
+        .getElementById("visitor_name")
+        .value.trim(),
       mobile_number: mobile
     }
   };
@@ -796,10 +765,9 @@ async function submitFeedback() {
     const data = await res.json();
 
     if (data.success) {
-      document.getElementById("feedback-form")
-        .style.display = "none";
-      document.getElementById("success-screen")
-        .style.display = "block";
+      document.getElementById("feedback-form").style.display = "none";
+      document.getElementById("success-screen").style.display = "block";
+
       window.scrollTo({
         top: 0,
         behavior: "smooth"
@@ -809,6 +777,7 @@ async function submitFeedback() {
         data.error ||
         "Unable to submit feedback. Please try again."
       );
+
       btn.disabled = false;
       btn.innerHTML = "Submit Feedback →";
     }
@@ -816,6 +785,7 @@ async function submitFeedback() {
     showError(
       "Network error. Please check your connection and try again."
     );
+
     btn.disabled = false;
     btn.innerHTML = "Submit Feedback →";
   }
