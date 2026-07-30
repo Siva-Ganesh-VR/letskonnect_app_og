@@ -122,6 +122,59 @@ module Api
           )
         end
 
+        def export_visitors_excel
+          if params[:event_id].present?
+            visitors = @event.visitors.verified
+          else
+            # collect visitors across all events owned by this organizer
+            event_ids = @current_organizer.events.pluck(:id)
+            visitors = ::Visitor.where(event_id: event_ids).verified
+          end
+
+          visitors = visitors.where("full_name ILIKE ?", "%#{params[:search]}%") if params[:search].present?
+
+          package = Axlsx::Package.new
+          workbook = package.workbook
+
+          workbook.add_worksheet(name: "Visitors") do |sheet|
+            sheet.add_row [
+              "#", "Visitor ID", "Name", "Mobile", "Email",
+              "Business Name", "Category", "Profession", "Location",
+              "Designation", "Website", "Registered At"
+            ]
+
+            visitors.each_with_index do |v, i|
+              sheet.add_row [
+                i + 1,
+                v.visitor_id_code,
+                v.full_name,
+                v.mobile_number,
+                v.email,
+                v.business_name,
+                v.business_category,
+                v.profession,
+                v.location,
+                v.designation,
+                v.website,
+                v.created_at.strftime("%d %b %Y %H:%M")
+              ]
+            end
+
+            sheet.column_widths 4, 16, 25, 14, 28, 28, 20, 18, 15, 15, 28, 18
+          end
+          if params[:event_id].present?
+            filename = "visitors_#{@event.name.parameterize}_#{Date.current}.xlsx"
+          else
+            filename = "all_organizer_visitors_#{Date.current}.xlsx"
+          end
+
+          send_data(
+            package.to_stream.read,
+            filename: filename,
+            type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+          )
+        end
+
         private
 
         def set_event

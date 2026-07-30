@@ -47,6 +47,7 @@ Rails.application.routes.draw do
           member   { post :whatsapp; post :call_log; patch :toggle_favorite }
           collection do
             get  :summary
+            post :export_leads
             post :export
             get  "export/:job_id/status", to: "leads#export_status"
           end
@@ -59,6 +60,7 @@ Rails.application.routes.draw do
       namespace :organizer do
         get "stall_owners",             to: "stall_owners#index"
         get "visitors",                 to: "visitors#index"
+        get "export_visitors_excel",     to: "visitors#export_visitors_excel"
         resources :stall_types,         only: [:index, :create]
         resources :stall_sizes,         only: [:index, :create]
         resources :stall_categories,    only: [:index, :create]
@@ -81,7 +83,10 @@ Rails.application.routes.draw do
             end
           end
           resources :visitors, only: [:index, :show] do
-            collection { post :export; get "export/:job_id/status", to: "visitors#export_status" }
+            collection do
+              post :export; get "export/:job_id/status", to: "visitors#export_status"
+              get :export_visitors_excel 
+            end
           end
         end
 

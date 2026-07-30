@@ -1472,6 +1472,55 @@ async function saveNotes() {
 async function exportLeads(filter) {
   const eventId = document.getElementById("stall-owner-event-sel").value;
 
+  const headers = {
+    "Authorization": "Bearer " + token,
+    "Content-Type": "application/json"
+  };
+
+  const response = await fetch(
+    API + `/stall_owner/leads/export_leads?event_id=${encodeURIComponent(eventId)}`,
+    {
+      method: "POST",
+      headers,
+      body: JSON.stringify(filter ? { temperature: filter } : {})
+    }
+  );
+  
+  if (response.status === 401) {
+    doLogout();
+    return;
+  }
+
+  if (!response.ok) {
+    alert("Export failed");
+    return;
+  }
+
+  const blob = await response.blob();
+
+  // Get filename from Rails if present
+  let filename = "leads.xlsx";
+  const disposition = response.headers.get("Content-Disposition");
+  if (disposition) {
+    const match = disposition.match(/filename="?([^"]+)"?/);
+    if (match) filename = match[1];
+  }
+
+  const url = window.URL.createObjectURL(blob);
+
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+
+  window.URL.revokeObjectURL(url);
+}
+
+/*async function exportLeads(filter) {
+  const eventId = document.getElementById("stall-owner-event-sel").value;
+
   const body = filter ? { temperature: filter } : {};
   const res  = await apiFetch(`/stall_owner/leads/export?event_id=${encodeURIComponent(eventId)}`, "POST", body);
   const el   = document.getElementById("export-status");
@@ -1484,7 +1533,7 @@ async function exportLeads(filter) {
     el.textContent = "❌ " + (res.error||"Failed");
     el.style.color  = "#fca5a5";
   }
-}
+}*/
 
 async function pollExport(jobId, eventId) {
   for (let i=0; i<30; i++) {

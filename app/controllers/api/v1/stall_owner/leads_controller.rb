@@ -115,6 +115,20 @@ module Api
           })
         end
 
+        def export_leads
+          stall_owner = selected_stall_owner
+
+          data = LeadsExportService.new(stall_owner, params).generate
+
+          filename = "leads_#{stall_owner.company_name.parameterize}_#{Date.current}.xlsx"
+
+          send_data(
+            data,
+            filename: filename,
+            type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+          )
+        end
+
         private
 
         # ── FIXED: search lead across ALL stall owner records for this

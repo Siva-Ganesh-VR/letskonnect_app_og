@@ -1967,9 +1967,56 @@
 
     async function exportVisitors() {
       const eid = document.getElementById("visitor-event-sel").value;
-      if (eid == "all") { toast("Select an event first", "error"); return; }
-      const res = await post(`/organizer/events/${eid}/visitors/export`, { format: "excel" });
-      toast(res.success ? "Export started! Download link will be sent via WhatsApp 📊" : res.error || "Failed", res.success ? "ok" : "error");
+      const search = document.getElementById("visitor-search").value || "";
+      let response;
+
+      if (eid === 'all') {
+        response = await fetch(`/api/v1/organizer/export_visitors_excel?search=${encodeURIComponent(search)}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
+      } else {
+        response = await fetch(`/api/v1/organizer/events/${eid}/visitors/export_visitors_excel?search=${encodeURIComponent(search)}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
+      }
+
+      if (!response.ok) {
+        toast("Export failed", "error");
+        return;
+      }
+
+      const blob = await response.blob();
+
+      // Get filename from Rails if present
+      let filename;
+      if (eid === "all") {
+        filename = "all_organizer_visitors.xlsx";
+      } else {
+        filename = "visitors.xlsx";
+      }
+      
+      const disposition = response.headers.get("Content-Disposition");
+      if (disposition) {
+        const match = disposition.match(/filename="?([^"]+)"?/);
+        if (match) filename = match[1];
+      }
+
+      const url = window.URL.createObjectURL(blob);
+
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+
+      window.URL.revokeObjectURL(url);
     }
 
     // ── Analytics ─────────────────────────────────────────────────────────────
