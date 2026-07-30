@@ -13,7 +13,7 @@
 **Effective Date:** July 14, 2026
 **Last Updated:** July 14, 2026
 
-**URL:** https://stallconnect.in/privacy-policy
+**URL:** https://stallconnect.com/privacy-policy
 
 ---
 
@@ -21,8 +21,8 @@
 
 StallConnect is a product of **Bhive Technologies**, a company registered in Tamil Nadu, India, with offices in Madurai and Chennai.
 
-- **Website:** https://stallconnect.in
-- **Email:** support@stallconnect.in
+- **Website:** https://stallconnect.com
+- **Email:** support@stallconnect.com
 - **Address:** Bhive Technologies, Tamil Nadu, India
 
 ---
@@ -167,7 +167,7 @@ Under the Digital Personal Data Protection Act, 2023, you have the right to:
 - **Erasure** of your personal data
 - **Grievance redressal** — contact our Data Protection Officer
 
-To exercise any of these rights, email us at **support@stallconnect.in** with the subject line "Data Rights Request".
+To exercise any of these rights, email us at **support@stallconnect.com** with the subject line "Data Rights Request".
 
 We will respond within 30 days.
 
@@ -177,7 +177,7 @@ We will respond within 30 days.
 
 To request deletion of your account and all associated data:
 
-1. Email **support@stallconnect.in** with subject: "Account Deletion Request"
+1. Email **support@stallconnect.com** with subject: "Account Deletion Request"
 2. Include your registered mobile number
 3. We will confirm and process the deletion within 7 business days
 4. All your personal data, lead data, and account information will be permanently deleted
@@ -187,7 +187,7 @@ To request deletion of your account and all associated data:
 
 ## Children's Privacy
 
-StallConnect is a business application intended for adults only. We do not knowingly collect personal information from anyone under the age of 18. If you believe a minor has used the App, please contact us immediately at support@stallconnect.in.
+StallConnect is a business application intended for adults only. We do not knowingly collect personal information from anyone under the age of 18. If you believe a minor has used the App, please contact us immediately at support@stallconnect.com.
 
 ---
 
@@ -201,8 +201,8 @@ We may update this Privacy Policy from time to time. We will notify you of signi
 
 **Bhive Technologies**
 Tamil Nadu, India
-Email: support@stallconnect.in
-Website: https://stallconnect.in
+Email: support@stallconnect.com
+Website: https://stallconnect.com
 
 ---
 ---
@@ -210,7 +210,7 @@ Website: https://stallconnect.in
 # 2. TERMS OF SERVICE
 
 **Effective Date:** July 14, 2026
-**URL:** https://stallconnect.in/terms
+**URL:** https://stallconnect.com/terms
 
 ---
 
@@ -235,7 +235,7 @@ The App is operated by **Bhive Technologies**, Tamil Nadu, India.
 
 - Your account credentials (mobile number and pass code) are personal and confidential
 - You are responsible for all activity that occurs under your account
-- You must notify us immediately at support@stallconnect.in if you suspect unauthorised access
+- You must notify us immediately at support@stallconnect.com if you suspect unauthorised access
 - You must not share your pass code with others
 
 ---
@@ -328,7 +328,7 @@ We reserve the right to update these Terms. Continued use of the App after chang
 ## Contact
 
 Bhive Technologies, Tamil Nadu, India
-Email: support@stallconnect.in
+Email: support@stallconnect.com
 
 ---
 ---
@@ -374,7 +374,7 @@ Laws of India, courts of Madurai, Tamil Nadu.
 
 # 4. ACCEPTABLE USE POLICY
 
-**URL:** https://stallconnect.in/acceptable-use
+**URL:** https://stallconnect.com/acceptable-use
 
 ---
 
@@ -398,7 +398,7 @@ Violations may result in immediate account suspension and reporting to appropria
 
 # 5. DATA RETENTION POLICY
 
-**URL:** https://stallconnect.in/data-retention
+**URL:** https://stallconnect.com/data-retention
 
 ---
 
@@ -413,14 +413,14 @@ Violations may result in immediate account suspension and reporting to appropria
 | Analytics (aggregated) | 36 months | Non-identifiable, retained for service improvement |
 | Support communications | 24 months | Deleted on request |
 
-To request early deletion, contact support@stallconnect.in.
+To request early deletion, contact support@stallconnect.com.
 
 ---
 ---
 
 # 6. ACCOUNT AND DATA DELETION POLICY
 
-**URL:** https://stallconnect.in/delete-account
+**URL:** https://stallconnect.com/delete-account
 
 ---
 
@@ -429,7 +429,7 @@ You have the right to request deletion of your StallConnect account and all asso
 ## How to Request Deletion
 
 **Method 1 — Email:**
-1. Send an email to **support@stallconnect.in**
+1. Send an email to **support@stallconnect.com**
 2. Subject: "Account Deletion Request"
 3. Include your registered mobile number
 4. We will confirm receipt within 2 business days
@@ -488,7 +488,7 @@ StallConnect uses the following open source packages:
 | twilio-ruby | MIT | Twilio |
 | pagy | MIT | Domizio Demichelis |
 
-Full licence texts are available at https://stallconnect.in/open-source
+Full licence texts are available at https://stallconnect.com/open-source
 
 ---
 ---
@@ -501,7 +501,7 @@ StallConnect is a business application designed for adults who are professional 
 
 If you are under 18, you must not use this App.
 
-If we become aware that a child under 18 has provided personal information, we will delete it immediately. Contact us at support@stallconnect.in if you have concerns.
+If we become aware that a child under 18 has provided personal information, we will delete it immediately. Contact us at support@stallconnect.com if you have concerns.
 
 ---
 ---
@@ -522,16 +522,16 @@ Bhive Technologies takes the security of your data seriously.
 
 ## Reporting Security Issues
 
-If you discover a security vulnerability, please contact us immediately at **support@stallconnect.in** with subject "Security Issue". Do not disclose security issues publicly until we have had the opportunity to address them.
+If you discover a security vulnerability, please contact us immediately at **support@stallconnect.com** with subject "Security Issue". Do not disclose security issues publicly until we have had the opportunity to address them.
 
 ---
 ---
 
 # 11. SUPPORT POLICY
 
-**URL:** https://stallconnect.in/support
+**URL:** https://stallconnect.com/support
 
-**Support Email:** support@stallconnect.in
+**Support Email:** support@stallconnect.com
 
 ## Support Hours
 
@@ -579,12 +579,12 @@ Use of the App is at your own risk. Bhive Technologies shall not be liable for a
 # 13. CONTACT US
 
 **Company:** Bhive Technologies
-**Email:** support@stallconnect.in
-**Website:** https://stallconnect.in
+**Email:** support@stallconnect.com
+**Website:** https://stallconnect.com
 **Location:** Tamil Nadu, India (Madurai & Chennai)
 
-For privacy and data requests: support@stallconnect.in (Subject: Data Rights Request)
-For account deletion: support@stallconnect.in (Subject: Account Deletion Request)
-For security issues: support@stallconnect.in (Subject: Security Issue)
-For general support: support@stallconnect.in
+For privacy and data requests: support@stallconnect.com (Subject: Data Rights Request)
+For account deletion: support@stallconnect.com (Subject: Account Deletion Request)
+For security issues: support@stallconnect.com (Subject: Security Issue)
+For general support: support@stallconnect.com
 
