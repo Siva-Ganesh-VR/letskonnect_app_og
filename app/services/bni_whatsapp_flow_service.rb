@@ -17,45 +17,27 @@ class BniWhatsappFlowService
     "other" => "Other"
   }.freeze
 
-  YES_VALUES = %w[
-    yes y yeah yep true 1
-  ].freeze
-
-  NO_VALUES = %w[
-    no n nope false 0
-  ].freeze
-
   def initialize(visitor, message_body)
     @visitor = visitor
     @message = message_body.to_s.strip
   end
 
   def process
-    @visitor.with_lock do
-      @visitor.reload
+    case @visitor.whatsapp_state
+    when "start"
+      ask_name
 
-      case @visitor.whatsapp_state
-      when "start"
-        ask_name
+    when "bni_ask_name"
+      save_name
 
-      when "bni_ask_name"
-        save_name
+    when "bni_ask_category"
+      save_category
 
-      when "bni_ask_company"
-        save_company
+    when "bni_ask_chapter"
+      save_chapter
 
-      when "bni_ask_designation"
-        save_designation
-
-      when "bni_ask_category"
-        save_category
-
-      when "bni_ask_chapter"
-        save_chapter
-
-      when "bni_ask_member"
-        save_member
-      end
+    when "bni_ask_region"
+      save_region
     end
   end
 
@@ -71,60 +53,18 @@ class BniWhatsappFlowService
   end
 
   def save_name
-    if @message.blank?
-      WhatsappService.send_message(
-        @visitor.mobile_number,
-        "Please enter your name."
-      )
-      return
-    end
+  if @message.blank?
+    WhatsappService.send_message(
+      @visitor.mobile_number,
+      "Please enter your name."
+    )
+    return
+  end
 
-    save_answer("bni_name", @message)
+  save_answer("bni_name", @message)
 
     @visitor.update!(
       full_name: @message.titleize,
-      whatsapp_state: "bni_ask_company"
-    )
-
-    WhatsappService.send_message(
-      @visitor.mobile_number,
-      "🏢 What is your Company Name?"
-    )
-  end
-
-  def save_company
-    if @message.blank?
-      WhatsappService.send_message(
-        @visitor.mobile_number,
-        "Please enter your company name."
-      )
-      return
-    end
-
-    save_answer("bni_company", @message)
-
-    @visitor.update!(
-      whatsapp_state: "bni_ask_designation"
-    )
-
-    WhatsappService.send_message(
-      @visitor.mobile_number,
-      "💼 What is your Designation?"
-    )
-  end
-
-  def save_designation
-    if @message.blank?
-      WhatsappService.send_message(
-        @visitor.mobile_number,
-        "Please enter your designation."
-      )
-      return
-    end
-
-    save_answer("bni_designation", @message)
-
-    @visitor.update!(
       whatsapp_state: "bni_ask_category"
     )
 
@@ -166,7 +106,7 @@ class BniWhatsappFlowService
 
     WhatsappService.send_message(
       @visitor.mobile_number,
-      "🏢 Which BNI Chapter are you a member of?"
+      "🏢 Please enter your Chapter Name."
     )
   end
 
@@ -174,7 +114,7 @@ class BniWhatsappFlowService
     if @message.blank?
       WhatsappService.send_message(
         @visitor.mobile_number,
-        "Please enter your BNI chapter."
+        "Please enter your Chapter Name."
       )
       return
     end
@@ -182,39 +122,25 @@ class BniWhatsappFlowService
     save_answer("bni_chapter", @message)
 
     @visitor.update!(
-      whatsapp_state: "bni_ask_member"
+      whatsapp_state: "bni_ask_region"
     )
 
     WhatsappService.send_message(
       @visitor.mobile_number,
-      "🤝 Are you currently a BNI Member?\n\n" \
-      "1. Yes\n" \
-      "2. No"
+      "🌍 Please enter your Region."
     )
   end
 
-  def save_member
-    value = normalized_message
-
-    member =
-      if YES_VALUES.include?(value)
-        true
-      elsif NO_VALUES.include?(value)
-        false
-      else
-        nil
-      end
-
-    if member.nil?
+  def save_region
+    if @message.blank?
       WhatsappService.send_message(
         @visitor.mobile_number,
-        "Please reply with Yes or No.\n\n" \
-        "Are you currently a BNI Member?"
+        "Please enter your Region."
       )
       return
     end
 
-    save_answer("bni_member", member ? "Yes" : "No")
+    save_answer("bni_region", @message)
 
     @visitor.update!(
       whatsapp_state: "completed",

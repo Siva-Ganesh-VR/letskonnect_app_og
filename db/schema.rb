@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_07_30_063830) do
+ActiveRecord::Schema[7.2].define(version: 2026_07_30_073622) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pgcrypto"
   enable_extension "plpgsql"
@@ -138,14 +138,13 @@ ActiveRecord::Schema[7.2].define(version: 2026_07_30_063830) do
     t.uuid "event_id", null: false
     t.uuid "visitor_id", null: false
     t.integer "overall_rating", null: false
-    t.integer "organization_rating", null: false
-    t.integer "venue_rating", null: false
-    t.integer "exhibitor_rating", null: false
-    t.text "liked"
-    t.text "improvements"
-    t.boolean "recommend", null: false
+    t.integer "stall_rating", null: false
+    t.integer "food_court_rating", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "expectations", null: false
+    t.text "suggestions"
+    t.text "specific_connect"
     t.index ["event_id", "visitor_id"], name: "index_feedbacks_on_event_id_and_visitor_id", unique: true
     t.index ["event_id"], name: "index_feedbacks_on_event_id"
     t.index ["visitor_id"], name: "index_feedbacks_on_visitor_id"
