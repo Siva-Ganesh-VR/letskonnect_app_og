@@ -4243,12 +4243,7 @@
 
         document.getElementById("details-content").innerHTML =
           buildTemplateDetailsHTML(res.data);
-        const templateType = res.data.template_type;
-        if (templateType == "question") {
-          await loadTemplateQuestions(res.data.questions);
-        } else {
-          await loadTemplateMessage(res.data.message);
-        }
+        
       } catch (e) {
         document.getElementById("details-content").innerHTML =
           `<div class="empty">Unable to load template.</div>`;
@@ -4262,7 +4257,6 @@
       }[t.active] || "rgba(255,255,255,0.6)";
 
       return `
-        <!-- Existing Template Details Card -->
         <div style="background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:20px;margin-bottom:20px;box-shadow:var(--shadow)">
           <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:16px">
             <div>
@@ -4270,10 +4264,8 @@
               <div style="font-size:13px;color:var(--text2);margin-top:4px">${t.id || "—"}</div>
             </div>
 
-            <span class="badge" style="
-              background:${statusColor}1a;
-              color:${statusColor};
-              border:1px solid ${statusColor}40;">
+            <span class="badge"
+              style="background:${statusColor}1a;color:${statusColor};border:1px solid ${statusColor}40;">
               ${t.active ? "Active" : "Inactive"}
             </span>
           </div>
@@ -4281,56 +4273,77 @@
           <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px">
             ${detailChip("🏢 Template Type", t.template_type)}
           </div>
-        </div>`;
+        </div>
+
+        ${
+          t.template_type === "question"
+            ? loadTemplateQuestions(t.questions || [])
+            : ""
+        }
+
+        ${
+          t.template_type === "message"
+            ? `
+              <div class="table-wrap">
+                <div class="table-header">
+                  <div>
+                    <div class="table-title">Template Message</div>
+                  </div>
+                </div>
+                <div style="padding:16px;white-space:pre-wrap;">
+                  ${t.message || "-"}
+                </div>
+              </div>
+            `
+            : ""
+        }
+      `;
     }
 
-    function loadTemplateQuestions(questions) {
-
-      const tbody = questions.map(t => `
-        <tr>
-          <td>${t.question}</td>
-          <td>${t.field_type}</td>
-          <td>${t.required}</td>
-          <td>${t.options}</td>
-        </tr>
-      `).join("");
+    function loadTemplateQuestions(questions = []) {
+      const tbody = questions.length
+        ? questions.map(q => `
+            <tr>
+              <td>${q.question}</td>
+              <td>${q.field_type}</td>
+              <td>${q.required ? "Yes" : "No"}</td>
+              <td>${
+                Array.isArray(q.options)
+                  ? q.options.join(", ")
+                  : (q.options || "-")
+              }</td>
+            </tr>
+          `).join("")
+        : `
+          <tr>
+            <td colspan="4">
+              ${emptyHtml("📍", "No questions found")}
+            </td>
+          </tr>
+        `;
 
       return `
         <div class="table-wrap">
-
           <div class="table-header">
             <div>
               <div class="table-title">Template Questions</div>
-              <div class="page-sub">
-                template questions
-              </div>
+              <div class="page-sub">Template questions</div>
             </div>
           </div>
 
-          <div>
-            <table>
-              <thead>
-                <tr>
-                  <th>Question</th>
-                  <th>Field Type</th>
-                  <th>Required</th>
-                  <th>Options</th>
-                </tr>
-              </thead>
-
-              <tbody>
-                ${
-                  tbody ||
-                  `<tr>
-                    <td colspan="4">
-                      ${emptyHtml("📍","No questions found")}
-                    </td>
-                  </tr>`
-                }
-              </tbody>
-            </table>
-          </div>
-
+          <table>
+            <thead>
+              <tr>
+                <th>Question</th>
+                <th>Field Type</th>
+                <th>Required</th>
+                <th>Options</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${tbody}
+            </tbody>
+          </table>
         </div>
       `;
     }

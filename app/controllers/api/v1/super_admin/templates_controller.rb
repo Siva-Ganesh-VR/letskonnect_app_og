@@ -26,8 +26,16 @@ module Api
         end
 
         def show
-          t = Template.find(params[:id])
-          json_success(template_resp(t))
+          template = Template.find(params[:id])
+          response = template_resp(template)
+
+          if template.template_type == "question"
+            response[:questions] = template.template_questions
+          elsif template.template_type == "message"
+            response[:message] = template.template_messages.first&.message
+          end
+
+          json_success(response)
         end
 
         def destroy
