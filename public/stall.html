@@ -655,43 +655,134 @@ textarea.note-area:focus{border-color:var(--accent)}
     <div class="page" id="page-create-lead">
 
       <!-- ── Card Scanner ── -->
-      <input type="file" id="cs-file-input" accept="image/*" capture="environment" style="display:none" onchange="csHandleFile(this.files[0])">
+      <input type="file" id="cs-file-input" accept="image/*" style="display:none" onchange="csHandleFile(this.files[0])">
 
-      <button id="cs-scan-btn" onclick="csTriggerPicker()" type="button"
+      <!-- Trigger button -->
+      <button id="cs-scan-btn" onclick="csShowOptions()" type="button"
         style="width:100%;display:flex;align-items:center;justify-content:center;gap:10px;
                background:linear-gradient(135deg,rgba(34,197,94,.15),rgba(16,163,74,.1));
                border:1.5px dashed rgba(34,197,94,.5);border-radius:12px;
                padding:14px 20px;color:#22c55e;font-size:14px;font-weight:700;
-               cursor:pointer;font-family:inherit;margin-bottom:14px;
-               transition:all .2s">
+               cursor:pointer;font-family:inherit;margin-bottom:14px;transition:all .2s">
         <span style="font-size:20px">📇</span>
         <span id="cs-btn-label">Scan Visiting Card</span>
       </button>
 
-      <div id="cs-progress-label" style="display:none;font-size:11px;color:rgba(255,255,255,.4);text-align:center;margin-bottom:6px">Reading card…</div>
-      <div id="cs-progress-bar-wrap" style="display:none;background:rgba(0,0,0,.4);border-radius:10px;overflow:hidden;margin-bottom:14px;height:6px">
-        <div id="cs-progress-bar" style="height:100%;background:linear-gradient(90deg,#22c55e,#16a34a);width:0%;transition:width .3s;border-radius:10px"></div>
+      <!-- Options sheet: Camera / Upload -->
+      <div id="cs-options-sheet" style="display:none;background:rgba(255,255,255,.04);
+           border:1px solid rgba(255,255,255,.1);border-radius:14px;
+           padding:16px;margin-bottom:14px">
+        <p style="font-size:12px;color:rgba(255,255,255,.4);margin-bottom:12px;text-align:center">
+          Choose how to scan the card
+        </p>
+        <div style="display:flex;gap:10px">
+          <button onclick="csOpenCamera()" type="button"
+            style="flex:1;padding:14px 10px;border-radius:10px;border:1px solid rgba(34,197,94,.4);
+                   background:rgba(34,197,94,.1);color:#22c55e;font-size:13px;font-weight:700;
+                   cursor:pointer;font-family:inherit;display:flex;flex-direction:column;
+                   align-items:center;gap:6px">
+            <span style="font-size:24px">📷</span>
+            <span>Open Camera</span>
+          </button>
+          <button onclick="csTriggerGallery()" type="button"
+            style="flex:1;padding:14px 10px;border-radius:10px;border:1px solid rgba(108,99,255,.4);
+                   background:rgba(108,99,255,.1);color:#a5b4fc;font-size:13px;font-weight:700;
+                   cursor:pointer;font-family:inherit;display:flex;flex-direction:column;
+                   align-items:center;gap:6px">
+            <span style="font-size:24px">🖼</span>
+            <span>Upload Photo</span>
+          </button>
+        </div>
       </div>
 
-      <div id="cs-preview-panel" style="display:none;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:14px;margin-bottom:14px">
-        <img id="cs-card-preview" alt="Card preview" style="width:100%;max-height:160px;object-fit:contain;border-radius:8px;margin-bottom:10px;background:#000">
-        <div id="cs-extracted-fields" style="font-size:12px;color:rgba(255,255,255,.6);line-height:1.7"></div>
+      <!-- Camera modal -->
+      <div id="cs-camera-modal" style="display:none;position:fixed;inset:0;
+           background:rgba(0,0,0,.9);z-index:2000;
+           display:none;align-items:center;justify-content:center">
+        <div style="background:#1a1a2e;border:1px solid rgba(255,255,255,.12);
+                    border-radius:18px;padding:20px;width:92%;max-width:540px">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+            <span style="font-size:15px;font-weight:700;color:#fff">📷 Scan Visiting Card</span>
+            <button onclick="csCloseCamera()" type="button"
+              style="background:rgba(255,255,255,.08);border:none;color:#fff;
+                     font-size:18px;cursor:pointer;width:32px;height:32px;
+                     border-radius:50%;display:flex;align-items:center;justify-content:center">×</button>
+          </div>
+          <div style="position:relative;border-radius:12px;overflow:hidden;background:#000">
+            <video id="cs-video" autoplay playsinline muted
+              style="width:100%;display:block;max-height:320px;object-fit:cover"></video>
+            <!-- Corner guides -->
+            <div style="position:absolute;inset:10%;pointer-events:none">
+              <div style="position:absolute;top:0;left:0;width:30px;height:30px;
+                          border-top:3px solid #22c55e;border-left:3px solid #22c55e;border-radius:3px 0 0 0"></div>
+              <div style="position:absolute;top:0;right:0;width:30px;height:30px;
+                          border-top:3px solid #22c55e;border-right:3px solid #22c55e;border-radius:0 3px 0 0"></div>
+              <div style="position:absolute;bottom:0;left:0;width:30px;height:30px;
+                          border-bottom:3px solid #22c55e;border-left:3px solid #22c55e;border-radius:0 0 0 3px"></div>
+              <div style="position:absolute;bottom:0;right:0;width:30px;height:30px;
+                          border-bottom:3px solid #22c55e;border-right:3px solid #22c55e;border-radius:0 0 3px 0"></div>
+            </div>
+          </div>
+          <p style="font-size:12px;color:rgba(255,255,255,.4);text-align:center;margin:10px 0 12px">
+            Hold the visiting card steady inside the guides
+          </p>
+          <select id="cs-cam-select" onchange="csChangeCamera()"
+            style="display:none;width:100%;background:rgba(255,255,255,.06);
+                   border:1px solid rgba(255,255,255,.1);border-radius:8px;
+                   padding:8px 12px;color:#fff;font-size:13px;margin-bottom:12px;outline:none"></select>
+          <div style="display:flex;gap:10px">
+            <button onclick="csCloseCamera()" type="button"
+              style="flex:1;padding:13px;border-radius:10px;font-size:13px;font-weight:700;
+                     cursor:pointer;font-family:inherit;background:rgba(255,255,255,.06);
+                     color:rgba(255,255,255,.6);border:1px solid rgba(255,255,255,.1)">
+              Cancel
+            </button>
+            <button onclick="csCaptureFrame()" type="button"
+              style="flex:2;padding:13px;border-radius:10px;font-size:15px;font-weight:700;
+                     cursor:pointer;font-family:inherit;border:none;
+                     background:linear-gradient(135deg,#22c55e,#16a34a);color:#fff;
+                     box-shadow:0 4px 14px rgba(34,197,94,.4)">
+              📸 Capture Card
+            </button>
+          </div>
+        </div>
+      </div>
+      <canvas id="cs-canvas" style="display:none"></canvas>
+
+      <!-- Progress -->
+      <div id="cs-progress-label" style="display:none;font-size:11px;
+           color:rgba(255,255,255,.4);text-align:center;margin-bottom:6px">Reading card…</div>
+      <div id="cs-progress-bar-wrap" style="display:none;background:rgba(0,0,0,.4);
+           border-radius:10px;overflow:hidden;margin-bottom:14px;height:6px">
+        <div id="cs-progress-bar" style="height:100%;
+             background:linear-gradient(90deg,#22c55e,#16a34a);
+             width:0%;transition:width .3s;border-radius:10px"></div>
       </div>
 
+      <!-- Preview + fields -->
+      <div id="cs-preview-panel" style="display:none;background:rgba(255,255,255,.04);
+           border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:14px;margin-bottom:14px">
+        <img id="cs-card-preview" alt="Card preview"
+          style="width:100%;max-height:200px;object-fit:contain;border-radius:8px;
+                 margin-bottom:12px;background:#000;display:block">
+        <div id="cs-extracted-fields"></div>
+      </div>
+
+      <!-- Action buttons -->
       <div id="cs-action-row" style="display:none;gap:8px;margin-bottom:14px;flex-wrap:wrap">
-        <button id="cs-apply-btn" onclick="csApplyFields()" type="button"
-          style="flex:1;min-width:120px;padding:10px 14px;border-radius:9px;font-size:13px;
+        <button onclick="csApplyFields()" type="button"
+          style="flex:2;min-width:140px;padding:12px;border-radius:10px;font-size:14px;
                  font-weight:700;cursor:pointer;font-family:inherit;border:none;
                  background:linear-gradient(135deg,#22c55e,#16a34a);color:#fff;
                  box-shadow:0 4px 12px rgba(34,197,94,.3)">
-          ✅ Fill Form
+          ✅ Fill Form with These Details
         </button>
-        <button id="cs-rescan-btn" onclick="csTriggerPicker()" type="button"
-          style="flex:1;min-width:120px;padding:10px 14px;border-radius:9px;font-size:13px;
+        <button onclick="csShowOptions()" type="button"
+          style="flex:1;min-width:100px;padding:12px;border-radius:10px;font-size:13px;
                  font-weight:700;cursor:pointer;font-family:inherit;
                  background:rgba(255,255,255,.06);color:rgba(255,255,255,.6);
                  border:1px solid rgba(255,255,255,.1)">
-          🔄 Rescan
+          🔄 Scan Again
         </button>
       </div>
       <!-- ── End Card Scanner ── -->
@@ -1438,7 +1529,7 @@ async function exportLeads(filter) {
   const eventId = document.getElementById("stall-owner-event-sel").value;
 
   const body = filter ? { temperature: filter } : {};
-  const res  = await apiFetch("/stall_owner/leads/export?event_id=${encodeURIComponent(eventId)}", "POST", body);
+  const res  = await apiFetch(`/stall_owner/leads/export?event_id=${encodeURIComponent(eventId)}`, "POST", body);
   const el   = document.getElementById("export-status");
   el.style.display = "block";
   if (res.success) {
@@ -1468,7 +1559,7 @@ async function pollExport(jobId, eventId) {
 async function loadScanHistory() {
   const eventId = document.getElementById("stall-owner-event-sel").value;
 
-  const res = await apiFetch("/stall_owner/scan/history?event_id=${encodeURIComponent(eventId)}");
+  const res = await apiFetch(`/stall_owner/scan/history?event_id=${encodeURIComponent(eventId)}`);
   document.getElementById("scan-history").innerHTML = (res.data||[]).map(s=>`
     <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px">
       <span style="font-weight:500">${s.visitor_name}</span>
@@ -1663,9 +1754,374 @@ document.addEventListener("DOMContentLoaded", checkAuth);
 window.addEventListener("pageshow", function () {
   checkAuth();
 });
-
 </script>
 <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
-<script src="/js/card_scanner.js"></script>
+<script>
+(function(){
+"use strict";
+var _s=null,_cam=[],_camId=null;
+
+window.csShowOptions=function(){
+  var s=document.getElementById("cs-options-sheet");
+  var p=document.getElementById("cs-preview-panel");
+  var a=document.getElementById("cs-action-row");
+  if(s)s.style.display=(s.style.display==="none"||!s.style.display)?"block":"none";
+  if(p)p.style.display="none";
+  if(a)a.style.display="none";
+};
+
+window.csOpenCamera=async function(){
+  var s=document.getElementById("cs-options-sheet");
+  if(s)s.style.display="none";
+  var modal=document.getElementById("cs-camera-modal");
+  if(modal)modal.style.display="flex";
+  try{
+    var devices=await navigator.mediaDevices.enumerateDevices();
+    _cam=devices.filter(function(d){return d.kind==="videoinput";});
+    var sel=document.getElementById("cs-cam-select");
+    if(sel&&_cam.length>1){
+      sel.style.display="block";
+      var o="";
+      for(var i=0;i<_cam.length;i++){
+        o+="<option value=\""+_cam[i].deviceId+"\">"+ (_cam[i].label||"Camera "+(i+1))+"</option>";
+      }
+      sel.innerHTML=o;
+      var bk=null;
+      for(var j=0;j<_cam.length;j++){if(/back|rear|environment/i.test(_cam[j].label)){bk=_cam[j];break;}}
+      _camId=bk?bk.deviceId:_cam[_cam.length-1].deviceId;
+      sel.value=_camId;
+    }else{
+      if(sel)sel.style.display="none";
+      _camId=(_cam[0]&&_cam[0].deviceId)||null;
+    }
+    await csStream(_camId);
+  }catch(err){
+    console.error(err);
+    csCloseCamera();
+    csT(err.name==="NotAllowedError"?"Camera permission denied. Allow in browser settings.":"Could not open camera. Use Upload Photo instead.");
+    csTriggerGallery();
+  }
+};
+
+async function csStream(did){
+  if(_s){_s.getTracks().forEach(function(t){t.stop();});_s=null;}
+  var c=did?
+    {video:{deviceId:{exact:did},width:{ideal:1920},height:{ideal:1080}}}:
+    {video:{facingMode:{ideal:"environment"},width:{ideal:1920},height:{ideal:1080}}};
+  _s=await navigator.mediaDevices.getUserMedia(c);
+  var v=document.getElementById("cs-video");
+  if(v){v.srcObject=_s;await v.play().catch(function(){});}
+}
+
+window.csChangeCamera=async function(){
+  var sel=document.getElementById("cs-cam-select");
+  if(!sel)return;
+  _camId=sel.value;
+  try{await csStream(_camId);}catch(e){csT("Could not switch camera.");}
+};
+
+window.csCaptureFrame=function(){
+  var v=document.getElementById("cs-video");
+  var cv=document.getElementById("cs-canvas");
+  if(!v||!cv)return;
+  cv.width=v.videoWidth||1280;
+  cv.height=v.videoHeight||720;
+  cv.getContext("2d").drawImage(v,0,0,cv.width,cv.height);
+  csCloseCamera();
+  cv.toBlob(function(b){if(b)csOCR(b);},"image/jpeg",0.98);
+};
+
+window.csCloseCamera=function(){
+  if(_s){_s.getTracks().forEach(function(t){t.stop();});_s=null;}
+  var m=document.getElementById("cs-camera-modal");
+  var v=document.getElementById("cs-video");
+  if(m)m.style.display="none";
+  if(v)v.srcObject=null;
+};
+
+window.csTriggerGallery=function(){
+  var s=document.getElementById("cs-options-sheet");
+  if(s)s.style.display="none";
+  var inp=document.getElementById("cs-file-input");
+  if(inp){inp.removeAttribute("capture");inp.value="";inp.click();}
+};
+
+window.csHandleFile=function(f){if(f)csOCR(f);};
+
+// Pre-process image for better OCR: upscale + grayscale + contrast
+function csPreProcess(src, cb){
+  var img=new Image();
+  img.onload=function(){
+    var W=img.width, H=img.height;
+    // Upscale small images for better OCR
+    var scale=1;
+    if(W<1200)scale=2;
+    if(W<600)scale=3;
+    var cv=document.createElement("canvas");
+    cv.width=W*scale; cv.height=H*scale;
+    var ctx=cv.getContext("2d");
+    // White background
+    ctx.fillStyle="#fff";
+    ctx.fillRect(0,0,cv.width,cv.height);
+    ctx.imageSmoothingEnabled=true;
+    ctx.imageSmoothingQuality="high";
+    ctx.drawImage(img,0,0,cv.width,cv.height);
+    // Apply grayscale + contrast boost
+    var id=ctx.getImageData(0,0,cv.width,cv.height);
+    var d=id.data;
+    for(var i=0;i<d.length;i+=4){
+      // Grayscale
+      var g=0.299*d[i]+0.587*d[i+1]+0.114*d[i+2];
+      // Contrast boost: stretch histogram
+      g=((g-128)*1.5)+128;
+      // Sharpen threshold for cleaner text
+      g=g<100?Math.max(0,g-20):Math.min(255,g+20);
+      g=Math.max(0,Math.min(255,g));
+      d[i]=d[i+1]=d[i+2]=g;
+    }
+    ctx.putImageData(id,0,0);
+    cv.toBlob(function(b){cb(b);},"image/png");
+  };
+  img.src=URL.createObjectURL(src);
+}
+
+async function csOCR(src){
+  var s=document.getElementById("cs-options-sheet");
+  if(s)s.style.display="none";
+  var prev=document.getElementById("cs-card-preview");
+  var panel=document.getElementById("cs-preview-panel");
+  var ef=document.getElementById("cs-extracted-fields");
+  var ar=document.getElementById("cs-action-row");
+  var btn=document.getElementById("cs-scan-btn");
+  var lbl=document.getElementById("cs-btn-label");
+  var pl=document.getElementById("cs-progress-label");
+  var pw=document.getElementById("cs-progress-bar-wrap");
+  var pb=document.getElementById("cs-progress-bar");
+
+  // Show original preview
+  if(prev)prev.src=URL.createObjectURL(src);
+  if(panel)panel.style.display="block";
+  if(ef)ef.innerHTML="";
+  if(ar)ar.style.display="none";
+  if(btn)btn.disabled=true;
+  if(lbl)lbl.textContent="Processing image...";
+  if(pl)pl.style.display="block";
+  if(pw)pw.style.display="block";
+  if(pb)pb.style.width="5%";
+
+  try{
+    if(typeof Tesseract==="undefined"){csT("OCR library not loaded. Check internet.");return;}
+
+    // Pre-process image first
+    csPreProcess(src, async function(processed){
+      try{
+        if(pb)pb.style.width="15%";
+        var result=await Tesseract.recognize(processed,"eng",{
+          logger:function(m){
+            if(m.status==="recognizing text"&&pb){
+              pb.style.width=Math.round(15+m.progress*80)+"%";
+            }
+          }
+        });
+        if(pb)pb.style.width="100%";
+        var txt=result.data.text;
+        var flds=csP(txt);
+        window._csF=flds;
+        csR(flds,txt);
+        if(ar)ar.style.display="flex";
+        csT("Card scanned! Review and tap Fill Form.");
+      }catch(err){
+        console.error(err);
+        csT("Could not read card. Please ensure good lighting and hold the card flat.");
+        if(ef)ef.innerHTML="<div style=\"color:#ef4444;padding:10px 0;font-size:13px\">"+
+          "Could not read card.<br><br>"+
+          "<strong>Tips for better results:</strong><br>"+
+          "&#8226; Good lighting — avoid shadows<br>"+
+          "&#8226; Hold card flat and steady<br>"+
+          "&#8226; Camera directly above card<br>"+
+          "&#8226; Card should fill the frame</div>";
+      }finally{
+        if(btn)btn.disabled=false;
+        if(lbl)lbl.textContent="Scan Another Card";
+        if(pl)pl.style.display="none";
+        if(pw)pw.style.display="none";
+        if(pb)pb.style.width="0%";
+      }
+    });
+  }catch(err){
+    console.error(err);
+    if(btn)btn.disabled=false;
+    if(lbl)lbl.textContent="Scan Another Card";
+    if(pl)pl.style.display="none";
+    if(pw)pw.style.display="none";
+  }
+}
+
+function csP(raw){
+  var f={full_name:"",mobile_number:"",email:"",business_name:"",designation:"",location:"",website:""};
+  var NL="\n";
+  var lines=raw.split(NL).map(function(l){return l.trim();}).filter(function(l){return l.length>1;});
+
+  // Email
+  var em=raw.match(/[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}/);
+  if(em)f.email=em[0].toLowerCase();
+
+  // Website
+  var wm=raw.match(/(?:www\.|https?:\/\/)\S+/i);
+  if(wm)f.website=wm[0].replace(/^https?:\/\//i,"www.").replace(/[,\s>]+$/,"");
+
+  // Mobile — fix OCR character errors then extract
+  // OCR commonly confuses: O/o→0, I/l/|→1, S→5, B→8, G→9, Z→2, T→7
+  var r2=raw
+    .replace(/[Oo]/g,"0")
+    .replace(/[Il|]/g,"1")
+    .replace(/S/g,"5")
+    .replace(/B/g,"8")
+    .replace(/G/g,"9")
+    .replace(/Z/g,"2");
+  // Remove spaces/dashes/dots between digits (run 4 times for gaps)
+  for(var x=0;x<4;x++)r2=r2.replace(/(\d)[\s\-._,](\d)/g,"$1$2");
+  // Also remove spaces within digit groups of 10+ 
+  r2=r2.replace(/(\d{3,})\s+(\d{3,})/g,"$1$2");
+  
+  var mobRe=[
+    /(?:\+91|0091|91)\s*([6-9]\d{9})/,
+    /\b([6-9]\d{9})\b/,
+    /([6789]\d{9})/
+  ];
+  for(var mi=0;mi<mobRe.length;mi++){
+    var mm=r2.match(mobRe[mi]);
+    if(mm){
+      var mob=(mm[1]||mm[0]).replace(/\D/g,"");
+      if(mob.length>10)mob=mob.slice(-10);
+      if(/^[6-9]\d{9}$/.test(mob)){f.mobile_number=mob;break;}
+    }
+  }
+
+  // Designation — look for title keywords
+  var dr=/\b(CEO|CTO|CFO|COO|CMO|MD|GM|VP|AVP|SVP|EVP|DGM|AGM|President|Vice[\s-]President|Director|Manager|Head|Lead|Senior|Junior|Associate|Founder|Co[\s-]Founder|Partner|Consultant|Advisor|Executive|Officer|Engineer|Architect|Designer|Developer|Analyst|Specialist|Proprietor|Owner|Chairman|Trustee|Principal|Incharge|In-charge)\b/i;
+  for(var di=0;di<lines.length;di++){
+    if(dr.test(lines[di])&&lines[di].length<70){f.designation=csClean(lines[di]);break;}
+  }
+
+  // Business name — company suffix patterns
+  var br=/\b(Pvt\.?\s*Ltd\.?|Private\s+Limited|Ltd\.?|Limited|LLP|Inc\.?|Corp\.?|Corporation|Enterprises?|Solutions?|Technologies?|Techno|Infotech|Services?|Systems?|Consultants?|Associates?|Group|Holdings?|Industries?|Ventures?|Works|Exports?|Trading|Pharma|Chemicals?|Agencies|Agency)\b/i;
+  for(var bi=0;bi<lines.length;bi++){
+    if(br.test(lines[bi])&&lines[bi].length<80){f.business_name=csClean(lines[bi]);break;}
+  }
+
+  // City — Indian cities list
+  var cities=["Mumbai","Delhi","Bangalore","Bengaluru","Hyderabad","Ahmedabad","Chennai","Kolkata","Surat","Pune","Jaipur","Lucknow","Kanpur","Nagpur","Indore","Thane","Bhopal","Visakhapatnam","Patna","Vadodara","Ghaziabad","Ludhiana","Agra","Nashik","Meerut","Faridabad","Rajkot","Coimbatore","Madurai","Noida","Gurugram","Gurgaon","Kochi","Ernakulam","Mysuru","Mysore","Trichy","Salem","Chandigarh","Jodhpur","Bhubaneswar","Raipur","Kota","Gwalior","Vijayawada","Solapur","Hubli","Mangalore","Tiruppur","Warangal","Aurangabad","Amritsar","Srinagar","Ranchi","Guwahati","Prayagraj","Navi Mumbai","Vapi","Anand","Gandhinagar","Kozhikode","Calicut","Thrissur","Thiruvananthapuram","Trivandrum","Puducherry","Pondicherry","Vizag"];
+  var cr=new RegExp("\\b("+cities.join("|")+")\\b","i");
+  var cm=raw.match(cr);
+  if(cm)f.location=csTc(cm[1]);
+  if(!f.location){
+    var pm=raw.match(/\b([A-Z][a-z]+(?: [A-Z][a-z]+)?)\s*[-\u2013]\s*\d{6}\b/);
+    if(pm)f.location=pm[1];
+  }
+
+  // Name — heuristic: first clean alphabetic line
+  // Skip lines that look like company/address/designation/contact info
+  var sk=/pvt|ltd|inc|corp|llp|group|enterprise|solution|service|technolog|consultant|associate|http|www\.|\.|@|mobile|phone|tel|mob|email|address|no\b|#|road|street|nagar|near|opp|plot|floor|building|gst|pan\b|pin\b|\d{4}|regd|iso|\bco\b/i;
+  for(var ni=0;ni<lines.length;ni++){
+    var c=lines[ni].replace(/[^a-zA-Z\s.]/g,"").trim();
+    // Must have at least 2 words or a decent length, all letters
+    var words=c.split(/\s+/).filter(function(w){return w.length>1;});
+    if(c.length>=4&&c.length<=45&&
+       /^[A-Za-z][A-Za-z\s.]*$/.test(c)&&
+       words.length>=1&&
+       !sk.test(c)&&
+       c.toLowerCase()!==(f.designation||"").toLowerCase()&&
+       c.toLowerCase()!==(f.business_name||"").toLowerCase()){
+      f.full_name=csTc(csClean(c));
+      break;
+    }
+  }
+  return f;
+}
+
+function csR(f,raw){
+  var el=document.getElementById("cs-extracted-fields");
+  if(!el)return;
+  var rows=[
+    {k:"Name",v:f.full_name,i:"&#128100;"},
+    {k:"Mobile",v:f.mobile_number,i:"&#128241;"},
+    {k:"Email",v:f.email,i:"&#9993;"},
+    {k:"Company",v:f.business_name,i:"&#127970;"},
+    {k:"Designation",v:f.designation,i:"&#128188;"},
+    {k:"Location",v:f.location,i:"&#128205;"},
+    {k:"Website",v:f.website,i:"&#127760;"}
+  ];
+  var detected=rows.filter(function(r){return r.v;}).length;
+  var h="<div style=\"font-size:11px;margin-bottom:10px;padding:6px 10px;border-radius:6px;background:"+(detected>=3?"rgba(34,197,94,.12)":"rgba(245,158,11,.12)")+";color:"+(detected>=3?"#86efac":"#fcd34d")+"\">"+
+    (detected>=3?"&#9989; "+detected+" of 7 fields detected":"&#9888; Only "+detected+" fields detected — card quality may be low")+
+    "</div>";
+  for(var i=0;i<rows.length;i++){
+    var r=rows[i];
+    h+="<div style=\"display:flex;gap:10px;align-items:flex-start;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.05)\">"+
+      "<span style=\"font-size:16px;flex-shrink:0;margin-top:1px\">"+r.i+"</span>"+
+      "<div style=\"flex:1;min-width:0\">"+
+      "<div style=\"font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:rgba(255,255,255,.35);margin-bottom:2px\">"+r.k+"</div>"+
+      "<div style=\"font-size:13px;font-weight:500;word-break:break-all;color:"+(r.v?"#fff":"rgba(255,255,255,.3)")+";font-style:"+(r.v?"normal":"italic")+"\">"+(r.v||"not detected")+"</div>"+
+      "</div></div>";
+  }
+  if(detected<3){
+    h+="<div style=\"margin-top:10px;padding:10px;background:rgba(245,158,11,.08);border-radius:8px;font-size:12px;color:rgba(255,255,255,.6)\">"+
+      "<strong>Tips for better results:</strong><br>"+
+      "&#8226; Use good lighting, no shadows<br>"+
+      "&#8226; Hold card flat &amp; steady<br>"+
+      "&#8226; Camera directly above the card<br>"+
+      "&#8226; Card should fill most of the frame<br>"+
+      "&#8226; Avoid glare from lights</div>";
+  }
+  h+="<details style=\"margin-top:10px\"><summary style=\"font-size:11px;color:rgba(255,255,255,.3);cursor:pointer\">Raw OCR text (tap to view)</summary>"+
+     "<pre style=\"font-size:10px;color:rgba(255,255,255,.2);white-space:pre-wrap;word-break:break-all;margin-top:6px;padding:8px;background:rgba(0,0,0,.3);border-radius:6px;max-height:120px;overflow-y:auto\">"+csEsc(raw)+"</pre></details>";
+  el.innerHTML=h;
+}
+
+window.csApplyFields=function(){
+  var f=window._csF;if(!f)return;
+  function set(id,v){var e=document.getElementById(id);if(e&&v)e.value=v;}
+  set("full_name",f.full_name);
+  set("mobile_number",f.mobile_number);
+  set("location",f.location);
+  set("email",f.email);
+  set("designation",f.designation);
+  set("business_name",f.business_name);
+  set("website",f.website);
+  var p=document.getElementById("cs-preview-panel");
+  var a=document.getElementById("cs-action-row");
+  if(p)p.style.display="none";
+  if(a)a.style.display="none";
+  var lbl=document.getElementById("cs-btn-label");
+  if(lbl)lbl.textContent="Scan Visiting Card";
+  var ne=document.getElementById("full_name");
+  if(ne)ne.scrollIntoView({behavior:"smooth",block:"center"});
+  csT("Form filled! Please review and submit.");
+};
+
+function csT(msg){
+  if(typeof toast==="function"){toast(msg,"ok");return;}
+  var t=document.getElementById("cs-t");
+  if(!t){
+    t=document.createElement("div");t.id="cs-t";
+    t.style.cssText="position:fixed;bottom:90px;left:50%;transform:translateX(-50%) translateY(20px);background:#1e293b;color:#fff;padding:10px 20px;border-radius:20px;font-size:13px;font-weight:600;opacity:0;transition:all .3s;z-index:9999;pointer-events:none;white-space:nowrap;box-shadow:0 4px 20px rgba(0,0,0,.4)";
+    document.body.appendChild(t);
+  }
+  t.textContent=msg;t.style.opacity="1";t.style.transform="translateX(-50%) translateY(0)";
+  clearTimeout(t._x);t._x=setTimeout(function(){t.style.opacity="0";t.style.transform="translateX(-50%) translateY(20px)";},4000);
+}
+
+function csClean(s){return s.replace(/[^\w\s\-.,&()/]/g,"").trim();}
+function csTc(s){return s.replace(/\w\S*/g,function(w){return w.charAt(0).toUpperCase()+w.slice(1).toLowerCase();});}
+function csEsc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");}
+
+document.addEventListener("keydown",function(e){if(e.key==="Escape")csCloseCamera();});
+document.addEventListener("click",function(e){
+  var m=document.getElementById("cs-camera-modal");
+  if(m&&e.target===m)csCloseCamera();
+});
+})();
+</script>
 </body>
 </html>
