@@ -714,11 +714,23 @@ textarea.note-area:focus{border-color:var(--accent)}
             <input type="tel" id="mobile_number" placeholder="10-digit mobile" maxlength="10" pattern="[6-9][0-9]{9}">
           </div>
         </div>
-        <div class="row2">
-          <div class="field">
-            <label>Location / City <span class="required">*</span></label>
-            <input type="text" id="location" placeholder="City">
-          </div>
+        <div class="field">
+          <label>Location / City <span class="required">*</span></label>
+          <input type="text" id="location" placeholder="City">
+        </div>
+        <div class="field">
+          <label>Business / Company Name</label>
+          <input type="text" id="mr_business_name" placeholder="Optional">
+        </div>
+
+        <div class="field">
+          <label>Designation</label>
+          <input type="text" id="mr_designation" placeholder="Optional">
+        </div>
+
+        <div class="field">
+          <label>Website</label>
+          <input type="text" id="mr_website" placeholder="Optional">
         </div>
       </div>
 
@@ -1711,7 +1723,10 @@ async function submitRegistration() {
     location: document.getElementById("location").value.trim(),
     business_category: document.getElementById("business_category").value,
     looking_for: document.getElementById("looking_for").value,
-    decision_maker: document.getElementById("decision_maker").value
+    decision_maker: document.getElementById("decision_maker").value,
+    website: document.getElementById("mr_website").value,
+    business_name: document.getElementById("mr_business_name").value,
+    designation: document.getElementById("mr_designation").value,
   };
   const eventId = document.getElementById("stall-owner-event-sel").value;
   const notes = document.getElementById("v_notes").value.trim();
