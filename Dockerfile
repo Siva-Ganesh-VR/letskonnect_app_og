@@ -10,7 +10,7 @@ RUN apt-get update -qq && apt-get install -y \
   && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
-
+RUN RAILS_ENV=production
 # Gems
 COPY Gemfile Gemfile.lock ./
 RUN bundle install --jobs 4 --retry 3
@@ -21,6 +21,6 @@ COPY . .
 # Precompile bootsnap
 RUN bundle exec bootsnap precompile --gemfile app/ lib/
 
-EXPOSE 3000
+#EXPOSE 3000
 
-CMD ["bundle", "exec", "puma", "-C", "config/puma.rb"]
+#CMD ["bundle", "exec", "puma", "-C", "config/puma.rb"]

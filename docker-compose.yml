@@ -30,7 +30,7 @@ services:
     environment:
       - DATABASE_URL=postgresql://postgres:password@db:5432/letskonnect_development
       - REDIS_URL=redis://redis:6379/0
-      - RAILS_ENV=development
+      - RAILS_ENV=production
     env_file:
       - .env
     volumes:
@@ -46,7 +46,7 @@ services:
     environment:
       - DATABASE_URL=postgresql://postgres:password@db:5432/letskonnect_development
       - REDIS_URL=redis://redis:6379/0
-      - RAILS_ENV=development
+      - RAILS_ENV=production
     env_file:
       - .env
     volumes:
