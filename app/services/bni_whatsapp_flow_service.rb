@@ -1,19 +1,18 @@
 class BniWhatsappFlowService
   BUSINESS_CATEGORY_OPTIONS = {
-    "1" => "Manufacturing",
-    "2" => "Trading",
-    "3" => "Services",
-    "4" => "IT / Software",
-    "5" => "Professional Services",
+    "1" => "Clothing",
+    "2" => "Gold Jewellery",
+    "3" => "Manufacturing",
+    "4" => "Services",
+    "5" => "BNI Member",
     "6" => "Other",
 
+    "clothing" => "Clothing",
+    "gold jewellery" => "Gold Jewellery",
+    "gold jewelry" => "Gold Jewellery",
     "manufacturing" => "Manufacturing",
-    "trading" => "Trading",
     "services" => "Services",
-    "it" => "IT / Software",
-    "it / software" => "IT / Software",
-    "software" => "IT / Software",
-    "professional services" => "Professional Services",
+    "bni member" => "BNI Member",
     "other" => "Other"
   }.freeze
 
@@ -68,15 +67,9 @@ class BniWhatsappFlowService
       whatsapp_state: "bni_ask_category"
     )
 
-    WhatsappService.send_message(
+    WhatsappService.send_template(
       @visitor.mobile_number,
-      "📂 What is your Business Category?\n\n" \
-      "1. Manufacturing\n" \
-      "2. Trading\n" \
-      "3. Services\n" \
-      "4. IT / Software\n" \
-      "5. Professional Services\n" \
-      "6. Other"
+      ENV["TWILIO_CATEGORY_TEMPLATE_SID"]
     )
   end
 
@@ -84,15 +77,9 @@ class BniWhatsappFlowService
     category = BUSINESS_CATEGORY_OPTIONS[normalized_message]
 
     unless category
-      WhatsappService.send_message(
+      WhatsappService.send_template(
         @visitor.mobile_number,
-        "Please select a valid business category:\n\n" \
-        "1. Manufacturing\n" \
-        "2. Trading\n" \
-        "3. Services\n" \
-        "4. IT / Software\n" \
-        "5. Professional Services\n" \
-        "6. Other"
+        ENV["TWILIO_CATEGORY_TEMPLATE_SID"]
       )
       return
     end
@@ -114,7 +101,7 @@ class BniWhatsappFlowService
     if @message.blank?
       WhatsappService.send_message(
         @visitor.mobile_number,
-        "Please enter your Chapter Name."
+        "🏢 Please enter your Chapter Name."
       )
       return
     end
@@ -127,7 +114,7 @@ class BniWhatsappFlowService
 
     WhatsappService.send_message(
       @visitor.mobile_number,
-      "🌍 Please enter your Region."
+      "🌍 Please enter your location."
     )
   end
 
@@ -135,7 +122,7 @@ class BniWhatsappFlowService
     if @message.blank?
       WhatsappService.send_message(
         @visitor.mobile_number,
-        "Please enter your Region."
+        "🌍 Please enter your location."
       )
       return
     end
@@ -143,6 +130,7 @@ class BniWhatsappFlowService
     save_answer("bni_region", @message)
 
     @visitor.update!(
+      location: @message,
       whatsapp_state: "completed",
       whatsapp_completed_at: Time.current,
       mobile_verified: true

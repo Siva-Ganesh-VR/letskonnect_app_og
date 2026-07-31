@@ -56,6 +56,7 @@ module Api
                 mobile_verified: true,
                 active: true
               )
+              visitor.reg_type = "VIP QR Scan" if is_bni
 
               visitor.save!(validate: false)
             elsif visitor.whatsapp_state == "completed"
