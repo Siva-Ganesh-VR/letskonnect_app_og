@@ -1443,8 +1443,9 @@
 
   <div class="modal-overlay" id="modal-create-template" onclick="if(event.target===this)closeModal('modal-create-template')">
     <div class="modal" style="max-width:1200px;width:95%">
+      
       <div class="modal-title">
-        Add Template
+        <h3 id="template-modal-title">Add Template</h3>
         <button class="mc" onclick="closeModal('modal-create-template')">✕</button>
       </div>
 
@@ -1461,6 +1462,13 @@
             <option value="question">Question</option>
             <option value="message">Message</option>
           </select>
+        </div>
+        <div class="field">
+          <label>Is Default</label>
+          <label class="switch">
+            <input type="checkbox" id="admin-template-is-default">
+            <span class="slider"></span>
+          </label>
         </div>
       </div>
 
@@ -1501,7 +1509,10 @@
           Cancel
         </button>
 
-        <button class="btn btn-primary btn-sm" onclick="createTemplate()">
+        <button
+          class="btn btn-primary btn-sm"
+          id="template-save-btn"
+          onclick="saveTemplate()">
           Add Template
         </button>
       </div>
@@ -1518,6 +1529,7 @@
     let allEvents = [];
     let previousPage = null;
     let stallMetadata = { types: [], sizes: [], categories: [] };
+    let editingTemplateId = null;
 
     // ── Boot ──────────────────────────────────────────────────────────────────
     if (token && currentUser) {
@@ -2795,7 +2807,12 @@
       tbody.appendChild(row);
     }
 
-    function addTemplateRow() {
+    function addTemplateRow(data = {}) {
+      const question = data.question || "";
+      const type = data.question_type || "text";
+      const required = !!data.required;
+      const options = data.options || "";
+
       const questionTypes = [
         { value: "text", label: "Text" },
         { value: "textarea", label: "Textarea" },
@@ -2808,42 +2825,49 @@
         { value: "checkbox", label: "Checkbox" },
         { value: "file", label: "File" }
       ];
-      const tbody = document.getElementById("question-template-table-body");
 
+      const tbody = document.getElementById("question-template-table-body");
       const row = document.createElement("tr");
 
       row.innerHTML = `
         <td class="mf" style="padding: 6px 4px;">
-          <input type="text" class="qt-question" placeholder="Question" style="width: 100%; min-width: 250px;">
+          <input type="text" class="qt-question"
+            placeholder="Question"
+            style="width:100%; min-width:250px;"
+            value="${question}">
         </td>
 
         <td class="mf" style="padding: 6px 4px;">
-          <select class="qt-type" style="width: 100%; min-width: 80px;">
+          <select class="qt-type" style="width:100%; min-width:80px;">
             ${buildFieldTypeOptions(questionTypes)}
           </select>
         </td>
 
-        <td  class="mf" style="padding: 6px 4px;">
-          <input type="checkbox" class="qt-required" style="width: 100%; min-width: 50px;">
+        <td class="mf" style="padding: 6px 4px; text-align:center;">
+          <input type="checkbox" class="qt-required">
         </td>
 
         <td class="mf" style="padding: 6px 4px;">
-          <textarea class="qt-options" style="width: 100%; min-width: 140px;"></textarea>
+          <textarea class="qt-options"
+            style="width:100%; min-width:140px;">${options}</textarea>
         </td>
 
-        <td class="mf" style="padding: 6px 4px; text-align: center;">
+        <td class="mf" style="padding: 6px 4px; text-align:center;">
           <button
             class="btn btn-primary btn-sm"
             type="button"
             onclick="this.closest('tr').remove()"
-            style="padding: 5px 10px;"
-          >
+            style="padding:5px 10px;">
             ✕
           </button>
         </td>
       `;
 
       tbody.appendChild(row);
+
+      // Prefill values
+      row.querySelector(".qt-type").value = type;
+      row.querySelector(".qt-required").checked = required;
     }
     async function openBulkStallModal(eventId = null) {
       await loadEventSelectors();
@@ -4192,19 +4216,22 @@
         <span class="badge ${t.active ? 'badge-green' : 'badge-grey'}">${t.active ? 'Active' : 'Inactive'}</span>
       </td>
       <td>
+        ${t.is_default}
+      </td>
+      <td>
         <div style="display:flex;gap:6px;flex-wrap:wrap">
-          <button class="btn btn-sm btn-outline" style="padding-right: 6px; padding-left: 6px;" onclick='' title="Edit">✏️</button>
+          <button class="btn btn-sm btn-outline" style="padding-right: 6px; padding-left: 6px;" onclick='editTemplate("${t.id}")' title="Edit">✏️</button>
           ${
             t.active
               ? `<button class="btn btn-sm btn-outline"
                     style="padding-right:6px;padding-left:6px;"
-                    onclick=''
+                    onclick='deactivateTemplate("${t.id}")'
                     title="Deactivate">
                     🚫
                 </button>`
               : `<button class="btn btn-sm btn-outline"
                       style="padding-right:6px;padding-left:6px;"
-                      onclick=''
+                      onclick='activateTemplate("${t.id}")'
                       title="Activate">
                       🚀
                   </button>`
@@ -4214,7 +4241,7 @@
     </tr>
   `).join("");
       document.getElementById("templates-table").innerHTML = `
-    <table><thead><tr><th>Name</th><th>Type</th><th>Status</th><th>Actions</th></tr></thead>
+    <table><thead><tr><th>Name</th><th>Type</th><th>Status</th><th>Default</th><th>Actions</th></tr></thead>
     <tbody id="templates-table-rows">${tbody || `<tr><td colspan="6">${emptyHtml("🎪", "No Templates yet")}</td></tr>`}</tbody></table>
     ${renderSimplePagination(meta, "templates", page, "loadAdminTemplates")}
   `;
@@ -4346,6 +4373,71 @@
           </table>
         </div>
       `;
+    }
+    async function activateTemplate(id) {
+      const res = await apiPatch(`/super_admin/templates/${id}/activate`, {});
+      if (res.success) { 
+        toast("Template activated!", "success");
+        await loadAdminTemplates();
+      }
+      else toast(res.error || "Failed", "error");
+    }
+
+    async function deactivateTemplate(id) {
+      const res = await apiPatch(`/super_admin/templates/${id}/deactivate`, {});
+      if (res.success) { 
+        toast("Template deactivated!", "success");
+        await loadAdminTemplates();
+      }
+      else toast(res.error || "Failed", "error");
+    }
+
+    async function saveTemplate() {
+      if (editingTemplateId) {
+        await updateTemplate();
+      } else {
+        await createTemplate();
+      }
+    }
+
+    async function editTemplate(id) {
+      const res = await apiGet(`/super_admin/templates/${id}`);
+
+      if (!res.success) {
+        toast(res.error, "error");
+        return;
+      }
+
+      const t = res.data;
+
+      editingTemplateId = id;
+
+      document.getElementById("template-modal-title").innerText = "Edit Template";
+      document.getElementById("template-save-btn").innerText = "Update Template";
+
+      document.getElementById("admin-template-name").value = t.name;
+      document.getElementById("admin-template-type-sel").value = t.template_type;
+      document.getElementById("admin-template-is-default").checked = t.is_default;
+
+      showTemplateFields();
+
+      if (t.template_type === "question") {
+        loadQuestionRows(t.questions || []);
+      } else {
+        document.getElementById("whatsapp-marketing-message").value =
+          t.message || "";
+      }
+
+      openModal("modal-create-template");
+    }
+    function loadQuestionRows(questions) {
+      const tbody = document.getElementById("question-template-table-body");
+
+      tbody.innerHTML = "";
+
+      questions.forEach(q => {
+        addTemplateRow(q);
+      });
     }
   </script>
 </body>

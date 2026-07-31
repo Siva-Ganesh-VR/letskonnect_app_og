@@ -38,10 +38,16 @@ module Api
           json_success(response)
         end
 
-        def destroy
+        def deactivate
           t = Template.find(params[:id])
           t.update!(active: false)
           json_success({ message: "Template deactivated" })
+        end
+
+        def activate
+          t = Template.find(params[:id])
+          t.update!(active: true)
+          json_success({ message: "Template activated" })
         end
 
         def create_template_questions(template_id)
@@ -79,7 +85,7 @@ module Api
         end
 
         def template_resp(t)
-          { id: t.id, name: t.name.titleize, template_type: t.template_type, active: t.active }
+          { id: t.id, name: t.name.titleize, template_type: t.template_type, active: t.active, is_default: t.is_default }
         end
       end
     end

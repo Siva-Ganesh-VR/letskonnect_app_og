@@ -13,6 +13,7 @@ Rails.application.routes.draw do
 
   # ── Visitor-facing pages ─────────────────────────────────────────────────
   get "/register/:event_token", to: "registrations#show",   as: :event_registration
+  get "/pre_register/:event_token", to: "pre_registrations#show",   as: :event_pre_registration
   get "/v/:qr_token",           to: "visitor_passes#show",  as: :visitor_pass
 
   # ── Sidekiq Web UI ────────────────────────────────────────────────────────
@@ -121,7 +122,9 @@ Rails.application.routes.draw do
           end
         end
         get "analytics/platform", to: "analytics#platform"
-        resources :templates, only: [:index, :create, :show, :update, :destroy]
+        resources :templates, only: [:index, :create, :show, :update] do
+          member { patch :activate; patch :deactivate }
+        end
       end
 
       # Shared

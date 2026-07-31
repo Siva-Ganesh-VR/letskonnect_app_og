@@ -22,6 +22,7 @@ class Event < ApplicationRecord
   validates :registration_qr_token, uniqueness: true
   validates :event_code, uniqueness: true, allow_nil: true  # nil only during migration backfill
   validate  :end_date_after_start_date
+  validate  :question_template_only
   before_validation :format_name
   
   scope :active_events, -> { where(status: "active") }
@@ -60,6 +61,16 @@ class Event < ApplicationRecord
       registration_qr,
       host: ENV.fetch("APP_HOST", "http://localhost:3000")
     )
+  end
+
+  def question_template_only
+    return if template_id.blank?
+
+    template = Template.find_by(id: template_id)
+
+    if template.nil? || template.template_type != "question"
+      errors.add(:template_id, "must reference a question template")
+    end
   end
 
   private

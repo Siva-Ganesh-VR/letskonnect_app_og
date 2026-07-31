@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_07_28_121419) do
+ActiveRecord::Schema[7.2].define(version: 2026_07_30_130059) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pgcrypto"
   enable_extension "plpgsql"
@@ -106,12 +106,14 @@ ActiveRecord::Schema[7.2].define(version: 2026_07_28_121419) do
     t.string "event_code", limit: 20, null: false
     t.boolean "food_coupon", default: false, null: false
     t.string "food_coupon_count"
+    t.uuid "template_id"
     t.index ["event_code"], name: "index_events_on_event_code", unique: true
     t.index ["event_organizer_id"], name: "index_events_on_event_organizer_id"
     t.index ["registration_qr_token"], name: "index_events_on_registration_qr_token", unique: true
     t.index ["slug"], name: "index_events_on_slug", unique: true
     t.index ["start_date"], name: "index_events_on_start_date"
     t.index ["status"], name: "index_events_on_status"
+    t.index ["template_id"], name: "index_events_on_template_id"
   end
 
   create_table "export_jobs", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -320,9 +322,11 @@ ActiveRecord::Schema[7.2].define(version: 2026_07_28_121419) do
     t.string "template_type", null: false
     t.boolean "active", default: true, null: false
     t.uuid "created_by"
+    t.boolean "is_default", default: false, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["name"], name: "index_templates_on_name"
+    t.index ["template_type"], name: "idx_default_template_per_type", unique: true, where: "(is_default = true)"
     t.index ["template_type"], name: "index_templates_on_template_type"
   end
 
