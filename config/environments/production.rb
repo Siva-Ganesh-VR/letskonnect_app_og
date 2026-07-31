@@ -7,7 +7,7 @@ Rails.application.configure do
   config.force_ssl = true
   config.hosts << "86.48.3.78"
   config.hosts << "https://stallconnect.com/"
-  config.hosts << "stallconnect.com"
+  config.hosts << "stallconnect.com" 
   config.log_level = :info
   config.log_tags = [:request_id]
 
