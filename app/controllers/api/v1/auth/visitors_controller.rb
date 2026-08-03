@@ -5,31 +5,80 @@ module Api
         # POST /api/v1/visitors/register
         def create
           event = Event.find_by(registration_qr_token: params[:event_token])
-          return json_error("Invalid event QR code", status: :not_found) unless event
-          return json_error("Event registration is not open", status: :forbidden) unless event.active?
+
+          return json_error(
+            "Invalid event QR code",
+            status: :not_found
+          ) unless event
+
+          return json_error(
+            "Event registration is not open",
+            status: :forbidden
+          ) unless event.active?
 
           if event.max_visitors.present? && event.registered_count >= event.max_visitors
-            return json_error("Event has reached maximum visitor capacity", status: :forbidden)
+            return json_error(
+              "Event has reached maximum visitor capacity",
+              status: :forbidden
+            )
           end
 
-          existing = Visitor.find_by(mobile_number: params.dig(:visitor, :mobile_number), event_id: event.id)
+          mobile_number = params.dig(:visitor, :mobile_number)
+
+          existing = Visitor.find_by(
+            mobile_number: mobile_number,
+            event_id: event.id
+          )
+
           if existing&.mobile_verified?
-            return json_error("This mobile number is already registered for this event. Please use your existing QR code.")
+            return json_error(
+              "This mobile number is already registered for this event. Please use your existing QR code."
+            )
           end
 
-          visitor = existing || Visitor.new(visitor_params.merge(event: event))
-          visitor.assign_attributes(visitor_params) if existing
+          questions = params.dig(:visitor, :questions) || {}
 
-          if visitor.save
-            otp = visitor.generate_otp!
-            SmsService.send_otp(visitor.mobile_number, otp)
+          ActiveRecord::Base.transaction do
+            visitor = existing || Visitor.new(
+              visitor_params.merge(event: event)
+            )
+
+            visitor.assign_attributes(visitor_params) if existing
+
+            visitor.assign_attributes(
+              mobile_verified: true,
+              active: true,
+              whatsapp_state: "start",
+              send_registration_whatsapp: true
+            )
+
+            visitor.save!
+
+            save_visitor_answers(visitor, questions)
+
             json_success(
-              { visitor_id: visitor.id, message: "OTP sent to #{masked_phone(visitor.mobile_number)}" },
+              {
+                visitor_id: visitor.id,
+                visitor_id_code: visitor.visitor_id_code,
+                full_name: visitor.full_name,
+                mobile_number: visitor.mobile_number,
+                location: visitor.location,
+                profession: visitor.profession,
+                business_category: visitor.business_category,
+                business_name: visitor.business_name,
+                designation: visitor.designation,
+                email: visitor.email,
+                qr_image_url: visitor.qr_image_url
+              },
               status: :created
             )
-          else
-            json_error("Registration failed", errors: visitor.errors.full_messages)
           end
+
+        rescue ActiveRecord::RecordInvalid => e
+          json_error(
+            "Registration failed",
+            errors: e.record.errors.full_messages
+          )
         end
 
         # POST /api/v1/visitors/verify_otp
@@ -80,6 +129,47 @@ module Api
           visitor = Visitor.find(params[:id])
           return json_error("Not verified", status: :forbidden) unless visitor.mobile_verified?
           json_success({ qr_token: visitor.qr_token, qr_image_url: visitor.qr_image_url, display_url: visitor.display_qr_url })
+        end
+
+        def save_visitor_answers(visitor, questions)
+          template_id = visitor.event.template_id
+          template = if template_id.present?
+                  Template.find_by(
+                    id: template_id,
+                    template_type: "question",
+                    active: true
+                  )
+                else
+                  Template.find_by(
+                    template_type: "question",
+                    is_default: true,
+                    active: true
+                  )
+                end
+
+          return if template.blank?
+
+          valid_question_ids = template.template_questions.pluck(:id).map(&:to_s)
+
+          questions.each do |question_key, answer|
+            question_key = question_key.to_s
+
+            next unless valid_question_ids.include?(question_key)
+
+            answer_value =
+              if answer.is_a?(Array)
+                answer.join(", ")
+              else
+                answer.to_s
+              end
+
+            next if answer_value.blank?
+
+            visitor.visitor_answers.create!(
+              question_key: question_key,
+              answer: answer_value
+            )
+          end
         end
 
         private

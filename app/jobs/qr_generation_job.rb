@@ -10,6 +10,11 @@ class QrGenerationJob < ApplicationJob
       return if visitor.registration_qr.attached?
 
       QrService.generate_for_visitor(visitor)
+      if visitor.send_registration_whatsapp? && visitor.qr_image_url.present?
+        WhatsappNotificationJob.perform_later(visitor.id, "visitor_registration")
+        visitor.update_column(:send_registration_whatsapp, false)
+      end
+
       Rails.logger.info("[QR] Generated for visitor #{visitor.visitor_id_code}")
 
     when "event"

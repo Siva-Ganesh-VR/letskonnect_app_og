@@ -1463,13 +1463,6 @@
             <option value="message">Message</option>
           </select>
         </div>
-        <div class="field">
-          <label>Is Default</label>
-          <label class="switch">
-            <input type="checkbox" id="admin-template-is-default">
-            <span class="slider"></span>
-          </label>
-        </div>
       </div>
 
       <div id="question-template-div">
@@ -2809,7 +2802,7 @@
 
     function addTemplateRow(data = {}) {
       const question = data.question || "";
-      const type = data.question_type || "text";
+      const type = data.field_type || "text";
       const required = !!data.required;
       const options = data.options || "";
 
@@ -2887,15 +2880,6 @@
       }
 
       openModal("m-m-stall");
-    }
-    async function openTemplateModal() {
-      document.getElementById("question-template-table-body").innerHTML = "";
-      document.getElementById("add-template-err").style.display = "none";
-      for (let i = 0; i < 2; i++) {
-        addTemplateRow();
-      }
-
-      openModal("modal-create-template");
     }
     async function createMultipleStalls() {
       const eid = document.getElementById("admin-stall-event-sel").value;
@@ -4068,123 +4052,21 @@
     }
 
     async function createTemplate() {
-      const templateName = document
-        .getElementById("admin-template-name")
-        .value.trim();
-
-      const templateType = document
-        .getElementById("admin-template-type-sel")
-        .value;
-
       const err = document.getElementById("add-template-err");
-
-      // Clear previous error
       err.style.display = "none";
       err.textContent = "";
 
-      // Common validations
-      if (!templateName) {
-        err.style.display = "block";
-        err.textContent = "Please enter template name";
-        return;
-      }
-
-      if (!templateType) {
-        err.style.display = "block";
-        err.textContent = "Please select a template type";
-        return;
-      }
-
-      const templateData = {
-        name: templateName,
-        template_type: templateType
-      };
-
-      let payload;
-
-      if (templateType === "question") {
-        const rows = [
-          ...document.querySelectorAll("#question-template-table-body tr")
-        ];
-
-        if (rows.length === 0) {
-          err.style.display = "block";
-          err.textContent = "Please add at least one question";
-          return;
-        }
-
-        const templateQuestions = rows.map(row => ({
-          question: row.querySelector(".qt-question")?.value.trim() || "",
-          field_type: row.querySelector(".qt-type")?.value || "",
-          required: row.querySelector(".qt-required")?.checked || false,
-          options: row.querySelector(".qt-options")?.value.trim() || ""
-        }));
-
-        // Validate questions
-        for (let i = 0; i < templateQuestions.length; i++) {
-          const question = templateQuestions[i];
-
-          if (!question.question) {
-            err.style.display = "block";
-            err.textContent = `Please enter question ${i + 1}`;
-            return;
-          }
-
-          if (!question.field_type) {
-            err.style.display = "block";
-            err.textContent = `Please select question type for question ${i + 1}`;
-            return;
-          }
-
-          // Options required for select/radio/checkbox
-          if (
-            ["select", "radio", "checkbox"].includes(question.field_type) &&
-            !question.options
-          ) {
-            err.style.display = "block";
-            err.textContent = `Please enter options for question ${i + 1}`;
-            return;
-          }
-        }
-
-        payload = {
-          template: templateData,
-          template_questions: templateQuestions
-        };
-      } else if (templateType === "message") {
-        const templateMessage = document
-          .getElementById("whatsapp-marketing-message")
-          .value.trim();
-
-        if (!templateMessage) {
-          err.style.display = "block";
-          err.textContent = "Please enter template message";
-          return;
-        }
-
-        payload = {
-          template: templateData,
-          template_message: templateMessage
-        };
-      }
-
       try {
-        const result = await apiPost(
-          `/super_admin/templates`,
-          payload
-        );
+        const payload = buildTemplatePayload();
+
+        const result = await apiPost("/super_admin/templates", payload);
 
         if (!result.success) {
           throw new Error(result.error || "Creation failed");
         }
 
         closeModal("modal-create-template");
-
-        toast(
-          "Template created successfully",
-          "success"
-        );
-
+        toast("Template created successfully", "success");
         loadAdminTemplates();
 
       } catch (error) {
@@ -4209,14 +4091,23 @@
           ${t.name}
         </a>
       </td>
+
       <td>
-        ${t.template_type || ""}
+        ${t.template_type.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase()) || ""}
       </td>
+
       <td>
-        <span class="badge ${t.active ? 'badge-green' : 'badge-grey'}">${t.active ? 'Active' : 'Inactive'}</span>
+        <span class="badge ${t.active ? 'badge-green' : 'badge-grey'}">
+          ${t.active ? 'Active' : 'Inactive'}
+        </span>
       </td>
+
       <td>
-        ${t.is_default}
+        ${
+          t.is_default
+            ? `<span class="badge badge-green">⭐ Default</span>`
+            : `<span class="badge badge-grey">—</span>`
+        }
       </td>
       <td>
         <div style="display:flex;gap:6px;flex-wrap:wrap">
@@ -4235,6 +4126,23 @@
                       title="Activate">
                       🚀
                   </button>`
+          }
+          ${
+            t.is_default
+              ? `<button
+                  class="btn btn-sm btn-outline"
+                  style="padding-right:6px;padding-left:6px;"
+                  disabled
+                  title="Default template">
+                  ⭐
+                </button>`
+              : `<button
+                  class="btn btn-sm btn-outline"
+                  style="padding-right:6px;padding-left:6px;"
+                  onclick='setDefaultTemplate("${t.id}")'
+                  title="Set as Default">
+                  ⭐
+                </button>`
           }
         </div>
       </td>
@@ -4417,7 +4325,6 @@
 
       document.getElementById("admin-template-name").value = t.name;
       document.getElementById("admin-template-type-sel").value = t.template_type;
-      document.getElementById("admin-template-is-default").checked = t.is_default;
 
       showTemplateFields();
 
@@ -4438,6 +4345,134 @@
       questions.forEach(q => {
         addTemplateRow(q);
       });
+    }
+    async function updateTemplate() {
+      const payload = buildTemplatePayload();
+
+      const res = await apiPatch(
+        `/super_admin/templates/${editingTemplateId}`,
+        payload
+      );
+
+      if (res.success) {
+          toast("Template updated", "success");
+          closeModal("modal-create-template");
+          loadAdminTemplates();
+
+          editingTemplateId = null;
+      }
+      else {
+          toast(res.error, "error");
+      }
+    }
+    function buildTemplatePayload() {
+      const templateName = document
+        .getElementById("admin-template-name")
+        .value.trim();
+
+      const templateType = document
+        .getElementById("admin-template-type-sel")
+        .value;
+
+      if (!templateName) {
+        throw new Error("Please enter template name");
+      }
+
+      if (!templateType) {
+        throw new Error("Please select a template type");
+      }
+
+      const templateData = {
+        name: templateName,
+        template_type: templateType
+      };
+
+      if (templateType === "question") {
+        const rows = [...document.querySelectorAll("#question-template-table-body tr")];
+
+        if (rows.length === 0) {
+          throw new Error("Please add at least one question");
+        }
+
+        const templateQuestions = rows.map(row => ({
+          question: row.querySelector(".qt-question").value.trim(),
+          field_type: row.querySelector(".qt-type").value,
+          required: row.querySelector(".qt-required").checked,
+          options: row.querySelector(".qt-options").value.trim()
+        }));
+
+        templateQuestions.forEach((question, index) => {
+          if (!question.question) {
+            throw new Error(`Please enter question ${index + 1}`);
+          }
+
+          if (!question.field_type) {
+            throw new Error(`Please select question type for question ${index + 1}`);
+          }
+
+          if (
+            ["select", "radio", "checkbox"].includes(question.field_type) &&
+            !question.options
+          ) {
+            throw new Error(`Please enter options for question ${index + 1}`);
+          }
+        });
+
+        return {
+          template: templateData,
+          template_questions: templateQuestions
+        };
+      }
+
+      const templateMessage = document
+        .getElementById("whatsapp-marketing-message")
+        .value.trim();
+
+      if (!templateMessage) {
+        throw new Error("Please enter template message");
+      }
+
+      return {
+        template: templateData,
+        template_message: templateMessage
+      };
+    }
+    function openTemplateModal() {
+      editingTemplateId = null;
+      document.getElementById("template-modal-title").innerText = "Add Template";
+      document.getElementById("template-save-btn").innerText = "Add Template";
+      document.getElementById("admin-template-name").value = "";
+      document.getElementById("admin-template-type-sel").value = "question";
+      document.getElementById("whatsapp-marketing-message").value = "";
+
+      document.getElementById("question-template-table-body").innerHTML = "";
+      document.getElementById("add-template-err").style.display = "none";
+
+      for (let i = 0; i < 2; i++) {
+        addTemplateRow();
+      }
+
+      showTemplateFields();
+
+      openModal("modal-create-template");
+    }
+    async function setDefaultTemplate(id) {
+      try {
+        const result = await apiPatch(
+          `/super_admin/templates/${id}/set_default`,
+          {}
+        );
+
+        if (!result.success) {
+          throw new Error(result.error || "Failed to set default template");
+        }
+
+        toast("Default template updated successfully", "success");
+
+        loadAdminTemplates();
+      } catch (error) {
+        toast(error.message, "error");
+      }
     }
   </script>
 </body>

@@ -27,21 +27,19 @@
   .field{margin-bottom:14px}
   label{display:block;font-size:13px;font-weight:500;color:rgba(255,255,255,0.7);margin-bottom:6px}
   .required{color:#6c63ff}
-  input,select{width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:12px 14px;color:#fff;font-size:15px;outline:none;transition:all 0.2s;-webkit-appearance:none}
-  input:focus,select:focus{border-color:#6c63ff;background:rgba(108,99,255,0.08);box-shadow:0 0 0 3px rgba(108,99,255,0.15)}
-  input::placeholder{color:rgba(255,255,255,0.25)}
+  input,select,textarea{width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:12px 14px;color:#fff;font-size:15px;outline:none;transition:all 0.2s;-webkit-appearance:none}
+  input:focus,select:focus,textarea:focus{border-color:#6c63ff;background:rgba(108,99,255,0.08);box-shadow:0 0 0 3px rgba(108,99,255,0.15)}
+  input::placeholder,textarea::placeholder{color:rgba(255,255,255,0.25)}
   select option{background:#1a1a2e;color:#fff}
   .row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  textarea{min-height:100px;resize:vertical}
+  .radio-group,.checkbox-group{display:flex;flex-direction:column;gap:10px}
+  .radio-group label,.checkbox-group label{display:flex;align-items:center;gap:8px;margin-bottom:0}
+  .radio-group input,.checkbox-group input{width:auto;-webkit-appearance:auto}
   .btn-primary{width:100%;padding:15px;background:#6c63ff;color:#fff;border:none;border-radius:12px;font-size:16px;font-weight:600;cursor:pointer;transition:all 0.2s;margin-top:8px}
   .btn-primary:hover{background:#5a52e0;transform:translateY(-1px)}
   .btn-primary:active{transform:translateY(0);opacity:0.9}
   .btn-primary:disabled{opacity:0.5;cursor:not-allowed;transform:none}
-  .otp-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin:20px 0}
-  .otp-input{background:rgba(255,255,255,0.05);border:2px solid rgba(255,255,255,0.1);border-radius:12px;padding:14px 0;text-align:center;font-size:22px;font-weight:700;color:#fff;width:100%;outline:none;transition:all 0.2s}
-  .otp-input:focus{border-color:#6c63ff;background:rgba(108,99,255,0.1)}
-  .otp-hint{font-size:13px;color:rgba(255,255,255,0.5);text-align:center;margin-bottom:12px}
-  .resend-link{background:none;border:none;color:#6c63ff;font-size:13px;cursor:pointer;text-decoration:underline;padding:0}
-  .resend-link:disabled{color:rgba(255,255,255,0.3);text-decoration:none;cursor:not-allowed}
   .success-screen{text-align:center;padding:20px 0}
   .success-icon{width:80px;height:80px;background:rgba(34,197,94,0.15);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 20px;font-size:36px}
   .success-title{font-size:24px;font-weight:700;margin-bottom:8px}
@@ -60,7 +58,7 @@
   .error-msg{background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);border-radius:8px;padding:10px 14px;font-size:13px;color:#fca5a5;margin-top:10px;display:none}
   .loading-spinner{display:inline-block;width:18px;height:18px;border:2px solid rgba(255,255,255,0.3);border-top-color:#fff;border-radius:50%;animation:spin 0.7s linear infinite;vertical-align:middle;margin-right:6px}
   @keyframes spin{to{transform:rotate(360deg)}}
-  #step-otp,#step-success{display:none}
+  #step-success{display:none}
   .phone-prefix{background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.1);border-right:none;border-radius:10px 0 0 10px;padding:12px 12px;color:rgba(255,255,255,0.6);font-size:15px;white-space:nowrap}
   .phone-wrap{display:flex}
   .phone-wrap input{border-radius:0 10px 10px 0}
@@ -82,121 +80,204 @@
   <div class="step-indicator">
     <div class="step active" id="ind-1"><span class="step-num">1</span></div>
     <div class="step-line"></div>
-    <div class="step pending" id="ind-2"><span class="step-num">2</span></div>
-    <div class="step-line"></div>
-    <div class="step pending" id="ind-3"><span class="step-num">✓</span></div>
+    <div class="step pending" id="ind-2"><span class="step-num">✓</span></div>
   </div>
 
   <!-- STEP 1: Registration Form -->
   <div id="step-form">
-    <div class="card">
-      <div class="section-title">Personal Details</div>
-      <div class="field">
-        <label>Full Name <span class="required">*</span></label>
-        <input type="text" id="full_name" placeholder="Your full name" autocomplete="name">
-      </div>
-      <div class="field">
-        <label>Mobile Number <span class="required">*</span></label>
-        <div class="phone-wrap">
-          <span class="phone-prefix">+91</span>
-          <input type="tel" id="mobile_number" placeholder="10-digit mobile" maxlength="10" pattern="[6-9][0-9]{9}">
-        </div>
-      </div>
-      <div class="row2">
+    <form id="visitor-registration-form" onsubmit="return validateVisitorForm(event)">
+      <div class="card">
+        <div class="section-title">Personal Details</div>
         <div class="field">
-          <label>Location / City <span class="required">*</span></label>
-          <input type="text" id="location" placeholder="City">
+          <label>Full Name <span class="required">*</span></label>
+          <input type="text" id="full_name" placeholder="Your full name" autocomplete="name" required>
         </div>
         <div class="field">
-          <label>Profession <span class="required">*</span></label>
-          <input type="text" id="profession" placeholder="Your role">
+          <label>Mobile Number <span class="required">*</span></label>
+          <div class="phone-wrap">
+            <span class="phone-prefix">+91</span>
+            <input type="tel" id="mobile_number" placeholder="10-digit mobile" maxlength="10" pattern="[6-9][0-9]{9}" required>
+          </div>
+        </div>
+        <div class="row2">
+          <div class="field">
+            <label>Location / City <span class="required">*</span></label>
+            <input type="text" id="location" placeholder="City" required>
+          </div>
+          <div class="field">
+            <label>Profession <span class="required">*</span></label>
+            <input type="text" id="profession" placeholder="Your role" required>
+          </div>
         </div>
       </div>
-    </div>
 
-    <div class="card">
-      <div class="section-title">Business Details</div>
-      <div class="field">
-        <label>Business Category <span class="required">*</span></label>
-        <select id="business_category">
-          <option value="">Select category</option>
-          <option>IT Services</option><option>Finance</option><option>Marketing</option>
-          <option>Education</option><option>Healthcare</option><option>Retail</option>
-          <option>Manufacturing</option><option>Real Estate</option><option>Logistics</option>
-          <option>Energy</option><option>Startup</option><option>Consulting</option><option>Other</option>
-        </select>
-      </div>
-      <div class="field">
-        <label>Business / Company Name <span class="required">*</span></label>
-        <input type="text" id="business_name" placeholder="Company or business name">
-      </div>
-      <div class="row2">
+      <div class="card">
+        <div class="section-title">Business Details</div>
         <div class="field">
-          <label>Designation</label>
-          <input type="text" id="designation" placeholder="Optional">
+          <label>Business Category <span class="required">*</span></label>
+          <select id="business_category" required>
+            <option value="">Select category</option>
+            <option>Clothing</option>
+            <option>Gold Jewellery</option>
+            <option>Manufacturing</option>
+            <option>Services</option>
+            <option>BNI Member</option>
+            <option>Other</option>
+          </select>
         </div>
         <div class="field">
-          <label>Email Address</label>
-          <input type="email" id="email" placeholder="Optional">
+          <label>Business / Company Name <span class="required">*</span></label>
+          <input type="text" id="business_name" placeholder="Company or business name" required>
+        </div>
+        <div class="row2">
+          <div class="field">
+            <label>Designation</label>
+            <input type="text" id="designation" placeholder="Optional">
+          </div>
+          <div class="field">
+            <label>Email Address</label>
+            <input type="email" id="email" placeholder="Optional">
+          </div>
         </div>
       </div>
-    </div>
 
-    <div class="card">
-      <div class="section-title">Questions</div>
-      <div class="field">
-        <label>Business Category <span class="required">*</span></label>
-        <select id="business_category">
-          <option value="">Select category</option>
-          <option>IT Services</option><option>Finance</option><option>Marketing</option>
-          <option>Education</option><option>Healthcare</option><option>Retail</option>
-          <option>Manufacturing</option><option>Real Estate</option><option>Logistics</option>
-          <option>Energy</option><option>Startup</option><option>Consulting</option><option>Other</option>
-        </select>
-      </div>
-      <div class="field">
-        <label>Business / Company Name <span class="required">*</span></label>
-        <input type="text" id="business_name" placeholder="Company or business name">
-      </div>
-      <div class="row2">
-        <div class="field">
-          <label>Designation</label>
-          <input type="text" id="designation" placeholder="Optional">
-        </div>
-        <div class="field">
-          <label>Email Address</label>
-          <input type="email" id="email" placeholder="Optional">
-        </div>
-      </div>
-    </div>
+      <div class="card">
+        <div class="section-title">Questions</div>
 
-    <div id="error-reg" class="error-msg"></div>
-    <button class="btn-primary" onclick="submitRegistration()" id="btn-register">
-      Get My Event Pass →
-    </button>
-  </div>
+        <% @questions.each_with_index do |question, index| %>
+          <div class="field">
+            <label for="question_<%= index %>">
+              <%= question.question %>
 
-  <!-- STEP 2: OTP Verification -->
-  <div id="step-otp">
-    <div class="card">
-      <div class="section-title">Verify Mobile</div>
-      <p class="otp-hint">Enter the 6-digit OTP sent to <strong id="otp-phone-display"></strong></p>
-      <div class="otp-grid">
-        <input class="otp-input" type="tel" maxlength="1" oninput="otpInput(this,0)" onkeydown="otpKey(event,0)">
-        <input class="otp-input" type="tel" maxlength="1" oninput="otpInput(this,1)" onkeydown="otpKey(event,1)">
-        <input class="otp-input" type="tel" maxlength="1" oninput="otpInput(this,2)" onkeydown="otpKey(event,2)">
-        <input class="otp-input" type="tel" maxlength="1" oninput="otpInput(this,3)" onkeydown="otpKey(event,3)">
-        <input class="otp-input" type="tel" maxlength="1" oninput="otpInput(this,4)" onkeydown="otpKey(event,4)">
-        <input class="otp-input" type="tel" maxlength="1" oninput="otpInput(this,5)" onkeydown="otpKey(event,5)">
+              <% if question.required %>
+                <span class="required">*</span>
+              <% end %>
+            </label>
+
+            <% field_id = "question_#{index}" %>
+
+            <% case question.field_type %>
+            <% when "text" %>
+              <input
+                type="text"
+                id="<%= field_id %>"
+                name="questions[<%= question.id %>]"
+                <%= "required" if question.required %>
+                placeholder="<%= question.question %>">
+
+            <% when "textarea" %>
+              <textarea
+                id="<%= field_id %>"
+                name="questions[<%= question.id %>]"
+                <%= "required" if question.required %>
+                placeholder="<%= question.question %>"></textarea>
+
+            <% when "number" %>
+              <input
+                type="number"
+                id="<%= field_id %>"
+                name="questions[<%= question.id %>]"
+                <%= "required" if question.required %>>
+
+            <% when "email" %>
+              <input
+                type="email"
+                id="<%= field_id %>"
+                name="questions[<%= question.id %>]"
+                <%= "required" if question.required %>>
+
+            <% when "mobile" %>
+              <input
+                type="tel"
+                id="<%= field_id %>"
+                name="questions[<%= question.id %>]"
+                maxlength="10"
+                inputmode="numeric"
+                <%= "required" if question.required %>>
+
+            <% when "date" %>
+              <input
+                type="date"
+                id="<%= field_id %>"
+                name="questions[<%= question.id %>]"
+                <%= "required" if question.required %>>
+
+            <% when "select" %>
+              <select
+                id="<%= field_id %>"
+                name="questions[<%= question.id %>]"
+                <%= "required" if question.required %>>
+
+                <option value="">Select <%= question.question %></option>
+
+                <% question.options.to_s.split(/\r?\n/).each do |option| %>
+                  <% option = option.strip %>
+                  <% next if option.blank? %>
+
+                  <option value="<%= option %>">
+                    <%= option %>
+                  </option>
+                <% end %>
+              </select>
+
+            <% when "radio" %>
+              <div class="radio-group">
+                <% question.options.to_s.split(/\r?\n/).each_with_index do |option, option_index| %>
+                  <% option = option.strip %>
+                  <% next if option.blank? %>
+
+                  <label>
+                    <input
+                      type="radio"
+                      name="questions[<%= question.id %>]"
+                      value="<%= option %>"
+                      <%= "required" if question.required && option_index == 0 %>>
+
+                    <%= option %>
+                  </label>
+                <% end %>
+              </div>
+
+            <% when "checkbox" %>
+              <div
+                class="checkbox-group"
+                data-required-checkbox="<%= question.required %>"
+                data-question="<%= question.question %>">
+                <% question.options.to_s.split(/\r?\n/).each do |option| %>
+                  <% option = option.strip %>
+                  <% next if option.blank? %>
+
+                  <label>
+                    <input
+                      type="checkbox"
+                      name="questions[<%= question.id %>][]"
+                      value="<%= option %>">
+
+                    <%= option %>
+                  </label>
+                <% end %>
+              </div>
+
+            <% when "file" %>
+              <input
+                type="file"
+                id="<%= field_id %>"
+                name="questions[<%= question.id %>]"
+                <%= "required" if question.required %>>
+
+            <% end %>
+          </div>
+        <% end %>
       </div>
-      <div style="text-align:center;margin-bottom:16px">
-        <button class="resend-link" id="resend-btn" onclick="resendOtp()" disabled>
-          Resend OTP (<span id="resend-timer">30</span>s)
-        </button>
-      </div>
-      <div id="error-otp" class="error-msg"></div>
-      <button class="btn-primary" onclick="verifyOtp()" id="btn-verify">Verify & Get Pass</button>
-    </div>
+
+      <div id="error-reg" class="error-msg"></div>
+      <button
+        type="submit"
+        class="btn-primary"
+        id="btn-register">
+        Get My Event Pass →
+      </button>
+    </form>
   </div>
 
   <!-- STEP 3: Success / Digital Pass -->
@@ -239,36 +320,103 @@
 <script>
 const EVENT_TOKEN = "<%= @event.registration_qr_token %>";
 const API_BASE    = "/api/v1";
-let visitorId     = null;
-let resendInterval= null;
 
 function showError(el, msg) {
   el.style.display = "block";
   el.textContent   = msg;
 }
+
 function clearError(el) {
   el.style.display = "none";
+  el.textContent   = "";
 }
 
-async function submitRegistration() {
-  const btn = document.getElementById("btn-register");
-  clearError(document.getElementById("error-reg"));
+function validateVisitorForm(event) {
+  event.preventDefault();
+
+  const form = document.getElementById("visitor-registration-form");
+  const errorEl = document.getElementById("error-reg");
+
+  clearError(errorEl);
+
+  if (!form.checkValidity()) {
+    form.reportValidity();
+    return false;
+  }
 
   const mobile = document.getElementById("mobile_number").value.trim();
+
   if (!/^[6-9]\d{9}$/.test(mobile)) {
-    showError(document.getElementById("error-reg"), "Please enter a valid 10-digit Indian mobile number");
-    return;
+    showError(
+      errorEl,
+      "Please enter a valid 10-digit Indian mobile number"
+    );
+    document.getElementById("mobile_number").focus();
+    return false;
   }
-  const required = ["full_name","mobile_number","location","profession","business_category","business_name"];
-  for (const f of required) {
-    if (!document.getElementById(f).value.trim()) {
-      showError(document.getElementById("error-reg"), "Please fill in all required fields");
-      return;
+
+  const requiredCheckboxGroups =
+    form.querySelectorAll('[data-required-checkbox="true"]');
+
+  for (const group of requiredCheckboxGroups) {
+    const checked = group.querySelectorAll(
+      'input[type="checkbox"]:checked'
+    ).length;
+
+    if (!checked) {
+      showError(
+        errorEl,
+        `Please select at least one option for "${group.dataset.question}"`
+      );
+      return false;
     }
   }
 
-  btn.disabled  = true;
-  btn.innerHTML = '<span class="loading-spinner"></span> Sending OTP…';
+  submitRegistration();
+  return false;
+}
+
+function collectTemplateQuestions(form) {
+  const questions = {};
+
+  form.querySelectorAll('[name^="questions["]').forEach(input => {
+    const match = input.name.match(/^questions\[([^\]]+)\](?:\[\])?$/);
+
+    if (!match) return;
+
+    const questionId = match[1];
+
+    if (input.type === "checkbox") {
+      if (!questions[questionId]) {
+        questions[questionId] = [];
+      }
+
+      if (input.checked) {
+        questions[questionId].push(input.value);
+      }
+    } else if (input.type === "radio") {
+      if (input.checked) {
+        questions[questionId] = input.value;
+      }
+    } else {
+      questions[questionId] = input.value;
+    }
+  });
+
+  return questions;
+}
+
+async function submitRegistration() {
+  const form = document.getElementById("visitor-registration-form");
+  const btn = document.getElementById("btn-register");
+  const errorEl = document.getElementById("error-reg");
+
+  clearError(errorEl);
+
+  btn.disabled = true;
+  btn.innerHTML = '<span class="loading-spinner"></span> Registering…';
+
+  const mobile = document.getElementById("mobile_number").value.trim();
 
   const body = {
     event_token: EVENT_TOKEN,
@@ -281,131 +429,98 @@ async function submitRegistration() {
       business_name:     document.getElementById("business_name").value.trim(),
       designation:       document.getElementById("designation").value.trim(),
       email:             document.getElementById("email").value.trim(),
+      questions:         collectTemplateQuestions(form)
     }
   };
 
   try {
-    const res  = await fetch(`${API_BASE}/visitors/register`, {
-      method: "POST", headers: {"Content-Type":"application/json"}, body: JSON.stringify(body)
+    const res = await fetch(`${API_BASE}/visitors/register`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(body)
     });
+
     const data = await res.json();
+
     if (data.success) {
-      visitorId = data.data.visitor_id;
-      document.getElementById("step-form").style.display  = "none";
-      document.getElementById("step-otp").style.display   = "block";
-      document.getElementById("otp-phone-display").textContent = "+91" + mobile.slice(0,2) + "XXXXXX" + mobile.slice(-2);
-      document.getElementById("ind-1").className = "step done";
-      document.getElementById("ind-2").className = "step active";
-      document.querySelectorAll(".otp-input")[0].focus();
-      startResendTimer();
+      showSuccess(data.data);
     } else {
-      showError(document.getElementById("error-reg"), data.error || "Registration failed. Please try again.");
-      btn.disabled  = false;
+      showError(
+        errorEl,
+        data.error || "Registration failed. Please try again."
+      );
+
+      btn.disabled = false;
       btn.innerHTML = "Get My Event Pass →";
     }
-  } catch(e) {
-    showError(document.getElementById("error-reg"), "Network error. Please check your connection.");
-    btn.disabled  = false;
+  } catch (e) {
+    showError(
+      errorEl,
+      "Network error. Please check your connection."
+    );
+
+    btn.disabled = false;
     btn.innerHTML = "Get My Event Pass →";
   }
 }
 
-function otpInput(el, idx) {
-  el.value = el.value.replace(/\D/g,"");
-  if (el.value && idx < 5) document.querySelectorAll(".otp-input")[idx+1].focus();
-  const otp = Array.from(document.querySelectorAll(".otp-input")).map(i => i.value).join("");
-  if (otp.length === 6) verifyOtp();
-}
-function otpKey(e, idx) {
-  if (e.key === "Backspace" && !e.target.value && idx > 0)
-    document.querySelectorAll(".otp-input")[idx-1].focus();
-}
-
-function startResendTimer() {
-  let secs = 30;
-  document.getElementById("resend-btn").disabled = true;
-  resendInterval = setInterval(() => {
-    secs--;
-    document.getElementById("resend-timer").textContent = secs;
-    if (secs <= 0) {
-      clearInterval(resendInterval);
-      document.getElementById("resend-btn").disabled  = false;
-      document.getElementById("resend-btn").textContent = "Resend OTP";
-    }
-  }, 1000);
-}
-
-async function resendOtp() {
-  document.getElementById("resend-btn").disabled  = true;
-  document.getElementById("resend-btn").innerHTML = "Resend OTP (30s)";
-  await fetch(`${API_BASE}/visitors/resend_otp`, {
-    method:"POST", headers:{"Content-Type":"application/json"},
-    body: JSON.stringify({ visitor_id: visitorId })
-  });
-  startResendTimer();
-}
-
-async function verifyOtp() {
-  const otp  = Array.from(document.querySelectorAll(".otp-input")).map(i => i.value).join("");
-  if (otp.length !== 6) return;
-  clearError(document.getElementById("error-otp"));
-
-  const btn  = document.getElementById("btn-verify");
-  btn.disabled  = true;
-  btn.innerHTML = '<span class="loading-spinner"></span> Verifying…';
-
-  try {
-    const res  = await fetch(`${API_BASE}/visitors/verify_otp`, {
-      method:"POST", headers:{"Content-Type":"application/json"},
-      body: JSON.stringify({ visitor_id: visitorId, otp: otp })
-    });
-    const data = await res.json();
-    if (data.success) {
-      showSuccess(data.data);
-    } else {
-      showError(document.getElementById("error-otp"), data.error || "Verification failed");
-      btn.disabled  = false;
-      btn.innerHTML = "Verify & Get Pass";
-      document.querySelectorAll(".otp-input").forEach(i => { i.value = ""; i.style.borderColor = "#ef4444"; });
-      document.querySelectorAll(".otp-input")[0].focus();
-    }
-  } catch(e) {
-    showError(document.getElementById("error-otp"), "Network error. Please try again.");
-    btn.disabled  = false;
-    btn.innerHTML = "Verify & Get Pass";
-  }
-}
-
-function showSuccess(data) {
-  document.getElementById("step-otp").style.display     = "none";
+function showSuccess(visitor) {
+  document.getElementById("step-form").style.display = "none";
   document.getElementById("step-success").style.display = "block";
-  document.getElementById("ind-2").className = "step done";
-  document.getElementById("ind-3").className = "step active";
 
-  document.getElementById("pass-visitor-id").textContent = data.visitor.visitor_id_code;
-  document.getElementById("pass-name").textContent       = data.visitor.full_name;
+  document.getElementById("ind-1").className = "step done";
+  document.getElementById("ind-2").className = "step active";
 
-  if (data.visitor.qr_image_url) {
+  document.getElementById("pass-visitor-id").textContent =
+    visitor.visitor_id_code || "—";
+
+  document.getElementById("pass-name").textContent =
+    visitor.full_name || "—";
+
+  if (visitor.qr_image_url) {
     document.getElementById("qr-loading").style.display = "none";
     document.getElementById("qr-section").style.display = "inline-block";
-    document.getElementById("qr-img").src               = data.visitor.qr_image_url;
+    document.getElementById("qr-img").src = visitor.qr_image_url;
+  } else if (visitor.visitor_id) {
+    document.getElementById("qr-loading").textContent =
+      "Generating your event QR code...";
+
+    pollQrCode(visitor.visitor_id);
   } else {
-    pollQrCode(data.visitor.id);
+    document.getElementById("qr-loading").textContent =
+      "QR code is not available yet.";
   }
+
+  window.scrollTo({
+    top: 0,
+    behavior: "smooth"
+  });
 }
 
-async function pollQrCode(vid) {
+async function pollQrCode(visitorId) {
   for (let i = 0; i < 20; i++) {
-    await new Promise(r => setTimeout(r, 2000));
-    const res  = await fetch(`${API_BASE}/visitors/qr/${vid}`);
-    const data = await res.json();
-    if (data.success && data.data.qr_image_url) {
-      document.getElementById("qr-loading").style.display = "none";
-      document.getElementById("qr-section").style.display = "inline-block";
-      document.getElementById("qr-img").src               = data.data.qr_image_url;
-      return;
+    await new Promise(resolve => setTimeout(resolve, 2000));
+
+    try {
+      const res = await fetch(`${API_BASE}/visitors/qr/${visitorId}`);
+      const data = await res.json();
+
+      if (data.success && data.data.qr_image_url) {
+        document.getElementById("qr-loading").style.display = "none";
+        document.getElementById("qr-section").style.display = "inline-block";
+        document.getElementById("qr-img").src =
+          data.data.qr_image_url;
+        return;
+      }
+    } catch (e) {
+      // Keep polling while the QR generation is in progress.
     }
   }
+
+  document.getElementById("qr-loading").textContent =
+    "QR code is taking longer than expected. Please check your WhatsApp.";
 }
 </script>
 </body>

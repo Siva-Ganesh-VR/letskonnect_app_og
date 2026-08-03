@@ -125,6 +125,7 @@ Rails.application.routes.draw do
         resources :templates, only: [:index, :create, :show, :update] do
           member { patch :activate; patch :deactivate }
         end
+        patch "templates/:id/set_default", to: "templates#set_default"
       end
 
       # Shared

@@ -38,6 +38,30 @@ module Api
           json_success(response)
         end
 
+        def update
+          template = Template.find(params[:id])
+
+          ActiveRecord::Base.transaction do
+            template.update!(template_params)
+
+            if template.template_type == "question"
+              template.template_questions.destroy_all
+              create_template_questions(template.id) if params[:template_questions].present?
+
+            elsif template.template_type == "message"
+              if params[:template_message].present?
+                if template.template_messages.present?
+                  template.template_messages.first.update!(message: params[:template_message])
+                else
+                  create_template_message(template.id)
+                end
+              end
+            end
+          end
+
+          json_success(template_resp(template.reload))
+        end
+
         def deactivate
           t = Template.find(params[:id])
           t.update!(active: false)
@@ -65,6 +89,24 @@ module Api
             template_id: template_id,
             message: params[:template_message]
           )
+        end
+
+        def set_default
+          template = Template.find(params[:id])
+
+          ActiveRecord::Base.transaction do
+            Template
+              .where(
+                template_type: template.template_type,
+                is_default: true
+              )
+              .where.not(id: template.id)
+              .update_all(is_default: false)
+
+            template.update!(is_default: true)
+          end
+
+          json_success(template_resp(template))
         end
 
         private
