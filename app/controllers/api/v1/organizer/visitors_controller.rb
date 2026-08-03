@@ -136,7 +136,7 @@ module Api
             stalls_visited: v.leads.count, registered_at: v.created_at.iso8601,
             email: v.email, active: v.active, looking_for: v.looking_for,
             decision_maker: v.decision_maker, created_at: v.created_at, reg_type: v.reg_type,
-            mobile_verified: v.mobile_verified,
+            mobile_verified: v.mobile_verified, qr_image_url: v.qr_image_url,
             event: {
               id: v.event&.id,
               name: v.event&.name,

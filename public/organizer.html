@@ -851,6 +851,60 @@
           inset 0 0 10px rgba(16, 185, 129, .15);
       }
     }
+
+    @media print {
+      body * {
+        visibility: hidden;
+      }
+
+      #badge-print,
+      #badge-print * {
+        visibility: visible;
+      }
+
+      #badge-print {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        text-align: center;
+      }
+
+      #badge-print img {
+        width: 300px;
+        height: 300px;
+        border: 2px solid #444;
+        border-radius: 8px;
+        padding: 6px;
+        background: #fff;
+      }
+
+      #qr-visitor-name {
+        margin-top: 16px;
+        font-size: 22px;
+        font-weight: bold;
+        color: #1565c0;
+      }
+
+      #qr-visitor-company {
+        margin-top: 8px;
+        font-size: 16px;
+        font-weight: 600;
+        color: #222222;
+      }
+
+      #qr-visitor-designation {
+        margin-top: 4px;
+        font-size: 16px;
+        font-weight: 600;
+        color: #222222;
+      }
+
+      .no-print {
+        display: none !important;
+      }
+
+    }
   </style>
 </head>
 
@@ -1393,11 +1447,29 @@
 
   <div class="modal-overlay" id="m-visitor-qr" onclick="if(event.target===this)closeModal('m-visitor-qr')">
     <div class="modal" style="text-align:center">
-      <div class="modal-title" id="qr-visitor-title" style="justify-content:center">Event QR Code <button class="mc"
-          style="position:absolute;right:28px" onclick="closeModal('m-visitor-qr')">✕</button></div>
-      <p style="font-size:13px;color:var(--text2);margin-bottom:16px" id="qr-visitor-name"></p>
-      <div id="qr-visitor-content"></div>
-      <p style="font-size:12px;color:var(--text3);margin-top:12px">Visitors scan this QR to register</p>
+      <div class="modal-title" style="justify-content:center">
+        Visitor Badge
+        <button class="mc no-print"
+          style="position:absolute;right:28px"
+          onclick="closeModal('m-visitor-qr')">
+          ✕
+        </button>
+      </div>
+
+      <div id="badge-print">
+        <div id="qr-visitor-content"></div>
+        <h3 id="qr-visitor-name" style="margin:14px 0 6px"></h3>
+        <div id="qr-visitor-company"
+            style="font-size:15px;font-weight:600"></div>
+        <div id="qr-visitor-designation"
+            style="font-size:14px;color:var(--text2);margin-top:4px"></div>
+      </div>
+
+      <div class="no-print" style="margin-top:20px">
+        <button class="btn btn-g btn-sm" onclick="printVisitorBadge()">
+          🖨 Print Badge
+        </button>
+      </div>
     </div>
   </div>
 
@@ -1855,14 +1927,25 @@
       openModal("m-qr");
     }
 
-    function showVisitorQr(id, name, qrUrl, token) {
-      document.getElementById("qr-visitor-name").textContent = name;
-      const url = `${location.origin}/register/${token}`;
-      document.getElementById("qr-visitor-content").innerHTML = qrUrl
-        ? `<div class="qr-visitor-box"><img src="${qrUrl}" alt="QR"></div>`
-        : `<div style="background:rgba(255,255,255,0.05);border-radius:12px;padding:24px;color:var(--text2);font-size:13px">QR is being generated…<br>Check back in a moment.</div>`;
-      openModal("m-visitor-qr");
-    }
+    function showVisitorQr(id, name, company, designation, qrUrl) {
+    document.getElementById("qr-visitor-name").textContent = name || "";
+    document.getElementById("qr-visitor-company").textContent = company || "";
+    document.getElementById("qr-visitor-designation").textContent = designation || "";
+    document.getElementById("qr-visitor-content").innerHTML =
+      qrUrl
+        ? `<div class="qr-box">
+            <img src="${qrUrl}" alt="QR">
+          </div>`
+        : `<div style="padding:24px">
+            QR is being generated...
+          </div>`;
+
+    openModal("m-visitor-qr");
+  }
+
+  function printVisitorBadge() {
+    window.print();
+  }
 
     // ── Stalls ────────────────────────────────────────────────────────────────
     async function loadStalls() {
@@ -1979,7 +2062,19 @@
       <td>${v.reg_type}</td>
       <td>
         <div style="display:flex;gap:6px;flex-wrap:wrap">
-          <button class="btn btn-sm btn-outline" style="padding-right: 6px; padding-left: 6px;" onclick='showVisitorQr("${v.id}","${v.full_name}","${v.qr_image_url || ""}","${v.registration_qr_token}")' title="QR">📱</button>
+          <button
+            class="btn btn-sm btn-o"
+            style="padding-right:6px;padding-left:6px;"
+            onclick='showVisitorQr(
+              "${v.id}",
+              "${v.full_name}",
+              "${v.business_name || ""}",
+              "${v.designation || ""}",
+              "${v.qr_image_url || ""}"
+            )'
+            title="QR">
+            📱
+          </button>
         </div>
       </td>
     </tr>
@@ -2805,11 +2900,12 @@
         <td>${v.business_name || "—"}</td>
         <td>${v.business_category || "—"}</td>
         <td>${v.looking_for || "—"}</td>
-        <td>${v.decision_maker || "—"}</td>
+        <td>${v.decision_maker == null ? "—" : (v.decision_maker ? "Yes" : "No")}</td>
         <td>${v.location || "—"}</td>
         <td style="font-weight:600;text-align:center">${v.stalls_visited || 0}</td>
         <td style="font-size:12px;color:var(--text2);white-space:nowrap">${fd(v.registered_at || v.created_at)}</td>
         <td>${v.reg_type}</td>
+        <td><button class="btn btn-o btn-sm" onclick='event.stopPropagation(); showVisitorQr("${v.id}","${v.full_name}", "${v.business_name || ""}", "${v.designation || ""}","${v.qr_image_url || ""}")'>📱</button></td>
       </tr>`).join("");
 
         el.innerHTML = `
@@ -2817,7 +2913,7 @@
         <table style="width:100%;border-collapse:collapse">
           <thead>
             <tr>
-              ${["ID", "Name", "Mobile", "Business", "Category", "Looking For", "Decision Maker", "Location", "Stalls", "Registered", "Reg Type"].map(h =>
+              ${["ID", "Name", "Mobile", "Business", "Category", "Looking For", "Decision Maker", "Location", "Stalls", "Registered", "Reg Type", "Actions"].map(h =>
           `<th style="text-align:left;padding:10px 16px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text3);border-bottom:1px solid var(--border);white-space:nowrap">${h}</th>`
         ).join("")}
             </tr>
@@ -3112,6 +3208,10 @@
             ${detailChip("📱 Mobile", v.mobile_number || "—")}
             ${detailChip("🆔 Code", v.visitor_id_code || "—")}
             ${detailChip("🏢 Event", v.event.name || "—")}
+          </div>
+
+          <div style="display:flex;gap:8px;margin-top:16px;padding-top:14px;border-top:1px solid var(--border);flex-wrap:wrap">
+            <button class="btn btn-g btn-sm qr-blink" onclick='showVisitorQr("${v.id}","${v.full_name}", "${v.business_name || ""}", "${v.designation || ""}","${v.qr_image_url || ""}")'>📱 View QR Badge</button>
           </div>
         </div>
 
