@@ -1345,6 +1345,40 @@
     </div>
   </div>
 
+  <div class="modal-overlay" id="m-assign-template" onclick="if(event.target===this)closeModal('m-assign-template')">
+    <div class="modal">
+      <div class="modal-title">
+        Assign Template
+        <button class="mc" onclick="closeModal('m-assign-template')">✕</button>
+      </div>
+
+      <div id="assign-template-err" class="err"></div>
+
+      <div class="mf">
+        <label>Choose Template *</label>
+
+        <select id="assign-template-id" class="form-control" style="width:100%;padding:10px">
+          <option value="">Select a template</option>
+        </select>
+
+        <p style="margin-top:8px;font-size:12px;color:var(--text2)">By default, questions from the default template loaded if no template is assigned.</p>
+        <p style="margin-top:8px;font-size:12px;color:var(--text2)">
+          By assigning a template, all visitors will get same set of questions at the time of pre-registration for this event.
+        </p>
+      </div>
+
+      <div class="modal-foot">
+        <button class="btn btn-o" onclick="closeModal('m-assign-template')">
+          Cancel
+        </button>
+
+        <button class="btn btn-g" onclick="assignTemplate()" id="assign-template-btn">
+          Assign Template
+        </button>
+      </div>
+    </div>
+  </div>
+
   <div class="modal-overlay" id="m-qr" onclick="if(event.target===this)closeModal('m-qr')">
     <div class="modal" style="text-align:center">
       <div class="modal-title" id="qr-title" style="justify-content:center">Event QR Code <button class="mc"
@@ -1354,6 +1388,16 @@
       <p style="font-size:12px;color:var(--text3);margin-top:12px">Visitors scan this QR to register</p>
       <div style="margin-top:16px"><a id="qr-reg-link" href="#" target="_blank"
           style="font-size:12px;color:var(--accent);word-break:break-all"></a></div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="m-visitor-qr" onclick="if(event.target===this)closeModal('m-visitor-qr')">
+    <div class="modal" style="text-align:center">
+      <div class="modal-title" id="qr-visitor-title" style="justify-content:center">Event QR Code <button class="mc"
+          style="position:absolute;right:28px" onclick="closeModal('m-visitor-qr')">✕</button></div>
+      <p style="font-size:13px;color:var(--text2);margin-bottom:16px" id="qr-visitor-name"></p>
+      <div id="qr-visitor-content"></div>
+      <p style="font-size:12px;color:var(--text3);margin-top:12px">Visitors scan this QR to register</p>
     </div>
   </div>
 
@@ -1811,6 +1855,15 @@
       openModal("m-qr");
     }
 
+    function showVisitorQr(id, name, qrUrl, token) {
+      document.getElementById("qr-visitor-name").textContent = name;
+      const url = `${location.origin}/register/${token}`;
+      document.getElementById("qr-visitor-content").innerHTML = qrUrl
+        ? `<div class="qr-visitor-box"><img src="${qrUrl}" alt="QR"></div>`
+        : `<div style="background:rgba(255,255,255,0.05);border-radius:12px;padding:24px;color:var(--text2);font-size:13px">QR is being generated…<br>Check back in a moment.</div>`;
+      openModal("m-visitor-qr");
+    }
+
     // ── Stalls ────────────────────────────────────────────────────────────────
     async function loadStalls() {
       const eid = document.getElementById("stall-event-sel").value;
@@ -1924,12 +1977,17 @@
       <td style="font-weight:600">${v.stalls_visited || 0}</td>
       <td style="font-size:12px;color:var(--text2)">${fd(v.registered_at)}</td>
       <td>${v.reg_type}</td>
+      <td>
+        <div style="display:flex;gap:6px;flex-wrap:wrap">
+          <button class="btn btn-sm btn-outline" style="padding-right: 6px; padding-left: 6px;" onclick='showVisitorQr("${v.id}","${v.full_name}","${v.qr_image_url || ""}","${v.registration_qr_token}")' title="QR">📱</button>
+        </div>
+      </td>
     </tr>
   `}).join("");
       const total = res.meta?.total || (res.data || []).length || 0;
       document.getElementById("visitors-tbl").innerHTML = `
     <div style="padding:10px 20px;font-size:13px;color:var(--text2)">${total} visitor${total !== 1 ? 's' : ''} registered</div>
-    ${rows ? `<table><thead><tr><th>ID</th><th>Name</th><th>Mobile</th><th>Business</th><th>Category</th><th>Location</th><th>Stalls</th><th>Registered</th><th>Reg Type</th></tr></thead><tbody>${rows}</tbody></table>`
+    ${rows ? `<table><thead><tr><th>ID</th><th>Name</th><th>Mobile</th><th>Business</th><th>Category</th><th>Location</th><th>Stalls</th><th>Registered</th><th>Reg Type</th><th>Actions</th></tr></thead><tbody>${rows}</tbody></table>`
           : `<div class="empty"><div class="empty-icon">👥</div>No visitors registered yet</div>`}
   `;
       visitorsListState.total = total;
@@ -2426,6 +2484,18 @@
         const e = result.data;
         detailsState.stallCategoryFilter = "all";
         detailsState.eventStallOwners = e.stall_owners || [];
+
+        // Populate template dropdown
+        const templateSelect = document.getElementById("assign-template-id");
+        if (templateSelect) {
+          templateSelect.innerHTML = `
+            <option value="">Select Template</option>
+            ${(e.templates || [])
+              .map(t => `<option value="${t.id}">${t.name}${t.is_default ? " (Default)" : ""}</option>`)
+              .join("")}
+        `;
+        }
+        templateSelect.value = e.template_id || "";
         document.getElementById("odetails-title").textContent = e.name;
         try {
           const html = buildEventDetailsHTML(e);
@@ -2475,6 +2545,7 @@
         ${detailChip("🏢 Organizer", e.organizer?.name || "—")}
         ${detailChip("🆔 Event Code", `<span style="font-family:monospace;font-size:11px">${e.event_code}</span>`)}
         ${detailChip("🍽️ Food Coupon", e.food_coupon ? "Yes" : "No")}
+        ${detailChip("🏢 Assigned Template", e.template_name || "—")}
       </div>
       ${e.description ? `<div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border);font-size:14px;color:var(--text2);line-height:1.6">${e.description}</div>` : ""}
       <div style="display:grid;grid-template-columns:1fr auto;gap:12px;margin-top:16px;padding-top:14px;border-top:1px solid var(--border);align-items:center">
@@ -2487,6 +2558,7 @@
               ${e.status === 'draft' || e.completed ? 'disabled style="opacity:0.5;cursor:not-allowed"' : ''}>
               📱 View QR Code
             </button>
+            <button class="btn btn-p btn-sm" onclick="openModal('m-assign-template')" ${e.status === 'draft' || e.completed ? 'disabled style="opacity:0.5;cursor:not-allowed"' : ''}>Assign Template</button>
             <a href="/register/${e.registration_qr_token || ""}" target="_blank" style="display:inline-flex;align-items:center;gap:6px;padding:10px 14px;border-radius:12px;border:1px solid var(--border);color:var(--accent);text-decoration:none;font-size:13px;background:rgba(34,197,94,0.06); ${e.status === 'draft' || e.completed ? 'opacity:0.5;pointer-events:none;' : ''}">🔗 Open registration</a>
           </div>
         </div>
@@ -3244,6 +3316,34 @@
       `;
 
       openModal("m-hourly-visitors");
+    }
+    async function assignTemplate() {
+      const templateId = document.getElementById("assign-template-id").value;
+
+      if (!templateId) {
+        toast("Please select a template.", "err");
+        return;
+      }
+
+      try {
+        await patch(
+          `/organizer/events/${detailsState.eventId}/assign_template`,
+          {
+            template_id: templateId
+          }
+        );
+
+        toast("Template assigned successfully.", "ok");
+
+        closeModal("m-assign-template");
+
+        // Optional: refresh event details so template name is updated in UI
+        await showEventDetails(detailsState.eventId, previousPage);
+
+      } catch (err) {
+        console.error(err);
+        toast(err.message || "Failed to assign template.", "error");
+      }
     }
   </script>
 </body>

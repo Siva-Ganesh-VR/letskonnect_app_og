@@ -7,6 +7,7 @@ class Event < ApplicationRecord
   has_one  :event_analytics, dependent: :destroy
   has_many :visitor_scan_logs, dependent: :destroy
   has_one_attached :registration_qr
+  belongs_to :template, optional: true
 
   before_create :generate_slug
   before_create :generate_registration_qr_token

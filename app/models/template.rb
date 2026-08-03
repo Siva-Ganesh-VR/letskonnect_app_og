@@ -3,8 +3,23 @@ class Template < ApplicationRecord
 
   has_many :template_questions
   has_many :template_messages
+  has_many :events
 
   validates :name, presence: true
   validates :template_type, inclusion: { in: TYPES }
+
+  scope :question_templates, -> {
+    where(
+      template_type: "question",
+      active: true
+    )
+  }
+  def self.default_question_template
+    find_by(
+      template_type: "question",
+      active: true,
+      is_default: true
+    )
+  end
 
 end

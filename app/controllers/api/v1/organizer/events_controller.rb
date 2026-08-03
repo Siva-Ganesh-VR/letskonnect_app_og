@@ -3,7 +3,7 @@ module Api
     module Organizer
       class EventsController < ApplicationController
         before_action :authenticate_organizer!
-        before_action :set_event, only: [:show, :update, :analytics, :qr_code, :activate, :archive, :request_activation]
+        before_action :set_event, only: [:show, :update, :analytics, :qr_code, :activate, :archive, :request_activation, :assign_template]
 
         def index
           events = @current_organizer.events.order(created_at: :desc)
@@ -11,7 +11,16 @@ module Api
         end
 
         def show
-          json_success(event_detail(@event))
+          default_template = Template.default_question_template
+          assigned_template = @event.template || default_template
+
+          json_success(
+            event_detail(@event).merge(
+              template_id: assigned_template&.id,
+              template_name: assigned_template&.name,
+              templates: Template.question_templates.select(:id, :name, :is_default).order(:name)
+            )
+          )
         end
 
         def create
@@ -93,6 +102,24 @@ module Api
           json_success({
             total_unique_visitors: total_unique_visitors,
             visitors_by_day: day_wise_visitors(event)
+          })
+        end
+
+        def assign_template
+          template = Template.find_by(
+            id: params[:template_id],
+            template_type: "question",
+            active: true
+          )
+
+          return json_error("Template not found") unless template
+
+          @event.update!(
+            template_id: template.is_default? ? nil : template.id
+          )
+
+          json_success({
+            message: "Template assigned successfully"
           })
         end
 
