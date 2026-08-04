@@ -87,7 +87,7 @@ module Api
         def qr_code
           visitor = Visitor.find(params[:id])
           return json_error("Not verified", status: :forbidden) unless visitor.mobile_verified?
-          json_success({ qr_token: visitor.qr_token, qr_image_url: visitor.qr_image_url, display_url: visitor.display_qr_url })
+          json_success({ visitor_id_code: visitor.visitor_id_code, full_name: visitor.full_name, qr_token: visitor.qr_token, qr_image_url: visitor.qr_image_url, display_url: visitor.display_qr_url })
         end
 
         def bni_create
@@ -126,6 +126,21 @@ module Api
           else
             json_error("Registration failed", errors: visitor.errors.full_messages)
           end
+        end
+
+        def download_qr
+          visitor = Visitor.find(params[:id])
+
+          return json_error("Not verified", status: :forbidden) unless visitor.mobile_verified?
+
+          return json_error("QR code not generated yet", status: :not_found) unless visitor.registration_qr.attached?
+
+          send_data(
+            visitor.registration_qr.download,
+            filename: "Visitor_Pass_#{visitor.visitor_id_code}.png",
+            type: visitor.registration_qr.blob.content_type,
+            disposition: "attachment"
+          )
         end
 
         private

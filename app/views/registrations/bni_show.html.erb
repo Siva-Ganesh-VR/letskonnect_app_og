@@ -156,15 +156,6 @@
   <div id="step-success">
     <div class="card">
       <div class="success-screen">
-        <div class="success-icon">🎉</div>
-        <div class="success-title">Welcome to the Event!</div>
-        <div class="success-sub">Your digital VIP pass is ready. Show this QR code at any exhibitor stall to instantly share your details.</div>
-
-        <div class="visitor-id-badge">
-          <div class="visitor-id-label">Visitor ID</div>
-          <div class="visitor-id-value" id="pass-visitor-id">—</div>
-        </div>
-
         <div id="qr-section" class="qr-container" style="display:none">
           <img id="qr-img" src="" alt="Your QR Code">
 
@@ -178,6 +169,14 @@
           ⏳ Generating your QR code…
         </div>
 
+        <div class="success-title">Welcome to the Event!</div>
+        <div class="success-sub">Your digital VIP pass is ready. Show this QR code at any exhibitor stall to instantly share your details.</div>
+
+        <div class="visitor-id-badge">
+          <div class="visitor-id-label">Visitor ID</div>
+          <div class="visitor-id-value" id="pass-visitor-id">—</div>
+        </div>
+
         <div class="pass-info">
           <div class="pass-row"><span class="pass-key">Name</span><span class="pass-val" id="pass-name">—</span></div>
           <div class="pass-row"><span class="pass-key">Event</span><span class="pass-val"><%= @event.name %></span></div>
@@ -185,10 +184,6 @@
           <div class="pass-row"><span class="pass-key">Date</span><span class="pass-val"><%= "#{@event.start_date.strftime('%b %d')} – #{@event.end_date.strftime('%b %d, %Y')}" %></span></div>
         </div>
 
-        <div class="whatsapp-note">
-          <span style="font-size:20px">📱</span>
-          <span>Your QR code and event details have been sent to your WhatsApp.</span>
-        </div>
       </div>
     </div>
   </div>
@@ -198,6 +193,7 @@
 <script>
 const EVENT_TOKEN = "<%= @event.bni_registration_qr_token %>";
 const API_BASE    = "/api/v1";
+let visitorId     = null;
 
 const BUSINESS_CATEGORIES = [
   "Clothing",
@@ -290,6 +286,7 @@ async function submitRegistration() {
     });
     const data = await res.json();
     if (data.success) {
+      visitorId = data.data.visitor.id;
       showSuccess(data.data);
     } else {
       showError(document.getElementById("error-reg"), data.error || "Registration failed. Please try again.");
@@ -303,46 +300,60 @@ async function submitRegistration() {
   }
 }
 
-function showSuccess(data) {
-  document.getElementById("step-form").style.display     = "none";
+async function showSuccess(data) {
+  if (data.visitor.qr_image_url) {
+    displaySuccess(data.visitor);
+  } else {
+    document.getElementById("qr-loading").style.display = "block";
+    await pollQrCode(data.visitor.id);
+  }
+}
+
+function displaySuccess(visitor) {
+  document.getElementById("step-form").style.display = "none";
   document.getElementById("step-success").style.display = "block";
+
   document.getElementById("ind-1").className = "step done";
   document.getElementById("ind-2").className = "step active";
 
-  document.getElementById("pass-visitor-id").textContent = data.visitor.visitor_id_code;
-  document.getElementById("pass-name").textContent       = data.visitor.full_name;
+  document.getElementById("pass-visitor-id").textContent = visitor.visitor_id_code;
+  document.getElementById("pass-name").textContent = visitor.full_name;
 
-  if (data.visitor.qr_image_url) {
-    document.getElementById("qr-loading").style.display = "none";
-    document.getElementById("qr-section").style.display = "inline-block";
-    document.getElementById("qr-img").src               = data.visitor.qr_image_url;
-  } else {
-    pollQrCode(data.visitor.id);
-  }
+  document.getElementById("qr-loading").style.display = "none";
+  document.getElementById("qr-section").style.display = "inline-block";
+
+  const img = document.getElementById("qr-img");
+  img.src = visitor.qr_image_url;
+
+  // Auto download once QR is loaded
+  img.onload = () => {
+    document.getElementById("download-qr-btn").click();
+  };
 }
 
 async function pollQrCode(vid) {
   for (let i = 0; i < 20; i++) {
     await new Promise(r => setTimeout(r, 2000));
-    const res  = await fetch(`${API_BASE}/visitors/qr/${vid}`);
+
+    const res = await fetch(`${API_BASE}/visitors/qr/${vid}`);
     const data = await res.json();
+
     if (data.success && data.data.qr_image_url) {
-      document.getElementById("qr-loading").style.display = "none";
-      document.getElementById("qr-section").style.display = "inline-block";
-      document.getElementById("qr-img").src               = data.data.qr_image_url;
+      displaySuccess(data.data);
       return;
     }
   }
-}
-document.getElementById("download-qr-btn").addEventListener("click", () => {
-  const img = document.getElementById("qr-img");
 
-  const link = document.createElement("a");
-  link.href = img.src;
-  link.download = "visitor-qr.png";
-  document.body.appendChild(link);
-  link.click();
-  link.remove();
+  showError(
+    document.getElementById("error-reg"),
+    "QR generation is taking longer than expected. Please refresh after a few moments."
+  );
+}
+
+document.getElementById("download-qr-btn").addEventListener("click", () => {
+  if (!visitorId) return;
+
+  window.location.href = `${API_BASE}/visitors/${visitorId}/download_qr`;
 });
 </script>
 </body>

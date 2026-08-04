@@ -105,7 +105,7 @@ module Api
         def event_params
           params.require(:event).permit(
             :name, :description, :venue, :city, :start_date, :end_date,
-            :start_time, :end_time, :max_visitors, :status, :whatsapp_enabled, :food_coupon, :food_coupon_count, :event_organizer_id, settings: {}
+            :start_time, :end_time, :max_visitors, :status, :collect_visitor_info, :food_coupon, :food_coupon_count, :event_organizer_id, settings: {}
           )
         end
 
@@ -117,7 +117,7 @@ module Api
             organizer: { id: e.event_organizer.id, name: e.event_organizer.name },
             total_leads: e.event_analytics&.total_leads || 0, created_at: e.created_at,
             registration_qr_token: e.registration_qr_token, bni_registration_qr_token: e.bni_registration_qr_token, event_organizer_id: e.event_organizer_id, max_visitors: e.max_visitors, description: e.description,
-            settings: e.settings, completed: e.completed?, food_coupon: e.food_coupon, food_coupon_count: e.food_coupon_count, whatsapp_enabled: e.whatsapp_enabled }
+            settings: e.settings, completed: e.completed?, food_coupon: e.food_coupon, food_coupon_count: e.food_coupon_count, collect_visitor_info: e.collect_visitor_info }
         end
 
         def event_full(e)

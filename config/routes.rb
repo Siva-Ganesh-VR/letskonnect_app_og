@@ -33,6 +33,7 @@ Rails.application.routes.draw do
       post   "visitors/resend_otp",     to: "auth/visitors#resend_otp"
       get    "visitors/dashboard/:id",  to: "auth/visitors#dashboard"
       get    "visitors/qr/:id",         to: "auth/visitors#qr_code"
+      get    "visitors/:id/download_qr", to: "auth/visitors#download_qr"
 
       post   "stall/sign_in",           to: "auth/stall_owners#sign_in"
       post   "stall/request_otp",       to: "auth/stall_owners#request_otp"

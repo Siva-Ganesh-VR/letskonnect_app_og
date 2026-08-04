@@ -69,6 +69,10 @@ class Event < ApplicationRecord
     storage_qr_url(bni_registration_qr)
   end
 
+  def whatsapp_enabled?
+    collect_visitor_info == "whatsapp"
+  end
+
   private
 
   def storage_qr_url(attachment)
