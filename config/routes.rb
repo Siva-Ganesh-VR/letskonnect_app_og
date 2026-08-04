@@ -28,6 +28,7 @@ Rails.application.routes.draw do
     namespace :v1 do
 
       post   "visitors/register",       to: "auth/visitors#create"
+      post   "visitors/bni_register",   to: "auth/visitors#bni_create"
       post   "visitors/verify_otp",     to: "auth/visitors#verify_otp"
       post   "visitors/resend_otp",     to: "auth/visitors#resend_otp"
       get    "visitors/dashboard/:id",  to: "auth/visitors#dashboard"

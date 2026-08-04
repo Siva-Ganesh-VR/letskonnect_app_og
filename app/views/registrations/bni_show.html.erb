@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Register — <%= @event.name %> | StallConnect</title>
+<title>VIP Register — <%= @event.name %> | StallConnect</title>
 <style>
   *{box-sizing:border-box;margin:0;padding:0}
   body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#0f0f1a;min-height:100vh;color:#fff}
@@ -114,21 +114,15 @@
 
     <div class="card">
       <div class="section-title">Business Details</div>
-      <div class="field">
-        <label>Business Category</label>
-        <select id="business_category"></select>
-      </div>
-      <div class="field">
-        <label>Looking For</label>
-        <select id="looking_for"></select>
-      </div>
-      <div class="field">
-        <label>Decision Maker?</label>
-        <select id="decision_maker">
-          <option value="">Please Select</option>
-          <option value="Yes">Yes</option>
-          <option value="No">No</option>
-        </select>
+      <div class="row2">
+        <div class="field">
+          <label>Business Category</label>
+          <select id="business_category"></select>
+        </div>
+        <div class="field">
+          <label>Chapter Name</label>
+          <input type="text" id="chapter_name" placeholder="Optional">
+        </div>
       </div>
       <div class="row2">
         <div class="field">
@@ -154,7 +148,7 @@
 
     <div id="error-reg" class="error-msg"></div>
     <button class="btn-primary" onclick="submitRegistration()" id="btn-register">
-      Get My Event Pass →
+      Get My Event VIP Pass →
     </button>
   </div>
 
@@ -164,7 +158,7 @@
       <div class="success-screen">
         <div class="success-icon">🎉</div>
         <div class="success-title">Welcome to the Event!</div>
-        <div class="success-sub">Your digital pass is ready. Show this QR code at any exhibitor stall to instantly share your details.</div>
+        <div class="success-sub">Your digital VIP pass is ready. Show this QR code at any exhibitor stall to instantly share your details.</div>
 
         <div class="visitor-id-badge">
           <div class="visitor-id-label">Visitor ID</div>
@@ -176,7 +170,7 @@
 
           <div class="qr-actions">
             <button type="button" class="btn btn-sm btn-primary" id="download-qr-btn">
-              Download QR Pass
+              Download VIP Pass
             </button>
           </div>
         </div>
@@ -202,10 +196,9 @@
 </div>
 
 <script>
-const EVENT_TOKEN = "<%= @event.registration_qr_token %>";
+const EVENT_TOKEN = "<%= @event.bni_registration_qr_token %>";
 const API_BASE    = "/api/v1";
-let visitorId     = null;
-let resendInterval= null;
+
 const BUSINESS_CATEGORIES = [
   "Clothing",
   "Gold Jewellery",
@@ -213,15 +206,6 @@ const BUSINESS_CATEGORIES = [
   "Services",
   "BNI Member",
   "Other"
-];
-
-const LOOKING_FOR_OPTIONS = [
-  "Business Networking",
-  "Suppliers",
-  "Distributors",
-  "Customers",
-  "Partnerships",
-  "Investment"
 ];
 
 function populateSelect(selectId, options) {
@@ -241,7 +225,6 @@ function populateSelect(selectId, options) {
 
 document.addEventListener("DOMContentLoaded", () => {
   populateSelect("business_category", BUSINESS_CATEGORIES);
-  populateSelect("looking_for", LOOKING_FOR_OPTIONS);
 });
 
 function validateRegistration() {
@@ -296,14 +279,13 @@ async function submitRegistration() {
       business_name:     document.getElementById("business_name").value.trim(),
       designation:       document.getElementById("designation").value.trim(),
       email:             document.getElementById("email").value.trim(),
-      looking_for:       document.getElementById("looking_for").value,
-      decision_maker:    document.getElementById("decision_maker").value,
+      chapter_name:      document.getElementById("chapter_name").value.trim(),
       website:           document.getElementById("website").value.trim()
     }
   };
 
   try {
-    const res  = await fetch(`${API_BASE}/visitors/register`, {
+    const res  = await fetch(`${API_BASE}/visitors/bni_register`, {
       method: "POST", headers: {"Content-Type":"application/json"}, body: JSON.stringify(body)
     });
     const data = await res.json();
@@ -317,7 +299,7 @@ async function submitRegistration() {
   } catch(e) {
     showError(document.getElementById("error-reg"), "Network error. Please check your connection.");
     btn.disabled  = false;
-    btn.innerHTML = "Get My Event Pass →";
+    btn.innerHTML = "Get My Event VIP Pass →";
   }
 }
 

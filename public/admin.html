@@ -1212,6 +1212,14 @@
             <span class="slider"></span>
           </label>
         </div>
+        <div class="field">
+          <label for="ef-whatsapp-enabled">Whatsapp Enabled?</label>
+
+          <label class="switch">
+            <input type="checkbox" id="ef-whatsapp-enabled">
+            <span class="slider"></span>
+          </label>
+        </div>
         <div class="field" id="food-coupon-count-div" style="display: none;">
           <label for="ef-food-coupon-count">Food Coupon Count</label>
           <input type="text" id="ef-food-coupon-count">
@@ -2011,7 +2019,8 @@
           description: document.getElementById("ef-desc").value.trim(),
           event_organizer_id: document.getElementById("ef-organizer").value,
           food_coupon: document.getElementById("ef-food-coupon").checked,
-          food_coupon_count: document.getElementById("ef-food-coupon-count").value
+          food_coupon_count: document.getElementById("ef-food-coupon-count").value,
+          whatsapp_enabled: document.getElementById("ef-whatsapp-enabled").checked
         }
       };
 
@@ -2474,6 +2483,7 @@
       document.getElementById("ef-food-coupon").checked = false;
       document.getElementById("food-coupon-count-div").style.display = "none";
       document.getElementById("ef-food-coupon-count").value = "";
+      document.getElementById("ef-whatsapp-enabled").checked = false;
 
       const err = document.getElementById("event-form-err");
       err.style.display = "none";
@@ -2500,6 +2510,7 @@
       document.getElementById("ef-max").value = event.max_visitors || "";
       document.getElementById("ef-status").value = event.status || "";
       document.getElementById("ef-desc").value = event.description || "";
+      document.getElementById("ef-whatsapp-enabled").checked = event.whatsapp_enabled;
       document.getElementById("ef-food-coupon").checked = event.food_coupon;
       const fcCount = document.getElementById("ef-food-coupon-count");
       const fcCountDiv = document.getElementById("food-coupon-count-div");
@@ -2935,6 +2946,7 @@
         ${detailChip("🆔 Event Code", `<span style="font-family:monospace;font-size:11px">${e.event_code}</span>`)}
         ${detailChip("🍽️ Food Coupon", e.food_coupon ? "Yes" : "No")}
         ${detailChip("🍽️ Food Coupon Count", e.food_coupon_count || "—")}
+        ${detailChip("💬 WhatsApp Enabled?", e.whatsapp_enabled ? "Yes" : "No")}
       </div>
       ${e.description ? `<div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border);font-size:14px;color:var(--text2);line-height:1.6">${e.description}</div>` : ""}
       <div style="display:flex;gap:8px;margin-top:16px;padding-top:14px;border-top:1px solid var(--border);flex-wrap:wrap">
