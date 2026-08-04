@@ -878,6 +878,24 @@
     .switch input:focus + .slider {
       box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.2);
     }
+    .radio-group {
+      display: flex;
+      gap: 20px;
+      align-items: center;
+      margin-top: 6px;
+    }
+
+    .radio-option {
+      display: flex !important;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      font-weight: 500;
+    }
+
+    .radio-option input[type="radio"] {
+      margin: 0;
+    }
   </style>
 </head>
 
@@ -1211,6 +1229,32 @@
             <input type="checkbox" id="ef-food-coupon" onchange="toggleFoodCouponCount()">
             <span class="slider"></span>
           </label>
+        </div>
+        <div class="field">
+          <label>Collect Visitor Information Via</label>
+
+          <div class="radio-group">
+            <label class="radio-option">
+              <input
+                type="radio"
+                name="collect_visitor_info"
+                id="ef-collect-web-form"
+                value="web_form"
+                checked
+              >
+              WebForm
+            </label>
+
+            <label class="radio-option">
+              <input
+                type="radio"
+                name="collect_visitor_info"
+                id="ef-collect-whatsapp"
+                value="whatsapp"
+              >
+              WhatsApp
+            </label>
+          </div>
         </div>
         <div class="field" id="food-coupon-count-div" style="display: none;">
           <label for="ef-food-coupon-count">Food Coupon Count</label>
@@ -2011,7 +2055,8 @@
           description: document.getElementById("ef-desc").value.trim(),
           event_organizer_id: document.getElementById("ef-organizer").value,
           food_coupon: document.getElementById("ef-food-coupon").checked,
-          food_coupon_count: document.getElementById("ef-food-coupon-count").value
+          food_coupon_count: document.getElementById("ef-food-coupon-count").value,
+          collect_visitor_info: document.querySelector('input[name="collect_visitor_info"]:checked')?.value
         }
       };
 
@@ -2474,6 +2519,12 @@
       document.getElementById("ef-food-coupon").checked = false;
       document.getElementById("food-coupon-count-div").style.display = "none";
       document.getElementById("ef-food-coupon-count").value = "";
+      const radio = document.querySelector(
+        `input[name="collect_visitor_info"][value="web_form"]`
+      );
+      if (radio) {
+        radio.checked = true;
+      }
 
       const err = document.getElementById("event-form-err");
       err.style.display = "none";
@@ -2500,6 +2551,13 @@
       document.getElementById("ef-max").value = event.max_visitors || "";
       document.getElementById("ef-status").value = event.status || "";
       document.getElementById("ef-desc").value = event.description || "";
+      const value = event.collect_visitor_info || "web_form";
+      const radio = document.querySelector(
+        `input[name="collect_visitor_info"][value="${value}"]`
+      );
+      if (radio) {
+        radio.checked = true;
+      }
       document.getElementById("ef-food-coupon").checked = event.food_coupon;
       const fcCount = document.getElementById("ef-food-coupon-count");
       const fcCountDiv = document.getElementById("food-coupon-count-div");
@@ -2935,6 +2993,7 @@
         ${detailChip("🆔 Event Code", `<span style="font-family:monospace;font-size:11px">${e.event_code}</span>`)}
         ${detailChip("🍽️ Food Coupon", e.food_coupon ? "Yes" : "No")}
         ${detailChip("🍽️ Food Coupon Count", e.food_coupon_count || "—")}
+        ${detailChip("💬 Collect Visitor Info", e.collect_visitor_info == "web_form" ? "Web Form" : "Whatsapp")}
       </div>
       ${e.description ? `<div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border);font-size:14px;color:var(--text2);line-height:1.6">${e.description}</div>` : ""}
       <div style="display:flex;gap:8px;margin-top:16px;padding-top:14px;border-top:1px solid var(--border);flex-wrap:wrap">

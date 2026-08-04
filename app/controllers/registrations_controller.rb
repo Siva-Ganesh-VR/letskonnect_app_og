@@ -14,54 +14,86 @@ class RegistrationsController < ActionController::Base
 
   def show
     event = Event.find_by!(registration_qr_token: params[:event_token])
+
     case handle_event_access(event)
     when :invalid
-      redirect_to whatsapp_fallback_message("Invalid event QR code"),
-                  allow_other_host: true and return
+      message = "Invalid event QR code"
+
+      return event.whatsapp_enabled? ?
+        redirect_to(whatsapp_fallback_message(message), allow_other_host: true) :
+        render(plain: message, status: :not_found)
 
     when :draft
-      redirect_to whatsapp_fallback_message("Event registration has not started yet."),
-                  allow_other_host: true and return
+      message = "Event registration has not started yet."
+
+      return event.whatsapp_enabled? ?
+        redirect_to(whatsapp_fallback_message(message), allow_other_host: true) :
+        render(plain: message, status: :forbidden)
 
     when :closed
-      redirect_to whatsapp_fallback_message("Event registration is closed."),
-                  allow_other_host: true and return
+      message = "Event registration is closed."
+
+      return event.whatsapp_enabled? ?
+        redirect_to(whatsapp_fallback_message(message), allow_other_host: true) :
+        render(plain: message, status: :forbidden)
     end
 
-    whatsapp_number = ENV["TWILIO_WHATSAPP_FROM"]
-                    .gsub("whatsapp:", "")
-                    .delete("+")
-    message = "Hi, I would like to register for #{event.name}. EVENT_CODE:#{event.event_code}"
+    if event.whatsapp_enabled?
+      whatsapp_number = ENV["TWILIO_WHATSAPP_FROM"]
+                          .gsub("whatsapp:", "")
+                          .delete("+")
 
-    whatsapp_url = "https://wa.me/#{whatsapp_number}?text=#{CGI.escape(message)}"
+      message = "Hi, I would like to register for #{event.name}. EVENT_CODE:#{event.event_code}"
 
-    redirect_to whatsapp_url, allow_other_host: true
+      whatsapp_url = "https://wa.me/#{whatsapp_number}?text=#{CGI.escape(message)}"
+
+      redirect_to whatsapp_url, allow_other_host: true
+    else
+      @event = event
+      render :show
+    end
   end
 
   def bni_show
     event = Event.find_by!(bni_registration_qr_token: params[:event_token])
+
     case handle_event_access(event)
     when :invalid
-      redirect_to whatsapp_fallback_message("Invalid event BNI QR code"),
-                  allow_other_host: true and return
+      message = "Invalid event BNI QR code"
+
+      return event.whatsapp_enabled? ?
+        redirect_to(whatsapp_fallback_message(message), allow_other_host: true) :
+        render(plain: message, status: :not_found)
 
     when :draft
-      redirect_to whatsapp_fallback_message("Event registration has not started yet."),
-                  allow_other_host: true and return
+      message = "Event registration has not started yet."
+
+      return event.whatsapp_enabled? ?
+        redirect_to(whatsapp_fallback_message(message), allow_other_host: true) :
+        render(plain: message, status: :forbidden)
 
     when :closed
-      redirect_to whatsapp_fallback_message("Event registration is closed."),
-                  allow_other_host: true and return
+      message = "Event registration is closed."
+
+      return event.whatsapp_enabled? ?
+        redirect_to(whatsapp_fallback_message(message), allow_other_host: true) :
+        render(plain: message, status: :forbidden)
     end
 
-    whatsapp_number = ENV["TWILIO_WHATSAPP_FROM"]
-                    .gsub("whatsapp:", "")
-                    .delete("+")
-    message = "Hi, I would like to register for #{event.name}. BNI_EVENT_CODE:#{event.event_code}"
+    if event.whatsapp_enabled?
+      whatsapp_number = ENV["TWILIO_WHATSAPP_FROM"]
+                          .gsub("whatsapp:", "")
+                          .delete("+")
 
-    whatsapp_url = "https://wa.me/#{whatsapp_number}?text=#{CGI.escape(message)}"
+      message = "Hi, I would like to register for #{event.name}. BNI_EVENT_CODE:#{event.event_code}"
 
-    redirect_to whatsapp_url, allow_other_host: true
+      whatsapp_url = "https://wa.me/#{whatsapp_number}?text=#{CGI.escape(message)}"
+
+      redirect_to whatsapp_url, allow_other_host: true
+    else
+      @event = event
+      render :bni_show
+    end
   end
 
   def handle_event_access(event)

@@ -20,11 +20,19 @@ module Api
           visitor = existing || Visitor.new(visitor_params.merge(event: event))
           visitor.assign_attributes(visitor_params) if existing
 
-          if visitor.save
-            otp = visitor.generate_otp!
-            SmsService.send_otp(visitor.mobile_number, otp)
+          visitor.assign_attributes(
+            mobile_verified: true,
+            active: true,
+            whatsapp_state: "completed"
+          )
+
+          if visitor.save!
             json_success(
-              { visitor_id: visitor.id, message: "OTP sent to #{masked_phone(visitor.mobile_number)}" },
+              {
+                visitor:      visitor_response(visitor),
+                digital_pass: digital_pass_data(visitor),
+                event:        event_summary(visitor.event)
+              },
               status: :created
             )
           else
@@ -79,7 +87,60 @@ module Api
         def qr_code
           visitor = Visitor.find(params[:id])
           return json_error("Not verified", status: :forbidden) unless visitor.mobile_verified?
-          json_success({ qr_token: visitor.qr_token, qr_image_url: visitor.qr_image_url, display_url: visitor.display_qr_url })
+          json_success({ visitor_id_code: visitor.visitor_id_code, full_name: visitor.full_name, qr_token: visitor.qr_token, qr_image_url: visitor.qr_image_url, display_url: visitor.display_qr_url })
+        end
+
+        def bni_create
+          event = Event.find_by(bni_registration_qr_token: params[:event_token])
+          return json_error("Invalid event QR code", status: :not_found) unless event
+          return json_error("Event registration is not open", status: :forbidden) unless event.active?
+
+          if event.max_visitors.present? && event.registered_count >= event.max_visitors
+            return json_error("Event has reached maximum visitor capacity", status: :forbidden)
+          end
+
+          existing = Visitor.find_by(mobile_number: params.dig(:visitor, :mobile_number), event_id: event.id)
+          if existing&.mobile_verified?
+            return json_error("This mobile number is already registered for this event. Please use your existing QR code.")
+          end
+
+          visitor = existing || Visitor.new(visitor_params.merge(event: event))
+          visitor.assign_attributes(visitor_params) if existing
+
+          visitor.assign_attributes(
+            mobile_verified: true,
+            active: true,
+            whatsapp_state: "completed",
+            reg_type: "VIP QR Scan"
+          )
+
+          if visitor.save!
+            json_success(
+              {
+                visitor:      visitor_response(visitor),
+                digital_pass: digital_pass_data(visitor),
+                event:        event_summary(visitor.event)
+              },
+              status: :created
+            )
+          else
+            json_error("Registration failed", errors: visitor.errors.full_messages)
+          end
+        end
+
+        def download_qr
+          visitor = Visitor.find(params[:id])
+
+          return json_error("Not verified", status: :forbidden) unless visitor.mobile_verified?
+
+          return json_error("QR code not generated yet", status: :not_found) unless visitor.registration_qr.attached?
+
+          send_data(
+            visitor.registration_qr.download,
+            filename: "Visitor_Pass_#{visitor.visitor_id_code}.png",
+            type: visitor.registration_qr.blob.content_type,
+            disposition: "attachment"
+          )
         end
 
         private
@@ -87,7 +148,8 @@ module Api
         def visitor_params
           params.require(:visitor).permit(
             :full_name, :mobile_number, :location, :profession,
-            :business_category, :business_name, :designation, :email, :website
+            :business_category, :business_name, :designation,
+            :email, :website, :looking_for, :decision_maker, :chapter_name
           )
         end
 
@@ -103,6 +165,7 @@ module Api
             business_category: v.business_category,
             location:          v.location,
             designation:       v.designation,
+            chapter_name:      v.chapter_name,
             qr_token:          v.qr_token,
             qr_image_url:      v.qr_image_url,
             registered_at:     v.created_at.iso8601
