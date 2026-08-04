@@ -55,7 +55,7 @@ module Api
         # GET /api/v1/stall_owner/scan/history
         def history
           scans = selected_stall_owner.leads.includes(:visitor)
-                    .order(scanned_at: :desc).limit(50).map do |l|
+                    .order(scanned_at: :desc).limit(20).map do |l|
             { visitor_name: l.visitor.full_name, business: l.visitor.business_name,
               temperature: l.temperature, scanned_at: l.scanned_at.iso8601 }
           end

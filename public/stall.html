@@ -846,7 +846,7 @@ textarea.note-area:focus{border-color:var(--accent)}
           <button class="f-chip" onclick="setFilter('follow_up',this)">📅 Follow-up</button>
           <button class="f-chip" onclick="setFilter('converted',this)">✅ Converted</button>
         </div>
-        <input class="search-inp" id="leads-search" placeholder="Search by name, mobile, company…" oninput="loadLeads()">
+        <input class="search-inp" id="leads-search" placeholder="Search by name, mobile, company…" oninput="debounceSearch()">
         <div id="leads-list"></div>
       </div>
     </div>
@@ -878,7 +878,7 @@ textarea.note-area:focus{border-color:var(--accent)}
 
         <div class="detail-card">
           <div class="detail-section">Scan History</div>
-          <p style="font-size:13px;color:var(--text2);margin-bottom:10px">Last 10 scans at your stall</p>
+          <p style="font-size:13px;color:var(--text2);margin-bottom:10px">Last 20 scans at your stall</p>
           <div id="scan-history"></div>
         </div>
       </div>
@@ -963,6 +963,9 @@ let currentTemp = "warm";
 let activeFilter = "";
 let allLeads = [];
 let selectedTpl = 0;
+let leadsCurrentPage = 1;
+let leadsTotalCount = 0;
+let searchTimer = null;
 
 const BUSINESS_CATEGORIES = [
   "Clothing",
@@ -1430,7 +1433,17 @@ function setFilter(f, btn) {
   loadLeads();
 }
 
-async function loadLeads() {
+function debounceSearch() {
+  clearTimeout(searchTimer);
+  searchTimer = setTimeout(() => { leadsCurrentPage = 1; loadLeads(); }, 400);
+}
+
+async function loadMoreLeads() {
+  leadsCurrentPage++;
+  await loadLeads(true);
+}
+
+async function loadLeads(append = false) {
   // Always return to the list view
   currentLead = null;
 
@@ -1438,15 +1451,25 @@ async function loadLeads() {
   document.getElementById("lead-detail").style.display = "none";
   document.getElementById("leads-list-view").style.display = "block";
 
+  if (!append) leadsCurrentPage = 1;
+
   const eventId = document.getElementById("stall-owner-event-sel").value;
-  const q   = document.getElementById("leads-search").value;
-  let path = `/stall_owner/leads?per_page=50&event_id=${encodeURIComponent(eventId)}`;
+  const q = document.getElementById("leads-search").value;
+  let path = `/stall_owner/leads?per_page=50&page=${leadsCurrentPage}&event_id=${encodeURIComponent(eventId)}`;
 
   if (activeFilter === "hot"||activeFilter==="warm"||activeFilter==="cold") path += "&temperature="+activeFilter;
   else if (activeFilter) path += "&status="+activeFilter;
   if (q) path += "&search="+encodeURIComponent(q);
+
   const res = await apiFetch(path);
-  allLeads  = res.data || [];
+  const newLeads = res.data || [];
+  leadsTotalCount = res.meta?.total || 0;
+
+  if (append) {
+    allLeads = [...allLeads, ...newLeads];
+  } else {
+    allLeads = newLeads;
+  }
   document.getElementById("leads-list").innerHTML = allLeads.length ? allLeads.map(l => {
     const mob = l.visitor.mobile_number ? `<div style="font-size:12px;color:rgba(255,255,255,0.5);margin-top:3px">📱 ${l.visitor.mobile_number}</div>` : "";
     const loc = l.visitor.location      ? `<div style="font-size:11px;color:rgba(255,255,255,0.3);margin-top:2px">📍 ${l.visitor.location}</div>` : "";
@@ -1483,6 +1506,27 @@ async function loadLeads() {
     <div style="font-size:44px;margin-bottom:10px">🎯</div>
     <div style="font-size:13px">No leads found</div>
   </div>`;
+
+  // Remove old load more button if exists
+  const oldBtn = document.getElementById("leads-load-more");
+  if (oldBtn) oldBtn.remove();
+
+  // Add Load More button if more records exist
+  const loaded = allLeads.length;
+  if (leadsTotalCount > loaded) {
+    const remaining = leadsTotalCount - loaded;
+    document.getElementById("leads-list").insertAdjacentHTML("beforeend", `
+      <button id="leads-load-more" onclick="loadMoreLeads()"
+        style="width:100%;padding:13px;margin-top:4px;border-radius:12px;
+               background:rgba(255,255,255,0.04);border:1px solid var(--border);
+               color:var(--text2);font-size:13px;font-weight:600;cursor:pointer;
+               font-family:inherit;transition:all .2s"
+        onmouseover="this.style.background='rgba(245,158,11,0.08)';this.style.borderColor='rgba(245,158,11,0.3)';this.style.color='var(--accent)'"
+        onmouseout="this.style.background='rgba(255,255,255,0.04)';this.style.borderColor='var(--border)';this.style.color='var(--text2)'">
+        Load More · ${remaining} remaining
+      </button>
+    `);
+  }
 }
 
 async function openLeadById(id) {
