@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>Stall Owner App — Expoza</title>
+<title>StallConnect</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -121,11 +121,21 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .dash-welcome h3{font-size:18px;font-weight:700}
 .dash-welcome p{font-size:13px;color:var(--text2);margin-top:4px}
 .stats-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
-.stat-box{background:var(--bg2);border:1px solid var(--border);border-radius:13px;padding:16px;text-align:center}
-.stat-box.hot-card{border-color:rgba(239,68,68,0.3);background:rgba(239,68,68,0.06)}
-.stat-box.warm-card{border-color:rgba(245,158,11,0.3);background:rgba(245,158,11,0.06)}
-.stat-box.cold-card{border-color:rgba(59,130,246,0.3);background:rgba(59,130,246,0.06)}
-.stat-box.conv-card{border-color:rgba(34,197,94,0.3);background:rgba(34,197,94,0.06)}
+.stat-box{
+  background:var(--bg2);
+  border:1px solid var(--border);
+  border-radius:14px;
+  padding:16px;
+  text-align:center;
+  transition:transform .15s;
+}
+.stat-box:active{transform:scale(.98)}
+.stat-box.hot-card{border-color:rgba(239,68,68,0.4);background:linear-gradient(135deg,rgba(239,68,68,0.1),rgba(239,68,68,0.04))}
+.stat-box.warm-card{border-color:rgba(245,158,11,0.4);background:linear-gradient(135deg,rgba(245,158,11,0.1),rgba(245,158,11,0.04))}
+.stat-box.cold-card{border-color:rgba(59,130,246,0.4);background:linear-gradient(135deg,rgba(59,130,246,0.1),rgba(59,130,246,0.04))}
+.stat-box.conv-card{border-color:rgba(34,197,94,0.4);background:linear-gradient(135deg,rgba(34,197,94,0.1),rgba(34,197,94,0.04))}
+.sbn{font-size:32px;font-weight:800;line-height:1}
+.sbl{font-size:11px;color:var(--text2);margin-top:5px;font-weight:500}
 .sbn{font-size:30px;font-weight:800;line-height:1}
 .sbl{font-size:11px;color:var(--text2);margin-top:4px}
 
@@ -385,6 +395,28 @@ textarea.note-area:focus{border-color:var(--accent)}
   .result-details{grid-template-columns:1fr}
   .page{padding:12px}
 }
+
+.btab{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:3px;padding:8px 4px 4px;
+  cursor:pointer;
+  font-size:10px;font-weight:600;
+  color:var(--text3);
+  border:none;background:none;
+  border-top:2px solid transparent;
+  transition:all .2s;
+  -webkit-tap-highlight-color:transparent;
+}
+.btab .btab-icon{font-size:20px;line-height:1;transition:transform .2s}
+.btab.active{
+  color:var(--accent);
+  border-top-color:var(--accent);
+  background:linear-gradient(180deg,rgba(245,158,11,0.1) 0%,transparent 100%);
+}
+.btab.active .btab-icon{transform:scale(1.12)}
+.btab:active{opacity:.7}
+
+.lead-card-icon{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-style:normal}
 </style>
 </head>
 <body>
@@ -450,7 +482,7 @@ textarea.note-area:focus{border-color:var(--accent)}
   <div class="sidebar" id="sidebar">
     <div class="sidebar-brand">
       <div class="sidebar-top">
-        <img src="/logo_dark.png" alt="Expoza Logo" class="sidebar-logo-image">
+        <img src="/logo_dark.png" alt="StallConnect Logo" class="sidebar-logo-image">
       </div>
     </div>
     <div class="sidebar-user">
@@ -478,9 +510,12 @@ textarea.note-area:focus{border-color:var(--accent)}
   <div class="main">
     <!-- DASHBOARD -->
     <div class="page active" id="page-home">
-      <div class="dash-welcome">
-        <h3>Welcome back! 👋</h3>
-        <p id="event-name-display">Loading event info…</p>
+      <div class="dash-welcome" style="background:linear-gradient(135deg,rgba(245,158,11,0.18),rgba(217,119,6,0.08));border:1px solid rgba(245,158,11,0.25);border-radius:16px;padding:18px 20px;margin-bottom:16px">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px">
+          <div style="width:36px;height:36px;background:rgba(245,158,11,0.2);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px">👋</div>
+          <h3 style="font-size:17px;font-weight:700;margin:0">Welcome back!</h3>
+        </div>
+        <p id="event-name-display" style="font-size:12px;color:rgba(255,255,255,0.5);margin:0;padding-left:46px"></p>
       </div>
       <div class="stats-row" id="stats-row-1">
         <div class="stat-box"><div class="sbn" id="stat-total">—</div><div class="sbl">Total Leads</div></div>
@@ -492,14 +527,42 @@ textarea.note-area:focus{border-color:var(--accent)}
         <div class="stat-box cold-card"><div class="sbn" id="stat-cold">—</div><div class="sbl">❄️ Cold</div></div>
         <div class="stat-box conv-card"><div class="sbn" id="stat-conv">—</div><div class="sbl">✅ Converted</div></div>
       </div>
-      <div class="stats-row" style="margin-top:0">
-        <div class="stat-box" style="grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;padding:14px 16px">
-          <div><div class="sbn" id="stat-fu" style="font-size:22px">—</div><div class="sbl">Follow-ups Today</div></div>
-          <span style="font-size:30px">📅</span>
+      <div style="margin-bottom:4px">
+        <div style="font-size:11px;font-weight:700;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:8px">Quick Actions</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+          <button onclick="showTab('scan',document.getElementById('btab-scan'))"
+            style="display:flex;align-items:center;justify-content:center;gap:10px;
+                  padding:16px;border-radius:14px;cursor:pointer;font-family:inherit;
+                  background:linear-gradient(135deg,rgba(245,158,11,0.15),rgba(245,158,11,0.05));
+                  border:1px solid rgba(245,158,11,0.35);color:var(--accent);
+                  font-size:14px;font-weight:700;transition:all .2s">
+            <div style="width:34px;height:34px;background:rgba(245,158,11,0.2);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px">📷</div>
+            Scan QR
+          </button>
+          <button onclick="showTab('create-lead',document.getElementById('btab-scan'))"
+            style="display:flex;align-items:center;justify-content:center;gap:10px;
+                  padding:16px;border-radius:14px;cursor:pointer;font-family:inherit;
+                  background:linear-gradient(135deg,rgba(34,197,94,0.15),rgba(34,197,94,0.05));
+                  border:1px solid rgba(34,197,94,0.35);color:#22c55e;
+                  font-size:14px;font-weight:700;transition:all .2s">
+            <div style="width:34px;height:34px;background:rgba(34,197,94,0.2);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px">➕</div>
+            Add Lead
+          </button>
         </div>
       </div>
-      <!-- Recent leads -->
-      <div style="font-size:13px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:0.06em;margin:16px 0 10px">Recent Leads</div>
+      <!-- Recent Five Leads -->
+      <div style="display:flex;align-items:center;justify-content:space-between;margin:16px 0 10px">
+        <div style="display:flex;align-items:center;gap:8px">
+          <div style="width:4px;height:16px;background:var(--accent);border-radius:2px"></div>
+          <span style="font-size:13px;font-weight:700;color:var(--text);text-transform:uppercase;letter-spacing:0.06em">Recent Five Leads</span>
+        </div>
+        <button onclick="showTab('leads',document.getElementById('btab-leads'))"
+          style="background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.25);
+                color:var(--accent);font-size:11px;font-weight:700;cursor:pointer;
+                padding:4px 10px;border-radius:20px">
+          View All →
+        </button>
+      </div>
       <div id="recent-leads"></div>
     </div>
 
@@ -1042,7 +1105,10 @@ function loadSelect(id, values, placeholder) {
 //     document.querySelectorAll(".otp-inp")[0].focus();
 //   }
 // }
-
+function toTitleCase(str) {
+  if (!str) return "Unknown";
+  return str.replace(/\w\S*/g, w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase());
+}
 function doLogout() {
   sessionStorage.clear(); location.reload();
 }
@@ -1138,7 +1204,7 @@ async function loadDashboard(eventId = null) {
   document.getElementById("stat-warm").textContent  = s.warm;
   document.getElementById("stat-cold").textContent  = s.cold;
   document.getElementById("stat-conv").textContent  = s.converted;
-  document.getElementById("stat-fu").textContent    = s.follow_up_today;
+  // document.getElementById("stat-fu").textContent    = s.follow_up_today;
 
   const events = res.data.events || [];
   const soel = document.getElementById("stall-owner-event-sel");
@@ -1158,17 +1224,30 @@ async function loadDashboard(eventId = null) {
 
   const rl = document.getElementById("recent-leads");
   const recent = res.data.recent_leads || [];
-  rl.innerHTML = recent.map(l=>`
-    <div class="lead-card" onclick="openLeadById('${l.id}')">
-      <div class="lead-card-top">
-        <div><div class="lead-card-name">${l.visitor_name}</div><div class="lead-card-company">${l.business_name||""}</div></div>
-        <span class="badge ${tempBadge(l.temperature)}">${tempEmoji(l.temperature)} ${l.temperature}</span>
+  rl.innerHTML = recent.length ? recent.map(l => {
+  const mob = l.mobile_number ? `<div style="font-size:12px;color:rgba(255,255,255,0.5);margin-top:3px"><span style="color:var(--accent);font-size:10px">●</span> ${l.mobile_number}</div>` : "";
+  const loc = l.location      ? `<div style="font-size:11px;color:rgba(255,255,255,0.3);margin-top:2px"><span style="color:rgba(255,255,255,0.3);font-size:10px">◎</span> ${l.location}</div>` : "";
+    const co  = l.business_name ? `<div style="font-size:12px;color:rgba(255,255,255,0.4);margin-top:2px">${l.business_name}</div>` : "";
+    return `<div style="background:var(--bg2);border:1px solid var(--border);border-radius:13px;
+                        padding:14px 16px;margin-bottom:8px;cursor:pointer;transition:border-color .15s"
+                onclick="openLeadById('${l.id}')"
+                onmouseover="this.style.borderColor='rgba(245,158,11,0.3)'"
+                onmouseout="this.style.borderColor='var(--border)'">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between">
+        <div style="flex:1;min-width:0;padding-right:10px">
+          <div style="font-size:15px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${toTitleCase(l.visitor_name)}</div>
+          ${mob}${co}${loc}
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:5px;flex-shrink:0">
+          <span class="badge ${tempBadge(l.temperature)}">${tempEmoji(l.temperature)} ${l.temperature}</span>
+          <span style="font-size:11px;color:rgba(255,255,255,0.3)">${timeAgo(l.scanned_at)}</span>
+        </div>
       </div>
-      <div class="lead-card-meta">
-        <span style="font-size:12px;color:var(--text3)">${timeAgo(l.scanned_at)}</span>
-      </div>
-    </div>
-  `).join("") || `<div class="empty"><div class="empty-icon">🎯</div>No leads yet. Start scanning!</div>`;
+    </div>`;
+  }).join("") : `<div style="text-align:center;padding:28px 0;color:rgba(255,255,255,0.3)">
+    <div style="font-size:36px;margin-bottom:8px">🎯</div>
+    <div style="font-size:13px">No leads yet — start scanning!</div>
+  </div>`;
 }
 
 // ── Scan ──────────────────────────────────────────────────────────────────
@@ -1368,23 +1447,42 @@ async function loadLeads() {
   if (q) path += "&search="+encodeURIComponent(q);
   const res = await apiFetch(path);
   allLeads  = res.data || [];
-  document.getElementById("leads-list").innerHTML = allLeads.map(l=>`
-    <div class="lead-card" onclick="openLeadById('${l.id}')">
-      <div class="lead-card-top">
-        <div>
-          <div class="lead-card-name">${l.visitor.full_name}</div>
-          <div class="lead-card-company">${l.visitor.business_name||""}</div>
+  document.getElementById("leads-list").innerHTML = allLeads.length ? allLeads.map(l => {
+    const mob = l.visitor.mobile_number ? `<div style="font-size:12px;color:rgba(255,255,255,0.5);margin-top:3px">📱 ${l.visitor.mobile_number}</div>` : "";
+    const loc = l.visitor.location      ? `<div style="font-size:11px;color:rgba(255,255,255,0.3);margin-top:2px">📍 ${l.visitor.location}</div>` : "";
+    const co  = l.visitor.business_name ? `<div style="font-size:12px;color:rgba(255,255,255,0.4);margin-top:2px">${l.visitor.business_name}</div>` : "";
+    const fav = `<button class="favorite-btn ${l.is_favorite ? 'active' : ''}"
+      onclick="event.stopPropagation();toggleFavorite('${l.id}',this)"
+      style="font-size:20px;padding:0;line-height:1;background:none;border:none;cursor:pointer;
+            color:${l.is_favorite ? '#fbbf24' : 'rgba(255,255,255,0.25)'}">
+      ${l.is_favorite ? "★" : "☆"}
+    </button>`;
+    return `<div style="background:var(--bg2);border:1px solid var(--border);border-radius:13px;
+                        padding:14px 16px;margin-bottom:8px;cursor:pointer;transition:border-color .15s"
+                onclick="openLeadById('${l.id}')"
+                onmouseover="this.style.borderColor='rgba(245,158,11,0.3)'"
+                onmouseout="this.style.borderColor='var(--border)'">
+      <div style="display:flex;align-items:flex-start">
+        <div style="flex:1;min-width:0;padding-right:10px">
+          <div style="font-size:15px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${toTitleCase(l.visitor.full_name)}</div>
+          ${mob}${co}${loc}
         </div>
-        <span class="badge ${tempBadge(l.temperature)}">${tempEmoji(l.temperature)} ${l.temperature}</span>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:5px;flex-shrink:0">
+          <span class="badge ${tempBadge(l.temperature)}">${tempEmoji(l.temperature)} ${l.temperature}</span>
+          ${fav}
+        </div>
       </div>
-      <div class="lead-card-meta">
+      <div style="display:flex;align-items:center;gap:6px;margin-top:10px;flex-wrap:wrap">
         <span class="badge ${statusBadge(l.status)}">${l.status.replace("_"," ")}</span>
-        <span style="font-size:12px;color:var(--text3)">${"⭐".repeat(l.interest_rating||0)}</span>
-        ${l.follow_up_date?`<span style="font-size:11px;background:rgba(108,99,255,0.15);color:#a5b4fc;padding:2px 8px;border-radius:10px">📅 ${l.follow_up_date}</span>`:""}
-        <span style="font-size:11px;color:var(--text3)">${timeAgo(l.scanned_at)}</span>
+        <span style="font-size:12px;color:rgba(255,255,255,0.3)">${"⭐".repeat(l.interest_rating||0)}</span>
+        ${l.follow_up_date ? `<span style="font-size:11px;background:rgba(108,99,255,0.15);color:#a5b4fc;padding:2px 8px;border-radius:10px">📅 ${l.follow_up_date}</span>` : ""}
+        <span style="font-size:11px;color:rgba(255,255,255,0.3);margin-left:auto">${timeAgo(l.scanned_at)}</span>
       </div>
-    </div>
-  `).join("") || `<div class="empty"><div class="empty-icon">🎯</div>No leads found</div>`;
+    </div>`;
+  }).join("") : `<div style="text-align:center;padding:40px 0;color:rgba(255,255,255,0.3)">
+    <div style="font-size:44px;margin-bottom:10px">🎯</div>
+    <div style="font-size:13px">No leads found</div>
+  </div>`;
 }
 
 async function openLeadById(id) {
@@ -1678,8 +1776,10 @@ async function toggleFavorite(leadId, btn) {
   const isFavorite = res.data.is_favorite;
 
    // Update star color
-  const star = btn.querySelector(".fav-star");
+  const star = btn.querySelector(".fav-star")  || btn;
+  star.textContent = isFavorite ? "★" : "☆";
   star.classList.toggle("active", isFavorite);
+  btn.style.color = isFavorite ? "#fbbf24" : "rgba(255,255,255,0.25)";
 
   toast(res.data.message, "ok");
 }
