@@ -854,7 +854,7 @@ textarea.note-area:focus{border-color:var(--accent)}
     <!-- EXPORT / MORE -->
     <div class="page" id="page-more">
       <div style="padding:4px 0">
-        <div style="font-size:18px;font-weight:700;margin-bottom:20px">More</div>
+        <!-- <div style="font-size:18px;font-weight:700;margin-bottom:20px">More</div> -->
 
         <div class="detail-card">
           <div class="detail-section">Export Leads</div>
@@ -876,11 +876,11 @@ textarea.note-area:focus{border-color:var(--accent)}
           <div class="info-row"><span class="info-key">Organizer Mobile</span><span class="info-val"><a id="profile-org-mobile" style="color: var(--green);" href="#">—</a></span></div>
         </div>
 
-        <div class="detail-card">
+        <!-- <div class="detail-card">
           <div class="detail-section">Scan History</div>
           <p style="font-size:13px;color:var(--text2);margin-bottom:10px">Last 20 scans at your stall</p>
           <div id="scan-history"></div>
-        </div>
+        </div> -->
       </div>
     </div>
   </div>
@@ -1129,7 +1129,7 @@ function bootApp() {
   document.getElementById("profile-org-mobile").textContent  = me.organizer_mobile;
 
   loadDashboard();
-  loadScanHistory();
+  // loadScanHistory();
 }
 
 // ── Navigation ────────────────────────────────────────────────────────────
@@ -1723,17 +1723,17 @@ async function pollExport(jobId, eventId) {
 }
 
 // ── Scan History ──────────────────────────────────────────────────────────
-async function loadScanHistory() {
-  const eventId = document.getElementById("stall-owner-event-sel").value;
+// async function loadScanHistory() {
+//   const eventId = document.getElementById("stall-owner-event-sel").value;
 
-  const res = await apiFetch(`/stall_owner/scan/history?event_id=${encodeURIComponent(eventId)}`);
-  document.getElementById("scan-history").innerHTML = (res.data||[]).map(s=>`
-    <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px">
-      <span style="font-weight:500">${s.visitor_name}</span>
-      <span class="badge ${tempBadge(s.temperature)}">${s.temperature}</span>
-    </div>
-  `).join("") || `<p style="font-size:13px;color:var(--text3)">No scans yet</p>`;
-}
+//   const res = await apiFetch(`/stall_owner/scan/history?event_id=${encodeURIComponent(eventId)}`);
+//   document.getElementById("scan-history").innerHTML = (res.data||[]).map(s=>`
+//     <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px">
+//       <span style="font-weight:500">${s.visitor_name}</span>
+//       <span class="badge ${tempBadge(s.temperature)}">${s.temperature}</span>
+//     </div>
+//   `).join("") || `<p style="font-size:13px;color:var(--text3)">No scans yet</p>`;
+// }
 
 // ── Helpers ───────────────────────────────────────────────────────────────
 function tempBadge(t) { return {hot:"b-hot",warm:"b-warm",cold:"b-cold"}[t]||"b-new"; }
