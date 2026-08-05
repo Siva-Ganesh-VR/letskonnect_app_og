@@ -2984,7 +2984,7 @@
           ${e.status === 'draft' && e.settings?.activation_requested ? `<span class="badge" style="background:var(--red);color:#fff;border-radius:20px;padding:4px 14px;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;">Requested</span>` : ''}
         </div>
       </div>
-      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px">
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px">
         ${detailChip("📅 Start Date", fmtDate(e.start_date))}
         ${detailChip("📅 End Date", fmtDate(e.end_date))}
         ${detailChip("👥 Visitors", (e.registered_count || 0).toLocaleString())}
@@ -3087,10 +3087,10 @@
 
     function detailChip(label, value) {
       return `
-    <div style="background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:10px 14px">
-      <div style="font-size:11px;color:var(--text3);font-weight:600;text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px">${label}</div>
-      <div style="font-size:14px;font-weight:600;color:var(--text)">${value}</div>
-    </div>`;
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:10px 14px;min-width:0;overflow:hidden">
+        <div style="font-size:11px;color:var(--text3);font-weight:600;text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${label}</div>
+        <div style="font-size:14px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${value}</div>
+      </div>`;
     }
 
     function renderStallAnalytics() {
@@ -3123,7 +3123,7 @@
           </select>
         </div>
       </div>
-      <div style="padding:18px;display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;">
+      <div style="padding:18px;display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px;">
         ${detailChip("Stalls Count", totalStalls || 0)}
         ${detailChip("Total Leads", totalLeads || 0)}
         ${detailChip("Top Stall", topStalls[0] ? `${topStalls[0].company_name} (${topStalls[0].total_leads || 0})` : "—")}
@@ -3425,7 +3425,7 @@
             </span>
           </div>
 
-          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px">
+          <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px">
             ${detailChip("🏢 Company", s.company_name || "—")}
             ${detailChip("🗂️ Stall Category", s.stall_category || "—")}
             ${detailChip("🏪 Stall Type", s.stall_type || "—")}
@@ -3513,7 +3513,7 @@
         </span>
       </div>
 
-      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px">
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px">
         ${detailChip("🏢 Organizer", o.name)}
         ${detailChip("🏢 Company", o.company_name || "—")}
         ${detailChip("📧 Email", o.email || "—")}
@@ -3778,7 +3778,7 @@
             </span>
           </div>
 
-          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px">
+          <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px">
             ${detailChip("🏢 Location", v.location)}
             ${detailChip("🏢 Business Category", v.business_category || "—")}
             ${detailChip("📧 Looking For", v.looking_for || "—")}

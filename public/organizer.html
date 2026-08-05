@@ -2649,10 +2649,10 @@
 
     function detailChip(label, value) {
       return `
-    <div style="background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:10px 14px">
-      <div style="font-size:11px;color:var(--text3);font-weight:600;text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px">${label}</div>
-      <div style="font-size:14px;font-weight:600;color:var(--text)">${value}</div>
-    </div>`;
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:10px 14px;min-width:0;overflow:hidden">
+        <div style="font-size:11px;color:var(--text3);font-weight:600;text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${label}</div>
+        <div style="font-size:14px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${value}</div>
+      </div>`;
     }
 
     function renderStallAnalytics() {
