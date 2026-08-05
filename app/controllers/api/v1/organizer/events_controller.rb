@@ -3,7 +3,7 @@ module Api
     module Organizer
       class EventsController < ApplicationController
         before_action :authenticate_organizer!
-        before_action :set_event, only: [:show, :update, :analytics, :qr_code, :activate, :archive, :request_activation, :assign_template]
+        before_action :set_event, only: [:show, :update, :analytics, :qr_code, :activate, :archive, :request_activation, :assign_template, :upload_brochures, :delete_brochure]
 
         def index
           events = @current_organizer.events.order(created_at: :desc)
@@ -123,6 +123,42 @@ module Api
           })
         end
 
+        def upload_brochures
+          event = @event
+          if params[:brochure_1].present?
+            event.brochure_1.purge if event.brochure_1.attached?
+            event.brochure_1.attach(params[:brochure_1])
+          end
+
+          if params[:brochure_2].present?
+            event.brochure_2.purge if event.brochure_2.attached?
+            event.brochure_2.attach(params[:brochure_2])
+          end
+
+          render json: {
+            success: true,
+            data: {
+              brochure_1_url: event.brochure_1.attached? ? url_for(event.brochure_1) : nil,
+              brochure_2_url: event.brochure_2.attached? ? url_for(event.brochure_2) : nil
+            }
+          }
+        end
+
+        def delete_brochure
+          event = @event
+
+          case params[:slot]
+          when "1"
+            event.brochure_1.purge
+          when "2"
+            event.brochure_2.purge
+          else
+            return render json: { success: false, error: "Invalid brochure slot" }, status: :unprocessable_entity
+          end
+
+          render json: { success: true }
+        end
+
         private
 
         def set_event
@@ -158,6 +194,21 @@ module Api
             settings: e.settings,
             completed: e.completed?,
             food_coupon: e.food_coupon,
+            max_brochures: ENV.fetch("MAX_EVENT_BROCHURES", 2).to_i,
+            brochure_1: if e.brochure_1.attached?
+              {
+                url: url_for(e.brochure_1),
+                filename: e.brochure_1.filename.to_s,
+                content_type: e.brochure_1.blob.content_type
+              }
+            end,
+            brochure_2: if e.brochure_2.attached?
+              {
+                url: url_for(e.brochure_2),
+                filename: e.brochure_2.filename.to_s,
+                content_type: e.brochure_2.blob.content_type
+              }
+            end,
 
             organizer: {
               id: e.event_organizer.id,

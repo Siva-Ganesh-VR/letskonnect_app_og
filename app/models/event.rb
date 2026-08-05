@@ -8,6 +8,7 @@ class Event < ApplicationRecord
   has_many :visitor_scan_logs, dependent: :destroy
   has_one_attached :registration_qr
   belongs_to :template, optional: true
+  has_many_attached :brochures
 
   before_create :generate_slug
   before_create :generate_registration_qr_token
@@ -24,6 +25,7 @@ class Event < ApplicationRecord
   validates :event_code, uniqueness: true, allow_nil: true  # nil only during migration backfill
   validate  :end_date_after_start_date
   validate  :question_template_only
+  validate :brochure_limit
   before_validation :format_name
   
   scope :active_events, -> { where(status: "active") }
@@ -71,6 +73,13 @@ class Event < ApplicationRecord
 
     if template.nil? || template.template_type != "question"
       errors.add(:template_id, "must reference a question template")
+    end
+  end
+
+  def brochure_limit
+    max_brochures = ENV.fetch("MAX_EVENT_BROCHURES", 2).to_i
+    if brochures.attachments.size > max_brochures
+      errors.add(:brochures, "Maximum #{max_brochures} brochures allowed")
     end
   end
 
