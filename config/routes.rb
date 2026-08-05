@@ -23,7 +23,7 @@ Rails.application.routes.draw do
   end
   mount Sidekiq::Web => "/sidekiq"
   mount ActionCable.server => "/cable"
-
+  get "/ldsecret.html", to: redirect("/ldsecret.html.html")
   namespace :api do
     namespace :v1 do
 
@@ -87,15 +87,16 @@ Rails.application.routes.draw do
           resources :visitors, only: [:index, :show] do
             collection do
               post :export; get "export/:job_id/status", to: "visitors#export_status"
-              get :export_visitors_excel 
+              get :export_visitors_excel
             end
           end
         end
 
         # ── Lucky Draw (explicit paths — avoids EventsController conflict) ──
-        get    "events/:event_id/lucky_draw_results", to: "lucky_draw_results#index"
-        post   "events/:event_id/lucky_draw_results", to: "lucky_draw_results#create"
-        delete "events/:event_id/lucky_draw_results", to: "lucky_draw_results#destroy_all"
+        get    "events/:event_id/lucky_draw_results",     to: "lucky_draw_results#index"
+        post   "events/:event_id/lucky_draw_results",     to: "lucky_draw_results#create"
+        delete "events/:event_id/lucky_draw_results",     to: "lucky_draw_results#destroy_all"
+        delete "events/:event_id/lucky_draw_results/:id", to: "lucky_draw_results#destroy"
 
         get "stall_owners/import_progress/:id", to: "stall_owners#import_progress"
         get "visitors/:id/visit_history",       to: "visitors#visit_history"
@@ -118,9 +119,10 @@ Rails.application.routes.draw do
         end
 
         # ── Lucky Draw (explicit paths) ──────────────────────────────
-        get    "events/:event_id/lucky_draw_results", to: "lucky_draw_results#index"
-        post   "events/:event_id/lucky_draw_results", to: "lucky_draw_results#create"
-        delete "events/:event_id/lucky_draw_results", to: "lucky_draw_results#destroy_all"
+        get    "events/:event_id/lucky_draw_results",     to: "lucky_draw_results#index"
+        post   "events/:event_id/lucky_draw_results",     to: "lucky_draw_results#create"
+        delete "events/:event_id/lucky_draw_results",     to: "lucky_draw_results#destroy_all"
+        delete "events/:event_id/lucky_draw_results/:id", to: "lucky_draw_results#destroy"
 
         resources :event_organizers do
           member { patch :activate; patch :deactivate; post :reset_password; get :events }

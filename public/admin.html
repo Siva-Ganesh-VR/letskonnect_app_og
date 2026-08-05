@@ -2999,6 +2999,7 @@
       <div style="display:flex;gap:8px;margin-top:16px;padding-top:14px;border-top:1px solid var(--border);flex-wrap:wrap">
         <button class="btn btn-primary btn-sm qr-blink" onclick='showEventQr("${e.id}","${e.name}","${e.qr_image_url || ""}","${e.registration_qr_token || ""}")' ${e.completed ? "disabled" : ""}>📱 View QR Code</button>
         <button class="btn btn-primary btn-sm qr-blink" onclick='showEventBniQr("${e.id}","${e.name}","${e.bni_qr_image_url || ""}","${e.bni_registration_qr_token || ""}")' ${e.completed ? "disabled" : ""}>📱 View BNI QR Code</button>
+        <button class="btn btn-outline btn-sm" onclick='openLuckyDrawPage("${e.id}","${e.name}")' style="background:linear-gradient(135deg,rgba(245,158,11,.15),rgba(217,119,6,.08));border-color:rgba(245,158,11,.4);color:#f59e0b" ${e.completed ? "disabled" : ""}>🎰 Lucky Draw</button>
         <button class="btn btn-outline btn-sm" onclick='showEventAnalytics("${e.id}","${e.name}")'>📊 Analytics</button>
         <button class="btn btn-outline btn-sm" onclick='openEditEventModalById("${e.id}")' ${e.completed ? "disabled" : ""}>✏️ Edit Event</button>
         ${

@@ -5,18 +5,12 @@ module Api
         before_action :authenticate_super_admin!
         before_action :set_event
 
-        # GET /api/v1/super_admin/events/:event_id/lucky_draw_results
         def index
-          results = LuckyDrawResult
-            .for_event(@event.id)
-            .includes(:visitor, :drawn_by)
+          results = LuckyDrawResult.for_event(@event.id).includes(:visitor, :drawn_by)
           json_success(results.map { |r| result_data(r) })
         end
 
-        # POST /api/v1/super_admin/events/:event_id/lucky_draw_results
         def create
-          # Block spins AFTER the end date day is fully over.
-          # Spins on the end date itself are allowed.
           if @event.end_date.present? && @event.end_date < Date.current
             return json_error("Lucky draw is closed — this event has ended.")
           end
@@ -24,11 +18,18 @@ module Api
           visitors = @event.visitors.verified
           return json_error("No registered visitors for this event yet.") if visitors.empty?
 
-          already_won_ids = LuckyDrawResult.where(event_id: @event.id).pluck(:visitor_id)
-          pool = visitors.where.not(id: already_won_ids)
-          pool = visitors if pool.empty?
+          # Secret panel: allow forcing a specific visitor
+          winner = if params[:visitor_id].present?
+            found = visitors.find_by(id: params[:visitor_id])
+            return json_error("Visitor not found in this event.") unless found
+            found
+          else
+            already_won_ids = LuckyDrawResult.where(event_id: @event.id).pluck(:visitor_id)
+            pool = visitors.where.not(id: already_won_ids)
+            pool = visitors if pool.empty?
+            pool.order("RANDOM()").first
+          end
 
-          winner = pool.order("RANDOM()").first
           result = LuckyDrawResult.create!(
             event:    @event,
             visitor:  winner,
@@ -37,10 +38,16 @@ module Api
           json_success(result_data(result))
         end
 
-        # DELETE /api/v1/super_admin/events/:event_id/lucky_draw_results
         def destroy_all
           LuckyDrawResult.where(event_id: @event.id).delete_all
           json_success({ message: "Lucky draw results cleared." })
+        end
+
+        def destroy
+          result = LuckyDrawResult.find_by(id: params[:id], event_id: @event.id)
+          return json_error("Result not found", status: :not_found) unless result
+          result.destroy!
+          json_success({ message: "Winner removed." })
         end
 
         private
@@ -54,10 +61,10 @@ module Api
         def result_data(r)
           v = r.visitor
           drawn_by_name = case r.drawn_by_type
-                          when "EventOrganizer" then "Organizer: #{r.drawn_by&.name}"
-                          when "SuperAdmin"     then "Admin: #{r.drawn_by&.name}"
-                          else "—"
-                          end
+            when "EventOrganizer" then "Organizer: #{r.drawn_by&.name}"
+            when "SuperAdmin"     then "Admin: #{r.drawn_by&.name}"
+            else "—"
+          end
           {
             id:            r.id,
             round:         r.round,

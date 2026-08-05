@@ -2570,6 +2570,13 @@
               ${e.status === 'draft' || e.completed ? 'disabled style="opacity:0.5;cursor:not-allowed"' : ''}>
               📱 View BNI QR Code
             </button>
+            <button
+              class="btn btn-p btn-sm"
+              onclick='openLuckyDrawPage("${e.id}","${e.name}")'
+              style="background:linear-gradient(135deg,rgba(245,158,11,.15),rgba(217,119,6,.08));border:1px solid rgba(245,158,11,.4);color:#f59e0b"
+              ${e.status === 'draft' || e.completed ? 'disabled style="opacity:0.5;cursor:not-allowed"' : ''}>
+              🎰 Lucky Draw
+            </button>
             <a href="/register/${e.registration_qr_token || ""}" target="_blank" style="display:inline-flex;align-items:center;gap:6px;padding:10px 14px;border-radius:12px;border:1px solid var(--border);color:var(--accent);text-decoration:none;font-size:13px;background:rgba(34,197,94,0.06); ${e.status === 'draft' || e.completed ? 'opacity:0.5;pointer-events:none;' : ''}">🔗 Open registration</a>
           </div>
         </div>
