@@ -1,3 +1,4 @@
+# app/controllers/api/v1/organizer/lucky_draw_results_controller.rb
 module Api
   module V1
     module Organizer
@@ -5,7 +6,6 @@ module Api
         before_action :authenticate_organizer!
         before_action :set_event
 
-        # GET /api/v1/organizer/events/:event_id/lucky_draw_results
         def index
           results = LuckyDrawResult
             .for_event(@event.id)
@@ -13,10 +13,7 @@ module Api
           json_success(results.map { |r| result_data(r) })
         end
 
-        # POST /api/v1/organizer/events/:event_id/lucky_draw_results
         def create
-          # Block spins AFTER the end date day is fully over.
-          # Spins on the end date itself are allowed.
           if @event.end_date.present? && @event.end_date < Date.current
             return json_error("Lucky draw is closed — this event has ended.")
           end
@@ -24,13 +21,25 @@ module Api
           visitors = @event.visitors.verified
           return json_error("No registered visitors for this event yet.") if visitors.empty?
 
-          # Exclude already-won visitors for fairness.
-          # If all visitors have won, reset the pool for a new cycle.
           already_won_ids = LuckyDrawResult.where(event_id: @event.id).pluck(:visitor_id)
-          pool = visitors.where.not(id: already_won_ids)
-          pool = visitors if pool.empty?
 
-          winner = pool.order("RANDOM()").first
+          # Check if admin pre-selected a winner from secret panel
+          winner = if @event.forced_winner_visitor_id.present?
+            forced = visitors.find_by(id: @event.forced_winner_visitor_id)
+            # Clear after use so next spin is random
+            @event.update_column(:forced_winner_visitor_id, nil)
+            forced
+          end
+
+          # Fall back to random if no forced winner set
+          unless winner
+            pool = visitors.where.not(id: already_won_ids)
+            pool = visitors if pool.empty?
+            winner = pool.order("RANDOM()").first
+          end
+
+          return json_error("Could not pick a winner.") unless winner
+
           result = LuckyDrawResult.create!(
             event:    @event,
             visitor:  winner,
@@ -39,10 +48,17 @@ module Api
           json_success(result_data(result))
         end
 
-        # DELETE /api/v1/organizer/events/:event_id/lucky_draw_results
         def destroy_all
           LuckyDrawResult.where(event_id: @event.id).delete_all
+          @event.update_column(:forced_winner_visitor_id, nil)
           json_success({ message: "Lucky draw results cleared." })
+        end
+
+        def destroy
+          result = LuckyDrawResult.find_by(id: params[:id], event_id: @event.id)
+          return json_error("Result not found", status: :not_found) unless result
+          result.destroy!
+          json_success({ message: "Winner removed." })
         end
 
         private
@@ -56,10 +72,10 @@ module Api
         def result_data(r)
           v = r.visitor
           drawn_by_name = case r.drawn_by_type
-                          when "EventOrganizer" then "Organizer: #{r.drawn_by&.name}"
-                          when "SuperAdmin"     then "Admin: #{r.drawn_by&.name}"
-                          else "—"
-                          end
+            when "EventOrganizer" then "Organizer: #{r.drawn_by&.name}"
+            when "SuperAdmin"     then "Admin: #{r.drawn_by&.name}"
+            else "—"
+          end
           {
             id:            r.id,
             round:         r.round,

@@ -3,48 +3,48 @@ Rails.application.routes.draw do
 
   get "/health", to: "health#index"
 
-  get "/admin", to: redirect("/admin.html")
-  get "/terms", to: redirect("/terms.html")
+  get "/admin",          to: redirect("/admin.html")
+  get "/terms",          to: redirect("/terms.html")
   get "/privacy-policy", to: redirect("/privacy-policy.html")
-  get "/support", to: redirect("/support.html")
-  get "/contact", to: redirect("/contact.html")
+  get "/support",        to: redirect("/support.html")
+  get "/contact",        to: redirect("/contact.html")
 
-  get "/register/:event_token", to: "registrations#show",   as: :event_registration
-  get "/bni_register/:event_token", to: "registrations#bni_show",   as: :event_bni_registration
-  get "/v/:qr_token",           to: "visitor_passes#show",  as: :visitor_pass
-  get "/feedback/:qr_token", to: "feedback#show", as: :feedback
+  get  "/register/:event_token",     to: "registrations#show",      as: :event_registration
+  get  "/bni_register/:event_token", to: "registrations#bni_show",  as: :event_bni_registration
+  get  "/v/:qr_token",               to: "visitor_passes#show",     as: :visitor_pass
+  get  "/feedback/:qr_token",        to: "feedback#show",           as: :feedback
   post "/events/:event_id/feedback", to: "feedback#create"
 
   require "sidekiq/web"
   require "sidekiq-scheduler/web"
   Sidekiq::Web.use(Rack::Auth::Basic) do |u, p|
-    u == ENV.fetch("SIDEKIQ_USERNAME","admin") &&
-    p == ENV.fetch("SIDEKIQ_PASSWORD","sidekiq_password")
+    u == ENV.fetch("SIDEKIQ_USERNAME", "admin") &&
+    p == ENV.fetch("SIDEKIQ_PASSWORD", "sidekiq_password")
   end
-  mount Sidekiq::Web => "/sidekiq"
+  mount Sidekiq::Web    => "/sidekiq"
   mount ActionCable.server => "/cable"
-  get "/ldsecret.html", to: redirect("/ldsecret.html.html")
+
   namespace :api do
     namespace :v1 do
 
-      post   "visitors/register",       to: "auth/visitors#create"
-      post   "visitors/bni_register",   to: "auth/visitors#bni_create"
-      post   "visitors/verify_otp",     to: "auth/visitors#verify_otp"
-      post   "visitors/resend_otp",     to: "auth/visitors#resend_otp"
-      get    "visitors/dashboard/:id",  to: "auth/visitors#dashboard"
-      get    "visitors/qr/:id",         to: "auth/visitors#qr_code"
+      post   "visitors/register",        to: "auth/visitors#create"
+      post   "visitors/bni_register",    to: "auth/visitors#bni_create"
+      post   "visitors/verify_otp",      to: "auth/visitors#verify_otp"
+      post   "visitors/resend_otp",      to: "auth/visitors#resend_otp"
+      get    "visitors/dashboard/:id",   to: "auth/visitors#dashboard"
+      get    "visitors/qr/:id",          to: "auth/visitors#qr_code"
       get    "visitors/:id/download_qr", to: "auth/visitors#download_qr"
 
-      post   "stall/sign_in",           to: "auth/stall_owners#sign_in"
-      post   "stall/request_otp",       to: "auth/stall_owners#request_otp"
-      post   "stall/verify_otp",        to: "auth/stall_owners#verify_otp"
-      delete "stall/sign_out",          to: "auth/stall_owners#sign_out"
+      post   "stall/sign_in",            to: "auth/stall_owners#sign_in"
+      post   "stall/request_otp",        to: "auth/stall_owners#request_otp"
+      post   "stall/verify_otp",         to: "auth/stall_owners#verify_otp"
+      delete "stall/sign_out",           to: "auth/stall_owners#sign_out"
 
       namespace :stall_owner do
-        get    "dashboard",             to: "dashboard#show"
-        post   "scan",                  to: "scans#create"
-        get    "scan/history",          to: "scans#history"
-        post   "manual_create_lead",    to: "scans#manual_create_lead"
+        get    "dashboard",              to: "dashboard#show"
+        post   "scan",                   to: "scans#create"
+        get    "scan/history",           to: "scans#history"
+        post   "manual_create_lead",     to: "scans#manual_create_lead"
         resources :leads, only: [:index, :show, :update] do
           member   { post :whatsapp; post :call_log; patch :toggle_favorite }
           collection do
@@ -56,17 +56,17 @@ Rails.application.routes.draw do
         end
       end
 
-      post   "organizer/sign_in",       to: "organizer/sessions#create"
-      delete "organizer/sign_out",      to: "organizer/sessions#destroy"
+      post   "organizer/sign_in",        to: "organizer/sessions#create"
+      delete "organizer/sign_out",       to: "organizer/sessions#destroy"
 
       namespace :organizer do
-        get "stall_owners",             to: "stall_owners#index"
-        get "visitors",                 to: "visitors#index"
+        get "stall_owners",              to: "stall_owners#index"
+        get "visitors",                  to: "visitors#index"
         get "export_visitors_excel",     to: "visitors#export_visitors_excel"
-        resources :stall_types,         only: [:index, :create]
-        resources :stall_sizes,         only: [:index, :create]
-        resources :stall_categories,    only: [:index, :create]
-        get "dashboard",                to: "dashboard#show"
+        resources :stall_types,          only: [:index, :create]
+        resources :stall_sizes,          only: [:index, :create]
+        resources :stall_categories,     only: [:index, :create]
+        get "dashboard",                 to: "dashboard#show"
 
         resources :events, only: [:index, :show, :create, :update] do
           member do
@@ -86,13 +86,14 @@ Rails.application.routes.draw do
           end
           resources :visitors, only: [:index, :show] do
             collection do
-              post :export; get "export/:job_id/status", to: "visitors#export_status"
-              get :export_visitors_excel
+              post :export
+              get  "export/:job_id/status", to: "visitors#export_status"
+              get  :export_visitors_excel
             end
           end
         end
 
-        # ── Lucky Draw (explicit paths — avoids EventsController conflict) ──
+        # ── Lucky Draw ────────────────────────────────────────────────
         get    "events/:event_id/lucky_draw_results",     to: "lucky_draw_results#index"
         post   "events/:event_id/lucky_draw_results",     to: "lucky_draw_results#create"
         delete "events/:event_id/lucky_draw_results",     to: "lucky_draw_results#destroy_all"
@@ -102,11 +103,11 @@ Rails.application.routes.draw do
         get "visitors/:id/visit_history",       to: "visitors#visit_history"
       end
 
-      post   "super_admin/sign_in",     to: "super_admin/sessions#create"
-      delete "super_admin/sign_out",    to: "super_admin/sessions#destroy"
+      post   "super_admin/sign_in",      to: "super_admin/sessions#create"
+      delete "super_admin/sign_out",     to: "super_admin/sessions#destroy"
 
       namespace :super_admin do
-        get "dashboard",                to: "dashboard#show"
+        get "dashboard",                 to: "dashboard#show"
         resources :events do
           member do
             get  :analytics
@@ -118,11 +119,13 @@ Rails.application.routes.draw do
           end
         end
 
-        # ── Lucky Draw (explicit paths) ──────────────────────────────
-        get    "events/:event_id/lucky_draw_results",     to: "lucky_draw_results#index"
-        post   "events/:event_id/lucky_draw_results",     to: "lucky_draw_results#create"
-        delete "events/:event_id/lucky_draw_results",     to: "lucky_draw_results#destroy_all"
-        delete "events/:event_id/lucky_draw_results/:id", to: "lucky_draw_results#destroy"
+        # ── Lucky Draw ────────────────────────────────────────────────
+        get    "events/:event_id/lucky_draw_results",              to: "lucky_draw_results#index"
+        post   "events/:event_id/lucky_draw_results",              to: "lucky_draw_results#create"
+        delete "events/:event_id/lucky_draw_results",              to: "lucky_draw_results#destroy_all"
+        delete "events/:event_id/lucky_draw_results/:id",          to: "lucky_draw_results#destroy"
+        patch  "events/:event_id/lucky_draw_results/forced_winner",to: "lucky_draw_results#set_forced_winner"
+        get    "events/:event_id/lucky_draw_results/forced_winner",to: "lucky_draw_results#forced_winner"
 
         resources :event_organizers do
           member { patch :activate; patch :deactivate; post :reset_password; get :events }
@@ -144,19 +147,19 @@ Rails.application.routes.draw do
         get "analytics/platform", to: "analytics#platform"
       end
 
-      get  "scan/:qr_token",            to: "scans#show_visitor"
-      get  "exports/:job_id",           to: "exports#show"
+      get  "scan/:qr_token", to: "scans#show_visitor"
+      get  "exports/:job_id", to: "exports#show"
 
       namespace :webhooks do
-        post "twilio",             to: "twilio#status"
-        post "/whatsapp/webhook",  to: "twilio#receive"
+        post "twilio",            to: "twilio#status"
+        post "/whatsapp/webhook", to: "twilio#receive"
       end
     end
   end
 
   match "*path",
     to: proc {
-      [404, {"Content-Type"=>"application/json"}, ['{"success":false,"error":"Not found"}']]
+      [404, { "Content-Type" => "application/json" }, ['{"success":false,"error":"Not found"}']]
     },
     via: :all,
     constraints: lambda { |req|

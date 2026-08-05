@@ -91,7 +91,7 @@ function ldPageHTML(eventId, eventName) {
         '<div style="font-size:14px;font-weight:700;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:.08em">Spin Wheel</div>' +
         '<div style="position:relative;width:260px;height:260px">' +
           '<canvas id="ld-canvas" width="260" height="260" style="border-radius:50%;display:block;box-shadow:0 8px 40px rgba(0,0,0,.5)' + (ended ? ';filter:grayscale(.6);opacity:.7' : '') + '"></canvas>' +
-          '<div style="position:absolute;top:-14px;left:50%;transform:translateX(-50%);width:0;height:0;border-left:13px solid transparent;border-right:13px solid transparent;border-bottom:28px solid ' + (ended ? '#6b7280' : '#f59e0b') + ';filter:drop-shadow(0 2px 6px rgba(0,0,0,.5));z-index:3"></div>' +
+          '<div style="position:absolute;top:-10px;left:53%;transform:translateX(-50%);width:0;height:0;border-left:14px solid transparent;border-right:14px solid transparent;border-top:30px solid ' + (ended ? '#6b7280' : '#f59e0b') + ';filter:drop-shadow(0 2px 6px rgba(0,0,0,.5));z-index:999;"></div>' +
           '<div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:32px;height:32px;background:var(--bg2,#1a1a2e);border:3px solid rgba(255,255,255,.15);border-radius:50%;z-index:4;display:flex;align-items:center;justify-content:center;font-size:14px">⭐</div>' +
         '</div>' +
         '<div id="ld-spin-status" style="font-size:13px;color:rgba(255,255,255,.4);text-align:center">Tap Spin the Wheel to pick a random winner</div>' +
