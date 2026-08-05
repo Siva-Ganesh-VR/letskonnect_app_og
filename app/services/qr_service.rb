@@ -1,36 +1,33 @@
-require 'rqrcode'
-require 'chunky_png'
-
 class QrService
   QR_SIZE = 400
 
   def self.generate_for_visitor(visitor)
     attach_qr(
-      record:          visitor,
+      record: visitor,
       attachment_name: :registration_qr,
-      url:             visitor.display_qr_url,
-      filename:        "qr_code.png",
-      key:             "visitors/#{visitor.id}/qr_code.png"
+      url: visitor.display_qr_url,
+      filename: "qr_code.png",
+      key: "visitors/#{visitor.id}/qr_code.png"
     )
   end
 
   def self.generate_for_event(event)
     attach_qr(
-      record:          event,
+      record: event,
       attachment_name: :registration_qr,
-      url:             event.registration_url,
-      filename:        "registration_qr.png",
-      key:             "events/#{event.id}/registration_qr.png"
+      url: event.registration_url,
+      filename: "registration_qr.png",
+      key: "events/#{event.id}/registration_qr.png"
     )
   end
 
   def self.generate_bni_for_event(event)
     attach_qr(
-      record:          event,
+      record: event,
       attachment_name: :bni_registration_qr,
-      url:             event.bni_registration_url,
-      filename:        "bni_registration_qr.png",
-      key:             "events/#{event.id}/bni_registration_qr.png"
+      url: event.bni_registration_url,
+      filename: "bni_registration_qr.png",
+      key: "events/#{event.id}/bni_registration_qr.png"
     )
   end
 
@@ -43,10 +40,10 @@ class QrService
 
   def self.build_png(url)
     RQRCode::QRCode.new(url, level: :m).as_png(
-      size:           QR_SIZE,
+      size: QR_SIZE,
       border_modules: 4,
-      color:          "black",
-      fill:           "white"
+      color: "black",
+      fill: "white"
     )
   end
 
@@ -56,26 +53,39 @@ class QrService
     # Already attached
     return record if attachment.attached?
 
-    # Blob already exists
+    # Blob already exists (from previous implementation)
     if (blob = ActiveStorage::Blob.find_by(key: key))
       attachment.attach(blob)
       return record
     end
 
-    # Generate PNG — pure Ruby, no ImageMagick needed
+    # Generate and upload only if blob doesn't exist
     png = build_png(url)
 
-    Tempfile.create(["qr_code", ".png"]) do |tmp|
-      tmp.binmode
-      tmp.write(png.to_s)
-      tmp.rewind
+    Tempfile.create(["qr_code", ".png"]) do |source|
+      source.binmode
+      source.write(png.to_s)
+      source.rewind
 
-      attachment.attach(
-        io:           tmp,
-        filename:     filename,
-        content_type: "image/png",
-        key:          key
-      )
+      Tempfile.create(["qr_code_png24", ".png"]) do |converted|
+        converted.close
+
+        system(
+          "convert",
+          source.path,
+          "-define", "png:color-type=2",
+          "PNG24:#{converted.path}"
+        ) or raise "Failed to convert QR image to PNG24"
+
+        File.open(converted.path, "rb") do |file|
+          attachment.attach(
+            io: file,
+            filename: filename,
+            content_type: "image/png",
+            key: key
+          )
+        end
+      end
     end
 
     record
