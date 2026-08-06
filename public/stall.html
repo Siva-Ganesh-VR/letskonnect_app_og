@@ -838,6 +838,19 @@ textarea.note-area:focus{border-color:var(--accent)}
         <div id="lead-detail-content"></div>
       </div>
       <div id="leads-list-view">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;gap:10px">
+          <div style="font-size:16px;font-weight:700;color:var(--text)">Leads</div>
+          <button onclick="showTab('create-lead',document.getElementById('btab-scan'))"
+            style="display:flex;align-items:center;gap:8px;padding:10px 16px;border-radius:12px;
+                  cursor:pointer;font-family:inherit;white-space:nowrap;flex-shrink:0;
+                  background:linear-gradient(135deg,rgba(34,197,94,0.15),rgba(34,197,94,0.05));
+                  border:1px solid rgba(34,197,94,0.35);color:#22c55e;
+                  font-size:13px;font-weight:700;transition:all .2s">
+            <span style="font-size:16px">➕</span>
+            <span>Add Lead</span>
+          </button>
+        </div>
+
         <div class="filter-row">
           <button class="f-chip active" onclick="setFilter('',this)">All</button>
           <button class="f-chip" onclick="setFilter('hot',this)">🔥 Hot</button>
@@ -1418,11 +1431,25 @@ function setTemp(t, btn) {
 
 function callVisitor() {
   const mobile = document.getElementById("res-details").querySelector(".rd-val")?.textContent;
-  if (mobile) window.location.href = "tel:+91"+mobile;
+  if (mobile) window.location.href = "tel:+91"+mobile.replace(/\D/g, '').replace(/^91/, '');
 }
 
 let waMobile = "";
-function openWa() { document.getElementById("wa-modal").classList.add("open"); document.getElementById("wa-visitor-name").textContent = document.getElementById("res-name").textContent; }
+function openWa() { 
+  // document.getElementById("wa-modal").classList.add("open"); document.getElementById("wa-visitor-name").textContent = document.getElementById("res-name").textContent; 
+  const mobileEl = document.querySelector('.info-row .info-val a[href^="tel:"]');
+  if (!mobileEl) return;
+
+  let mobile = mobileEl.textContent.trim().replace(/\D/g, '').replace(/^91/, '');
+  const visitorName = document.querySelector('.info-row .info-val').textContent.trim();
+  const eventName = document.getElementById('sb-event').textContent.trim();
+
+  const message =`Hi ${visitorName},
+  Greetings from ${eventName}!
+  Thank you for visiting our stall. It was a pleasure meeting you. We look forward to staying in touch.`;
+  const url = `https://api.whatsapp.com/send/?phone=91${mobile}&text=${encodeURIComponent(message)}&type=phone_number&app_absent=0`;
+  window.open(url, "_blank");
+}
 function closeWa() { document.getElementById("wa-modal").classList.remove("open"); }
 function selectTpl(i) {
   selectedTpl = i;
@@ -1590,7 +1617,7 @@ async function openLeadById(id) {
     <div class="detail-card">
       <div class="detail-section">Visitor Info</div>
       <div class="info-row"><span class="info-key">Name</span><span class="info-val">${v.full_name}</span></div>
-      <div class="info-row"><span class="info-key">Mobile</span><span class="info-val"><a href="tel:+91${v.mobile_number}" style="color:var(--green)">${v.mobile_number}</a></span></div>
+      <div class="info-row"><span class="info-key">Mobile</span><span class="info-val"><a href="tel:+91${v.mobile_number.replace(/\D/g, '').replace(/^91/, '')}" style="color:var(--green)">${v.mobile_number}</a></span></div>
       <div class="info-row"><span class="info-key">Business</span><span class="info-val">${v.business_name||"—"}</span></div>
       <div class="info-row"><span class="info-key">Category</span><span class="info-val">${v.business_category||"—"}</span></div>
       <div class="info-row"><span class="info-key">Location</span><span class="info-val">${v.location||"—"}</span></div>
@@ -1640,7 +1667,7 @@ async function openLeadById(id) {
     <div class="detail-card">
       <div class="detail-section">Actions</div>
       <div class="action-grid">
-        <button class="a-btn a-btn-call" onclick="window.location.href='tel:+91${v.mobile_number}'">📞 Call</button>
+        <button class="a-btn a-btn-call" onclick="window.location.href='tel:+91${v.mobile_number.replace(/\D/g, '').replace(/^91/, '')}'">📞 Call</button>
         <button class="a-btn a-btn-wa" onclick="openWa()">💬 WhatsApp</button>
       </div>
     </div>
@@ -1823,7 +1850,7 @@ function updateStallOwner(stallOwner) {
   const mobile = stallOwner.organizer_mobile;
 
   orgMobile.textContent = mobile || "—";
-  orgMobile.href = mobile ? `tel:${mobile}` : "#";
+  orgMobile.href = mobile ? `tel:+91${mobile.replace(/\D/g, '').replace(/^91/, '')}` : "#";
 }
 async function onEventChange(source) {
   const sidebar = document.getElementById("stall-owner-event-sel");
