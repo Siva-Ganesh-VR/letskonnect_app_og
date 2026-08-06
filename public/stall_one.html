@@ -101,13 +101,23 @@
   <div class="main">
     <!-- DASHBOARD -->
     <div class="page active" id="page-home">
-      <div class="dash-welcome" style="background:linear-gradient(135deg,rgba(245,158,11,0.18),rgba(217,119,6,0.08));border:1px solid rgba(245,158,11,0.25);border-radius:16px;padding:18px 20px;margin-bottom:16px">
-        <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px">
-          <div style="width:36px;height:36px;background:rgba(245,158,11,0.2);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px">👋</div>
-          <h3 style="font-size:17px;font-weight:700;margin:0">Welcome back!</h3>
-        </div>
-        <p id="event-name-display" style="font-size:12px;color:rgba(255,255,255,0.5);margin:0;padding-left:46px"></p>
-      </div>
+      
+      <div class="event-card">
+  <div class="ev-icon"><i class="ti ti-calendar-event"></i></div>
+
+  <div class="ev-info">
+    <div class="ev-title" id="event-name-display" style="display:hidden">Aathirai Azhaikiraal Expo 2026</div>
+        <div class="ev-title" id="sb-event"></div>
+
+    <div class="ev-meta"><i class="ti ti-map-pin"></i><span id="ev-venue">Chennai Trade Centre</span></div>
+    <div class="ev-meta"><i class="ti ti-tag"></i><span id="ev-stall">Stall S22</span><span class="ev-dot"></span><span id="ev-day">Day 2 of 3</span></div>
+  </div>
+
+  <div class="ev-time">
+    <div class="ev-time-top"><i class="ti ti-clock"></i><span id="ev-remaining">8h 15m</span></div>
+    <div class="ev-time-sub">remaining</div>
+  </div>
+</div>
       
 <div class="stats-grid" id="stats-row-1">
 
@@ -117,7 +127,7 @@
       <div class="sc-num" id="stat-total">—</div>
       <div class="sc-icon sc-purple"><i class="ti ti-users"></i></div>
     </div>
-    <div class="sc-sub">All time</div>
+    <!-- <div class="sc-sub">All time</div> -->
   </div>
 
   <div class="stat-card">
@@ -126,25 +136,25 @@
       <div class="sc-num" id="stat-today">—</div>
       <div class="sc-icon sc-blue"><i class="ti ti-users"></i></div>
     </div>
-    <div class="sc-sub"><span class="up">↑ 33%</span> vs yesterday</div>
+    <!-- <div class="sc-sub"><span class="up">↑ 33%</span> vs yesterday</div> -->
   </div>
 
   <div class="stat-card">
-    <div class="sc-label">Follow-ups</div>
+    <div class="sc-label">Warm</div>
     <div class="sc-mid">
-      <div class="sc-num" id="stat-follow">—</div>
+      <div class="sc-num" id="stat-warm">—</div>
       <div class="sc-icon sc-orange"><i class="ti ti-clock"></i></div>
     </div>
-    <div class="sc-sub warn">Action needed</div>
+    <!-- <div class="sc-sub warn">Action needed</div> -->
   </div>
 
   <div class="stat-card">
     <div class="sc-label">Converted</div>
     <div class="sc-mid">
-      <div class="sc-num" id="stat-converted">—</div>
+      <div class="sc-num" id="stat-conv">—</div>
       <div class="sc-icon sc-green"><i class="ti ti-circle-check"></i></div>
     </div>
-    <div class="sc-sub ok">This event</div>
+    <!-- <div class="sc-sub ok">This event</div> -->
   </div>
 
   <div class="stat-card">
@@ -153,7 +163,7 @@
       <div class="sc-num" id="stat-hot">—</div>
       <div class="sc-icon sc-red"><i class="ti ti-flame"></i></div>
     </div>
-    <div class="sc-sub warn">High interest</div>
+    <!-- <div class="sc-sub warn">High interest</div> -->
   </div>
 
   <div class="stat-card">
@@ -162,23 +172,14 @@
       <div class="sc-num" id="stat-cold">—</div>
       <div class="sc-icon sc-teal"><i class="ti ti-snowflake"></i></div>
     </div>
-    <div class="sc-sub">Needs follow-up</div>
+    <!-- <div class="sc-sub">Needs follow-up</div> -->
   </div>
 
 </div>
 
 
-      <div class="stats-row" id="stats-row-1">
-        <div class="stat-box"><div class="sbn" id="stat-total">—</div><div class="sbl">Total Leads</div></div>
-        <div class="stat-box"><div class="sbn" id="stat-today">—</div><div class="sbl">Today</div></div>
-      </div>
+     
       
-      <div class="stats-row">
-        <div class="stat-box hot-card"><div class="sbn" id="stat-hot">—</div><div class="sbl">🔥 Hot</div></div>
-        <div class="stat-box warm-card"><div class="sbn" id="stat-warm">—</div><div class="sbl">♨️ Warm</div></div>
-        <div class="stat-box cold-card"><div class="sbn" id="stat-cold">—</div><div class="sbl">❄️ Cold</div></div>
-        <div class="stat-box conv-card"><div class="sbn" id="stat-conv">—</div><div class="sbl">✅ Converted</div></div>
-      </div>
       <div style="margin-bottom:4px">
         <div style="font-size:11px;font-weight:700;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:8px">Quick Actions</div>
         <div class="action-cards">
@@ -259,9 +260,9 @@
         <div style="margin-bottom:12px">
           <div style="font-size:12px;color:var(--text2);margin-bottom:8px">Lead Temperature:</div>
           <div class="status-row">
-            <button class="temp-btn temp-hot" onclick="setTemp('hot',this)" id="tb-hot">🔥 Hot</button>
-            <button class="temp-btn temp-warm sel" onclick="setTemp('warm',this)" id="tb-warm">♨️ Warm</button>
-            <button class="temp-btn temp-cold" onclick="setTemp('cold',this)" id="tb-cold">❄️ Cold</button>
+            <button class="temp-btn temp-hot" onclick="setTemp('hot',this)" id="tb-hot"> Hot</button>
+            <button class="temp-btn temp-warm sel" onclick="setTemp('warm',this)" id="tb-warm"> Warm</button>
+            <button class="temp-btn temp-cold" onclick="setTemp('cold',this)" id="tb-cold"> Cold</button>
           </div>
         </div>
         <div class="result-actions">
@@ -504,9 +505,9 @@
 
         <div class="filter-row">
           <button class="f-chip active" onclick="setFilter('',this)">All</button>
-          <button class="f-chip" onclick="setFilter('hot',this)">🔥 Hot</button>
-          <button class="f-chip" onclick="setFilter('warm',this)">♨️ Warm</button>
-          <button class="f-chip" onclick="setFilter('cold',this)">❄️ Cold</button>
+          <button class="f-chip" onclick="setFilter('hot',this)"> Hot</button>
+          <button class="f-chip" onclick="setFilter('warm',this)"> Warm</button>
+          <button class="f-chip" onclick="setFilter('cold',this)"> Cold</button>
           <button class="f-chip" onclick="setFilter('follow_up',this)">📅 Follow-up</button>
           <button class="f-chip" onclick="setFilter('converted',this)">✅ Converted</button>
         </div>
@@ -1289,9 +1290,9 @@ async function openLeadById(id) {
       <div style="margin-bottom:12px">
         <div style="font-size:12px;color:var(--text2);margin-bottom:8px">Temperature</div>
         <div class="status-row">
-          <button class="temp-btn temp-hot${l.temperature==='hot'?' sel':''}" onclick="updateLeadField('temperature','hot',this,'tb2-hot')">🔥 Hot</button>
-          <button class="temp-btn temp-warm${l.temperature==='warm'?' sel':''}" onclick="updateLeadField('temperature','warm',this,'tb2-warm')">♨️ Warm</button>
-          <button class="temp-btn temp-cold${l.temperature==='cold'?' sel':''}" onclick="updateLeadField('temperature','cold',this,'tb2-cold')">❄️ Cold</button>
+          <button class="temp-btn temp-hot${l.temperature==='hot'?' sel':''}" onclick="updateLeadField('temperature','hot',this,'tb2-hot')"> Hot</button>
+          <button class="temp-btn temp-warm${l.temperature==='warm'?' sel':''}" onclick="updateLeadField('temperature','warm',this,'tb2-warm')"> Warm</button>
+          <button class="temp-btn temp-cold${l.temperature==='cold'?' sel':''}" onclick="updateLeadField('temperature','cold',this,'tb2-cold')"> Cold</button>
         </div>
       </div>
       <div style="margin-bottom:12px">

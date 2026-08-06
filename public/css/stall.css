@@ -537,7 +537,7 @@ textarea.note-area:focus{border-color:var(--accent);background:#fff;box-shadow:0
 
 .stat-card{
   background:#fff;
-  border:1px solid var(--border);
+  border:1px solid var(--border-soft);
   border-radius:8px;
   padding:16px;
   box-shadow:var(--shadow-sm);
@@ -558,12 +558,12 @@ textarea.note-area:focus{border-color:var(--accent);background:#fff;box-shadow:0
 .sc-sub.ok{color:#16a34a}
 
 /* icon colors */
-.sc-purple{background:#6C63FF}
-.sc-blue{background:#2563EB}
-.sc-orange{background:#FC8400}
-.sc-green{background:#16a34a}
-.sc-red{background:#DC2626}
-.sc-teal{background:#0098A4}
+.sc-purple{background: var(--accent);}
+.sc-blue{background:var(--accent);}
+.sc-orange{background:var(--accent);}
+.sc-green{background:var(--accent);}
+.sc-red{background:var(--accent);}
+.sc-teal{background:var(--accent);}
 
 /* compact on phones — still 3 per row */
 @media(max-width:680px){
@@ -573,4 +573,67 @@ textarea.note-area:focus{border-color:var(--accent);background:#fff;box-shadow:0
   .sc-num{font-size:20px}
   .sc-icon{width:32px;height:32px;font-size:16px}
   .sc-sub{font-size:10px}
+}
+
+
+/* ── Event card ── */
+/* ── Event card ── */
+.event-card{
+  --ev-accent:var(--accent);
+  --ev-soft:color-mix(in srgb, var(--accent) 12%, transparent);
+  --ev-tint:color-mix(in srgb, var(--accent) 5%, var(--bg));
+  --ev-border:color-mix(in srgb, var(--accent) 18%, transparent);
+
+  display:flex;
+  align-items:center;
+  gap:12px;
+  background:var(--ev-tint);
+  border:1px solid var(--ev-border);
+  border-radius:16px;
+  padding:14px;
+  margin-bottom:14px;
+  box-shadow:var(--shadow-sm);
+}
+.ev-icon{
+  width:46px;height:46px;
+  background:var(--ev-soft);
+  border-radius:12px;
+  display:flex;align-items:center;justify-content:center;
+  color:var(--ev-accent);font-size:22px;
+  flex-shrink:0;
+}
+.ev-info{flex:1;min-width:0}
+.ev-title{font-size:16px;font-weight:700;color:var(--text);line-height:1.25;margin-bottom:6px}
+.ev-meta{display:flex;align-items:center;gap:6px;flex-wrap:wrap;font-size:13px;color:var(--text2);margin-top:4px}
+.ev-meta i{font-size:16px}
+.ev-dot{width:4px;height:4px;border-radius:50%;background:var(--text3);display:inline-block;margin:0 4px}
+.ev-time{
+  background:var(--ev-soft);
+  border-radius:12px;
+  padding:10px 14px;
+  text-align:center;
+  flex-shrink:0;
+}
+.ev-time-top{display:flex;align-items:center;gap:6px;color:var(--ev-accent);font-size:15px;font-weight:700;white-space:nowrap}
+.ev-time-top i{font-size:17px}
+.ev-time-sub{font-size:11px;color:var(--text2);margin-top:2px}
+
+/* ── Mobile compact ── */
+@media(max-width:480px){
+  .event-card{padding:12px;gap:10px}
+  .ev-icon{width:40px;height:40px;font-size:19px;border-radius:10px}
+  .ev-title{font-size:15px}
+  .ev-meta{font-size:12px}
+  .ev-meta i{font-size:15px}
+  .ev-time{padding:8px 10px}
+  .ev-time-top{font-size:13px}
+  .ev-time-sub{font-size:10px}
+}
+
+/* Teal brand version — swaps to your primary */
+.event-card.ev-teal{
+  --ev-accent:var(--accent);
+  --ev-soft:var(--accent-soft);
+  --ev-tint:color-mix(in srgb, var(--accent) 5%, var(--bg));
+  --ev-border:color-mix(in srgb, var(--accent) 20%, transparent);
 }
