@@ -153,6 +153,7 @@ Rails.application.routes.draw do
       namespace :webhooks do
         post "twilio",            to: "twilio#status"
         post "/whatsapp/webhook", to: "twilio#receive"
+        get  "/whatsapp/webhook", to: "twilio#verify_meta"   # ← ADD THIS LINE
       end
     end
   end

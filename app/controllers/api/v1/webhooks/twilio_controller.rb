@@ -4,6 +4,19 @@ module Api
       class TwilioController < ApplicationController
         # POST /api/v1/webhooks/twilio
         # Twilio delivery status callback
+
+        def verify_meta
+          mode      = params["hub.mode"]
+          token     = params["hub.verify_token"]
+          challenge = params["hub.challenge"]
+
+          if mode == "subscribe" && token == ENV.fetch("META_WEBHOOK_VERIFY_TOKEN", "META_WEBHOOK_VERIFY_TOKEN")
+            render plain: challenge, status: :ok
+          else
+            render json: { success: false, error: "Verification failed" }, status: :forbidden
+          end
+        end
+
         def status
           message_sid    = params[:MessageSid]
           message_status = params[:MessageStatus]
