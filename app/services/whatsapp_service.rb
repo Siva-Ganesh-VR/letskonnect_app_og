@@ -21,6 +21,38 @@ class WhatsappService
     send_message(visitor.mobile_number, message, visitor.qr_image_url)
   end
 
+  def self.send_event_marketing_message(visitor)
+    event = visitor.event
+
+    template = event.message_template || Template.default_message_template
+    return unless template&.template_messages.first
+
+    message = template&.template_messages.first.message.dup
+
+    placeholders = {
+      "{{visitor_name}}"      => visitor.full_name.to_s,
+      "{{event_name}}"        => event.name.to_s,
+      "{{event_date}}"        => format_event_date(event),
+      "{{event_location}}"    => [event.venue, event.city].compact.join(", "),
+      "{{registration_link}}" => visitor.display_qr_url,
+      "{{visitor_id}}"        => visitor.visitor_id_code.to_s
+    }
+
+    placeholders.each do |placeholder, value|
+      message.gsub!(placeholder, value)
+    end
+
+    media_urls = []
+
+    media_urls = event.brochure_urls
+
+    send_message(
+      visitor.mobile_number,
+      message,
+      media_urls.presence
+    )
+  end
+
   def self.send_stall_visit(visitor, stall_owner)
     message = <<~MSG
       👋 Hi #{visitor.full_name},
@@ -134,7 +166,8 @@ class WhatsappService
       to: "whatsapp:#{INDIA_PREFIX}#{mobile_number}",
       body: body
     }
-    params[:media_url] = [media_url] if media_url.present?
+    # Rails.logger.info("Media URLs: #{media_url}")
+    params[:media_url] = Array(media_url) if media_url.present?
     response = client.messages.create(**params)
 
     { success: true, sid: response.sid }
@@ -171,5 +204,13 @@ class WhatsappService
   rescue Twilio::REST::RestError => e
     Rails.logger.error("[WhatsApp] Error: #{e.message}")
     { success: false, error: e.message }
+  end
+
+  def self.format_event_date(event)
+    if event.start_date == event.end_date
+      event.start_date.strftime("%B %d, %Y")
+    else
+      "#{event.start_date.strftime("%B %d")} – #{event.end_date.strftime("%B %d, %Y")}"
+    end
   end
 end

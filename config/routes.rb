@@ -76,7 +76,7 @@ Rails.application.routes.draw do
         resources :stall_categories, only: [:index, :create]
         get "dashboard",                to: "dashboard#show"
         resources :events, only: [:index, :show, :create, :update] do
-          member { get :analytics; get :qr_code; post :activate; post :archive; post :request_activation; get :visitor_analytics; patch :assign_template; patch :upload_brochures; delete :delete_brochure}
+          member { get :analytics; get :qr_code; post :activate; post :archive; post :request_activation; get :visitor_analytics; patch :assign_template; patch :upload_brochure; delete :delete_brochure}
           resources :stall_owners, only: [:index, :show, :create, :update, :destroy] do
             member { post :send_credentials; patch :toggle_active }
             collection do
@@ -90,6 +90,11 @@ Rails.application.routes.draw do
         end
         get "stall_owners/import_progress/:id", to: "stall_owners#import_progress"
         get "visitors/:id/visit_history", to: "visitors#visit_history"
+        resources :visitors, only: [] do
+          collection do
+            post :retry_whatsapp
+          end
+        end
       end
 
       # Super Admin Auth
@@ -136,6 +141,7 @@ Rails.application.routes.draw do
       namespace :webhooks do
         post "twilio", to: "twilio#status"
         post "/whatsapp/webhook", to: "twilio#receive"
+        post "whatsapp/status", to: "twilio#status"
       end
     end
   end

@@ -905,6 +905,10 @@
       }
 
     }
+    .brochure-preview {
+      width: 200px;
+      height: auto;
+    }
     .brochure-preview-row {
       display: flex;
       gap: 16px;
@@ -1497,22 +1501,35 @@
   <div class="modal-overlay" id="m-assign-template" onclick="if(event.target===this)closeModal('m-assign-template')">
     <div class="modal">
       <div class="modal-title">
-        Assign Template
+        Assign Templates
         <button class="mc" onclick="closeModal('m-assign-template')">✕</button>
       </div>
 
       <div id="assign-template-err" class="err"></div>
 
       <div class="mf">
-        <label>Choose Template *</label>
+        <label>Choose Question Template *</label>
 
-        <select id="assign-template-id" class="form-control" style="width:100%;padding:10px">
-          <option value="">Select a template</option>
+        <select id="assign-question-template-id" class="form-control" style="width:100%;padding:10px">
+          <option value="">Select a question template</option>
         </select>
 
         <p style="margin-top:8px;font-size:12px;color:var(--text2)">By default, questions from the default template loaded if no template is assigned.</p>
         <p style="margin-top:8px;font-size:12px;color:var(--text2)">
           By assigning a template, all visitors will get same set of questions at the time of pre-registration for this event.
+        </p>
+      </div>
+
+      <div class="mf">
+        <label>Choose Message Template *</label>
+
+        <select id="assign-message-template-id" class="form-control" style="width:100%;padding:10px">
+          <option value="">Select a message template</option>
+        </select>
+
+        <p style="margin-top:8px;font-size:12px;color:var(--text2)">By default, message from the default message template loaded if no message template is assigned.</p>
+        <p style="margin-top:8px;font-size:12px;color:var(--text2)">
+          By assigning a message template, all visitors will receive the same message.
         </p>
       </div>
 
@@ -1574,7 +1591,7 @@
     const API = "/api/v1";
     const token = sessionStorage.getItem("org_token");
     const me = JSON.parse(sessionStorage.getItem("org_user") || "null");
-    const maxBrochures = 0;
+    let maxBrochures = 0;
 
     if (!token || !me) {
       window.location.href = "/login.html";
@@ -2156,6 +2173,7 @@
       <td style="font-weight:600">${v.stalls_visited || 0}</td>
       <td style="font-size:12px;color:var(--text2)">${fd(v.registered_at)}</td>
       <td>${v.reg_type}</td>
+      <td>${v.message_status || "—"}</td>
       <td>
         <div style="display:flex;gap:6px;flex-wrap:wrap">
           <button
@@ -2171,6 +2189,15 @@
             title="QR">
             📱
           </button>
+          ${v.message_status === 'Failed' ? `
+            <button
+              class="btn btn-sm btn-o"
+              style="padding: 2px 6px;"
+              onclick="retryWhatsappMessage('${v.message_delivery_id}')"
+              title="Retry WhatsApp Message">
+              🔄
+            </button>
+          ` : ''}
         </div>
       </td>
     </tr>
@@ -2178,7 +2205,7 @@
       const total = res.meta?.total || (res.data || []).length || 0;
       document.getElementById("visitors-tbl").innerHTML = `
     <div style="padding:10px 20px;font-size:13px;color:var(--text2)">${total} visitor${total !== 1 ? 's' : ''} registered</div>
-    ${rows ? `<table><thead><tr><th>ID</th><th>Name</th><th>Mobile</th><th>Business</th><th>Category</th><th>Location</th><th>Stalls</th><th>Registered</th><th>Reg Type</th><th>Actions</th></tr></thead><tbody>${rows}</tbody></table>`
+    ${rows ? `<div style="overflow-x:auto"><table><thead><tr><th>ID</th><th>Name</th><th>Mobile</th><th>Business</th><th>Category</th><th>Location</th><th>Stalls</th><th>Registered</th><th>Reg Type</th><th>Message Status</th><th>Actions</th></tr></thead><tbody>${rows}</tbody></table><div>`
           : `<div class="empty"><div class="empty-icon">👥</div>No visitors registered yet</div>`}
   `;
       visitorsListState.total = total;
@@ -2677,21 +2704,32 @@
         detailsState.stallCategoryFilter = "all";
         detailsState.eventStallOwners = e.stall_owners || [];
 
-        // Populate template dropdown
-        const templateSelect = document.getElementById("assign-template-id");
-        if (templateSelect) {
-          templateSelect.innerHTML = `
-            <option value="">Select Template</option>
-            ${(e.templates || [])
+        // Populate question template dropdown
+        const questiontemplateSelect = document.getElementById("assign-question-template-id");
+        if (questiontemplateSelect) {
+          questiontemplateSelect.innerHTML = `
+            <option value="">Select Question Template</option>
+            ${(e.question_templates || [])
               .map(t => `<option value="${t.id}">${t.name}${t.is_default ? " (Default)" : ""}</option>`)
               .join("")}
         `;
         }
-        templateSelect.value = e.template_id || "";
 
-        maxBrochures = e.max_brochures || 0;
+        // Populate message template dropdown
+        const messagetemplateSelect = document.getElementById("assign-message-template-id");
+        if (messagetemplateSelect) {
+          messagetemplateSelect.innerHTML = `
+            <option value="">Select Message Template</option>
+            ${(e.message_templates || [])
+              .map(t => `<option value="${t.id}">${t.name}${t.is_default ? " (Default)" : ""}</option>`)
+              .join("")}
+        `;
+        }
+        messagetemplateSelect.value = e.message_template_id || "";
+        questiontemplateSelect.value = e.question_template_id || "";
 
-        renderBrochures(e.brochures || []);
+        maxBrochures = e.max_brochures;
+        renderBrochures(e.brochures);
         document.getElementById("odetails-title").textContent = e.name;
         try {
           const html = buildEventDetailsHTML(e);
@@ -2741,7 +2779,8 @@
         ${detailChip("🏢 Organizer", e.organizer?.name || "—")}
         ${detailChip("🆔 Event Code", `<span style="font-family:monospace;font-size:11px">${e.event_code}</span>`)}
         ${detailChip("🍽️ Food Coupon", e.food_coupon ? "Yes" : "No")}
-        ${detailChip("🏢 Assigned Template", e.template_name || "—")}
+        ${detailChip("🏢 Question Template", e.question_template_name || "—")}
+        ${detailChip("🏢 Message Template", e.message_template_name || "—")}
       </div>
       ${e.description ? `<div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border);font-size:14px;color:var(--text2);line-height:1.6">${e.description}</div>` : ""}
       <div style="display:grid;grid-template-columns:1fr auto;gap:12px;margin-top:16px;padding-top:14px;border-top:1px solid var(--border);align-items:center">
@@ -3007,7 +3046,18 @@
         <td style="font-weight:600;text-align:center">${v.stalls_visited || 0}</td>
         <td style="font-size:12px;color:var(--text2);white-space:nowrap">${fd(v.registered_at || v.created_at)}</td>
         <td>${v.reg_type}</td>
-        <td><button class="btn btn-o btn-sm" onclick='event.stopPropagation(); showVisitorQr("${v.id}","${v.full_name}", "${v.business_name || ""}", "${v.designation || ""}","${v.qr_image_url || ""}")'>📱</button></td>
+        <td>${v.message_status || "—"}</td>
+        <td><button class="btn btn-o btn-sm" onclick='event.stopPropagation(); showVisitorQr("${v.id}","${v.full_name}", "${v.business_name || ""}", "${v.designation || ""}","${v.qr_image_url || ""}")'>📱</button>
+        ${v.message_status === 'Failed' ? `
+            <button
+              class="btn btn-sm btn-o"
+              style="padding: 2px 6px;"
+              onclick="event.stopPropagation(); retryWhatsappMessage('${v.message_delivery_id}')"
+              title="Retry WhatsApp Message">
+              🔄
+            </button>
+          ` : ''}
+        </td>
       </tr>`).join("");
 
         el.innerHTML = `
@@ -3015,7 +3065,7 @@
         <table style="width:100%;border-collapse:collapse">
           <thead>
             <tr>
-              ${["ID", "Name", "Mobile", "Business", "Category", "Looking For", "Decision Maker", "Location", "Stalls", "Registered", "Reg Type", "Actions"].map(h =>
+              ${["ID", "Name", "Mobile", "Business", "Category", "Looking For", "Decision Maker", "Location", "Stalls", "Registered", "Reg Type", "Message Status", "Actions"].map(h =>
           `<th style="text-align:left;padding:10px 16px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text3);border-bottom:1px solid var(--border);white-space:nowrap">${h}</th>`
         ).join("")}
             </tr>
@@ -3310,6 +3360,8 @@
             ${detailChip("📱 Mobile", v.mobile_number || "—")}
             ${detailChip("🆔 Code", v.visitor_id_code || "—")}
             ${detailChip("🏢 Event", v.event.name || "—")}
+            ${detailChip("📝 Registration Type", v.reg_type || "—")}
+            ${detailChip("💬 Message Status", v.message_status || "—")}
           </div>
 
           <div style="display:flex;gap:8px;margin-top:16px;padding-top:14px;border-top:1px solid var(--border);flex-wrap:wrap">
@@ -3520,9 +3572,10 @@
       openModal("m-hourly-visitors");
     }
     async function assignTemplate() {
-      const templateId = document.getElementById("assign-template-id").value;
+      const questionTemplateId = document.getElementById("assign-question-template-id").value;
+      const messageTemplateId = document.getElementById("assign-message-template-id").value;
 
-      if (!templateId) {
+      if (!questionTemplateId && !messageTemplateId) {
         toast("Please select a template.", "err");
         return;
       }
@@ -3531,7 +3584,8 @@
         await patch(
           `/organizer/events/${detailsState.eventId}/assign_template`,
           {
-            template_id: templateId
+            question_template_id: questionTemplateId,
+            message_template_id: messageTemplateId
           }
         );
 
@@ -3606,7 +3660,7 @@
       if (!confirm("Delete this brochure?")) return;
 
       const res = await fetch(
-        `/api/v1/organizer/events/${eventId}/brochures/${brochureId}`,
+        `/api/v1/organizer/events/${eventId}/delete_brochure?brochure_id=${brochureId}`,
         {
           method: "DELETE",
           headers: {
@@ -3618,6 +3672,8 @@
       const data = await res.json();
 
       if (data.success) {
+        toast("Brochure deleted successfully.", "ok");
+        closeModal("m-upload-brochures");
         await showEventDetails(eventId, previousPage);
       }
     }
@@ -3666,8 +3722,7 @@
     }
 
     function resetUploadBrochures() {
-      document.getElementById("brochure-1").value = "";
-      document.getElementById("brochure-2").value = "";
+      document.getElementById("brochure-file").value = "";
       clearError(document.getElementById("upload-brochures-err"));
     }
 
@@ -3690,9 +3745,9 @@
             <h4>Brochure ${index + 1}</h4>
 
             ${
-              b.file_type === "pdf"
+              b.content_type === "application/pdf"
                 ? `<iframe src="${b.url}" class="brochure-preview"></iframe>`
-                : `<img src="${b.url}" class="brochure-preview">`
+                : `<img src="${b.url}" class="brochure-preview" width="200" height="auto" />`
             }
 
             <div style="margin-top:8px;">
@@ -3706,7 +3761,37 @@
       }
 
       uploadField.style.display =
-        brochures.length >= maxBrochureLimit ? "none" : "block";
+        brochures.length >= maxBrochures ? "none" : "block";
+    }
+
+    async function retryWhatsappMessage(messageDeliveryId) {
+      if (!confirm("Retry sending the WhatsApp message?")) return;
+
+      try {
+        const response = await fetch(
+          `/api/v1/organizer/visitors/retry_whatsapp?message_delivery_id=${encodeURIComponent(messageDeliveryId)}`,
+          {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${token}`
+            }
+          }
+        );
+
+        const result = await response.json();
+
+        if (!response.ok || !result.success) {
+          throw new Error(result.error || "Failed to retry WhatsApp message.");
+        }
+
+        toast("WhatsApp message queued successfully.", "ok");
+
+        // Refresh the visitors list if applicable
+        loadVisitors();
+      } catch (error) {
+        console.error("Error retrying WhatsApp message:", error);
+        toast(error.message || "Failed to retry WhatsApp message.", "error");
+      }
     }
   </script>
 </body>

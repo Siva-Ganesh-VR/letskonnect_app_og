@@ -87,6 +87,66 @@ module Api
 
           head :ok
         end
+
+        def status
+          sid = params[:MessageSid].to_s
+          status = params[:MessageStatus].to_s.downcase
+
+          delivery = VisitorMessageDelivery.find_by(twilio_message_sid: sid)
+
+          unless delivery
+            Rails.logger.warn("Twilio Status Callback: Unknown SID #{sid}")
+            return head :ok
+          end
+
+          update_attrs = {
+            status: status
+          }
+
+          case status
+          when "queued"
+            # Nothing to update
+
+          when "accepted"
+            # Nothing to update
+
+          when "sending"
+            # Nothing to update
+
+          when "sent"
+            update_attrs[:sent_at] ||= Time.current
+
+          when "delivered"
+            update_attrs[:sent_at] ||= Time.current
+            update_attrs[:delivered_at] ||= Time.current
+
+          when "read"
+            update_attrs[:sent_at] ||= Time.current
+            update_attrs[:delivered_at] ||= Time.current
+            update_attrs[:read_at] ||= Time.current
+
+          when "failed", "undelivered"
+            update_attrs[:failed_at] = Time.current
+            update_attrs[:error_message] =
+              [
+                params[:ErrorCode],
+                params[:ErrorMessage]
+              ].compact.join(" - ")
+
+          end
+
+          delivery.update!(update_attrs)
+
+          head :ok
+        end
+
+        private
+
+        def delivered_time(status)
+          return Time.current if %w[delivered read].include?(status)
+
+          nil
+        end
       end
     end
   end

@@ -3,7 +3,7 @@ module Api
     module Organizer
       class EventsController < ApplicationController
         before_action :authenticate_organizer!
-        before_action :set_event, only: [:show, :update, :analytics, :qr_code, :activate, :archive, :request_activation, :assign_template, :upload_brochures, :delete_brochure]
+        before_action :set_event, only: [:show, :update, :analytics, :qr_code, :activate, :archive, :request_activation, :assign_template, :upload_brochure, :delete_brochure]
 
         def index
           events = @current_organizer.events.order(created_at: :desc)
@@ -11,14 +11,21 @@ module Api
         end
 
         def show
-          default_template = Template.default_question_template
-          assigned_template = @event.template || default_template
+          default_question_template = Template.default_question_template
+          assigned_question_template = @event.question_template || default_question_template
+          default_message_template = Template.default_message_template
+          assigned_message_template = @event.message_template || default_message_template
+
+          Rails.logger.info("Event Details: #{event_detail(@event)}")
 
           json_success(
             event_detail(@event).merge(
-              template_id: assigned_template&.id,
-              template_name: assigned_template&.name,
-              templates: Template.question_templates.select(:id, :name, :is_default).order(:name)
+              question_template_id: assigned_question_template&.id,
+              question_template_name: assigned_question_template&.name,
+              question_templates: Template.question_templates.select(:id, :name, :is_default).order(:name),
+              message_template_id: assigned_message_template&.id,
+              message_template_name: assigned_message_template&.name,
+              message_templates: Template.message_templates.select(:id, :name, :is_default).order(:name)
             )
           )
         end
@@ -106,57 +113,68 @@ module Api
         end
 
         def assign_template
-          template = Template.find_by(
-            id: params[:template_id],
-            template_type: "question",
-            active: true
-          )
+          question_template = if params[:question_template_id].present?
+            Template.find_by(
+              id: params[:question_template_id],
+              template_type: "question",
+              active: true
+            )
+          end
 
-          return json_error("Template not found") unless template
+          message_template = if params[:message_template_id].present?
+            Template.find_by(
+              id: params[:message_template_id],
+              template_type: "message",
+              active: true
+            )
+          end
 
-          @event.update!(
-            template_id: template.is_default? ? nil : template.id
-          )
+          if params[:question_template_id].present? && question_template.nil?
+            return json_error("Question template not found")
+          end
+
+          if params[:message_template_id].present? && message_template.nil?
+            return json_error("Message template not found")
+          end
+
+          updates = {}
+
+          if question_template
+            updates[:question_template_id] =
+              question_template.is_default? ? nil : question_template.id
+          end
+
+          if message_template
+            updates[:message_template_id] =
+              message_template.is_default? ? nil : message_template.id
+          end
+
+          @event.update!(updates)
 
           json_success({
-            message: "Template assigned successfully"
+            message: "Templates assigned successfully"
           })
         end
 
-        def upload_brochures
+        def upload_brochure
           event = @event
-          if params[:brochure_1].present?
-            event.brochure_1.purge if event.brochure_1.attached?
-            event.brochure_1.attach(params[:brochure_1])
+
+          if params[:brochure].present?
+            event.brochures.attach(params[:brochure])
           end
 
-          if params[:brochure_2].present?
-            event.brochure_2.purge if event.brochure_2.attached?
-            event.brochure_2.attach(params[:brochure_2])
-          end
-
-          render json: {
-            success: true,
-            data: {
-              brochure_1_url: event.brochure_1.attached? ? url_for(event.brochure_1) : nil,
-              brochure_2_url: event.brochure_2.attached? ? url_for(event.brochure_2) : nil
-            }
-          }
+          json_success({
+            message: "Brochure uploaded successfully"
+          })
         end
 
         def delete_brochure
-          event = @event
+          brochure = @event.brochures.find(params[:brochure_id])
+          brochure.purge
 
-          case params[:slot]
-          when "1"
-            event.brochure_1.purge
-          when "2"
-            event.brochure_2.purge
-          else
-            return render json: { success: false, error: "Invalid brochure slot" }, status: :unprocessable_entity
-          end
-
-          render json: { success: true }
+          json_success({
+            message: "Brochure deleted successfully"
+          })
         end
 
         private
@@ -195,20 +213,18 @@ module Api
             completed: e.completed?,
             food_coupon: e.food_coupon,
             max_brochures: ENV.fetch("MAX_EVENT_BROCHURES", 2).to_i,
-            brochure_1: if e.brochure_1.attached?
-              {
-                url: url_for(e.brochure_1),
-                filename: e.brochure_1.filename.to_s,
-                content_type: e.brochure_1.blob.content_type
-              }
-            end,
-            brochure_2: if e.brochure_2.attached?
-              {
-                url: url_for(e.brochure_2),
-                filename: e.brochure_2.filename.to_s,
-                content_type: e.brochure_2.blob.content_type
-              }
-            end,
+            brochures: if e.brochures.attached?
+                e.brochures.map do |brochure|
+                  {
+                    id: brochure.id,
+                    url: url_for(brochure),
+                    filename: brochure.filename.to_s,
+                    content_type: brochure.blob.content_type
+                  }
+                end
+              else
+                []
+              end,
 
             organizer: {
               id: e.event_organizer.id,

@@ -122,6 +122,40 @@ module Api
           )
         end
 
+        def retry_whatsapp
+          delivery = VisitorMessageDelivery.find_by!(
+            id: params[:message_delivery_id]
+          )
+
+          visitor = delivery.visitor
+
+          message = WhatsappService.send_event_marketing_message(visitor)
+
+          delivery.update!(
+            twilio_message_sid: message[:sid],
+            status: "pending",
+            sent_at: nil,
+            delivered_at: nil,
+            read_at: nil,
+            failed_at: nil,
+            error_message: nil
+          )
+
+          json_success({
+            message: "WhatsApp message queued successfully."
+          })
+        rescue ActiveRecord::RecordNotFound
+          json_error({
+            message: "Message delivery not found."
+          }, status: :not_found)
+        rescue StandardError => e
+          Rails.logger.error(e.full_message)
+
+          json_error({
+            message: "An error occurred while retrying the WhatsApp message."
+          }, status: :unprocessable_entity)
+        end
+
         private
 
         def set_event
@@ -136,7 +170,7 @@ module Api
             stalls_visited: v.leads.count, registered_at: v.created_at.iso8601,
             email: v.email, active: v.active, looking_for: v.looking_for,
             decision_maker: v.decision_maker, created_at: v.created_at, reg_type: v.reg_type,
-            mobile_verified: v.mobile_verified, qr_image_url: v.qr_image_url,
+            mobile_verified: v.mobile_verified, qr_image_url: v.qr_image_url, message_status: v.message_status, message_sid: v.message_sid, message_delivery_id: v.message_delivery_id,
             event: {
               id: v.event&.id,
               name: v.event&.name,

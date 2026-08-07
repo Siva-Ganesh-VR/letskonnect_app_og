@@ -97,11 +97,12 @@ module Api
           visitor.event = event
           visitor.reg_type = "Manual"
           visitor.mobile_verified = true
+          visitor.send_registration_whatsapp = true
 
           ActiveRecord::Base.transaction do
             visitor.save!
 
-            WhatsappNotificationJob.perform_later(visitor.id, "visitor_registration")
+            # WhatsappNotificationJob.perform_later(visitor.id, "visitor_registration")
 
             lead = Lead.find_by(visitor_id: visitor.id, stall_owner_id: stall_owner.id)
 

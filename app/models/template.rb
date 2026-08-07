@@ -14,9 +14,23 @@ class Template < ApplicationRecord
       active: true
     )
   }
+  scope :message_templates, -> {
+    where(
+      template_type: "message",
+      active: true
+    )
+  }
   def self.default_question_template
     find_by(
       template_type: "question",
+      active: true,
+      is_default: true
+    )
+  end
+
+  def self.default_message_template
+    find_by(
+      template_type: "message",
       active: true,
       is_default: true
     )

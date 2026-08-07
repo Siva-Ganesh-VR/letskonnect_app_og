@@ -7,8 +7,8 @@ class Event < ApplicationRecord
   has_one  :event_analytics, dependent: :destroy
   has_many :visitor_scan_logs, dependent: :destroy
   has_one_attached :registration_qr
-  belongs_to :template, optional: true
   has_many_attached :brochures
+  has_many :visitor_message_deliveries, dependent: :destroy
 
   before_create :generate_slug
   before_create :generate_registration_qr_token
@@ -25,6 +25,7 @@ class Event < ApplicationRecord
   validates :event_code, uniqueness: true, allow_nil: true  # nil only during migration backfill
   validate  :end_date_after_start_date
   validate  :question_template_only
+  validate  :message_template_only
   validate :brochure_limit
   before_validation :format_name
   
@@ -66,13 +67,34 @@ class Event < ApplicationRecord
     )
   end
 
-  def question_template_only
-    return if template_id.blank?
+  def brochure_urls
+    return [] unless brochures.attached?
 
-    template = Template.find_by(id: template_id)
+    brochures.map do |brochure|
+      Rails.application.routes.url_helpers.rails_storage_proxy_url(
+        brochure,
+        host: ENV.fetch("APP_HOST", "http://localhost:3000")
+      )
+    end
+  end
+
+  def question_template_only
+    return if question_template_id.blank?
+
+    template = Template.find_by(id: question_template_id)
 
     if template.nil? || template.template_type != "question"
-      errors.add(:template_id, "must reference a question template")
+      errors.add(:question_template_id, "must reference a question template")
+    end
+  end
+
+  def message_template_only
+    return if message_template_id.blank?
+
+    template = Template.find_by(id: message_template_id)
+
+    if template.nil? || template.template_type != "message"
+      errors.add(:message_template_id, "must reference a message template")
     end
   end
 
@@ -81,6 +103,16 @@ class Event < ApplicationRecord
     if brochures.attachments.size > max_brochures
       errors.add(:brochures, "Maximum #{max_brochures} brochures allowed")
     end
+  end
+
+  def question_template
+    return nil if question_template_id.blank?
+    Template.find_by(id: question_template_id)
+  end
+
+  def message_template
+    return nil if message_template_id.blank?
+    Template.find_by(id: message_template_id)
   end
 
   private

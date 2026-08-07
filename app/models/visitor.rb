@@ -6,11 +6,13 @@ class Visitor < ApplicationRecord
   has_many :visitor_answers, dependent: :destroy
   has_many :visitor_scan_logs, dependent: :destroy
   has_one_attached :registration_qr
+  has_many :visitor_message_deliveries, dependent: :destroy
 
   before_create :generate_visitor_id_code
   before_create :generate_qr_token
   after_create  :enqueue_qr_generation
   # after_save    :enqueue_whatsapp_on_verification, if: :saved_change_to_mobile_verified?
+  after_commit :enqueue_marketing_message, on: :create
 
   OTP_EXPIRY_MINUTES = 10
   MAX_OTP_ATTEMPTS   = 5
@@ -67,8 +69,28 @@ class Visitor < ApplicationRecord
 
     Rails.application.routes.url_helpers.rails_storage_proxy_url(
       registration_qr,
-      host: ENV.fetch("APP_HOST", "http://localhost:3000")
+      host: "https://885c-49-204-199-217.ngrok-free.app"
     )
+  end
+
+  def message_status
+    return nil unless visitor_message_deliveries.exists?
+
+    visitor_message_deliveries
+    .order(created_at: :desc).first&.status
+    &.humanize
+  end
+
+  def message_sid
+    return nil unless visitor_message_deliveries.exists?
+
+    visitor_message_deliveries.order(created_at: :desc).first&.twilio_message_sid
+  end
+
+  def message_delivery_id
+    return nil unless visitor_message_deliveries.exists?
+
+    visitor_message_deliveries.order(created_at: :desc).first&.id
   end
 
   private
@@ -105,5 +127,12 @@ class Visitor < ApplicationRecord
 
   def registration_completed?
     whatsapp_state == "completed"
+  end
+
+  def enqueue_marketing_message
+    # EventMarketingMessageJob.perform_later(id)
+
+    # or, if you prefer a small delay:
+    EventMarketingMessageJob.set(wait: 2.minutes).perform_later(id)
   end
 end

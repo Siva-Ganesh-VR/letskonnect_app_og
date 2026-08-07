@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_08_03_055038) do
+ActiveRecord::Schema[7.2].define(version: 2026_08_06_084119) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pgcrypto"
   enable_extension "plpgsql"
@@ -106,14 +106,16 @@ ActiveRecord::Schema[7.2].define(version: 2026_08_03_055038) do
     t.string "event_code", limit: 20, null: false
     t.boolean "food_coupon", default: false, null: false
     t.string "food_coupon_count"
-    t.uuid "template_id"
+    t.uuid "question_template_id"
+    t.uuid "message_template_id"
     t.index ["event_code"], name: "index_events_on_event_code", unique: true
     t.index ["event_organizer_id"], name: "index_events_on_event_organizer_id"
+    t.index ["message_template_id"], name: "index_events_on_message_template_id"
+    t.index ["question_template_id"], name: "index_events_on_question_template_id"
     t.index ["registration_qr_token"], name: "index_events_on_registration_qr_token", unique: true
     t.index ["slug"], name: "index_events_on_slug", unique: true
     t.index ["start_date"], name: "index_events_on_start_date"
     t.index ["status"], name: "index_events_on_status"
-    t.index ["template_id"], name: "index_events_on_template_id"
   end
 
   create_table "export_jobs", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -339,6 +341,30 @@ ActiveRecord::Schema[7.2].define(version: 2026_08_03_055038) do
     t.index ["visitor_id"], name: "index_visitor_answers_on_visitor_id"
   end
 
+  create_table "visitor_message_deliveries", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "event_id", null: false
+    t.uuid "visitor_id", null: false
+    t.uuid "template_id"
+    t.string "twilio_message_sid"
+    t.string "status", default: "pending", null: false
+    t.string "message_type", null: false
+    t.datetime "sent_at"
+    t.datetime "delivered_at"
+    t.datetime "read_at"
+    t.datetime "failed_at"
+    t.text "error_message"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["event_id", "status"], name: "index_visitor_message_deliveries_on_event_id_and_status"
+    t.index ["event_id", "visitor_id"], name: "index_visitor_message_deliveries_on_event_id_and_visitor_id", unique: true
+    t.index ["event_id"], name: "index_visitor_message_deliveries_on_event_id"
+    t.index ["message_type"], name: "index_visitor_message_deliveries_on_message_type"
+    t.index ["status"], name: "index_visitor_message_deliveries_on_status"
+    t.index ["template_id"], name: "index_visitor_message_deliveries_on_template_id"
+    t.index ["twilio_message_sid"], name: "index_visitor_message_deliveries_on_twilio_message_sid", unique: true
+    t.index ["visitor_id"], name: "index_visitor_message_deliveries_on_visitor_id"
+  end
+
   create_table "visitor_scan_logs", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.uuid "event_id", null: false
     t.uuid "visitor_id", null: false
@@ -409,6 +435,9 @@ ActiveRecord::Schema[7.2].define(version: 2026_08_03_055038) do
   add_foreign_key "template_messages", "templates"
   add_foreign_key "template_questions", "templates"
   add_foreign_key "visitor_answers", "visitors"
+  add_foreign_key "visitor_message_deliveries", "events"
+  add_foreign_key "visitor_message_deliveries", "templates"
+  add_foreign_key "visitor_message_deliveries", "visitors"
   add_foreign_key "visitor_scan_logs", "events"
   add_foreign_key "visitor_scan_logs", "stall_owners"
   add_foreign_key "visitor_scan_logs", "visitors"
