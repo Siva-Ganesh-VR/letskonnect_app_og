@@ -20,6 +20,11 @@
   --shadow-sm:0 1px 2px rgba(15,49,56,.05),0 1px 6px rgba(15,49,56,.04);
   --shadow-md:0 4px 16px rgba(15,49,56,.10);
   --sidebar-w:240px;
+  --ev-accent:var(--accent);
+  --ev-soft:color-mix(in srgb, var(--accent) 12%, transparent);
+  --ev-tint:color-mix(in srgb, var(--accent) 5%, var(--bg));
+  --ev-border:color-mix(in srgb, var(--accent) 18%, transparent);
+
 }
 html,body{height:100%}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
@@ -579,11 +584,6 @@ textarea.note-area:focus{border-color:var(--accent);background:#fff;box-shadow:0
 /* ── Event card ── */
 /* ── Event card ── */
 .event-card{
-  --ev-accent:var(--accent);
-  --ev-soft:color-mix(in srgb, var(--accent) 12%, transparent);
-  --ev-tint:color-mix(in srgb, var(--accent) 5%, var(--bg));
-  --ev-border:color-mix(in srgb, var(--accent) 18%, transparent);
-
   display:flex;
   align-items:center;
   gap:12px;

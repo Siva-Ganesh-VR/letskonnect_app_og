@@ -113,10 +113,6 @@
     <div class="ev-meta"><i class="ti ti-tag"></i><span id="ev-stall">Stall S22</span><span class="ev-dot"></span><span id="ev-day">Day 2 of 3</span></div>
   </div>
 
-  <div class="ev-time">
-    <div class="ev-time-top"><i class="ti ti-clock"></i><span id="ev-remaining">8h 15m</span></div>
-    <div class="ev-time-sub">remaining</div>
-  </div>
 </div>
       
 <div class="stats-grid" id="stats-row-1">
@@ -492,13 +488,7 @@
       <div id="leads-list-view">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;gap:10px">
           <div style="font-size:16px;font-weight:700;color:var(--text)">Leads</div>
-          <button onclick="showTab('create-lead',document.getElementById('btab-scan'))"
-            style="display:flex;align-items:center;gap:8px;padding:10px 16px;border-radius:12px;
-                  cursor:pointer;font-family:inherit;white-space:nowrap;flex-shrink:0;
-                  background:linear-gradient(135deg,rgba(34,197,94,0.15),rgba(34,197,94,0.05));
-                  border:1px solid rgba(34,197,94,0.35);color:#22c55e;
-                  font-size:13px;font-weight:700;transition:all .2s">
-            <span style="font-size:16px">➕</span>
+          <button onclick="showTab('create-lead',document.getElementById('btab-scan'))" class="btn-primary">
             <span>Add Lead</span>
           </button>
         </div>
@@ -525,8 +515,8 @@
           <div class="detail-section">Export Leads</div>
           <p style="font-size:13px;color:var(--text2);margin-bottom:14px">Export all your leads to Excel. A download link will be sent to your WhatsApp.</p>
           <div style="display:flex;gap:8px;flex-wrap:wrap">
-            <button class="a-btn a-btn-export" style="flex:1" onclick="exportLeads()">📥 Export All Leads</button>
-            <button class="a-btn a-btn-export" style="flex:1" onclick="exportLeads('hot')">🔥 Export Hot Only</button>
+            <button class="btn-primary" style="flex:1" onclick="exportLeads()">Export All Leads</button>
+            <button class="btn-primary" style="flex:1" onclick="exportLeads('hot')">Export Hot Only</button>
           </div>
           <div id="export-status" style="font-size:13px;color:var(--text2);margin-top:10px;display:none"></div>
         </div>
@@ -895,14 +885,14 @@ async function loadDashboard(eventId = null) {
   const rl = document.getElementById("recent-leads");
   const recent = res.data.recent_leads || [];
   rl.innerHTML = recent.length ? recent.map(l => {
-  const mob = l.mobile_number ? `<div style="font-size:12px;color:rgba(255,255,255,0.5);margin-top:3px"><span style="color:var(--accent);font-size:10px">●</span> ${l.mobile_number}</div>` : "";
-  const loc = l.location      ? `<div style="font-size:11px;color:rgba(255,255,255,0.3);margin-top:2px"><span style="color:rgba(255,255,255,0.3);font-size:10px">◎</span> ${l.location}</div>` : "";
-    const co  = l.business_name ? `<div style="font-size:12px;color:rgba(255,255,255,0.4);margin-top:2px">${l.business_name}</div>` : "";
-    return `<div style="background:var(--bg2);border:1px solid var(--border);border-radius:13px;
+  const mob = l.mobile_number ? `<div style="font-size:12px;color:var(--accent);margin-top:3px"> ${l.mobile_number}</div>` : "";
+  const loc = l.location      ? `<div style="font-size:11px;color:var(--accent);margin-top:2px"> ${l.location}</div>` : "";
+    const co  = l.business_name ? `<div style="font-size:12px;color:var(--accent);margin-top:2px">${l.business_name}</div>` : "";
+    return `<div style="background:var(--bg2);border:1px solid var(--ev-border);border-radius:13px;
                         padding:14px 16px;margin-bottom:8px;cursor:pointer;transition:border-color .15s"
                 onclick="openLeadById('${l.id}')"
-                onmouseover="this.style.borderColor='rgba(245,158,11,0.3)'"
-                onmouseout="this.style.borderColor='var(--border)'">
+                onmouseover="this.style.borderColor='var(--ev-border)'"
+                onmouseout="this.style.borderColor='var(--ev-border)'">
       <div style="display:flex;align-items:flex-start;justify-content:space-between">
         <div style="flex:1;min-width:0;padding-right:10px">
           <div style="font-size:15px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${toTitleCase(l.visitor_name)}</div>
@@ -1181,16 +1171,16 @@ async function loadLeads(append = false) {
     allLeads = newLeads;
   }
   document.getElementById("leads-list").innerHTML = allLeads.length ? allLeads.map(l => {
-    const mob = l.visitor.mobile_number ? `<div style="font-size:12px;color:rgba(255,255,255,0.5);margin-top:3px">📱 ${l.visitor.mobile_number}</div>` : "";
-    const loc = l.visitor.location      ? `<div style="font-size:11px;color:rgba(255,255,255,0.3);margin-top:2px">📍 ${l.visitor.location}</div>` : "";
-    const co  = l.visitor.business_name ? `<div style="font-size:12px;color:rgba(255,255,255,0.4);margin-top:2px">${l.visitor.business_name}</div>` : "";
+    const mob = l.visitor.mobile_number ? `<div style="font-size:12px;margin-top:3px">📱 ${l.visitor.mobile_number}</div>` : "";
+    const loc = l.visitor.location      ? `<div style="font-size:11px;margin-top:2px">📍 ${l.visitor.location}</div>` : "";
+    const co  = l.visitor.business_name ? `<div style="font-size:12px;margin-top:2px">${l.visitor.business_name}</div>` : "";
     const fav = `<button class="favorite-btn ${l.is_favorite ? 'active' : ''}"
       onclick="event.stopPropagation();toggleFavorite('${l.id}',this)"
       style="font-size:20px;padding:0;line-height:1;background:none;border:none;cursor:pointer;
             color:${l.is_favorite ? '#fbbf24' : 'rgba(255,255,255,0.25)'}">
       ${l.is_favorite ? "★" : "☆"}
     </button>`;
-    return `<div style="background:var(--bg2);border:1px solid var(--border);border-radius:13px;
+    return `<div style="background:var(--bg2);border:1px solid var(--ev-border);border-radius:13px;
                         padding:14px 16px;margin-bottom:8px;cursor:pointer;transition:border-color .15s"
                 onclick="openLeadById('${l.id}')"
                 onmouseover="this.style.borderColor='rgba(245,158,11,0.3)'"
@@ -1207,7 +1197,7 @@ async function loadLeads(append = false) {
       </div>
       <div style="display:flex;align-items:center;gap:6px;margin-top:10px;flex-wrap:wrap">
         <span class="badge ${statusBadge(l.status)}">${l.status.replace("_"," ")}</span>
-        <span style="font-size:12px;color:rgba(255,255,255,0.3)">${"⭐".repeat(l.interest_rating||0)}</span>
+       <!-- <span style="font-size:12px;color:rgba(255,255,255,0.3)">${"⭐".repeat(l.interest_rating||0)}</span>-->
         ${l.follow_up_date ? `<span style="font-size:11px;background:rgba(108,99,255,0.15);color:#a5b4fc;padding:2px 8px;border-radius:10px">📅 ${l.follow_up_date}</span>` : ""}
         <span style="font-size:11px;color:rgba(255,255,255,0.3);margin-left:auto">${timeAgo(l.scanned_at)}</span>
       </div>
@@ -1295,32 +1285,30 @@ async function openLeadById(id) {
           <button class="temp-btn temp-cold${l.temperature==='cold'?' sel':''}" onclick="updateLeadField('temperature','cold',this,'tb2-cold')"> Cold</button>
         </div>
       </div>
-      <div style="margin-bottom:12px">
+      <!--<div style="margin-bottom:12px">
         <div style="font-size:12px;color:var(--text2);margin-bottom:8px">Interest Rating</div>
         <div class="rate-stars" id="stars">${[1,2,3,4,5].map(n=>`<span class="star${n<=(l.interest_rating||0)?' on':''}" onclick="setRating(${n})">⭐</span>`).join("")}</div>
-      </div>
+      </div>-->
       <div style="margin-bottom:12px">
         <div style="font-size:12px;color:var(--text2);margin-bottom:6px">Status</div>
         <select class="status-sel" onchange="updateLeadField('status',this.value,null,'')">
           ${["new","contacted","interested","follow_up","converted","lost"].map(s=>`<option value="${s}"${l.status===s?' selected':''}>${s.replace("_"," ")}</option>`).join("")}
         </select>
       </div>
-      <div style="margin-bottom:4px">
+      <!--<div style="margin-bottom:4px">
         <div style="font-size:12px;color:var(--text2);margin-bottom:4px">Follow-up Date</div>
         <input type="date" value="${l.follow_up_date||''}" style="background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:8px;padding:8px 12px;color:#fff;font-size:14px;outline:none;width:100%" onchange="updateLeadField('follow_up_date',this.value)">
-      </div>
+      </div>-->
     </div>
     <div class="detail-card">
       <div class="detail-section">Notes & Remarks</div>
       <textarea class="note-area" id="lead-notes" rows="3" placeholder="Add notes about this lead…">${l.notes||""}</textarea>
-      <textarea class="note-area" id="lead-remarks" rows="2" placeholder="Remarks / requirements…" style="margin-top:8px">${l.remarks||""}</textarea>
-      <button class="btn-save" onclick="saveNotes()">💾 Save Notes</button>
+      <button class="btn-save" onclick="saveNotes()"> Save Notes</button>
     </div>
     <div class="detail-card">
-      <div class="detail-section">Actions</div>
       <div class="action-grid">
-        <button class="a-btn a-btn-call" onclick="window.location.href='tel:+91${v.mobile_number.replace(/\D/g, '').replace(/^91/, '')}'">📞 Call</button>
-        <button class="a-btn a-btn-wa" onclick="openWa()">💬 WhatsApp</button>
+        <button class="a-btn a-btn-call" onclick="window.location.href='tel:+91${v.mobile_number.replace(/\D/g, '').replace(/^91/, '')}'"> Call</button>
+        <button class="a-btn a-btn-wa" onclick="openWa()"> WhatsApp</button>
       </div>
     </div>
   `;
