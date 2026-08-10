@@ -2208,6 +2208,7 @@
           <button class="btn btn-primary btn-sm" onclick="refreshEventStalls()">↻ Refresh</button>
           <button class="btn btn-primary btn-sm" onclick="openBulkStallModal('${e.id}')" ${e.completed ? "disabled" : ""}>+ Add Stalls</button>
           <button class="btn btn-primary btn-sm" onclick="openModal('m-import-stalls', '${e.id}')" ${e.completed ? "disabled" : ""}>+ Bulk Upload</button>
+          <button class="btn btn-o btn-sm" onclick="exportEventStalls('${e.id}')">⬇ Export</button>
         </div>
       </div>
       <div id="import-progress" style="display:none; padding: 10px;">
@@ -2241,6 +2242,7 @@
             onblur="this.style.borderColor='var(--border)'"
           >
           <button class="btn btn-primary btn-sm" onclick="refreshEventVisitors()">↻ Refresh</button>
+          <button class="btn btn-o btn-sm" onclick="exportEventVisitors('${e.id}')">⬇ Export</button>
         </div>
       </div>
       <div id="event-visitors-table">
@@ -3214,6 +3216,63 @@
             </div>`;
 
       openModal("m-visitor-qr");
+    }
+
+    async function downloadExcel(url, defaultFilename) {
+      const response = await fetch(url, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+
+      if (!response.ok) {
+        toast("Export failed", "error");
+        return;
+      }
+
+      const blob = await response.blob();
+
+      let filename = defaultFilename;
+
+      const disposition = response.headers.get("Content-Disposition");
+
+      if (disposition) {
+        const match = disposition.match(/filename="?([^"]+)"?/);
+        if (match) {
+          filename = match[1];
+        }
+      }
+
+      const urlObject = window.URL.createObjectURL(blob);
+
+      const a = document.createElement("a");
+      a.href = urlObject;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+
+      window.URL.revokeObjectURL(urlObject);
+    }
+
+    async function exportEventVisitors(eid) {
+      const search = document.getElementById("visitor-search-inp").value || "";
+
+      const url =
+        `/api/v1/super_admin/events/${eid}/visitors/export_visitors_excel` +
+        `?search=${encodeURIComponent(search)}`;
+
+      await downloadExcel(url, "visitors.xlsx");
+    }
+
+    async function exportEventStalls(eid) {
+      const search = document.getElementById("stall-search-inp").value || "";
+
+      const url =
+        `/api/v1/super_admin/events/${eid}/stall_owners/export_stalls_excel` +
+        `?search=${encodeURIComponent(search)}`;
+
+      await downloadExcel(url, "stalls.xlsx");
     }
   </script>
   <script>

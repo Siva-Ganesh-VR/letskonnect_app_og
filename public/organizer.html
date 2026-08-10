@@ -2023,26 +2023,12 @@
       renderListPagination('visitors-pagination', visitorsListState.page, visitorsListState.total, visitorsListState.perPage, 'visitors');
     }
 
-    async function exportVisitors() {
-      const eid = document.getElementById("visitor-event-sel").value;
-      const search = document.getElementById("visitor-search").value || "";
-      let response;
-
-      if (eid === 'all') {
-        response = await fetch(`/api/v1/organizer/export_visitors_excel?search=${encodeURIComponent(search)}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        });
-      } else {
-        response = await fetch(`/api/v1/organizer/events/${eid}/visitors/export_visitors_excel?search=${encodeURIComponent(search)}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        });
-      }
+    async function downloadExcel(url, defaultFilename) {
+      const response = await fetch(url, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
 
       if (!response.ok) {
         toast("Export failed", "error");
@@ -2051,30 +2037,62 @@
 
       const blob = await response.blob();
 
-      // Get filename from Rails if present
-      let filename;
-      if (eid === "all") {
-        filename = "all_organizer_visitors.xlsx";
-      } else {
-        filename = "visitors.xlsx";
-      }
-      
+      let filename = defaultFilename;
+
       const disposition = response.headers.get("Content-Disposition");
+
       if (disposition) {
         const match = disposition.match(/filename="?([^"]+)"?/);
-        if (match) filename = match[1];
+        if (match) {
+          filename = match[1];
+        }
       }
 
-      const url = window.URL.createObjectURL(blob);
+      const urlObject = window.URL.createObjectURL(blob);
 
       const a = document.createElement("a");
-      a.href = url;
+      a.href = urlObject;
       a.download = filename;
       document.body.appendChild(a);
       a.click();
       a.remove();
 
-      window.URL.revokeObjectURL(url);
+      window.URL.revokeObjectURL(urlObject);
+    }
+
+    async function exportVisitors() {
+      const eid = document.getElementById("visitor-event-sel").value;
+      const search = document.getElementById("visitor-search").value || "";
+
+      let url;
+
+      if (eid === "all") {
+        url = `/api/v1/organizer/export_visitors_excel?search=${encodeURIComponent(search)}`;
+        await downloadExcel(url, "all_organizer_visitors.xlsx");
+      } else {
+        url = `/api/v1/organizer/events/${eid}/visitors/export_visitors_excel?search=${encodeURIComponent(search)}`;
+        await downloadExcel(url, "visitors.xlsx");
+      }
+    }
+
+    async function exportEventVisitors(eid) {
+      const search = document.getElementById("visitor-search-inp").value || "";
+
+      const url =
+        `/api/v1/organizer/events/${eid}/visitors/export_visitors_excel` +
+        `?search=${encodeURIComponent(search)}`;
+
+      await downloadExcel(url, "visitors.xlsx");
+    }
+
+    async function exportEventStalls(eid) {
+      const search = document.getElementById("stall-search-inp").value || "";
+
+      const url =
+        `/api/v1/organizer/events/${eid}/stall_owners/export_stalls_excel` +
+        `?search=${encodeURIComponent(search)}`;
+
+      await downloadExcel(url, "stalls.xlsx");
     }
 
     // ── Analytics ─────────────────────────────────────────────────────────────
@@ -2658,6 +2676,7 @@
           <button class="btn btn-p btn-sm" onclick="refreshEventStalls()">↻ Refresh</button>
           <button class="btn btn-g" onclick="openBulkStallModal()" ${e.status === 'draft' || e.completed ? 'disabled style="opacity:0.5;cursor:not-allowed"' : ''}>+ Add Stalls</button>
           <button class="btn btn-g" onclick="openModal('m-import-stalls')" ${e.status === 'draft' || e.completed ? 'disabled style="opacity:0.5;cursor:not-allowed"' : ''}>+ Bulk Upload</button>
+          <button class="btn btn-o btn-sm" onclick="exportEventStalls('${e.id}')">⬇ Export</button>
         </div>
       </div>
       <div id="oimport-progress" style="display:none; padding: 10px;">
@@ -2691,6 +2710,7 @@
             onblur="this.style.borderColor='var(--border)'"
           >
           <button class="btn btn-p btn-sm" onclick="refreshEventVisitors()">↻ Refresh</button>
+          <button class="btn btn-o btn-sm" onclick="exportEventVisitors('${e.id}')">⬇ Export</button>
         </div>
       </div>
       <div id="event-visitors-table">

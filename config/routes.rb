@@ -82,6 +82,7 @@ Rails.application.routes.draw do
             collection do
               post :bulk_create
               post :bulk_upload
+              get  :export_stalls_excel
             end
           end
           resources :visitors, only: [:index, :show] do
@@ -126,6 +127,9 @@ Rails.application.routes.draw do
         delete "events/:event_id/lucky_draw_results/:id",          to: "lucky_draw_results#destroy"
         patch  "events/:event_id/lucky_draw_results/forced_winner",to: "lucky_draw_results#set_forced_winner"
         get    "events/:event_id/lucky_draw_results/forced_winner",to: "lucky_draw_results#forced_winner"
+
+        get  "events/:event_id/stall_owners/export_stalls_excel", to: "stall_owners#export_stalls_excel"
+        get  "events/:event_id/visitors/export_visitors_excel", to: "visitors#export_visitors_excel"
 
         resources :event_organizers do
           member { patch :activate; patch :deactivate; post :reset_password; get :events }

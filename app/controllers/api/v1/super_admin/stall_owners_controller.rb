@@ -186,7 +186,59 @@ module Api
           }
         end
 
+        def export_stalls_excel
+          stall_owners = ::StallOwner.includes(:event).order(created_at: :desc)
+          stall_owners = stall_owners.where(event_id: params[:event_id]) if params[:event_id].present?
+
+          if params[:search].present?
+            q = "%#{params[:search]}%"
+            stall_owners = stall_owners.where(
+              "name ILIKE ? OR company_name ILIKE ? OR mobile_number ILIKE ?",
+              q, q, q
+            )
+          end
+
+          package = Axlsx::Package.new
+          workbook = package.workbook
+
+          workbook.add_worksheet(name: "StallOwners") do |sheet|
+            sheet.add_row [
+              "#", "Stall Code", "Name", "Company", "Stall No.",
+              "Stall Type", "Stall Size", "Stall Category",
+              "Price", "Email", "Mobile", "Website", "Pass Code"
+            ]
+
+            stall_owners.each_with_index do |s, i|
+              sheet.add_row [
+                i + 1,
+                s.stall_code,
+                s.name,
+                s.company_name,
+                s.stall_number,
+                s.stall_type,
+                s.stall_size,
+                s.stall_category,
+                s.price,
+                s.email,
+                s.mobile_number,
+                s.website,
+                s.pass_code
+              ]
+            end
+
+            sheet.column_widths 4, 16, 25, 14, 28, 28, 20, 18, 15, 15, 28, 18, 18
+          end
+
+          filename = "stall_onwers_#{stall_owners.first.event.name.parameterize}_#{Date.current}.xlsx"
+          send_data(
+            package.to_stream.read,
+            filename: filename,
+            type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+          )
+        end
+
         private
+
         def set_stall
           @stall = ::StallOwner.find(params[:id])
         end
