@@ -114,7 +114,8 @@ module Api
             event_name:        v.event&.name&.titleize      || "",   # ← nil safe
             registered_at:     v.created_at,
             is_favorite:       lead&.is_favorite            || false,
-            completed:         v.event&.completed?          || false # ← nil safe
+            completed:         v.event&.completed?          || false, # ← nil safe
+            qr_image_url:      v.qr_image_url
           }
         end
       end

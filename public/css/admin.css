@@ -21,7 +21,7 @@
 
     } */
 
-      :root {
+    :root {
       --bg: #0D1117;
       --bg2: #111827;
       --bg3: #161B22;
@@ -877,17 +877,18 @@
       transition: 0.25s ease;
     }
 
-    .switch input:checked + .slider {
+    .switch input:checked+.slider {
       background: #22c55e;
     }
 
-    .switch input:checked + .slider::before {
+    .switch input:checked+.slider::before {
       transform: translateX(22px);
     }
 
-    .switch input:focus + .slider {
+    .switch input:focus+.slider {
       box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.2);
     }
+
     .radio-group {
       display: flex;
       gap: 20px;
@@ -905,4 +906,18 @@
 
     .radio-option input[type="radio"] {
       margin: 0;
+    }
+
+    /* QR */
+    .qr-box {
+      background: #fff;
+      border-radius: 12px;
+      padding: 14px;
+      display: inline-block
+    }
+
+    .qr-box img {
+      width: 160px;
+      height: 160px;
+      display: block
     }
