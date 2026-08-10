@@ -30,6 +30,13 @@ module Api
         end
 
         def create
+          if params[:event_organizer_id].blank?
+            return json_error(
+              "Event organizer is required",
+              status: :unprocessable_entity
+            )
+          end
+
           organizer = EventOrganizer.find(params[:event_organizer_id])
           event = organizer.events.create!(event_params)
           json_success(event_detail(event), status: :created)
