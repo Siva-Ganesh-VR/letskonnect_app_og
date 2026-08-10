@@ -12,6 +12,7 @@ class Visitor < ApplicationRecord
   before_create :generate_qr_token
   after_create  :enqueue_qr_generation
   # after_save    :enqueue_whatsapp_on_verification, if: :saved_change_to_mobile_verified?
+  after_create_commit :increment_event_registered_count
 
   OTP_EXPIRY_MINUTES = 10
   MAX_OTP_ATTEMPTS   = 5
@@ -113,5 +114,9 @@ class Visitor < ApplicationRecord
 
   def registration_completed?
     whatsapp_state == "completed"
+  end
+
+  def increment_event_registered_count
+    event.increment!(:registered_count)
   end
 end
