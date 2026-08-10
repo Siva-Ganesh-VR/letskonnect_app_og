@@ -49,6 +49,8 @@ class StallOwnerImportJob < ApplicationJob
         stall_size: row["stall_size"]&.strip,
         price: row["price"]&.strip,
         email: row["email"]&.strip,
+        food_coupon_count: row["food_coupon_count"]&.strip,
+        website: row["website"]&.strip,
         password: generated_password,
         password_confirmation: generated_password,
         event_id: event_id
