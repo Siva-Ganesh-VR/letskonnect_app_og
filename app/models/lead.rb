@@ -64,6 +64,6 @@ class Lead < ApplicationRecord
   end
 
   def enqueue_visitor_notification
-    WhatsappNotificationJob.perform_later(visitor_id, "stall_visit", stall_owner_id)
+    WhatsappNotificationJob.perform_later(visitor_id, "stall_visit", stall_owner_id) if event.whatsapp_enabled?
   end
 end

@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/png" href="favicon.png">
+<title>Organizer Login — StallConnect</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#0f0f1a;--bg2:#1a1a2e;--bg3:#16213e;--accent:#22c55e;--accent2:#16a34a;--purple:#6c63ff;--text:#fff;--text2:rgba(255,255,255,0.6);--text3:rgba(255,255,255,0.3);--border:rgba(255,255,255,0.08)}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+/* Login — identical to login.html */
+.login-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;background:var(--bg);padding:20px}
+.login-card{background:var(--bg2);border:1px solid var(--border);border-radius:20px;padding:40px 36px;width:100%;max-width:420px}
+.login-back{display:inline-flex;align-items:center;gap:6px;color:var(--text2);font-size:13px;text-decoration:none;margin-bottom:24px;transition:color 0.2s}
+.login-back:hover{color:var(--accent)}
+.login-logo{margin-bottom:15px;display:flex;justify-content:center;align-items:center;}
+.login-logo img{max-width:225px;width:100%;height:auto;object-fit:contain;}
+.field{margin-bottom:16px}
+.field label{display:block;font-size:13px;font-weight:500;color:var(--text2);margin-bottom:6px}
+.field input{width:100%;background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:10px;padding:12px 14px;color:var(--text);font-size:15px;outline:none;transition:all 0.2s}
+.field input:focus{border-color:var(--accent);background:rgba(34,197,94,0.06)}
+.field input::placeholder{color:var(--text3)}
+.btn-primary{width:100%;padding:13px;background:var(--accent);color:#fff;border:none;border-radius:11px;font-size:15px;font-weight:600;cursor:pointer;transition:all 0.2s;margin-top:4px}
+.btn-primary:hover{background:var(--accent2)}
+.btn-primary:disabled{opacity:0.5;cursor:not-allowed}
+.err{background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);border-radius:8px;padding:10px 14px;font-size:13px;color:#fca5a5;margin-top:10px;display:none}
+/* Stall owner link */
+.stall-link{margin-top:20px;text-align:center;font-size:13px;color:var(--text3)}
+.stall-link a{color:var(--accent);text-decoration:none;font-weight:600}
+.stall-link a:hover{text-decoration:underline}
+</style>
+</head>
+<body>
+
+<div class="login-wrap">
+  <div class="login-card">
+    <a href="/" class="login-back">← Back to Home</a>
+
+    <div class="login-logo">
+      <div>
+        <img src="logo_dark.png" />
+      </div>
+    </div>
+
+    <!-- Organizer Form -->
+    <div id="organizer-form">
+      <div class="field">
+        <label>Email Address</label>
+        <input
+          type="email"
+          id="org-email"
+          placeholder="organizer@techfest.com"
+        >
+      </div>
+
+      <div class="field">
+        <label>Password</label>
+        <input
+          type="password"
+          id="org-password"
+          placeholder="Enter password"
+          onkeydown="if(event.key==='Enter')loginOrganizer()"
+        >
+      </div>
+    </div>
+
+    <div id="login-err" class="err"></div>
+
+    <button class="btn-primary" onclick="loginOrganizer()" id="login-btn">
+      Sign In
+    </button>
+
+    <!-- Stall owner link -->
+    <div class="stall-link">
+      Stall Owner? <a href="/login.html">Sign in here →</a>
+    </div>
+
+  </div>
+</div>
+
+<script>
+async function loginOrganizer() {
+  const email    = document.getElementById("org-email").value.trim();
+  const password = document.getElementById("org-password").value;
+  const errorEl  = document.getElementById("login-err");
+  const loginBtn = document.getElementById("login-btn");
+
+  errorEl.style.display = "none";
+
+  try {
+    loginBtn.disabled    = true;
+    loginBtn.textContent = "Signing In...";
+
+    const response = await fetch("/api/v1/organizer/sign_in", {
+      method:  "POST",
+      headers: { "Content-Type": "application/json" },
+      body:    JSON.stringify({ email, password })
+    });
+
+    const result = await response.json();
+
+    if (!response.ok || !result.success) {
+      throw new Error(result.error || "Invalid credentials");
+    }
+
+    sessionStorage.setItem("org_token", result.data.token);
+    sessionStorage.setItem("org_user",  JSON.stringify(result.data.organizer));
+    sessionStorage.setItem("user_type", "organizer");
+
+    window.location.replace("organizer.html");
+
+  } catch(error) {
+    errorEl.style.display = "block";
+    errorEl.textContent   = error.message;
+  } finally {
+    loginBtn.disabled    = false;
+    loginBtn.textContent = "Sign In";
+  }
+}
+
+function getLoggedInUser() {
+  if (sessionStorage.getItem("org_token")) {
+    return { type: "organizer", token: sessionStorage.getItem("org_token") };
+  }
+  return null;
+}
+
+function redirectIfLoggedIn() {
+  const user = getLoggedInUser();
+  if (!user) return;
+  if (user.type === "organizer") window.location.replace("organizer.html");
+}
+
+document.addEventListener("DOMContentLoaded", redirectIfLoggedIn);
+window.addEventListener("pageshow", () => { redirectIfLoggedIn(); });
+</script>
+
+</body>
+</html>

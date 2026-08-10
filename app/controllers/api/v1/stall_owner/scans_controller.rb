@@ -101,7 +101,7 @@ module Api
           ActiveRecord::Base.transaction do
             visitor.save!
 
-            WhatsappNotificationJob.perform_later(visitor.id, "visitor_registration")
+            WhatsappNotificationJob.perform_later(visitor.id, "visitor_registration") if event.whatsapp_enabled?
 
             lead = Lead.find_by(visitor_id: visitor.id, stall_owner_id: stall_owner.id)
 
