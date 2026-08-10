@@ -70,7 +70,7 @@
         <div class="nav-item" onclick="showPage('stall-metadata')"><i class="ti ti-clipboard-list"></i> Stall Metadata</div>
         <div class="nav-item" onclick="showPage('requested-events')"><i class="ti ti-calendar-event"></i> Requested Events
         </div>
-        <div class="nav-item" onclick="showPage('visitors')"><i class="ti ti-user"></i> Visitors Visitors</div>
+        <div class="nav-item" onclick="showPage('visitors')"><i class="ti ti-user"></i> Visitors</div>
         <!--<div class="nav-item" onclick="showPage('leads')"><span class="nav-icon">🎯</span> Leads</div>
       <div class="nav-section">Tools</div>
       <div class="nav-item" onclick="showPage('analytics')"><span class="nav-icon">📊</span> Analytics</div>-->
@@ -1156,6 +1156,10 @@
       const modal = document.getElementById("modal-create-event");
       const eventId = modal.dataset.eventId; // check if edit mode
 
+      if (!validateEventForm()) {
+        return;
+      }
+
       const body = {
         event_organizer_id: document.getElementById("ef-organizer").value,
         event: {
@@ -1202,7 +1206,13 @@
         resetEventForm();
       } else {
         err.style.display = "block";
-        err.textContent = res.errors || (res.errors || []).join(", ");
+        if (res.errors) {
+          err.textContent = res.errors || (res.errors || []).join(", ");
+        } else if (res.error) {
+          err.textContent = res.error;
+        } else {
+          err.textContent = "Something went wrong";
+        }
       }
     }
 
@@ -3073,6 +3083,60 @@
       if (!foodCoupon.checked) {
         countInput.value = "";
       }
+    }
+
+    function validateEventForm() {
+      const err = document.getElementById("event-form-err");
+      err.style.display = "block";
+      const eventName = document.getElementById("ef-name").value.trim();
+      const venue = document.getElementById("ef-venue").value.trim();
+      const eventOrganizerId = document.getElementById("ef-organizer").value;
+      const startDate = document.getElementById("ef-start").value;
+      const endDate = document.getElementById("ef-end").value;
+
+      // 1. Event Name
+      if (!eventName) {
+        err.textContent = "Event name is required";
+        document.getElementById("ef-name").focus();
+        return false;
+      }
+
+      // 2. Venue
+      if (!venue) {
+        err.textContent = "Venue is required";
+        document.getElementById("ef-venue").focus();
+        return false;
+      }
+
+      // 3. Event Organizer
+      if (!eventOrganizerId) {
+        err.textContent = "Event organizer is required";
+        document.getElementById("ef-organizer").focus();
+        return false;
+      }
+
+      // 4. Start Date
+      if (!startDate) {
+        err.textContent = "Start date is required";
+        document.getElementById("ef-start").focus();
+        return false;
+      }
+
+      // 5. End Date
+      if (!endDate) {
+        err.textContent = "End date is required";
+        document.getElementById("ef-end").focus();
+        return false;
+      }
+
+      // End date should not be before start date
+      if (new Date(endDate) < new Date(startDate)) {
+        err.textContent = "End date cannot be before start date";
+        document.getElementById("ef-end").focus();
+        return false;
+      }
+
+      return true;
     }
   </script>
   <script>
