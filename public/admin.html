@@ -2146,7 +2146,7 @@
       <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:16px">
         <div>
           <div style="font-size:18px;font-weight:800;color:var(--text)">${e.name}</div>
-          <div style="font-size:13px;color:var(--text2);margin-top:4px">📍 ${e.venue}${e.city ? ", " + e.city : ""}</div>
+          <div style="font-size:13px;color:var(--text2);margin-top:4px"><i class="ti ti-location"></i> ${e.venue}${e.city ? ", " + e.city : ""}</div>
         </div>
         <div style="display:flex;align-items:center;gap:8px">
           <span style="background:${statusColor}1a;color:${statusColor};border:1.5px solid ${statusColor}40;border-radius:20px;padding:4px 14px;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.04em">${e.status.replace(/_/g, " ")}</span>
@@ -2155,22 +2155,22 @@
       </div>
       
       <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px">
-        ${detailChip("📅 Start Date", fmtDate(e.start_date))}
-        ${detailChip("📅 End Date", fmtDate(e.end_date))}
-        ${detailChip("👥 Visitors", (e.registered_count || 0).toLocaleString())}
-        ${detailChip("🏪 Max Capacity", e.max_visitors ? e.max_visitors.toLocaleString() : "Unlimited")}
-        ${detailChip("🏢 Organizer", e.organizer?.name || "—")}
-        ${detailChip("🆔 Event Code", `<span style="font-family:monospace;font-size:11px">${e.event_code}</span>`)}
-        ${detailChip("🍽️ Food Coupon", e.food_coupon ? "Yes" : "No")}
-        ${detailChip("🍽️ Food Coupon Count", e.food_coupon_count || "—")}
-        ${detailChip("💬 Collect Visitor Info", e.collect_visitor_info == "web_form" ? "Web Form" : "Whatsapp")}
+        ${detailChip(" Start Date", fmtDate(e.start_date))}
+        ${detailChip(" End Date", fmtDate(e.end_date))}
+        ${detailChip(" Visitors", (e.registered_count || 0).toLocaleString())}
+        ${detailChip(" Max Capacity", e.max_visitors ? e.max_visitors.toLocaleString() : "Unlimited")}
+        ${detailChip(" Organizer", e.organizer?.name || "—")}
+        ${detailChip(" Event Code", `<span style="font-family:monospace;font-size:11px">${e.event_code}</span>`)}
+        ${detailChip(" Food Coupon", e.food_coupon ? "Yes" : "No")}
+        ${detailChip(" Food Coupon Count", e.food_coupon_count || "—")}
+        ${detailChip(" Collect Visitor Info", e.collect_visitor_info == "web_form" ? "Web Form" : "Whatsapp")}
       </div>
       ${e.description ? `<div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border);font-size:14px;color:var(--text2);line-height:1.6">${e.description}</div>` : ""}
       <div style="display:flex;gap:8px;margin-top:16px;padding-top:14px;border-top:1px solid var(--border);flex-wrap:wrap">
-        <button class="btn btn-primary btn-sm qr-blink" onclick='showEventQr("${e.id}","${e.name}","${e.qr_image_url || ""}","${e.registration_qr_token || ""}")' ${e.completed ? "disabled" : ""}>📱 View QR Code</button>
-        <button class="btn btn-primary btn-sm qr-blink" onclick='showEventBniQr("${e.id}","${e.name}","${e.bni_qr_image_url || ""}","${e.bni_registration_qr_token || ""}")' ${e.completed ? "disabled" : ""}>📱 View BNI QR Code</button>
-        <button class="btn btn-outline btn-sm" onclick='openLuckyDrawPage("${e.id}","${e.name}")' style="background:linear-gradient(135deg,rgba(245,158,11,.15),rgba(217,119,6,.08));border-color:rgba(245,158,11,.4);color:#f59e0b" ${e.completed ? "disabled" : ""}>🎰 Lucky Draw</button>
-        <button class="btn btn-outline btn-sm" onclick='showEventAnalytics("${e.id}","${e.name}")'>📊 Analytics</button>
+        <button class="btn btn-primary btn-sm qr-blink" onclick='showEventQr("${e.id}","${e.name}","${e.qr_image_url || ""}","${e.registration_qr_token || ""}")' ${e.completed ? "disabled" : ""}> View QR Code</button>
+        <button class="btn btn-primary btn-sm qr-blink" onclick='showEventBniQr("${e.id}","${e.name}","${e.bni_qr_image_url || ""}","${e.bni_registration_qr_token || ""}")' ${e.completed ? "disabled" : ""}> View BNI QR Code</button>
+        <button class="btn btn-outline btn-sm" onclick='openLuckyDrawPage("${e.id}","${e.name}")' style="background:linear-gradient(135deg,rgba(245,158,11,.15),rgba(217,119,6,.08));border-color:rgba(245,158,11,.4);color:#f59e0b" ${e.completed ? "disabled" : ""}> Lucky Draw</button>
+        <button class="btn btn-outline btn-sm" onclick='showEventAnalytics("${e.id}","${e.name}")'> Analytics</button>
         <button class="btn btn-outline btn-sm" onclick='openEditEventModalById("${e.id}")' ${e.completed ? "disabled" : ""}>✏️ Edit Event</button>
         ${
           e.status === "active"
