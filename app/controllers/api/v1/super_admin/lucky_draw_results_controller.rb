@@ -34,7 +34,12 @@ module Api
           # Fall back to random if no forced winner or forced visitor not found
           unless winner
             pool = visitors.where.not(id: already_won_ids)
-            pool = visitors if pool.empty?
+            if pool.empty?
+              return json_error(
+                "All #{visitors.count} registered visitor(s) have already won. " \
+                "Clear the results to start a new draw."
+              )
+            end
             winner = pool.order("RANDOM()").first
           end
 
