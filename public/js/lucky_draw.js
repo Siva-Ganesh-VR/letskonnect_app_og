@@ -190,10 +190,31 @@ window.ldSpin = function() {
   var spinDuration = 3500 + Math.random() * 1000;
   var apiResult = null, apiDone = false, animDone = false;
 
+  // function tryReveal() {
+  //   if (!apiDone || !animDone) return;
+  //   if (pw) pw.style.display = "none";
+  //   if (apiResult) {
+  //     ldRevealWinner(apiResult);
+  //     ldFireConfetti();
+  //     ldLoadHistory();
+  //   }
+  //   LD.spinning = false;
+  //   if (btn) { btn.disabled = false; btn.innerHTML = "🎲 Spin Again"; }
+  // }
   function tryReveal() {
     if (!apiDone || !animDone) return;
     if (pw) pw.style.display = "none";
     if (apiResult) {
+      // Safety check — warn if backend returned a duplicate winner
+      var existingRounds = (LD.pastWinnerIds || []);
+      var winnerId = apiResult.visitor && (apiResult.visitor.id || apiResult.visitor.visitor_id_code);
+      if (winnerId && existingRounds.indexOf(winnerId) !== -1) {
+        var status = document.getElementById("ld-spin-status");
+        if (status) status.textContent = "⚠️ This visitor already won — please spin again.";
+        LD.spinning = false;
+        if (btn) { btn.disabled = false; btn.innerHTML = "🎲 Spin Again"; }
+        return;
+      }
       ldRevealWinner(apiResult);
       ldFireConfetti();
       ldLoadHistory();
@@ -201,6 +222,7 @@ window.ldSpin = function() {
     LD.spinning = false;
     if (btn) { btn.disabled = false; btn.innerHTML = "🎲 Spin Again"; }
   }
+
 
   fetch(ldBase() + "/" + eventId + "/lucky_draw_results", {
     method: "POST",
@@ -264,6 +286,9 @@ window.ldLoadHistory = function() {
   .then(function(r) { return r.json(); })
   .then(function(res) {
     var results = (res.data || []).slice().reverse(); // latest first
+    LD.pastWinnerIds = results.map(function(r) {
+      return r.visitor && (r.visitor.id || r.visitor.visitor_id_code);
+    });
     if (badge) badge.textContent = results.length ? results.length + (results.length > 1 ? " winners" : " winner") : "";
     if (!results.length) {
       el.innerHTML = '<div style="color:rgba(255,255,255,.3);font-size:13px;text-align:center;padding:24px 0">' + (ldEventEnded() ? "No draws were run for this event." : "No winners yet — spin the wheel to start!") + '</div>';
