@@ -109,8 +109,8 @@
     <div class="ev-title" id="event-name-display" style="display:hidden">Aathirai Azhaikiraal Expo 2026</div>
         <div class="ev-title" id="sb-event"></div>
 
-    <div class="ev-meta"><i class="ti ti-map-pin"></i><span id="ev-venue">Chennai Trade Centre</span></div>
-    <div class="ev-meta"><i class="ti ti-tag"></i><span id="ev-stall">Stall S22</span><span class="ev-dot"></span><span id="ev-day">Day 2 of 3</span></div>
+    <div class="ev-meta"><i class="ti ti-category-2"></i><span id="ev-category">Chennai Trade Centre</span></div>
+    <div class="ev-meta"><i class="ti ti-tag"></i><span id="ev-stall">Stall S22</span></div>
   </div>
 
 </div>
@@ -855,8 +855,11 @@ async function loadDashboard(eventId = null) {
   if (!res.success) return;
   const s   = res.data.summary;
   const sOwner = res.data.stall_owner;
-  document.getElementById("event-name-display").textContent = (sOwner.name || "") + " - " + (sOwner.company_name || "") + " - Stall " + sOwner.stall_number +  " - " + sOwner.event_name;
-
+  // document.getElementById("event-name-display").textContent = (sOwner.name || "") + " - " + (sOwner.company_name || "") + " - Stall " + sOwner.stall_number +  " - " + sOwner.event_name;
+  document.getElementById("event-name-display").textContent = (sOwner.name || "") + " - " + (sOwner.company_name || "") 
+  document.getElementById("ev-stall").textContent = ("Stall " + sOwner.stall_number || "");
+  document.getElementById("ev-category").textContent = (sOwner.stall_category || "");
+// ev-stall
   updateStallOwner(sOwner);
   document.getElementById("stat-total").textContent = s.total;
   document.getElementById("stat-today").textContent = s.today;
