@@ -55,7 +55,7 @@ module Api
           stall.password = stall.password_confirmation = password
 
           if stall.save
-            WhatsappNotificationJob.perform_later(stall.id, "stall_credentials", password)
+            WhatsappNotificationJob.perform_later(stall.id, "stall_credentials", password) if @event.whatsapp_enabled?
             json_success(stall_response(stall), status: :created)
           else
             json_error("Could not create stall", errors: stall.errors.full_messages)
@@ -93,7 +93,7 @@ module Api
           end
           new_password = SecureRandom.alphanumeric(10)
           stall.update!(password: new_password)
-          WhatsappNotificationJob.perform_later(stall.id, "stall_credentials", new_password)
+          WhatsappNotificationJob.perform_later(stall.id, "stall_credentials", new_password) if stall.event.whatsapp_enabled?
           json_success({ message: "Credentials sent via WhatsApp" })
         end
 
