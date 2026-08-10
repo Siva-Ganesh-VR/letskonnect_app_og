@@ -1,10 +1,21 @@
 class Rack::Attack
-  safelist("load-test-ip") do |req|
-    req.ip == "123.176.34.73"   # ← replace with your actual IP
-  end
+  # safelist("load-test-ip") do |req|
+  #   req.ip == "123.176.34.73"   # ← replace with your actual IP
+  # end
   Rack::Attack.cache.store = ActiveSupport::Cache::RedisCacheStore.new(
     url: ENV.fetch("REDIS_URL", "redis://localhost:6379/1")
   )
+
+  # ── Safelists ──────────────────────────────────────────────────────────────
+
+  # Health check — never throttle
+  safelist("health_check") do |req|
+    req.path == "/health"
+  end
+
+  # ── OTP rate limits ────────────────────────────────────────────────────────
+
+  # OTP request: 5 per mobile per hour (unchanged — per mobile, not per IP)
 
   # OTP request rate: 5 per mobile per hour
   throttle("otp/mobile", limit: 5, period: 1.hour) do |req|
@@ -20,35 +31,30 @@ class Rack::Attack
   end
 
   # Visitor registration: 5 per IP per minute
-  throttle("registrations/ip", limit: 5, period: 1.minute) do |req|
+  throttle("registrations/ip", limit: 200, period: 1.minute) do |req|
     req.ip if req.path.include?("visitors/register") && req.post?
   end
 
-  # QR scan: 120 per auth token per minute (2 scans/sec max)
-  throttle("qr_scan/auth", limit: 120, period: 1.minute) do |req|
+  # QR scan: 150 per auth token per minute (2 scans/sec max)
+  throttle("qr_scan/auth", limit: 150, period: 1.minute) do |req|
     if req.path.include?("scan") && req.post?
       req.env["HTTP_AUTHORIZATION"]&.split(" ")&.last&.first(32)
     end
   end
 
   # General API: 300 requests per minute per IP
-  throttle("api/ip", limit: 300, period: 1.minute) do |req|
+  throttle("api/ip", limit: 1000, period: 1.minute) do |req|
     req.ip if req.path.start_with?("/api/")
   end
 
-  # Login brute force: 10 per IP per 10 minutes
-  throttle("logins/ip", limit: 10, period: 10.minutes) do |req|
+  # Login brute force: 20 per IP per 10 minutes
+  throttle("logins/ip", limit: 20, period: 10.minutes) do |req|
     req.ip if req.path.include?("sign_in") && req.post?
   end
 
   # Block known bad IPs (admin-managed via Redis)
   blocklist("blocked_ips") do |req|
     Rack::Attack.cache.read("blocked_ip:#{req.ip}")
-  end
-
-  # Safelist health check
-  safelist("health_check") do |req|
-    req.path == "/health"
   end
 
   # Custom throttle response

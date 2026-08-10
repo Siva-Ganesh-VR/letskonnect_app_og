@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_08_05_121517) do
+ActiveRecord::Schema[7.2].define(version: 2026_08_10_092332) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pgcrypto"
   enable_extension "plpgsql"
@@ -216,6 +216,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_08_05_121517) do
     t.datetime "updated_at", null: false
     t.index ["created_at"], name: "index_notifications_on_created_at"
     t.index ["event_id"], name: "index_notifications_on_event_id"
+    t.index ["notifiable_type", "notifiable_id", "notification_type"], name: "index_notifications_on_notifiable_and_type"
     t.index ["notifiable_type", "notifiable_id"], name: "index_notifications_on_notifiable_type_and_notifiable_id"
     t.index ["notification_type"], name: "index_notifications_on_notification_type"
     t.index ["status", "retry_count"], name: "index_notifications_on_status_and_retry_count", where: "((status)::text = 'failed'::text)"
@@ -345,6 +346,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_08_05_121517) do
     t.datetime "scanned_at", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["event_id", "scanned_at"], name: "index_visitor_scan_logs_on_event_id_and_scanned_at"
     t.index ["event_id"], name: "index_visitor_scan_logs_on_event_id"
     t.index ["stall_owner_id"], name: "index_visitor_scan_logs_on_stall_owner_id"
     t.index ["visitor_id"], name: "index_visitor_scan_logs_on_visitor_id"
