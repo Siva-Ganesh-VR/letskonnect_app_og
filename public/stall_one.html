@@ -88,10 +88,10 @@
       </select>
     </div>
     <nav class="nav">
-      <div class="nav-item active" onclick="showTab('home',this)"><span class="nav-icon">🏠</span> Dashboard</div>
-      <div class="nav-item" onclick="showTab('scan',this)"><span class="nav-icon">📷</span> Scan</div>
-      <div class="nav-item" onclick="showTab('leads',this)"><span class="nav-icon">🎯</span> Leads</div>
-      <div class="nav-item" onclick="showTab('more',this)"><span class="nav-icon">👥</span> Profile</div>
+      <div class="nav-item active" onclick="showTab('home',this)"><span class="nav-icon"><i class="ti ti-layout-dashboard"></i></span> Dashboard</div>
+      <div class="nav-item" onclick="showTab('scan',this)"><span class="nav-icon"><i class="ti ti-camera"></i></span> Scan</div>
+      <div class="nav-item" onclick="showTab('leads',this)"><span class="nav-icon"><i class="ti ti-list"></i></span> Leads</div>
+      <div class="nav-item" onclick="showTab('more',this)"><span class="nav-icon"><i class="ti ti-user"></i></span> Profile</div>
     </nav>
     <div class="sidebar-foot">
       <button class="logout-btn" onclick="doLogout()">Sign Out</button>
@@ -121,7 +121,7 @@
     <div class="sc-label">Total Leads</div>
     <div class="sc-mid">
       <div class="sc-num" id="stat-total">—</div>
-      <div class="sc-icon sc-purple"><i class="ti ti-users"></i></div>
+      <div class=""><i class="ti ti-users"></i></div>
     </div>
     <!-- <div class="sc-sub">All time</div> -->
   </div>
@@ -130,7 +130,7 @@
     <div class="sc-label">Today's Leads</div>
     <div class="sc-mid">
       <div class="sc-num" id="stat-today">—</div>
-      <div class="sc-icon sc-blue"><i class="ti ti-users"></i></div>
+      <div class=""><i class="ti ti-calendar" ></i></div>
     </div>
     <!-- <div class="sc-sub"><span class="up">↑ 33%</span> vs yesterday</div> -->
   </div>
@@ -139,7 +139,7 @@
     <div class="sc-label">Warm</div>
     <div class="sc-mid">
       <div class="sc-num" id="stat-warm">—</div>
-      <div class="sc-icon sc-orange"><i class="ti ti-clock"></i></div>
+      <div class=""><i class="ti ti-sun" style="color:var(--warm)"></i></div>
     </div>
     <!-- <div class="sc-sub warn">Action needed</div> -->
   </div>
@@ -148,7 +148,7 @@
     <div class="sc-label">Converted</div>
     <div class="sc-mid">
       <div class="sc-num" id="stat-conv">—</div>
-      <div class="sc-icon sc-green"><i class="ti ti-circle-check"></i></div>
+      <div class=""><i class="ti ti-circle-check" style="color:var(--converted)"></i></div>
     </div>
     <!-- <div class="sc-sub ok">This event</div> -->
   </div>
@@ -157,7 +157,7 @@
     <div class="sc-label">Hot Leads</div>
     <div class="sc-mid">
       <div class="sc-num" id="stat-hot">—</div>
-      <div class="sc-icon sc-red"><i class="ti ti-flame"></i></div>
+      <div class=""><i class="ti ti-flame" style="color:var(--hot)"></i></div>
     </div>
     <!-- <div class="sc-sub warn">High interest</div> -->
   </div>
@@ -166,7 +166,7 @@
     <div class="sc-label">Cold Leads</div>
     <div class="sc-mid">
       <div class="sc-num" id="stat-cold">—</div>
-      <div class="sc-icon sc-teal"><i class="ti ti-snowflake"></i></div>
+      <div class=""><i class="ti ti-snowflake" style="color:var(--cold)"></i></div>
     </div>
     <!-- <div class="sc-sub">Needs follow-up</div> -->
   </div>
@@ -205,7 +205,7 @@
           <span style="font-size:13px;font-weight:700;color:var(--text);text-transform:uppercase;letter-spacing:0.06em">Recent Five Leads</span>
         </div>
         <button onclick="showTab('leads',document.getElementById('btab-leads'))"
-          style="background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.25);
+          style="background:white;border:1px solid var(--accent);
                 color:var(--accent);font-size:11px;font-weight:700;cursor:pointer;
                 padding:4px 10px;border-radius:20px">
           View All →
@@ -486,7 +486,7 @@
         <div id="lead-detail-content"></div>
       </div>
       <div id="leads-list-view">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;gap:10px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;gap:190px">
           <div style="font-size:16px;font-weight:700;color:var(--text)">Leads</div>
           <button onclick="showTab('create-lead',document.getElementById('btab-scan'))" class="btn-primary">
             <span>Add Lead</span>
@@ -544,16 +544,16 @@
   <div class="bottom-tabs" id="bottom-tabs">
     <div class="bottom-tabs-inner">
       <button class="btab active" id="btab-home" onclick="showTab('home',this)">
-        <span class="btab-icon">🏠</span>Home
+        <span class="btab-icon"><i class="ti ti-layout-dashboard"></i></span>Home
       </button>
       <button class="btab" id="btab-scan" onclick="showTab('scan',this)">
-        <span class="btab-icon">📷</span>Scan
+        <span class="btab-icon"><i class="ti ti-camera"></i></span>Scan
       </button>
       <button class="btab" id="btab-leads" onclick="showTab('leads',this)">
-        <span class="btab-icon">🎯</span>Leads
+        <span class="btab-icon"><i class="ti ti-list"></i></span>Leads
       </button>
       <button class="btab" id="btab-more" onclick="showTab('more',this)">
-        <span class="btab-icon">👤</span>Profile
+        <span class="btab-icon"><i class="ti ti-user"></i></span>Profile
       </button>
     </div>
   </div>
@@ -897,13 +897,21 @@ async function loadDashboard(eventId = null) {
                 onmouseover="this.style.borderColor='var(--ev-border)'"
                 onmouseout="this.style.borderColor='var(--ev-border)'">
       <div style="display:flex;align-items:flex-start;justify-content:space-between">
-        <div style="flex:1;min-width:0;padding-right:10px">
-          <div style="font-size:15px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${toTitleCase(l.visitor_name)}</div>
-          ${mob}${co}${loc}
-        </div>
+        <div style="display:flex;align-items:flex-start;gap:10px;flex:1;min-width:0;padding-right:10px">
+    
+    <div class="initial">${l.visitor_name.charAt(0).toUpperCase()}</div>
+
+    <div style="min-width:0;text-align:left">
+      <div style="font-size:15px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
+        ${toTitleCase(l.visitor_name)}
+      </div>
+      ${mob}${co}${loc}
+    </div>
+
+  </div>
         <div style="display:flex;flex-direction:column;align-items:flex-end;gap:5px;flex-shrink:0">
-          <span class="badge ${tempBadge(l.temperature)}">${tempEmoji(l.temperature)} ${l.temperature}</span>
-          <span style="font-size:11px;color:rgba(255,255,255,0.3)">${timeAgo(l.scanned_at)}</span>
+          <span class="badge ${tempBadge(l.temperature)}">${tempEmoji(l.temperature)} ${l.temperature.toUpperCase()}</span>
+          <span style="font-size:11px;">${timeAgo(l.scanned_at)}</span>
         </div>
       </div>
     </div>`;
@@ -1174,8 +1182,8 @@ async function loadLeads(append = false) {
     allLeads = newLeads;
   }
   document.getElementById("leads-list").innerHTML = allLeads.length ? allLeads.map(l => {
-    const mob = l.visitor.mobile_number ? `<div style="font-size:12px;margin-top:3px">📱 ${l.visitor.mobile_number}</div>` : "";
-    const loc = l.visitor.location      ? `<div style="font-size:11px;margin-top:2px">📍 ${l.visitor.location}</div>` : "";
+    const mob = l.visitor.mobile_number ? `<div style="font-size:12px;margin-top:3px"> ${l.visitor.mobile_number}</div>` : "";
+    const loc = l.visitor.location      ? `<div style="font-size:11px;margin-top:2px"> ${l.visitor.location}</div>` : "";
     const co  = l.visitor.business_name ? `<div style="font-size:12px;margin-top:2px">${l.visitor.business_name}</div>` : "";
     const fav = `<button class="favorite-btn ${l.is_favorite ? 'active' : ''}"
       onclick="event.stopPropagation();toggleFavorite('${l.id}',this)"
@@ -1185,21 +1193,19 @@ async function loadLeads(append = false) {
     </button>`;
     return `<div style="background:var(--bg2);border:1px solid var(--ev-border);border-radius:13px;
                         padding:14px 16px;margin-bottom:8px;cursor:pointer;transition:border-color .15s"
-                onclick="openLeadById('${l.id}')"
-                onmouseover="this.style.borderColor='rgba(245,158,11,0.3)'"
-                onmouseout="this.style.borderColor='var(--border)'">
+                onclick="openLeadById('${l.id}')">
       <div style="display:flex;align-items:flex-start">
         <div style="flex:1;min-width:0;padding-right:10px">
           <div style="font-size:15px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${toTitleCase(l.visitor.full_name)}</div>
           ${mob}${co}${loc}
         </div>
         <div style="display:flex;flex-direction:column;align-items:flex-end;gap:5px;flex-shrink:0">
-          <span class="badge ${tempBadge(l.temperature)}">${tempEmoji(l.temperature)} ${l.temperature}</span>
+          <span class="badge ${tempBadge(l.temperature)}">${tempEmoji(l.temperature)} ${l.temperature.toUpperCase()}</span>
           ${fav}
         </div>
       </div>
       <div style="display:flex;align-items:center;gap:6px;margin-top:10px;flex-wrap:wrap">
-        <span class="badge ${statusBadge(l.status)}">${l.status.replace("_"," ")}</span>
+        <span class="badge ${statusBadge(l.status)}">${l.status.replace("_"," ").toUpperCase()}</span>
        <!-- <span style="font-size:12px;color:rgba(255,255,255,0.3)">${"⭐".repeat(l.interest_rating||0)}</span>-->
         ${l.follow_up_date ? `<span style="font-size:11px;background:rgba(108,99,255,0.15);color:#a5b4fc;padding:2px 8px;border-radius:10px">📅 ${l.follow_up_date}</span>` : ""}
         <span style="font-size:11px;color:rgba(255,255,255,0.3);margin-left:auto">${timeAgo(l.scanned_at)}</span>
@@ -1438,7 +1444,7 @@ async function pollExport(jobId, eventId) {
 
 // ── Helpers ───────────────────────────────────────────────────────────────
 function tempBadge(t) { return {hot:"b-hot",warm:"b-warm",cold:"b-cold"}[t]||"b-new"; }
-function tempEmoji(t) { return {hot:"🔥",warm:"♨️",cold:"❄️"}[t]||""; }
+function tempEmoji(t) { return {hot:"<i class='ti ti-flame'></i>",warm:"<i class='ti ti-sun'></i>",cold:"<i class='ti ti-snowflake'></i>"}[t]||""; }
 function statusBadge(s) { return {new:"b-new",interested:"b-interested",converted:"b-converted",follow_up:"b-follow"}[s]||"b-new"; }
 function timeAgo(d) {
   if (!d) return "";

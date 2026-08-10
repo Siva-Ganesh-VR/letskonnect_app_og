@@ -24,7 +24,13 @@
   --ev-soft:color-mix(in srgb, var(--accent) 12%, transparent);
   --ev-tint:color-mix(in srgb, var(--accent) 5%, var(--bg));
   --ev-border:color-mix(in srgb, var(--accent) 18%, transparent);
-
+  --hot:#b91c1c;
+  --warm:#c2570b;
+  --cold:#1d4ed8;
+  --new:var(--text2);
+  --interested:#15803d;
+  --converted:#15803d;
+  --follow:#4f46e5;
 }
 html,body{height:100%}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
@@ -210,13 +216,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .lead-card-company{font-size:12px;color:var(--text2);margin-top:2px}
 .lead-card-meta{display:flex;align-items:center;gap:8px;margin-top:10px;flex-wrap:wrap}
 .badge{display:inline-flex;align-items:center;gap:3px;padding:3px 8px;border-radius:20px;font-size:11px;font-weight:600}
-.b-hot{background:rgba(220,38,38,.10);color:#b91c1c}
-.b-warm{background:rgba(252,132,0,.13);color:#c2570b}
-.b-cold{background:rgba(37,99,235,.10);color:#1d4ed8}
-.b-new{background:rgba(15,49,56,.07);color:var(--text2)}
-.b-interested{background:rgba(22,163,74,.12);color:#15803d}
-.b-converted{background:rgba(22,163,74,.18);color:#15803d}
-.b-follow{background:rgba(108,99,255,.12);color:#4f46e5}
+.b-hot{background:rgba(220,38,38,.10);color:var(--hot)}
+.b-warm{background:rgba(252,132,0,.13);color:var(--warm)}
+.b-cold{background:rgba(37,99,235,.10);color:var(--cold)}
+.b-new{background:rgba(15,49,56,.07);color:var(--new)}
+.b-interested{background:rgba(22,163,74,.12);color:var(--interested)}
+.b-converted{background:rgba(22,163,74,.18);color:var(--converted)}
+.b-follow{background:rgba(108,99,255,.12);color:var(--follow)}
 
 /* ── Lead detail ── */
 .lead-detail{display:none}
@@ -636,4 +642,19 @@ textarea.note-area:focus{border-color:var(--accent);background:#fff;box-shadow:0
   --ev-soft:var(--accent-soft);
   --ev-tint:color-mix(in srgb, var(--accent) 5%, var(--bg));
   --ev-border:color-mix(in srgb, var(--accent) 20%, transparent);
+}
+.initial {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #0098A4;
+  color: white;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-size: 14px;
+  font-weight: 600;
+  text-align: center;
 }
