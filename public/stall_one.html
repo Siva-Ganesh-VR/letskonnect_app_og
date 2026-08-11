@@ -65,7 +65,7 @@
   <!-- Topbar -->
   <div class="topbar" id="topbar">
     <button class="menu-btn" id="menu-btn" onclick="csToggleSidebar()">☰</button>
-    <span style="font-size:15px;font-weight:700;color:var(--accent);flex:1"><img src="/logo_light.png" alt="StallConnect Logo" class="sidebar-logo-image"></span>
+    <span style="font-size:15px;font-weight:700;color:var(--accent);flex:1">StallConnect</span>
     <span id="topbar-event" style="font-size:12px;color:var(--text2);max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></span>
   </div>
   <div class="sidebar-backdrop" id="sidebar-backdrop" onclick="csCloseSidebar()"></div>
@@ -916,8 +916,8 @@ async function loadDashboard(eventId = null) {
       </div>
     </div>`;
   }).join("") : `<div style="text-align:center;padding:28px 0;">
-    <div style="font-size:36px;margin-bottom:8px"><i class='ti ti-add'></i><img src="/images/no-leads.png" alt="Not available" style="height:200px"></div>
-    <div style="font-size:28px;color:var(--accent)">
+    <div style="font-size:36px;margin-bottom:8px"><i class='ti ti-add'></i><img src="/images/no-leads.png" alt="Not available" style="height:120px"></div>
+    <div style="font-size:20px;color:var(--accent)">
         No leads available
         </div>
         <br/>
