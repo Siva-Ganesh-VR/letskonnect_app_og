@@ -658,3 +658,18 @@ textarea.note-area:focus{border-color:var(--accent);background:#fff;box-shadow:0
   font-weight: 600;
   text-align: center;
 }
+
+.scan-btn{
+width:100%;display:flex;align-items:center;justify-content:center;gap:10px;
+               background:white;
+               border:1.5px dashed var(--accent2);border-radius:12px;
+               padding:14px 20px;color:var(--accent2);font-size:14px;font-weight:700;
+               cursor:pointer;font-family:inherit;margin-bottom:14px;transition:all .2s
+}
+
+.scan-btn-child{
+flex:1;padding:14px 10px;border-radius:10px;border:1px solid var(--accent2);
+                   background:white;color: var(--accent2);font-size:13px;font-weight:700;
+                   cursor:pointer;font-family:inherit;display:flex;flex-direction:column;
+                   align-items:center;gap:6px
+                   }
