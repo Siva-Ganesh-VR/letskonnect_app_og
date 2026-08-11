@@ -1,7 +1,7 @@
-:concurrency: 15
+:concurrency: 25
 
 :queues:
-  - [critical, 10]
+  - [critical, 15]
   - [whatsapp, 8]
   - [exports, 4]
   - [analytics, 3]

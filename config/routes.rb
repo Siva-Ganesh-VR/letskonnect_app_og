@@ -99,7 +99,8 @@ Rails.application.routes.draw do
         post   "events/:event_id/lucky_draw_results",     to: "lucky_draw_results#create"
         delete "events/:event_id/lucky_draw_results",     to: "lucky_draw_results#destroy_all"
         delete "events/:event_id/lucky_draw_results/:id", to: "lucky_draw_results#destroy"
-
+        post   "events/:event_id/lucky_draw_results/bumper",     to: "lucky_draw_results#bumper"
+        
         get "stall_owners/import_progress/:id", to: "stall_owners#import_progress"
         get "visitors/:id/visit_history",       to: "visitors#visit_history"
       end
@@ -127,6 +128,7 @@ Rails.application.routes.draw do
         delete "events/:event_id/lucky_draw_results/:id",          to: "lucky_draw_results#destroy"
         patch  "events/:event_id/lucky_draw_results/forced_winner",to: "lucky_draw_results#set_forced_winner"
         get    "events/:event_id/lucky_draw_results/forced_winner",to: "lucky_draw_results#forced_winner"
+        post   "events/:event_id/lucky_draw_results/bumper",       to: "lucky_draw_results#bumper"
 
         get  "events/:event_id/stall_owners/export_stalls_excel", to: "stall_owners#export_stalls_excel"
         get  "events/:event_id/visitors/export_visitors_excel", to: "visitors#export_visitors_excel"

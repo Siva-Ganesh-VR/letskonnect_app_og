@@ -10,8 +10,9 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_08_10_092332) do
+ActiveRecord::Schema[7.2].define(version: 2026_08_10_171459) do
   # These are extensions that must be enabled in order to support this database
+  enable_extension "pgcrypto"
   enable_extension "plpgsql"
 
   create_table "active_storage_attachments", force: :cascade do |t|
@@ -193,6 +194,10 @@ ActiveRecord::Schema[7.2].define(version: 2026_08_10_092332) do
     t.uuid "drawn_by_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "draw_type", default: "regular", null: false
+    t.datetime "window_start"
+    t.datetime "window_end"
+    t.index ["event_id", "draw_type"], name: "index_lucky_draw_results_on_event_id_and_draw_type"
     t.index ["event_id", "visitor_id"], name: "index_lucky_draw_results_on_event_id_and_visitor_id"
     t.index ["event_id"], name: "index_lucky_draw_results_on_event_id"
     t.index ["visitor_id"], name: "index_lucky_draw_results_on_visitor_id"
