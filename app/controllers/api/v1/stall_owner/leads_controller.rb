@@ -12,6 +12,7 @@ module Api
           leads = leads.where(temperature: params[:temperature]) if params[:temperature].present?
           leads = leads.where(status: params[:status])           if params[:status].present?
           leads = leads.where(follow_up_date: Date.parse(params[:follow_up_date])) if params[:follow_up_date].present?
+          leads = leads.where(is_favorite: true) if params[:favorite] == "true"
           if params[:date].present?
             date = Date.parse(params[:date])
             leads = leads.where(scanned_at: date.beginning_of_day..date.end_of_day)

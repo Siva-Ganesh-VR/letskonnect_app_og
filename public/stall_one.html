@@ -498,7 +498,7 @@
           <button class="f-chip" onclick="setFilter('hot',this)"> Hot</button>
           <button class="f-chip" onclick="setFilter('warm',this)"> Warm</button>
           <button class="f-chip" onclick="setFilter('cold',this)"> Cold</button>
-          <button class="f-chip" onclick="setFilter('follow_up',this)">📅 Follow-up</button>
+          <button class="f-chip" onclick="setFilter('favourite',this)">⭐ Favourite</button>
           <button class="f-chip" onclick="setFilter('converted',this)">✅ Converted</button>
         </div>
         <input class="search-inp" id="leads-search" placeholder="Search by name, mobile, company…" oninput="debounceSearch()">
@@ -1184,6 +1184,7 @@ async function loadLeads(append = false) {
   let path = `/stall_owner/leads?per_page=50&page=${leadsCurrentPage}&event_id=${encodeURIComponent(eventId)}`;
 
   if (activeFilter === "hot"||activeFilter==="warm"||activeFilter==="cold") path += "&temperature="+activeFilter;
+  else if (activeFilter === "favourite") path += "&favorite=true";
   else if (activeFilter) path += "&status="+activeFilter;
   if (q) path += "&search="+encodeURIComponent(q);
 
@@ -1345,6 +1346,7 @@ function backToList() {
   document.getElementById("lead-detail").classList.remove("active");
   document.getElementById("lead-detail").style.display = "none";
   document.getElementById("leads-list-view").style.display = "block";
+  loadLeads(); 
 }
 
 async function updateLeadField(field, val, btnEl, groupPrefix) {
@@ -1352,12 +1354,21 @@ async function updateLeadField(field, val, btnEl, groupPrefix) {
   const eventId = document.getElementById("stall-owner-event-sel").value;
   await apiFetch("/stall_owner/leads/"+currentLead.id+"?event_id=" + eventId, "PATCH", { lead: { [field]: val } });
   toast("Updated ✓","ok");
+  currentLead[field] = val;
+
+  // Remove active/sel from all sibling buttons in the same parent
+  if (btnEl) {
+    btnEl.parentElement.querySelectorAll("button").forEach(btn => {
+      btn.classList.remove("active", "sel");
+    });
+    btnEl.classList.add("active", "sel");
+  }
 }
 
-function setRating(n) {
-  document.querySelectorAll("#stars .star").forEach((s,i)=>s.className="star"+(i<n?" on":""));
-  if (currentLead) apiFetch("/stall_owner/leads/"+currentLead.id, "PATCH", { lead: { interest_rating: n } });
-}
+// function setRating(n) {
+//   document.querySelectorAll("#stars .star").forEach((s,i)=>s.className="star"+(i<n?" on":""));
+//   if (currentLead) apiFetch("/stall_owner/leads/"+currentLead.id, "PATCH", { lead: { interest_rating: n } });
+// }
 
 async function saveNotes() {
   if (!currentLead) return;

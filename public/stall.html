@@ -856,7 +856,7 @@ textarea.note-area:focus{border-color:var(--accent)}
           <button class="f-chip" onclick="setFilter('hot',this)">🔥 Hot</button>
           <button class="f-chip" onclick="setFilter('warm',this)">♨️ Warm</button>
           <button class="f-chip" onclick="setFilter('cold',this)">❄️ Cold</button>
-          <button class="f-chip" onclick="setFilter('follow_up',this)">📅 Follow-up</button>
+          <button class="f-chip" onclick="setFilter('favourite',this)">⭐ Favourite</button>
           <button class="f-chip" onclick="setFilter('converted',this)">✅ Converted</button>
         </div>
         <input class="search-inp" id="leads-search" placeholder="Search by name, mobile, company…" oninput="debounceSearch()">
@@ -1516,6 +1516,7 @@ async function loadLeads(append = false) {
   let path = `/stall_owner/leads?per_page=50&page=${leadsCurrentPage}&event_id=${encodeURIComponent(eventId)}`;
 
   if (activeFilter === "hot"||activeFilter==="warm"||activeFilter==="cold") path += "&temperature="+activeFilter;
+  else if (activeFilter === "favourite") path += "&favorite=true";
   else if (activeFilter) path += "&status="+activeFilter;
   if (q) path += "&search="+encodeURIComponent(q);
 
@@ -1555,7 +1556,7 @@ async function loadLeads(append = false) {
       </div>
       <div style="display:flex;align-items:center;gap:6px;margin-top:10px;flex-wrap:wrap">
         <span class="badge ${statusBadge(l.status)}">${l.status.replace("_"," ")}</span>
-        <span style="font-size:12px;color:rgba(255,255,255,0.3)">${"⭐".repeat(l.interest_rating||0)}</span>
+        <!-- <span style="font-size:12px;color:rgba(255,255,255,0.3)">${"⭐".repeat(l.interest_rating||0)}</span> -->
         ${l.follow_up_date ? `<span style="font-size:11px;background:rgba(108,99,255,0.15);color:#a5b4fc;padding:2px 8px;border-radius:10px">📅 ${l.follow_up_date}</span>` : ""}
         <span style="font-size:11px;color:rgba(255,255,255,0.3);margin-left:auto">${timeAgo(l.scanned_at)}</span>
       </div>
@@ -1644,24 +1645,17 @@ async function openLeadById(id) {
         </div>
       </div>
       <div style="margin-bottom:12px">
-        <div style="font-size:12px;color:var(--text2);margin-bottom:8px">Interest Rating</div>
-        <div class="rate-stars" id="stars">${[1,2,3,4,5].map(n=>`<span class="star${n<=(l.interest_rating||0)?' on':''}" onclick="setRating(${n})">⭐</span>`).join("")}</div>
-      </div>
-      <div style="margin-bottom:12px">
         <div style="font-size:12px;color:var(--text2);margin-bottom:6px">Status</div>
         <select class="status-sel" onchange="updateLeadField('status',this.value,null,'')">
           ${["new","contacted","interested","follow_up","converted","lost"].map(s=>`<option value="${s}"${l.status===s?' selected':''}>${s.replace("_"," ")}</option>`).join("")}
         </select>
       </div>
-      <div style="margin-bottom:4px">
-        <div style="font-size:12px;color:var(--text2);margin-bottom:4px">Follow-up Date</div>
-        <input type="date" value="${l.follow_up_date||''}" style="background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:8px;padding:8px 12px;color:#fff;font-size:14px;outline:none;width:100%" onchange="updateLeadField('follow_up_date',this.value)">
-      </div>
+      
     </div>
     <div class="detail-card">
       <div class="detail-section">Notes & Remarks</div>
       <textarea class="note-area" id="lead-notes" rows="3" placeholder="Add notes about this lead…">${l.notes||""}</textarea>
-      <textarea class="note-area" id="lead-remarks" rows="2" placeholder="Remarks / requirements…" style="margin-top:8px">${l.remarks||""}</textarea>
+      <textarea class="note-area" id="lead-remarks" rows="2" placeholder="Remarks / requirements…" style="margin-top:8px;display: none;">${l.remarks||""}</textarea>
       <button class="btn-save" onclick="saveNotes()">💾 Save Notes</button>
     </div>
     <div class="detail-card">
@@ -1678,6 +1672,7 @@ function backToList() {
   document.getElementById("lead-detail").classList.remove("active");
   document.getElementById("lead-detail").style.display = "none";
   document.getElementById("leads-list-view").style.display = "block";
+  loadLeads();
 }
 
 async function updateLeadField(field, val, btnEl, groupPrefix) {
@@ -1685,12 +1680,21 @@ async function updateLeadField(field, val, btnEl, groupPrefix) {
   const eventId = document.getElementById("stall-owner-event-sel").value;
   await apiFetch("/stall_owner/leads/"+currentLead.id+"?event_id=" + eventId, "PATCH", { lead: { [field]: val } });
   toast("Updated ✓","ok");
+  currentLead[field] = val;
+
+  // Remove active/sel from all sibling buttons in the same parent
+  if (btnEl) {
+    btnEl.parentElement.querySelectorAll("button").forEach(btn => {
+      btn.classList.remove("active", "sel");
+    });
+    btnEl.classList.add("active", "sel");
+  }
 }
 
-function setRating(n) {
-  document.querySelectorAll("#stars .star").forEach((s,i)=>s.className="star"+(i<n?" on":""));
-  if (currentLead) apiFetch("/stall_owner/leads/"+currentLead.id, "PATCH", { lead: { interest_rating: n } });
-}
+// function setRating(n) {
+//   document.querySelectorAll("#stars .star").forEach((s,i)=>s.className="star"+(i<n?" on":""));
+//   if (currentLead) apiFetch("/stall_owner/leads/"+currentLead.id, "PATCH", { lead: { interest_rating: n } });
+// }
 
 async function saveNotes() {
   if (!currentLead) return;
