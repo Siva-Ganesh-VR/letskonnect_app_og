@@ -65,7 +65,7 @@
   <!-- Topbar -->
   <div class="topbar" id="topbar">
     <button class="menu-btn" id="menu-btn" onclick="csToggleSidebar()">☰</button>
-    <span style="font-size:15px;font-weight:700;color:var(--accent);flex:1">StallConnect</span>
+    <span style="font-size:15px;font-weight:700;color:var(--accent);flex:1"><img src="/logo_light.png" alt="StallConnect Logo" class="sidebar-logo-image"></span>
     <span id="topbar-event" style="font-size:12px;color:var(--text2);max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></span>
   </div>
   <div class="sidebar-backdrop" id="sidebar-backdrop" onclick="csCloseSidebar()"></div>
@@ -73,7 +73,7 @@
   <div class="sidebar" id="sidebar">
     <div class="sidebar-brand">
       <div class="sidebar-top">
-        <img src="/logo_dark.png" alt="StallConnect Logo" class="sidebar-logo-image">
+        <img src="/logo_light.png" alt="StallConnect Logo" class="sidebar-logo-image">
       </div>
     </div>
     <div class="sidebar-user">
@@ -915,9 +915,24 @@ async function loadDashboard(eventId = null) {
         </div>
       </div>
     </div>`;
-  }).join("") : `<div style="text-align:center;padding:28px 0;color:rgba(255,255,255,0.3)">
-    <div style="font-size:36px;margin-bottom:8px">🎯</div>
-    <div style="font-size:13px">No leads yet — start scanning!</div>
+  }).join("") : `<div style="text-align:center;padding:28px 0;">
+    <div style="font-size:36px;margin-bottom:8px"><i class='ti ti-add'></i><img src="/images/no-leads.png" alt="Not available" style="height:200px"></div>
+    <div style="font-size:28px;color:var(--accent)">
+        No leads available
+        </div>
+        <br/>
+        <button onclick="showTab('create-lead',document.getElementById('btab-scan'))"
+          style="background:white;border:1px solid var(--accent);
+                color:var(--accent);font-size:11px;font-weight:700;cursor:pointer;
+                padding:4px 10px;border-radius:20px">
+          Add Lead →
+        </button>
+        <button onclick="showTab('scan',document.getElementById('btab-scan'))"
+          style="background:white;border:1px solid var(--accent);
+                color:var(--accent);font-size:11px;font-weight:700;cursor:pointer;
+                padding:4px 10px;border-radius:20px">
+          Scan QR →
+        </button>
   </div>`;
 }
 
@@ -1212,7 +1227,10 @@ async function loadLeads(append = false) {
       </div>
     </div>`;
   }).join("") : `<div style="text-align:center;padding:40px 0;color:rgba(255,255,255,0.3)">
-    <div style="font-size:44px;margin-bottom:10px">🎯</div>
+    <div style="font-size:44px;margin-bottom:10px"><img src="/images/no-leads.png" alt="Not available" style="height:200px"></div>
+     <div style="font-size:28px;color:var(--accent)">
+        No leads available
+        </div>
     <div style="font-size:13px">No leads found</div>
   </div>`;
 
@@ -1344,7 +1362,7 @@ function setRating(n) {
 async function saveNotes() {
   if (!currentLead) return;
   const notes   = document.getElementById("lead-notes").value;
-  const remarks = document.getElementById("lead-remarks").value;
+  const remarks ="";
   const res     = await apiFetch("/stall_owner/leads/"+currentLead.id, "PATCH", { lead: { notes, remarks } });
   toast(res.success ? "Notes saved ✅" : "Failed","ok");
 }
