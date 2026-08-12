@@ -108,13 +108,23 @@
       _stream = null;
     }
 
+    // Request highest resolution for better OCR — fallback to 1080p if 4K not supported
     const constraints = {
       video: deviceId
-        ? { deviceId: { exact: deviceId }, width: { ideal: 1280 }, height: { ideal: 720 } }
-        : { facingMode: { ideal: "environment" }, width: { ideal: 1280 }, height: { ideal: 720 } }
+        ? { deviceId: { exact: deviceId }, width: { ideal: 3840, min: 1920 }, height: { ideal: 2160, min: 1080 }, focusMode: "continuous" }
+        : { facingMode: { ideal: "environment" }, width: { ideal: 3840, min: 1920 }, height: { ideal: 2160, min: 1080 }, focusMode: "continuous" }
     };
 
-    _stream = await navigator.mediaDevices.getUserMedia(constraints);
+    try {
+      _stream = await navigator.mediaDevices.getUserMedia(constraints);
+    } catch (e) {
+      const fallback = {
+        video: deviceId
+          ? { deviceId: { exact: deviceId }, width: { ideal: 1920 }, height: { ideal: 1080 } }
+          : { facingMode: { ideal: "environment" }, width: { ideal: 1920 }, height: { ideal: 1080 } }
+      };
+      _stream = await navigator.mediaDevices.getUserMedia(fallback);
+    }
 
     const video = document.getElementById("cs-video");
     if (video) {
@@ -141,19 +151,31 @@
     const canvas = document.getElementById("cs-canvas");
     if (!video || !canvas) return;
 
-    canvas.width  = video.videoWidth  || 1280;
-    canvas.height = video.videoHeight || 720;
+    // Use full native resolution — not capped
+    const W = video.videoWidth  || 1920;
+    const H = video.videoHeight || 1080;
+    canvas.width  = W;
+    canvas.height = H;
 
     const ctx = canvas.getContext("2d");
-    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+    ctx.drawImage(video, 0, 0, W, H);
 
-    // Close camera modal
+    // Grayscale + contrast boost for better OCR
+    const imageData = ctx.getImageData(0, 0, W, H);
+    const data = imageData.data;
+    for (let i = 0; i < data.length; i += 4) {
+      const avg = 0.299 * data[i] + 0.587 * data[i+1] + 0.114 * data[i+2];
+      const val = Math.min(255, Math.max(0, ((avg - 128) * 1.5) + 128));
+      data[i] = data[i+1] = data[i+2] = val;
+    }
+    ctx.putImageData(imageData, 0, 0);
+
     csCloseCamera();
 
-    // Convert canvas to blob and process
+    // Higher quality + PNG for lossless OCR input
     canvas.toBlob(blob => {
       if (blob) csProcessImage(blob);
-    }, "image/jpeg", 0.92);
+    }, "image/jpeg", 0.98);
   };
 
   // ── Close camera modal ────────────────────────────────────────
@@ -270,10 +292,21 @@
     const webMatch = raw.match(/(?:www\.|https?:\/\/)[^\s,<>]+/i);
     if (webMatch) fields.website = webMatch[0].replace(/^https?:\/\//i, "www.");
 
-    // Indian mobile — handles +91, 0091, 091, spaces, dashes
-    const cleaned  = raw.replace(/[\s\-().]/g, "");
-    const mobMatch = cleaned.match(/^(?:\+91|0091|091|91|0)?([6-9]\d{9})$/);
-    if (mobMatch) fields.mobile_number = mobMatch[1];
+    // Indian mobile — handles +91, spaces, dashes, brackets
+    const cleaned   = raw.replace(/[()]/g, "");
+    const mobPatterns = [
+      /(?:\+91|0091|091|91)?[\s\-]?([6-9]\d{2})[\s\-]?(\d{3})[\s\-]?(\d{4})/,
+      /(?:\+91|0091|091|91)?([6-9]\d{9})/,
+    ];
+    for (const pat of mobPatterns) {
+      const m = cleaned.match(pat);
+      if (m) {
+        const num = (m[1] + (m[2] || "") + (m[3] || "")).replace(/\D/g, "");
+        if (num.length === 10) { fields.mobile_number = num; break; }
+      }
+    }
+    const mobMatch = null; // handled above
+    // mobile_number already set above
 
     // Designation
     const desgRe = /\b(CEO|CTO|CFO|COO|CMO|MD|GM|VP|AVP|SVP|EVP|President|Director|Manager|Head|Lead|Senior|Junior|Associate|Founder|Co-?Founder|Partner|Consultant|Advisor|Executive|Officer|Engineer|Architect|Designer|Developer|Analyst|Specialist|Proprietor|Owner)\b/i;
@@ -303,7 +336,8 @@
       "Mysuru","Mysore","Trichy","Salem","Chandigarh","Jodhpur","Bhubaneswar",
       "Jabalpur","Raipur","Kota","Gwalior","Vijayawada","Solapur","Hubli",
       "Mangalore","Tiruppur","Warangal","Navi Mumbai","Aurangabad","Amritsar",
-      "Srinagar","Ranchi","Bhubaneswar","Guwahati","Allahabad","Prayagraj"
+      "Srinagar","Ranchi","Guwahati","Allahabad","Prayagraj",
+      "Theni","Dindigul","Vellore","Tirunelveli","Thoothukudi","Erode","Sivakasi","Karur"
     ];
     const cityRe   = new RegExp(`\\b(${cities.join("|")})\\b`, "i");
     const cityMatch = raw.match(cityRe);

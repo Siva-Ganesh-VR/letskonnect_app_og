@@ -946,9 +946,26 @@ async function startCameraScan() {
 
     try {
         html5QrCode = new Html5Qrcode("reader");
+        // await html5QrCode.start(
+        //     { facingMode: "environment" },
+        //     { fps: 10, qrbox: { width: 220, height: 220 } },
         await html5QrCode.start(
-            { facingMode: "environment" },
-            { fps: 10, qrbox: { width: 220, height: 220 } },
+          {
+            facingMode: "environment",
+            advanced: [{ zoom: 1.0 }]
+          },
+          {
+            fps: 30,
+            qrbox: { width: 280, height: 280 },
+            aspectRatio: 1.0,
+            videoConstraints: {
+              facingMode: "environment",
+              width:  { ideal: 1920, min: 1280 },
+              height: { ideal: 1080, min: 720 },
+              focusMode: "continuous",
+              advanced: [{ zoom: 1.0 }]
+            }
+          },
             async (decodedText) => {
               let qrToken = decodedText.trim();
 
