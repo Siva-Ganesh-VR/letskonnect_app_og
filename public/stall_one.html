@@ -1326,7 +1326,7 @@ async function openLeadById(id) {
     <div class="detail-card">
       <div class="action-grid">
         <button class="a-btn scan-btn-child" onclick="window.location.href='tel:+91${v.mobile_number.replace(/\D/g, '').replace(/^91/, '')}'"> <i class='ti ti-phone'></i> Call</button>
-        <button class="a-btn scan-btn-child" onclick="openWa()"> <i class='ti ti-message'></i>WhatsApp</button>
+        <button class="a-btn scan-btn-child" onclick="openWa()"> <i class='ti ti-brand-whatsapp'></i>WhatsApp</button>
       </div>
     </div>
   `;
@@ -1844,7 +1844,7 @@ async function csOCR(src){
       }catch(err){
         console.error(err);
         csT("Could not read card. Please ensure good lighting and hold the card flat.");
-        if(ef)ef.innerHTML="<div style=\"color:#ef4444;padding:10px 0;font-size:13px\">"+
+        if(ef)ef.innerHTML="<div style=\"padding:10px 0;font-size:13px\">"+
           "Could not read card.<br><br>"+
           "<strong>Tips for better results:</strong><br>"+
           "&#8226; Good lighting — avoid shadows<br>"+
