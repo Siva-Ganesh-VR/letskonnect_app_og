@@ -10,7 +10,7 @@ pidfile ENV.fetch("PIDFILE", "tmp/pids/server.pid")
 # Each worker = 1 OS process = 10 threads = 10 concurrent requests
 # 4 workers × 10 threads = 40 concurrent requests
 # Your server (11.68GB RAM, 4 CPU) can handle this comfortably
-workers ENV.fetch("WEB_CONCURRENCY", 4)
+workers ENV.fetch("WEB_CONCURRENCY", 0)
 preload_app!
 
 on_worker_boot do
