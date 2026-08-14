@@ -1723,7 +1723,12 @@ async function saveNotes() {
   const notes   = document.getElementById("lead-notes").value;
   const remarks = document.getElementById("lead-remarks").value;
   const res     = await apiFetch("/stall_owner/leads/"+currentLead.id, "PATCH", { lead: { notes, remarks } });
-  toast(res.success ? "Notes saved ✅" : "Failed","ok");
+  if (res.success) {
+    toast("Notes saved ✅", "ok");
+    backToList()
+  } else {
+    toast("Failed", "ok");
+  }
 }
 
 // ── Export ────────────────────────────────────────────────────────────────

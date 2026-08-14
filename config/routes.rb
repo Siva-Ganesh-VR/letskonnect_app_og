@@ -24,8 +24,9 @@ Rails.application.routes.draw do
   mount Sidekiq::Web    => "/sidekiq"
   mount ActionCable.server => "/cable"
 
+  # Public — no auth — frontend posts errors here
   post "api/v1/error_logs", to: "api/v1/error_logs#create"
-  
+
   namespace :api do
     namespace :v1 do
 
@@ -96,12 +97,13 @@ Rails.application.routes.draw do
           end
         end
 
-        # ── Lucky Draw ────────────────────────────────────────────────
-        get    "events/:event_id/lucky_draw_results",     to: "lucky_draw_results#index"
-        post   "events/:event_id/lucky_draw_results",     to: "lucky_draw_results#create"
-        delete "events/:event_id/lucky_draw_results",     to: "lucky_draw_results#destroy_all"
-        delete "events/:event_id/lucky_draw_results/:id", to: "lucky_draw_results#destroy"
+        # ── Lucky Draw ─────────────────────────────────────────────────
+        # IMPORTANT: specific routes (bumper) MUST come before :id routes
+        get    "events/:event_id/lucky_draw_results",            to: "lucky_draw_results#index"
+        post   "events/:event_id/lucky_draw_results",            to: "lucky_draw_results#create"
         post   "events/:event_id/lucky_draw_results/bumper",     to: "lucky_draw_results#bumper"
+        delete "events/:event_id/lucky_draw_results",            to: "lucky_draw_results#destroy_all"
+        delete "events/:event_id/lucky_draw_results/:id",        to: "lucky_draw_results#destroy"
 
         get "stall_owners/import_progress/:id", to: "stall_owners#import_progress"
         get "visitors/:id/visit_history",       to: "visitors#visit_history"
@@ -123,23 +125,26 @@ Rails.application.routes.draw do
           end
         end
 
-        get    "error_logs",               to: "error_logs#index"
-        get    "error_logs/:id",           to: "error_logs#show"
-        patch  "error_logs/:id/resolve",   to: "error_logs#resolve"
-        patch  "error_logs/resolve_all",   to: "error_logs#resolve_all"
-        delete "error_logs/clear_resolved",to: "error_logs#clear_resolved"
+        # ── Error Logs ────────────────────────────────────────────────
+        # IMPORTANT: resolve_all and clear_resolved MUST come before :id route
+        get    "error_logs",                to: "error_logs#index"
+        patch  "error_logs/resolve_all",    to: "error_logs#resolve_all"
+        delete "error_logs/clear_resolved", to: "error_logs#clear_resolved"
+        get    "error_logs/:id",            to: "error_logs#show"
+        patch  "error_logs/:id/resolve",    to: "error_logs#resolve"
 
-        # ── Lucky Draw ────────────────────────────────────────────────
-        get    "events/:event_id/lucky_draw_results",              to: "lucky_draw_results#index"
-        post   "events/:event_id/lucky_draw_results",              to: "lucky_draw_results#create"
-        delete "events/:event_id/lucky_draw_results",              to: "lucky_draw_results#destroy_all"
-        delete "events/:event_id/lucky_draw_results/:id",          to: "lucky_draw_results#destroy"
-        patch  "events/:event_id/lucky_draw_results/forced_winner",to: "lucky_draw_results#set_forced_winner"
-        get    "events/:event_id/lucky_draw_results/forced_winner",to: "lucky_draw_results#forced_winner"
-        post   "events/:event_id/lucky_draw_results/bumper",       to: "lucky_draw_results#bumper"
+        # ── Lucky Draw ─────────────────────────────────────────────────
+        # IMPORTANT: specific routes (bumper, forced_winner) MUST come before :id routes
+        get    "events/:event_id/lucky_draw_results",               to: "lucky_draw_results#index"
+        post   "events/:event_id/lucky_draw_results",               to: "lucky_draw_results#create"
+        post   "events/:event_id/lucky_draw_results/bumper",        to: "lucky_draw_results#bumper"
+        patch  "events/:event_id/lucky_draw_results/forced_winner", to: "lucky_draw_results#set_forced_winner"
+        get    "events/:event_id/lucky_draw_results/forced_winner", to: "lucky_draw_results#forced_winner"
+        delete "events/:event_id/lucky_draw_results",               to: "lucky_draw_results#destroy_all"
+        delete "events/:event_id/lucky_draw_results/:id",           to: "lucky_draw_results#destroy"
 
         get  "events/:event_id/stall_owners/export_stalls_excel", to: "stall_owners#export_stalls_excel"
-        get  "events/:event_id/visitors/export_visitors_excel", to: "visitors#export_visitors_excel"
+        get  "events/:event_id/visitors/export_visitors_excel",   to: "visitors#export_visitors_excel"
 
         resources :event_organizers do
           member { patch :activate; patch :deactivate; post :reset_password; get :events }
@@ -167,7 +172,7 @@ Rails.application.routes.draw do
       namespace :webhooks do
         post "twilio",            to: "twilio#status"
         post "/whatsapp/webhook", to: "twilio#receive"
-        get  "/whatsapp/webhook", to: "twilio#verify_meta"   # ← ADD THIS LINE
+        get  "/whatsapp/webhook", to: "twilio#verify_meta"
       end
     end
   end
