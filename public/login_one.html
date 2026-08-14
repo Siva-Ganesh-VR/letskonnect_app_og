@@ -8,43 +8,10 @@
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 :root{--bg:#0f0f1a;--bg2:#1a1a2e;--bg3:#16213e;--accent:#22c55e;--accent2:#16a34a;--purple:#6c63ff;--text:#fff;--text2:rgba(255,255,255,0.6);--text3:rgba(255,255,255,0.3);--border:rgba(255,255,255,0.08)}
-:root{
-  color-scheme:light;
-  --bg:#FFFFFF;
-  --bg2:#F6FAFB;
-  --bg3:#ECF5F6;
-  --accent:#0098A4;
-  --accent2:#007F89;
-  --accent-soft:rgba(0,152,164,.08);
-  --secondary:#FC8400;
-  --secondary2:#E57600;
-  --green:#16a34a;
-  --red:#dc2626;
-  --blue:#6c63ff;
-  --text:#0F3138;
-  --text2:rgba(15,49,56,.65);
-  --text3:rgba(15,49,56,.4);
-  --border:rgba(15,49,56,.12);
-  --border-soft:rgba(15,49,56,.07);
-  --shadow-sm:0 1px 2px rgba(15,49,56,.05),0 1px 6px rgba(15,49,56,.04);
-  --shadow-md:0 4px 16px rgba(15,49,56,.10);
-  --sidebar-w:240px;
-  --ev-accent:var(--accent);
-  --ev-soft:color-mix(in srgb, var(--accent) 12%, transparent);
-  --ev-tint:color-mix(in srgb, var(--accent) 5%, var(--bg));
-  --ev-border:color-mix(in srgb, var(--accent) 18%, transparent);
-  --hot:#b91c1c;
-  --warm:#c2570b;
-  --cold:#1d4ed8;
-  --new:var(--text2);
-  --interested:#15803d;
-  --converted:#15803d;
-  --follow:#4f46e5;
-}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
 /* Login */
 .login-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;background:var(--bg);padding:20px}
-.login-card{background:var(--bg);border:1px solid var(--border);border-radius:20px;padding:40px 36px;width:100%;max-width:420px}
+.login-card{background:var(--bg2);border:1px solid var(--border);border-radius:20px;padding:40px 36px;width:100%;max-width:420px}
 .login-back{display:inline-flex;align-items:center;gap:6px;color:var(--text2);font-size:13px;text-decoration:none;margin-bottom:24px;transition:color 0.2s}
 .login-back:hover{color:var(--accent)}
 .login-logo{margin-bottom:15px;display:flex;justify-content:center;align-items:center;}
@@ -71,13 +38,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 <body>
 
 <!-- LOGIN -->
-<div id="login-screen" class="login-wrap" style="background-image:url(background.png)">
+<div id="login-screen" class="login-wrap">
   <div class="login-card">
     <a href="/" class="login-back">← Back to Home</a>
 
     <div class="login-logo">
       <div>
-        <img src="logo_light.png" />
+        <img src="logo_dark.png" />
       </div>
     </div>
 
@@ -88,15 +55,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
         <input
           type="tel"
           id="stall-mobile"
-<<<<<<< Updated upstream
           inputmode="numeric"
           pattern="[0-9]*"
           maxlength="10"
-          placeholder="9876543210"
-          autocomplete="tel"
-=======
           placeholder="9876xxxxxx"
->>>>>>> Stashed changes
+          autocomplete="tel"
         >
       </div>
 
@@ -192,7 +155,7 @@ async function loginStallOwner() {
     sessionStorage.setItem("stall_user",  JSON.stringify(result.data.stall_owner));
     sessionStorage.setItem("user_type",   "stall_owner");
 
-    window.location.replace("/stall_one.html");
+    window.location.replace("/stall.html");
 
   } catch(error) {
     errorEl.style.display = "block";
