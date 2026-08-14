@@ -141,7 +141,7 @@ puts "\n" + "="*55
 puts "✅ SEED COMPLETE"
 puts "="*55
 puts ""
-puts "Super Admin:    admin@letskonnect.in       / Admin@1234"
+puts "Super Admin:    admin@stalconnect.com       / Admin@1234"
 puts "Organizer:      organizer@techfest.com      / Organizer@123"
 puts "Stall Owners:   9876541001..008             / Stall@1234"
 puts ""
