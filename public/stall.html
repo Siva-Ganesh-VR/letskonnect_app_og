@@ -94,7 +94,10 @@
       <div class="nav-item" onclick="showTab('leads',this)"><span class="nav-icon"><i class="ti ti-list"></i></span> Leads</div>
       <div class="nav-item" onclick="showTab('more',this)"><span class="nav-icon"><i class="ti ti-user"></i></span> Profile</div>
     </nav>
-    <div class="sidebar-foot">
+    <!-- <div class="sidebar-foot">
+      <button class="logout-btn" onclick="doLogout()">Sign Out</button>
+    </div> -->
+    <div class="sidebar-foot" style="position:sticky;bottom:0;background:var(--bg2)">
       <button class="logout-btn" onclick="doLogout()">Sign Out</button>
     </div>
   </div>
@@ -879,7 +882,8 @@ async function loadDashboard(eventId = null) {
   const rl = document.getElementById("recent-leads");
   const recent = res.data.recent_leads || [];
   rl.innerHTML = recent.length ? recent.map(l => {
-  const mob = l.mobile_number ? `<div style="font-size:12px;color:var(--accent);margin-top:3px"> ${l.mobile_number}</div>` : "";
+  // const mob = l.mobile_number ? `<div style="font-size:12px;color:var(--accent);margin-top:3px"> ${l.mobile_number}</div>` : "";
+  const mob = l.mobile_number ? `<div style="font-size:12px;color:var(--accent);margin-top:3px"><a href="tel:${l.mobile_number.replace(/\D/g,'').startsWith('91') ? '+' : '+91'}${l.mobile_number.replace(/\D/g,'')}" style="color:inherit;text-decoration:none">+91 ${l.mobile_number.replace(/^\+?91[\s-]*/, '')}</a></div>` : "";
   const loc = l.location      ? `<div style="font-size:11px;color:var(--accent);margin-top:2px"> ${l.location}</div>` : "";
     const co  = l.business_name ? `<div style="font-size:12px;color:var(--accent);margin-top:2px">${l.business_name}</div>` : "";
     return `<div style="background:var(--bg2);border:1px solid var(--ev-border);border-radius:8px;
