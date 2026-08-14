@@ -71,81 +71,194 @@ module Api
           json_success(visitor_scan_data(visitor).merge(event_name: visitor.event.name))
         end
 
-        def manual_create_lead
-          event = Event.find_by(id: params[:event_id])
-          return json_error("Invalid event", status: :not_found) unless event
-          # return json_error("Event registration is not open", status: :forbidden) unless event.active?
+        # def manual_create_lead
+        #   event = Event.find_by(id: params[:event_id])
+        #   return json_error("Invalid event", status: :not_found) unless event
+        #   # return json_error("Event registration is not open", status: :forbidden) unless event.active?
 
-          if event.max_visitors.present? && event.registered_count >= event.max_visitors
-            return json_error("Event has reached maximum visitor capacity", status: :forbidden)
+        #   if event.max_visitors.present? && event.registered_count >= event.max_visitors
+        #     return json_error("Event has reached maximum visitor capacity", status: :forbidden)
+        #   end
+
+        #   stall_owner = selected_stall_owner
+
+        #   visitor = Visitor.find_or_initialize_by(
+        #     mobile_number: visitor_params[:mobile_number],
+        #     event_id: event.id
+        #   )
+
+        #   if visitor.persisted? && visitor.mobile_verified?
+        #     return json_error(
+        #       "This mobile number is already registered for this event. Please use your existing QR code."
+        #     )
+        #   end
+
+        #   visitor.assign_attributes(visitor_params)
+        #   visitor.event = event
+        #   visitor.reg_type = "Manual"
+        #   visitor.mobile_verified = true
+
+        #   ActiveRecord::Base.transaction do
+        #     visitor.save!
+
+        #     WhatsappNotificationJob.perform_later(visitor.id, "visitor_registration") if event.whatsapp_enabled?
+
+        #     lead = Lead.find_by(visitor_id: visitor.id, stall_owner_id: stall_owner.id)
+
+        #     if lead
+        #       create_visitor_scan_log(event.id, visitor.id, stall_owner.id, visitor.visitor_id_code, 'manual', 'duplicate')
+
+        #       return json_success(
+        #         {
+        #           already_scanned: true,
+        #           lead: lead_response(lead),
+        #           visitor: visitor_scan_data(visitor),
+        #           message: "This visitor was already scanned at #{lead.scanned_at.strftime('%I:%M %p')}"
+        #         }
+        #       )
+        #     end
+
+        #     lead = Lead.create!(
+        #       visitor: visitor,
+        #       stall_owner: stall_owner,
+        #       event: event,
+        #       scanned_at: Time.current,
+        #       temperature: "warm",
+        #       interest_rating: 3,
+        #       status: "new",
+        #       reg_type: "Manual",
+        #       notes: params[:notes]
+        #     )
+
+        #     create_visitor_scan_log(event.id, visitor.id, stall_owner.id, visitor.visitor_id_code, 'manual', 'success')
+
+        #     json_success(
+        #       {
+        #         already_scanned: false,
+        #         lead: lead_response(lead),
+        #         visitor: visitor_scan_data(visitor),
+        #         message: "Lead captured successfully!"
+        #       },
+        #       status: :created
+        #     )
+        #   end
+
+        # rescue ActiveRecord::RecordInvalid => e
+        #   json_error(e.record.errors.full_messages.join(", "), status: :unprocessable_entity)
+        # end
+
+
+      def manual_create_lead
+        event = Event.find_by(id: params[:event_id])
+        return json_error("Invalid event", status: :not_found) unless event
+        # return json_error("Event registration is not open", status: :forbidden) unless event.active?
+
+        if event.max_visitors.present? && event.registered_count >= event.max_visitors
+          return json_error("Event has reached maximum visitor capacity", status: :forbidden)
+        end
+
+        stall_owner = selected_stall_owner
+
+        visitor = Visitor.find_or_initialize_by(
+          mobile_number: visitor_params[:mobile_number],
+          event_id: event.id
+        )
+
+        # ── Visitor already registered — just create lead for this stall owner ──
+        if visitor.persisted? && visitor.mobile_verified?
+          existing_lead = Lead.find_by(visitor_id: visitor.id, stall_owner_id: stall_owner.id)
+
+          if existing_lead
+            create_visitor_scan_log(event.id, visitor.id, stall_owner.id, visitor.visitor_id_code, 'manual', 'duplicate')
+            return json_success(
+              {
+                already_scanned: true,
+                lead:    lead_response(existing_lead),
+                visitor: visitor_scan_data(visitor),
+                message: "This visitor was already scanned at #{existing_lead.scanned_at.strftime('%I:%M %p')}"
+              }
+            )
           end
 
-          stall_owner = selected_stall_owner
-
-          visitor = Visitor.find_or_initialize_by(
-            mobile_number: visitor_params[:mobile_number],
-            event_id: event.id
+          lead = Lead.create!(
+            visitor:         visitor,
+            stall_owner:     stall_owner,
+            event:           event,
+            scanned_at:      Time.current,
+            temperature:     "warm",
+            interest_rating: 3,
+            status:          "new",
+            reg_type:        "Manual",
+            notes:           params[:notes]
           )
 
-          if visitor.persisted? && visitor.mobile_verified?
-            return json_error(
-              "This mobile number is already registered for this event. Please use your existing QR code."
-            )
-          end
+          create_visitor_scan_log(event.id, visitor.id, stall_owner.id, visitor.visitor_id_code, 'manual', 'success')
 
-          visitor.assign_attributes(visitor_params)
-          visitor.event = event
-          visitor.reg_type = "Manual"
-          visitor.mobile_verified = true
-
-          ActiveRecord::Base.transaction do
-            visitor.save!
-
-            WhatsappNotificationJob.perform_later(visitor.id, "visitor_registration") if event.whatsapp_enabled?
-
-            lead = Lead.find_by(visitor_id: visitor.id, stall_owner_id: stall_owner.id)
-
-            if lead
-              create_visitor_scan_log(event.id, visitor.id, stall_owner.id, visitor.visitor_id_code, 'manual', 'duplicate')
-
-              return json_success(
-                {
-                  already_scanned: true,
-                  lead: lead_response(lead),
-                  visitor: visitor_scan_data(visitor),
-                  message: "This visitor was already scanned at #{lead.scanned_at.strftime('%I:%M %p')}"
-                }
-              )
-            end
-
-            lead = Lead.create!(
-              visitor: visitor,
-              stall_owner: stall_owner,
-              event: event,
-              scanned_at: Time.current,
-              temperature: "warm",
-              interest_rating: 3,
-              status: "new",
-              reg_type: "Manual",
-              notes: params[:notes]
-            )
-
-            create_visitor_scan_log(event.id, visitor.id, stall_owner.id, visitor.visitor_id_code, 'manual', 'success')
-
-            json_success(
-              {
-                already_scanned: false,
-                lead: lead_response(lead),
-                visitor: visitor_scan_data(visitor),
-                message: "Lead captured successfully!"
-              },
-              status: :created
-            )
-          end
-
-        rescue ActiveRecord::RecordInvalid => e
-          json_error(e.record.errors.full_messages.join(", "), status: :unprocessable_entity)
+          return json_success(
+            {
+              already_scanned: false,
+              lead:    lead_response(lead),
+              visitor: visitor_scan_data(visitor),
+              message: "Lead captured successfully!"
+            },
+            status: :created
+          )
         end
+
+        # ── New visitor — register and create lead ──────────────────────────────
+        visitor.assign_attributes(visitor_params)
+        visitor.event           = event
+        visitor.reg_type        = "Manual"
+        visitor.mobile_verified = true
+
+        ActiveRecord::Base.transaction do
+          visitor.save!
+
+          WhatsappNotificationJob.perform_later(visitor.id, "visitor_registration") if event.whatsapp_enabled?
+
+          lead = Lead.find_by(visitor_id: visitor.id, stall_owner_id: stall_owner.id)
+
+          if lead
+            create_visitor_scan_log(event.id, visitor.id, stall_owner.id, visitor.visitor_id_code, 'manual', 'duplicate')
+            return json_success(
+              {
+                already_scanned: true,
+                lead:    lead_response(lead),
+                visitor: visitor_scan_data(visitor),
+                message: "This visitor was already scanned at #{lead.scanned_at.strftime('%I:%M %p')}"
+              }
+            )
+          end
+
+          lead = Lead.create!(
+            visitor:         visitor,
+            stall_owner:     stall_owner,
+            event:           event,
+            scanned_at:      Time.current,
+            temperature:     "warm",
+            interest_rating: 3,
+            status:          "new",
+            reg_type:        "Manual",
+            notes:           params[:notes]
+          )
+
+          create_visitor_scan_log(event.id, visitor.id, stall_owner.id, visitor.visitor_id_code, 'manual', 'success')
+
+          json_success(
+            {
+              already_scanned: false,
+              lead:    lead_response(lead),
+              visitor: visitor_scan_data(visitor),
+              message: "Lead captured successfully!"
+            },
+            status: :created
+          )
+        end
+
+      rescue ActiveRecord::RecordInvalid => e
+        json_error(e.record.errors.full_messages.join(", "), status: :unprocessable_entity)
+      end
+
 
         def create_visitor_scan_log(event_id, visitor_id, stall_owner_id, pass_code, scan_type, status)
           VisitorScanLog.create!(
