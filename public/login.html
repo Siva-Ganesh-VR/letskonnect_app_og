@@ -188,7 +188,8 @@ async function loginStallOwner() {
     sessionStorage.setItem("stall_user",  JSON.stringify(result.data.stall_owner));
     sessionStorage.setItem("user_type",   "stall_owner");
 
-    window.location.replace("/stall_one.html");
+    window.location.replace("/stall.html");
+    // window.location.replace("/stall_one.html");
 
   } catch(error) {
     errorEl.style.display = "block";
