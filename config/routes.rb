@@ -24,6 +24,8 @@ Rails.application.routes.draw do
   mount Sidekiq::Web    => "/sidekiq"
   mount ActionCable.server => "/cable"
 
+  post "api/v1/error_logs", to: "api/v1/error_logs#create"
+  
   namespace :api do
     namespace :v1 do
 
@@ -100,7 +102,7 @@ Rails.application.routes.draw do
         delete "events/:event_id/lucky_draw_results",     to: "lucky_draw_results#destroy_all"
         delete "events/:event_id/lucky_draw_results/:id", to: "lucky_draw_results#destroy"
         post   "events/:event_id/lucky_draw_results/bumper",     to: "lucky_draw_results#bumper"
-        
+
         get "stall_owners/import_progress/:id", to: "stall_owners#import_progress"
         get "visitors/:id/visit_history",       to: "visitors#visit_history"
       end
@@ -120,6 +122,12 @@ Rails.application.routes.draw do
             post :reject
           end
         end
+
+        get    "error_logs",               to: "error_logs#index"
+        get    "error_logs/:id",           to: "error_logs#show"
+        patch  "error_logs/:id/resolve",   to: "error_logs#resolve"
+        patch  "error_logs/resolve_all",   to: "error_logs#resolve_all"
+        delete "error_logs/clear_resolved",to: "error_logs#clear_resolved"
 
         # ── Lucky Draw ────────────────────────────────────────────────
         get    "events/:event_id/lucky_draw_results",              to: "lucky_draw_results#index"

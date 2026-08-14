@@ -1,0 +1,95 @@
+<div class="page" id="page-error-logs">
+  <div class="page-head" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:20px">
+    <div>
+      <div class="page-title">Error Logs</div>
+      <div class="page-sub" id="el-subtitle">Loading...</div>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button onclick="elLoadLogs()" style="background:rgba(255,255,255,.06);border:1px solid var(--border);color:var(--text2);border-radius:8px;padding:6px 14px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit">↻ Refresh</button>
+      <button onclick="elResolveAll()" style="background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.25);color:#86efac;border-radius:8px;padding:6px 14px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit">✓ Resolve All</button>
+      <button onclick="elClearResolved()" style="background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.2);color:#fca5a5;border-radius:8px;padding:6px 14px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit">🗑 Clear Resolved</button>
+    </div>
+  </div>
+
+  <!-- Summary cards -->
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:20px">
+    <div style="background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:16px">
+      <div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:6px">Total</div>
+      <div style="font-size:24px;font-weight:800;color:var(--text)" id="el-total">—</div>
+    </div>
+    <div style="background:rgba(239,68,68,.06);border:1px solid rgba(239,68,68,.15);border-radius:12px;padding:16px">
+      <div style="font-size:11px;color:rgba(239,68,68,.6);text-transform:uppercase;letter-spacing:.07em;margin-bottom:6px">Unresolved</div>
+      <div style="font-size:24px;font-weight:800;color:#ef4444" id="el-unresolved">—</div>
+    </div>
+    <div style="background:rgba(239,68,68,.04);border:1px solid rgba(239,68,68,.1);border-radius:12px;padding:16px">
+      <div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:6px">Errors</div>
+      <div style="font-size:24px;font-weight:800;color:#f87171" id="el-errors">—</div>
+    </div>
+    <div style="background:rgba(245,158,11,.04);border:1px solid rgba(245,158,11,.1);border-radius:12px;padding:16px">
+      <div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:6px">Warnings</div>
+      <div style="font-size:24px;font-weight:800;color:#fbbf24" id="el-warnings">—</div>
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px">
+    <select id="el-filter-source" onchange="elLoadLogs()" style="background:var(--bg2);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:7px 12px;font-size:13px;outline:none;font-family:inherit">
+      <option value="">All Sources</option>
+      <option value="api">API</option>
+      <option value="sidekiq">Sidekiq</option>
+      <option value="frontend">Frontend</option>
+      <option value="ocr">OCR</option>
+    </select>
+    <select id="el-filter-severity" onchange="elLoadLogs()" style="background:var(--bg2);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:7px 12px;font-size:13px;outline:none;font-family:inherit">
+      <option value="">All Severities</option>
+      <option value="error">Errors</option>
+      <option value="warning">Warnings</option>
+      <option value="info">Info</option>
+    </select>
+    <select id="el-filter-resolved" onchange="elLoadLogs()" style="background:var(--bg2);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:7px 12px;font-size:13px;outline:none;font-family:inherit">
+      <option value="false">Unresolved</option>
+      <option value="">All</option>
+      <option value="true">Resolved</option>
+    </select>
+    <input id="el-search" placeholder="Search message, endpoint..." oninput="elLoadLogs()"
+      style="background:var(--bg2);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:7px 12px;font-size:13px;outline:none;font-family:inherit;flex:1;min-width:200px">
+  </div>
+
+  <!-- Table -->
+  <div style="overflow-x:auto">
+    <table style="width:100%;border-collapse:collapse;min-width:700px">
+      <thead>
+        <tr style="border-bottom:1px solid var(--border)">
+          <th style="text-align:left;padding:10px 14px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text3)">Time</th>
+          <th style="text-align:left;padding:10px 14px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text3)">Source</th>
+          <th style="text-align:left;padding:10px 14px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text3)">Severity</th>
+          <th style="text-align:left;padding:10px 14px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text3)">Message</th>
+          <th style="text-align:left;padding:10px 14px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text3)">Endpoint / Job</th>
+          <th style="text-align:left;padding:10px 14px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text3)">Status</th>
+          <th style="text-align:left;padding:10px 14px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text3)">Actions</th>
+        </tr>
+      </thead>
+      <tbody id="el-tbody">
+        <tr><td colspan="7" style="padding:40px;text-align:center;color:var(--text3)">Loading...</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Pagination -->
+  <div id="el-pagination" style="display:flex;justify-content:center;gap:8px;margin-top:16px"></div>
+
+  <!-- Detail modal -->
+  <div id="el-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:9000;padding:20px;overflow-y:auto" onclick="if(event.target===this)elCloseModal()">
+    <div style="background:var(--bg2);border:1px solid var(--border);border-radius:16px;max-width:700px;margin:40px auto;padding:28px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+        <div style="font-size:18px;font-weight:700;color:var(--text)">Error Detail</div>
+        <button onclick="elCloseModal()" style="background:none;border:none;color:var(--text2);font-size:24px;cursor:pointer;line-height:1">×</button>
+      </div>
+      <div id="el-modal-body"></div>
+      <div style="margin-top:20px;display:flex;gap:8px">
+        <input id="el-resolve-note" placeholder="Resolution note (optional)" style="flex:1;background:rgba(255,255,255,.05);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:8px 12px;font-size:13px;outline:none;font-family:inherit">
+        <button id="el-resolve-btn" onclick="elResolveOne()" style="background:rgba(34,197,94,.15);border:1px solid rgba(34,197,94,.3);color:#86efac;border-radius:8px;padding:8px 16px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit">Mark Resolved</button>
+      </div>
+    </div>
+  </div>
+</div>

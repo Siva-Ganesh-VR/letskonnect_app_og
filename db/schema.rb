@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_08_10_171459) do
+ActiveRecord::Schema[7.2].define(version: 2026_08_13_044214) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pgcrypto"
   enable_extension "plpgsql"
@@ -41,6 +41,40 @@ ActiveRecord::Schema[7.2].define(version: 2026_08_10_171459) do
     t.bigint "blob_id", null: false
     t.string "variation_digest", null: false
     t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
+  end
+
+  create_table "error_logs", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.string "source", null: false
+    t.string "severity", default: "error", null: false
+    t.string "error_type"
+    t.string "status_code"
+    t.text "message", null: false
+    t.text "backtrace"
+    t.text "context"
+    t.string "endpoint"
+    t.string "http_method"
+    t.text "request_params"
+    t.string "job_class"
+    t.string "job_id"
+    t.uuid "event_id"
+    t.uuid "visitor_id"
+    t.uuid "stall_owner_id"
+    t.uuid "organizer_id"
+    t.string "user_type"
+    t.string "ip_address"
+    t.string "user_agent"
+    t.string "request_id"
+    t.boolean "resolved", default: false
+    t.text "resolution_note"
+    t.datetime "resolved_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["created_at"], name: "index_error_logs_on_created_at"
+    t.index ["event_id"], name: "index_error_logs_on_event_id"
+    t.index ["resolved"], name: "index_error_logs_on_resolved"
+    t.index ["severity"], name: "index_error_logs_on_severity"
+    t.index ["source", "resolved", "created_at"], name: "index_error_logs_on_source_and_resolved_and_created_at"
+    t.index ["source"], name: "index_error_logs_on_source"
   end
 
   create_table "event_analytics", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
