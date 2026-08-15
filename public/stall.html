@@ -598,8 +598,8 @@ function csCloseSidebar(){
 // Close sidebar on escape key
 document.addEventListener("keydown",function(e){if(e.key==="Escape")csCloseSidebar();});
 
-let token = sessionStorage.getItem("stall_token");
-let me = JSON.parse(sessionStorage.getItem("stall_user") || "null");
+let token = localStorage.getItem("stall_token");
+let me = JSON.parse(localStorage.getItem("stall_user") || "null");
 
 if (!token || !me) {
   window.location.href = "/login.html";
@@ -762,7 +762,8 @@ function toTitleCase(str) {
   return str.replace(/\w\S*/g, w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase());
 }
 function doLogout() {
-  sessionStorage.clear(); location.reload();
+  // sessionStorage.clear(); location.reload();
+  localStorage.removeItem("stall_token"); localStorage.removeItem("stall_user"); localStorage.removeItem("user_type"); location.reload();
 }
 
 function bootApp() {
@@ -954,23 +955,42 @@ async function startCameraScan() {
         // await html5QrCode.start(
         //     { facingMode: "environment" },
         //     { fps: 10, qrbox: { width: 220, height: 220 } },
-        await html5QrCode.start(
-          {
-            facingMode: "environment",
-            advanced: [{ zoom: 1.0 }]
-          },
-          {
-            fps: 30,
-            qrbox: { width: 280, height: 280 },
-            aspectRatio: 1.0,
-            videoConstraints: {
-              facingMode: "environment",
-              width:  { ideal: 1920, min: 1280 },
-              height: { ideal: 1080, min: 720 },
-              focusMode: "continuous",
-              advanced: [{ zoom: 1.0 }]
-            }
-          },
+        // await html5QrCode.start(
+        //   {
+        //     facingMode: "environment",
+        //     advanced: [{ zoom: 1.0 }]
+        //   },
+        //   {
+        //     fps: 30,
+        //     qrbox: { width: 280, height: 280 },
+        //     aspectRatio: 1.0,
+        //     videoConstraints: {
+        //       facingMode: "environment",
+        //       width:  { ideal: 1920, min: 1280 },
+        //       height: { ideal: 1080, min: 720 },
+        //       focusMode: "continuous",
+        //       advanced: [{ zoom: 1.0 }]
+        //     }
+        //   },
+
+        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+
+          await html5QrCode.start(
+            { facingMode: "environment" },
+            {
+              fps: isIOS ? 15 : 30,
+              qrbox: { width: 250, height: 250 },
+              aspectRatio: 1.0,
+              videoConstraints: isIOS
+                ? {
+                    facingMode: { exact: "environment" }
+                  }
+                : {
+                    facingMode: "environment",
+                    width:  { ideal: 1920, min: 1280 },
+                    height: { ideal: 1080, min: 720 }
+                  }
+            },
             async (decodedText) => {
               let qrToken = decodedText.trim();
 
@@ -1678,8 +1698,8 @@ function clearRegistrationForm() {
   document.getElementById("error-reg").innerHTML = "";
 }
 function checkAuth() {
-  const token = sessionStorage.getItem("stall_token");
-  const me = JSON.parse(sessionStorage.getItem("stall_user") || "null");
+  const token = localStorage.getItem("stall_token");
+  const me = JSON.parse(localStorage.getItem("stall_user") || "null");
 
   if (!token || !me) {
     window.location.replace("/login.html");

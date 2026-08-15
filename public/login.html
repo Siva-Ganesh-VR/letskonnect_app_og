@@ -184,9 +184,9 @@ async function loginStallOwner() {
       throw new Error(result.error || "Invalid credentials");
     }
 
-    sessionStorage.setItem("stall_token", result.data.token);
-    sessionStorage.setItem("stall_user",  JSON.stringify(result.data.stall_owner));
-    sessionStorage.setItem("user_type",   "stall_owner");
+    localStorage.setItem("stall_token", result.data.token);
+    localStorage.setItem("stall_user",  JSON.stringify(result.data.stall_owner));
+    localStorage.setItem("user_type",   "stall_owner");
 
     window.location.replace("/stall.html");
     // window.location.replace("/stall_one.html");
@@ -277,9 +277,9 @@ async function verifyOtp() {
       throw new Error(result.error || "Invalid OTP");
     }
 
-    sessionStorage.setItem("stall_token", result.data.token);
-    sessionStorage.setItem("stall_user",  JSON.stringify(result.data.stall_owner));
-    sessionStorage.setItem("user_type",   "stall_owner");
+    localStorage.setItem("stall_token", result.data.token);
+    localStorage.setItem("stall_user",  JSON.stringify(result.data.stall_owner));
+    localStorage.setItem("user_type",   "stall_owner");
 
     window.location.replace("/stall.html");
 
@@ -307,8 +307,8 @@ function ok(e, idx) {
 }
 
 function getLoggedInUser() {
-  if (sessionStorage.getItem("stall_token")) {
-    return { type: "stall", token: sessionStorage.getItem("stall_token") };
+  if (localStorage.getItem("stall_token")) {
+    return { type: "stall", token: localStorage.getItem("stall_token") };
   }
   return null;
 }

@@ -300,17 +300,17 @@ async function loginStallOwner() {
       throw new Error(result.error || "Invalid credentials");
     }
 
-    sessionStorage.setItem(
+    localStorage.setItem(
       "stall_token",
       result.data.token
     );
 
-    sessionStorage.setItem(
+    localStorage.setItem(
       "stall_user",
       JSON.stringify(result.data.stall_owner)
     );
 
-    sessionStorage.setItem(
+    localStorage.setItem(
       "user_type",
       "stall_owner"
     );
@@ -435,17 +435,17 @@ async function verifyOtp() {
       throw new Error(result.error || "Invalid OTP");
     }
 
-    sessionStorage.setItem(
+    localStorage.setItem(
       "stall_token",
       result.data.token
     );
 
-    sessionStorage.setItem(
+    localStorage.setItem(
       "stall_user",
       JSON.stringify(result.data.stall_owner)
     );
 
-    sessionStorage.setItem(
+    localStorage.setItem(
       "user_type",
       "stall_owner"
     );
@@ -482,8 +482,8 @@ function getLoggedInUser() {
     return { type: "organizer", token: sessionStorage.getItem("org_token") };
   }
 
-  if (sessionStorage.getItem("stall_token")) {
-    return { type: "stall", token: sessionStorage.getItem("stall_token") };
+  if (localStorage.getItem("stall_token")) {
+    return { type: "stall", token: localStorage.getItem("stall_token") };
   }
 
   return null;

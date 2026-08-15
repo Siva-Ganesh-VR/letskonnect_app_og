@@ -1145,8 +1145,8 @@
         return { type: "organizer", token: sessionStorage.getItem("org_token") };
       }
 
-      if (sessionStorage.getItem("stall_token")) {
-        return { type: "stall", token: sessionStorage.getItem("stall_token") };
+      if (localStorage.getItem("stall_token")) {
+        return { type: "stall", token: localStorage.getItem("stall_token") };
       }
 
       return null;
