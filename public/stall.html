@@ -1117,7 +1117,9 @@ function callVisitor() {
 let waMobile = "";
 function openWa() { 
   // document.getElementById("wa-modal").classList.add("open"); document.getElementById("wa-visitor-name").textContent = document.getElementById("res-name").textContent; 
-  const mobileEl = document.querySelector('.info-row .info-val a[href^="tel:"]');
+  // const mobileEl = document.querySelector('.info-row .info-val a[href^="tel:"]');
+  const mobileEl = document.querySelector('.rd-val');
+  
   if (!mobileEl) return;
 
   let mobile = mobileEl.textContent.trim().replace(/\D/g, '').replace(/^91/, '');
