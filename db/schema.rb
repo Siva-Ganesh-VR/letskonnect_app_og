@@ -10,8 +10,9 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_08_13_044214) do
+ActiveRecord::Schema[7.2].define(version: 2026_08_16_012341) do
   # These are extensions that must be enabled in order to support this database
+  enable_extension "pgcrypto"
   enable_extension "plpgsql"
 
   create_table "active_storage_attachments", force: :cascade do |t|
@@ -418,6 +419,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_08_13_044214) do
     t.datetime "feedback_sent_at"
     t.integer "feedback_reminder_count", default: 0, null: false
     t.string "chapter_name"
+    t.integer "group_size", default: 1, null: false
     t.index ["business_category"], name: "index_visitors_on_business_category"
     t.index ["created_at"], name: "index_visitors_on_created_at"
     t.index ["event_id", "mobile_verified"], name: "index_visitors_on_event_id_and_mobile_verified", where: "(mobile_verified = true)"

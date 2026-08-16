@@ -149,7 +149,7 @@ module Api
           params.require(:visitor).permit(
             :full_name, :mobile_number, :location, :profession,
             :business_category, :business_name, :designation,
-            :email, :website, :looking_for, :decision_maker, :chapter_name
+            :email, :website, :looking_for, :decision_maker, :chapter_name, :group_size
           )
         end
 
@@ -160,6 +160,7 @@ module Api
             full_name:         v.full_name,
             mobile_number:     v.mobile_number,
             email:             v.email,
+            group_size:        v.group_size,
             profession:        v.profession,
             business_name:     v.business_name,
             business_category: v.business_category,

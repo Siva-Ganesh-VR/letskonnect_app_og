@@ -110,6 +110,16 @@
           <input type="text" id="profession" placeholder="Optional">
         </div>
       </div>
+      <div class="field">
+          <label>How many people are visiting with you? <span style="font-weight:400;opacity:0.6"></span></label>
+          <select id="group_size">
+            <option value="1">Just me</option>
+            <option value="2">2 people</option>
+            <option value="3">3 people</option>
+            <option value="4">4 people</option>
+            <option value="5">5+ people</option>
+          </select>
+        </div>
     </div>
 
     <div class="card">
@@ -293,6 +303,7 @@ async function submitRegistration() {
       email:             document.getElementById("email").value.trim(),
       looking_for:       document.getElementById("looking_for").value,
       decision_maker:    document.getElementById("decision_maker").value,
+      group_size: parseInt(document.getElementById("group_size").value) || 1,
       website:           document.getElementById("website").value.trim()
     }
   };
